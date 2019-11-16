@@ -338,3 +338,7 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+
+# Repo-specific files
+ReactivityProfiler/ReactivityProfiler_i.h
+ReactivityProfiler/ReactivityProfiler_i.c
