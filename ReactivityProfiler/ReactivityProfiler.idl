@@ -1,0 +1,18 @@
+// ReactivityProfiler.idl : IDL source for ReactivityProfiler
+//
+
+// This file will be processed by the MIDL tool to
+// produce the type library (ReactivityProfiler.tlb) and marshalling code.
+
+import "oaidl.idl";
+import "ocidl.idl";
+
+[
+	uuid(beb5385e-61a6-43aa-ad6e-02fd424fd82f),
+	version(1.0),
+]
+library ReactivityProfilerLib
+{
+	importlib("stdole2.tlb");
+};
+
