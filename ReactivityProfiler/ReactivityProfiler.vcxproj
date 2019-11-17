@@ -220,6 +220,7 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="ProfileBase.h" />
     <ClInclude Include="ReactivityProfiler_i.h" />
+    <ClInclude Include="ReleaseTrace.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="RxProfiler.h" />
     <ClInclude Include="targetver.h" />

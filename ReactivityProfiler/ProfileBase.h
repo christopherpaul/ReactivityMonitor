@@ -1,4 +1,4 @@
-// This file originally taken from OpenCover project
+// This file originally taken from OpenCover project - see LICENSE_OPENCOVER
 #pragma once
 
 using namespace ATL;

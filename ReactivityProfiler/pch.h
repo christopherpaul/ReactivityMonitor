@@ -20,4 +20,8 @@
 
 #pragma pack(pop)
 
+#include <vector>
+
+#include "ReleaseTrace.h"
+
 #endif //PCH_H
