@@ -18,7 +18,8 @@ class CReleaseTrace
 		...) const
 	{		
 		va_list ptr; va_start(ptr, pszFmt);
-        int nBytes = _vscprintf(pszFmt, ptr) + 2;
+        size_t nBytes = _vscprintf(pszFmt, ptr);
+        nBytes += 2;
         va_end(ptr);
 				
 		auto prefixLength = strlen(PREFIX);
@@ -44,7 +45,8 @@ class CReleaseTrace
 		...) const
 	{
 		va_list ptr; va_start(ptr, pszFmt);
-        int nBytes = _vscwprintf(pszFmt, ptr) + 2;
+        size_t nBytes = _vscwprintf(pszFmt, ptr);
+        nBytes += 2;
         va_end(ptr);
 
 		auto prefixLength = wcslen(WPREFIX);
