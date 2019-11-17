@@ -51,6 +51,7 @@ END_COM_MAP()
 
 	void FinalRelease()
 	{
+        m_profilerInfo.Release();
 	}
 
 public:
@@ -58,6 +59,9 @@ public:
         /* [in] */ IUnknown* pICorProfilerInfoUnk) override;
 
     virtual HRESULT STDMETHODCALLTYPE Shutdown() override;
+
+private:
+    CComQIPtr<ICorProfilerInfo> m_profilerInfo;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(RxProfiler), CRxProfiler)

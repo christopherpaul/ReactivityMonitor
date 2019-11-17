@@ -10,6 +10,9 @@ HRESULT CRxProfiler::Initialize(
     /* [in] */ IUnknown* pICorProfilerInfoUnk)
 {
     RELTRACE("Initialize");
+
+    m_profilerInfo = pICorProfilerInfoUnk;
+
     return S_OK;
 }
 
