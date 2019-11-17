@@ -1,6 +1,9 @@
 // This file originally taken from OpenCover project - see LICENSE_OPENCOVER
 #pragma once
 
+#pragma warning(push)
+#pragma warning(disable:26812)
+
 using namespace ATL;
 
 class CProfilerBase : public ICorProfilerCallback9
@@ -643,3 +646,5 @@ public:
         return S_OK;
     }
 };
+
+#pragma warning(pop)
