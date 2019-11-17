@@ -54,9 +54,10 @@ END_COM_MAP()
 	}
 
 public:
+    virtual HRESULT STDMETHODCALLTYPE Initialize(
+        /* [in] */ IUnknown* pICorProfilerInfoUnk) override;
 
-
-
+    virtual HRESULT STDMETHODCALLTYPE Shutdown() override;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(RxProfiler), CRxProfiler)
