@@ -10,6 +10,10 @@ namespace TestProfilee
     {
         static void Main(string[] args)
         {
+            Console.WriteLine("I'm really here");
+            Console.WriteLine(Environment.GetEnvironmentVariable("COR_ENABLE_PROFILING"));
+            Console.WriteLine(Environment.GetEnvironmentVariable("COR_PROFILER"));
+            Console.ReadKey();
         }
     }
 }

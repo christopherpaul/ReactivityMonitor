@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.29409.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ReactivityProfiler", "ReactivityProfiler\ReactivityProfiler.vcxproj", "{5A47F71D-31D4-4E1E-A37D-167EFDD4787A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TestProfilee", "TestProfilee\TestProfilee.csproj", "{CE99A098-DFD3-4FE1-81E1-1B118C17FF1A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestProfilee", "TestProfilee\TestProfilee.csproj", "{CE99A098-DFD3-4FE1-81E1-1B118C17FF1A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

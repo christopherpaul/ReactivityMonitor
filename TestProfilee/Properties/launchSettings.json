@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "TestProfilee": {
+      "commandName": "Executable",
+      "executablePath": ".\\launch.cmd"
+    }
+  }
+}
