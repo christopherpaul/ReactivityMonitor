@@ -1,19 +1,19 @@
 HKCR
 {
-	ReactivityMonitor.RxProfiler.1.1 = s 'RxProfiler class'
+	ReactivityMonitor.RxProfiler.1 = s 'RxProfiler class'
 	{
 		CLSID = s '{09c5b5d7-62d2-4448-911d-2e1346a21110}'
 	}
-	ReactivityMonitor.RxProfiler.1 = s 'RxProfiler class'
+	ReactivityMonitor.RxProfiler = s 'RxProfiler class'
 	{		
-		CurVer = s 'ReactivityMonitor.RxProfiler.1.1'
+		CurVer = s 'ReactivityMonitor.RxProfiler.1'
 	}
 	NoRemove CLSID
 	{
 		ForceRemove {09c5b5d7-62d2-4448-911d-2e1346a21110} = s 'RxProfiler class'
 		{
-			ProgID = s 'ReactivityMonitor.RxProfiler.1.1'
-			VersionIndependentProgID = s 'ReactivityMonitor.RxProfiler.1'
+			ProgID = s 'ReactivityMonitor.RxProfiler.1'
+			VersionIndependentProgID = s 'ReactivityMonitor.RxProfiler'
 			InprocServer32 = s '%MODULE%'
 			{
 				val ThreadingModel = s 'Free'
