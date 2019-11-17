@@ -60,8 +60,12 @@ public:
 
     virtual HRESULT STDMETHODCALLTYPE Shutdown() override;
 
+    virtual HRESULT STDMETHODCALLTYPE ModuleLoadFinished(
+        /* [in] */ ModuleID moduleId,
+        /* [in] */ HRESULT hrStatus) override;
+
 private:
-    CComQIPtr<ICorProfilerInfo> m_profilerInfo;
+    CComQIPtr<ICorProfilerInfo5> m_profilerInfo;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(RxProfiler), CRxProfiler)
