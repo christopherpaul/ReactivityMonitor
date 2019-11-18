@@ -19,8 +19,7 @@ HRESULT CRxProfiler::Initialize(
     }
 
     m_profilerInfo.SetEventMask(
-        COR_PRF_MONITOR_MODULE_LOADS,
-        COR_PRF_HIGH_MONITOR_NONE
+        COR_PRF_MONITOR_MODULE_LOADS
     );
 
     return S_OK;

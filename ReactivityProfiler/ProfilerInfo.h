@@ -4,8 +4,8 @@ using namespace ATL;
 
 struct ModuleInfo
 {
-    LPCBYTE baseLoadAddress;
-    AssemblyID assemblyId;
+    LPCBYTE baseLoadAddress = nullptr;
+    AssemblyID assemblyId = 0;
     std::wstring name;
 };
 
