@@ -22,6 +22,8 @@
 
 #include <vector>
 #include <string>
+#include <functional>
+#include <memory>
 
 #include "ReleaseTrace.h"
 #include "Utility.h"

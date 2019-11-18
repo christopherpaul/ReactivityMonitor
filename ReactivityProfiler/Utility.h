@@ -1,3 +1,20 @@
 #pragma once
 
-#define CHECK_SUCCESS(hrExpr) { auto hr = hrExpr; if (!SUCCEEDED(hr)) { RELTRACE(#hrExpr, hr); return (hr); } }
+#define CHECK_SUCCESS(hrExpr) { auto hr__ = (hrExpr); if (FAILED(hr__)) { RELTRACE(#hrExpr, hr__); throw hr__; } }
+
+inline HRESULT HandleExceptions(const std::function<void()>& f)
+{
+    try
+    {
+        f();
+        return S_OK;
+    }
+    catch (HRESULT hr)
+    {
+        return hr;
+    }
+    catch (...)
+    {
+        return E_FAIL;
+    }
+}

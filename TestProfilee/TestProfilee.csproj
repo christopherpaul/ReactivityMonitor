@@ -18,6 +18,9 @@
     <ProjectReference Include="..\ReactivityProfiler\ReactivityProfiler.vcxproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="System.Reactive" Version="4.2.0" />
+  </ItemGroup>
+  <ItemGroup>
     <None Update="Launch.cmd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

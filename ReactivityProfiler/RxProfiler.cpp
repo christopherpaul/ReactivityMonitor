@@ -9,35 +9,40 @@
 HRESULT CRxProfiler::Initialize(
     /* [in] */ IUnknown* pICorProfilerInfoUnk)
 {
-    RELTRACE("Initialize");
+    return HandleExceptions([&] {
+        RELTRACE("Initialize");
 
-    m_profilerInfo.Set(pICorProfilerInfoUnk);
-    if (!m_profilerInfo.IsValid())
-    {
-        RELTRACE("Required profiling interface not available");
-        return E_FAIL;
-    }
+        m_profilerInfo.Set(pICorProfilerInfoUnk);
 
-    m_profilerInfo.SetEventMask(
-        COR_PRF_MONITOR_MODULE_LOADS
-    );
-
-    return S_OK;
+        m_profilerInfo.SetEventMask(
+            COR_PRF_MONITOR_MODULE_LOADS
+        );
+    });
 }
 
 HRESULT CRxProfiler::Shutdown()
 {
-    RELTRACE("Shutdown");
-    return S_OK;
+    return HandleExceptions([&] {
+        RELTRACE("Shutdown");
+    });
 }
 
 HRESULT CRxProfiler::ModuleLoadFinished(
     /* [in] */ ModuleID moduleId,
     /* [in] */ HRESULT hrStatus)
 {
-    ModuleInfo moduleInfo;
-    m_profilerInfo.GetModuleInfo(moduleId, moduleInfo);
+    return HandleExceptions([&] {
+        ModuleInfo moduleInfo = m_profilerInfo.GetModuleInfo(moduleId);
+        RELTRACE(L"ModuleLoadFinished (%x): %s", hrStatus, moduleInfo.name.c_str());
 
-    RELTRACE(L"ModuleLoadFinished (%x): %s", hrStatus, moduleInfo.name.c_str());
-    return S_OK;
+        CMetadataImport metadataImport = m_profilerInfo.GetMetadataImport(moduleId, ofRead);
+        mdTypeRef observableRef;
+        for (auto moduleEnum = metadataImport.EnumModuleRefs(); moduleEnum.MoveNext(); )
+        {
+            if (metadataImport.TryFindTypeRef(moduleEnum.Current(), L"System.ObservableExtensions", observableRef))
+            {
+                RELTRACE(L"Found ref to ObservableExtensions!");
+            }
+        }
+    });
 }
