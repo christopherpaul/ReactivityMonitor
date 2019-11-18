@@ -15,6 +15,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ReactivityProfiler\ReactivityProfiler.vcxproj" />
+  </ItemGroup>
+  <ItemGroup>
     <None Update="Launch.cmd">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

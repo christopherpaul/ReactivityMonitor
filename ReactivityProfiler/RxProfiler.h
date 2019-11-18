@@ -7,7 +7,7 @@
 
 #include "ReactivityProfiler_i.h"
 #include "ProfileBase.h"
-
+#include "ProfilerInfo.h"
 
 using namespace ATL;
 
@@ -51,7 +51,7 @@ END_COM_MAP()
 
 	void FinalRelease()
 	{
-        m_profilerInfo.Release();
+        m_profilerInfo.Set(nullptr);
 	}
 
 public:
@@ -65,7 +65,7 @@ public:
         /* [in] */ HRESULT hrStatus) override;
 
 private:
-    CComQIPtr<ICorProfilerInfo5> m_profilerInfo;
+    CProfilerInfo m_profilerInfo;
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(RxProfiler), CRxProfiler)

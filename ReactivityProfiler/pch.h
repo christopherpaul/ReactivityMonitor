@@ -21,7 +21,9 @@
 #pragma pack(pop)
 
 #include <vector>
+#include <string>
 
 #include "ReleaseTrace.h"
+#include "Utility.h"
 
 #endif //PCH_H
