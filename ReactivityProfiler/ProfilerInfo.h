@@ -2,17 +2,17 @@
 
 using namespace ATL;
 
-template<typename Token, size_t batchSize = 10>
+template<typename Metadata, typename Token, size_t batchSize = 10>
 class CCorEnum
 {
 public:
-    typedef std::function<HRESULT(IMetaDataImport2*, HCORENUM*, Token*, ULONG, ULONG*)> enumFunction_t;
+    typedef std::function<HRESULT(Metadata*, HCORENUM*, Token*, ULONG, ULONG*)> enumFunction_t;
 
 private:
     class Impl
     {
     public:
-        Impl(IMetaDataImport2* metadata, const enumFunction_t& enumFunction) :
+        Impl(Metadata* metadata, const enumFunction_t& enumFunction) :
             m_metadata(metadata),
             m_enumFunction(enumFunction),
             m_enumHandle(0),
@@ -86,7 +86,7 @@ private:
         }
 
     private:
-        IMetaDataImport2* const m_metadata;
+        Metadata* const m_metadata;
         const enumFunction_t m_enumFunction;
         HCORENUM m_enumHandle;
         std::vector<Token> m_vector;
@@ -103,7 +103,7 @@ private:
     };
 
 public:
-    CCorEnum(IMetaDataImport2* metadata, const enumFunction_t& enumFunction) :
+    CCorEnum(Metadata* metadata, const enumFunction_t& enumFunction) :
         m_pImpl(new Impl(metadata, enumFunction))
     {
     }
@@ -138,12 +138,25 @@ public:
     {
     }
 
-    CCorEnum<mdModule> EnumModuleRefs();
+    CCorEnum<IMetaDataImport2, mdModuleRef> EnumModuleRefs();
 
     bool TryFindTypeRef(mdToken scope, const std::wstring& name, mdTypeRef& typeRef);
 
 private:
     CComQIPtr<IMetaDataImport2, &IID_IMetaDataImport2> m_metadata;
+};
+
+class CMetadataAssemblyImport
+{
+public:
+    CMetadataAssemblyImport(IUnknown* metadataAssemblyImport) : m_metadata(metadataAssemblyImport)
+    {
+    }
+
+    CCorEnum<IMetaDataAssemblyImport, mdAssemblyRef> EnumAssemblyRefs();
+
+private:
+    CComQIPtr<IMetaDataAssemblyImport, &IID_IMetaDataAssemblyImport> m_metadata;
 };
 
 class CProfilerInfo
@@ -159,6 +172,7 @@ public:
     ModuleInfo GetModuleInfo(ModuleID moduleId);
 
     CMetadataImport GetMetadataImport(ModuleID moduleId, CorOpenFlags openFlags);
+    CMetadataAssemblyImport GetMetadataAssemblyImport(ModuleID moduleId, CorOpenFlags openFlags);
 
 private:
     CComQIPtr<ICorProfilerInfo5> m_profilerInfo;

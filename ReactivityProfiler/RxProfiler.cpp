@@ -36,10 +36,12 @@ HRESULT CRxProfiler::ModuleLoadFinished(
         RELTRACE(L"ModuleLoadFinished (%x): %s", hrStatus, moduleInfo.name.c_str());
 
         CMetadataImport metadataImport = m_profilerInfo.GetMetadataImport(moduleId, ofRead);
+        CMetadataAssemblyImport metadataAssemblyImport = m_profilerInfo.GetMetadataAssemblyImport(moduleId, ofRead);
         mdTypeRef observableRef;
-        for (auto moduleEnum = metadataImport.EnumModuleRefs(); moduleEnum.MoveNext(); )
+        for (auto assemblyEnum = metadataAssemblyImport.EnumAssemblyRefs(); assemblyEnum.MoveNext(); )
         {
-            if (metadataImport.TryFindTypeRef(moduleEnum.Current(), L"System.ObservableExtensions", observableRef))
+            RELTRACE(L"assembly ref!");
+            if (metadataImport.TryFindTypeRef(assemblyEnum.Current(), L"System.ObservableExtensions", observableRef))
             {
                 RELTRACE(L"Found ref to ObservableExtensions!");
             }

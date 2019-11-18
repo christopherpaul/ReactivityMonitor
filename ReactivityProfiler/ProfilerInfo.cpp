@@ -31,13 +31,27 @@ CMetadataImport CProfilerInfo::GetMetadataImport(ModuleID moduleId, CorOpenFlags
     return CMetadataImport(metadataImport);
 }
 
-CCorEnum<mdModule> CMetadataImport::EnumModuleRefs()
+CMetadataAssemblyImport CProfilerInfo::GetMetadataAssemblyImport(ModuleID moduleId, CorOpenFlags openFlags)
 {
-    CCorEnum<mdModule> e(m_metadata.p, [=](auto imp, auto e, auto arr, auto c, auto pc) { return imp->EnumModuleRefs(e, arr, c, pc); });
+    IUnknown* metadataImport;
+    CHECK_SUCCESS(m_profilerInfo->GetModuleMetaData(moduleId, openFlags, IID_IMetaDataAssemblyImport, &metadataImport));
+
+    return CMetadataAssemblyImport(metadataImport);
+}
+
+CCorEnum<IMetaDataImport2, mdModuleRef> CMetadataImport::EnumModuleRefs()
+{
+    CCorEnum<IMetaDataImport2, mdModuleRef> e(m_metadata.p, [=](auto imp, auto e, auto arr, auto c, auto pc) { return imp->EnumModuleRefs(e, arr, c, pc); });
     return e;
 }
 
 bool CMetadataImport::TryFindTypeRef(mdToken scope, const std::wstring& name, mdTypeRef& typeRef)
 {
     return SUCCEEDED(m_metadata->FindTypeRef(scope, name.c_str(), &typeRef));
+}
+
+CCorEnum<IMetaDataAssemblyImport, mdAssemblyRef> CMetadataAssemblyImport::EnumAssemblyRefs()
+{
+    CCorEnum<IMetaDataAssemblyImport, mdAssemblyRef> e(m_metadata.p, [=](auto imp, auto e, auto arr, auto c, auto pc) { return imp->EnumAssemblyRefs(e, arr, c, pc); });
+    return e;
 }
