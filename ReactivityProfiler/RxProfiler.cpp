@@ -23,7 +23,8 @@ HRESULT CRxProfiler::Initialize(
         m_profilerInfo.Set(pICorProfilerInfoUnk);
 
         m_profilerInfo.SetEventMask(
-            COR_PRF_MONITOR_MODULE_LOADS,
+            COR_PRF_MONITOR_MODULE_LOADS |
+            COR_PRF_MONITOR_JIT_COMPILATION,
             COR_PRF_HIGH_ADD_ASSEMBLY_REFERENCES
         );
     });
@@ -44,10 +45,12 @@ HRESULT CRxProfiler::ModuleLoadFinished(
         ModuleInfo moduleInfo = m_profilerInfo.GetModuleInfo(moduleId);
         ATLTRACE(L"ModuleLoadFinished (%x): %s", hrStatus, moduleInfo.name.c_str());
 
-        if (ReferencesObservableInterfaces(moduleId))
+        if (!IsSystemAssembly(moduleId) && 
+            ReferencesObservableInterfaces(moduleId))
         {
-            ATLTRACE(L"%s references observable interfaces", moduleInfo.name.c_str());
+            ATLTRACE(L"Adding support assembly reference to %s", moduleInfo.name.c_str());
             AddSupportAssemblyReference(moduleId);
+            m_moduleInfoMap.try_add(moduleId, true);
         }
     });
 }
@@ -69,6 +72,43 @@ HRESULT CRxProfiler::GetAssemblyReferences(
 
         // Since this callback doesn't seem to get called, not much point writing any more code here...
     });
+}
+
+HRESULT CRxProfiler::JITCompilationStarted(FunctionID functionId, BOOL fIsSafeToBlock)
+{
+    return HandleExceptions([=] {
+        FunctionInfo info = m_profilerInfo.GetFunctionInfo(functionId);
+        bool supportAssemblyReferenced;
+        if (!m_moduleInfoMap.try_get(info.moduleId, supportAssemblyReferenced) ||
+            !supportAssemblyReferenced)
+        {
+            return;
+        }
+
+        CMetadataImport metadataImport = m_profilerInfo.GetMetadataImport(info.moduleId, ofRead);
+        MethodProps props = metadataImport.GetMethodProps(info.functionToken);
+
+        ATLTRACE(L"JITCompilationStarted for %s", props.name.c_str());
+    });
+}
+
+bool CRxProfiler::IsSystemAssembly(ModuleID moduleId)
+{
+    CMetadataAssemblyImport mai = m_profilerInfo.GetMetadataAssemblyImport(moduleId, ofRead);
+    AssemblyProps assemblyProps = mai.GetAssemblyProps();
+
+    if (lstrcmpi(assemblyProps.name.c_str(), L"mscorlib") == 0)
+    {
+        return true;
+    }
+
+    std::wstring firstNsPart = assemblyProps.name.substr(0, assemblyProps.name.find_first_of(L'.'));
+    if (lstrcmpi(firstNsPart.c_str(), L"System") == 0)
+    {
+        return true;
+    }
+
+    return false;
 }
 
 bool CRxProfiler::ReferencesObservableInterfaces(ModuleID moduleId)
@@ -109,7 +149,7 @@ std::wstring GetSupportAssemblyPath()
 {
     std::vector<wchar_t> buffer(100);
     HRESULT hr;
-    while ((hr = GetModuleFileName(g_profilerModule, buffer.data(), buffer.size())) == ERROR_INSUFFICIENT_BUFFER)
+    while ((hr = GetModuleFileName(g_profilerModule, buffer.data(), static_cast<DWORD>(buffer.size()))) == ERROR_INSUFFICIENT_BUFFER)
     {
         buffer = std::vector<wchar_t>(buffer.size() * 2);
     }

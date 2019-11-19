@@ -222,6 +222,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="concurrentmap.h" />
     <ClInclude Include="dllmain.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="pch.h" />
@@ -286,8 +287,7 @@
     <Midl Include="ReactivityProfiler.idl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
-  <ImportGroup Label="ExtensionTargets">
-  </ImportGroup>
+  <ImportGroup Label="ExtensionTargets" />
   <Target Name="CopySupportFiles" AfterTargets="AfterBuild">
     <Message Importance="high" Text="SupportFile: @(SupportFile)" />
     <Message Importance="high" Text="OutDir: $(OutDir)" />

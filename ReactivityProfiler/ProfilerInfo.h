@@ -131,6 +131,34 @@ struct ModuleInfo
     std::wstring name;
 };
 
+struct FunctionInfo
+{
+    ClassID classId = 0;
+    ModuleID moduleId = 0;
+    mdToken functionToken = 0;
+};
+
+struct MethodProps
+{
+    mdTypeDef classDefToken = 0;
+    std::wstring name;
+    DWORD attrFlags = 0;
+    const COR_SIGNATURE* sigBlob = nullptr;
+    ULONG sigBlobSize = 0;
+    ULONG codeRva = 0;
+    DWORD implFlags = 0;
+};
+
+struct AssemblyProps
+{
+    const byte* publicKey = nullptr;
+    ULONG publicKeySize = 0;
+    ULONG hashAlgId = 0;
+    std::wstring name;
+    ASSEMBLYMETADATA metadata = {};
+    DWORD flags = 0;
+};
+
 class CMetadataImport
 {
 public:
@@ -141,6 +169,8 @@ public:
     CCorEnum<IMetaDataImport2, mdModuleRef> EnumModuleRefs();
 
     bool TryFindTypeRef(mdToken scope, const std::wstring& name, mdTypeRef& typeRef);
+    MethodProps GetMethodProps(mdMethodDef methodDefToken);
+    mdModule GetCurrentModule();
 
 private:
     CComQIPtr<IMetaDataImport2, &IID_IMetaDataImport2> m_metadata;
@@ -154,6 +184,8 @@ public:
     }
 
     CCorEnum<IMetaDataAssemblyImport, mdAssemblyRef> EnumAssemblyRefs();
+    mdAssembly GetCurrentAssembly();
+    AssemblyProps GetAssemblyProps(mdAssembly assemblyToken = mdTokenNil);
 
 private:
     CComQIPtr<IMetaDataAssemblyImport, &IID_IMetaDataAssemblyImport> m_metadata;
@@ -182,12 +214,13 @@ class CProfilerInfo
 public:
     void Set(IUnknown* profilerInfo);
 
-    void SetEventMask(COR_PRF_MONITOR dwEventsLow, COR_PRF_HIGH_MONITOR dwEventsHigh = COR_PRF_HIGH_MONITOR_NONE)
+    void SetEventMask(DWORD dwEventsLow, DWORD dwEventsHigh = COR_PRF_HIGH_MONITOR_NONE)
     {
         CHECK_SUCCESS(m_profilerInfo->SetEventMask2(dwEventsLow, dwEventsHigh));
     }
 
     ModuleInfo GetModuleInfo(ModuleID moduleId);
+    FunctionInfo GetFunctionInfo(FunctionID functionId);
 
     CMetadataImport GetMetadataImport(ModuleID moduleId, CorOpenFlags openFlags);
     CMetadataAssemblyImport GetMetadataAssemblyImport(ModuleID moduleId, CorOpenFlags openFlags);

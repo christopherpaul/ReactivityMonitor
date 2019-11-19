@@ -23,6 +23,13 @@ ModuleInfo CProfilerInfo::GetModuleInfo(ModuleID moduleId)
     return info;
 }
 
+FunctionInfo CProfilerInfo::GetFunctionInfo(FunctionID functionId)
+{
+    FunctionInfo info;
+    CHECK_SUCCESS(m_profilerInfo->GetFunctionInfo(functionId, &info.classId, &info.moduleId, &info.functionToken));
+    return info;
+}
+
 CMetadataImport CProfilerInfo::GetMetadataImport(ModuleID moduleId, CorOpenFlags openFlags)
 {
     IUnknown* metadataImport;
@@ -58,10 +65,101 @@ bool CMetadataImport::TryFindTypeRef(mdToken scope, const std::wstring& name, md
     return SUCCEEDED(m_metadata->FindTypeRef(scope, name.c_str(), &typeRef));
 }
 
+MethodProps CMetadataImport::GetMethodProps(mdMethodDef methodDefToken)
+{
+    MethodProps props;
+    ULONG nameLength;
+    CHECK_SUCCESS(m_metadata->GetMethodProps(
+        methodDefToken,
+        &props.classDefToken,
+        nullptr,
+        0,
+        &nameLength,
+        &props.attrFlags,
+        &props.sigBlob,
+        &props.sigBlobSize,
+        &props.codeRva,
+        &props.implFlags
+    ));
+
+    std::vector<wchar_t> nameChars(nameLength);
+    CHECK_SUCCESS(m_metadata->GetMethodProps(
+        methodDefToken,
+        &props.classDefToken,
+        nameChars.data(),
+        static_cast<ULONG>(nameChars.size()),
+        &nameLength,
+        &props.attrFlags,
+        &props.sigBlob,
+        &props.sigBlobSize,
+        &props.codeRva,
+        &props.implFlags
+    ));
+
+    props.name = std::wstring(nameChars.data(), nameChars.size());
+    return props;
+}
+
+mdModule CMetadataImport::GetCurrentModule()
+{
+    mdModule token;
+    CHECK_SUCCESS(m_metadata->GetModuleFromScope(&token));
+    return token;
+}
+
 CCorEnum<IMetaDataAssemblyImport, mdAssemblyRef> CMetadataAssemblyImport::EnumAssemblyRefs()
 {
     CCorEnum<IMetaDataAssemblyImport, mdAssemblyRef> e(m_metadata.p, [=](auto imp, auto e, auto arr, auto c, auto pc) { return imp->EnumAssemblyRefs(e, arr, c, pc); });
     return e;
+}
+
+mdAssembly CMetadataAssemblyImport::GetCurrentAssembly()
+{
+    mdAssembly token;
+    CHECK_SUCCESS(m_metadata->GetAssemblyFromScope(&token));
+    return token;
+}
+
+AssemblyProps CMetadataAssemblyImport::GetAssemblyProps(mdAssembly assemblyToken)
+{
+    if (assemblyToken == mdTokenNil)
+    {
+        assemblyToken = GetCurrentAssembly();
+    }
+
+    ULONG nameLength = 0;
+    AssemblyProps props;
+    const void* pk = nullptr;
+    CHECK_SUCCESS(m_metadata->GetAssemblyProps(
+        assemblyToken,
+        &pk,
+        &props.publicKeySize,
+        &props.hashAlgId,
+        nullptr,
+        0,
+        &nameLength,
+        &props.metadata,
+        &props.flags
+    ));
+
+    std::vector<wchar_t> nameChars(nameLength);
+    nameLength = 0;
+    CHECK_SUCCESS(m_metadata->GetAssemblyProps(
+        assemblyToken,
+        &pk,
+        &props.publicKeySize,
+        &props.hashAlgId,
+        nameChars.data(),
+        static_cast<ULONG>(nameChars.size()),
+        &nameLength,
+        &props.metadata,
+        &props.flags
+    ));
+
+    props.publicKey = static_cast<const byte*>(pk);
+    props.name = std::wstring(nameChars.data(), nameChars.size());
+
+    return props;
 }
 
 mdAssemblyRef CMetadataAssemblyEmit::DefineAssemblyRef(const std::vector<byte>& publicKeyOrToken, const std::wstring& name, const ASSEMBLYMETADATA& metadata, const std::vector<byte>& hash, CorAssemblyFlags flags)

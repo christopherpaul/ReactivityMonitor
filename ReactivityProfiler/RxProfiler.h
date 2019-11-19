@@ -8,6 +8,7 @@
 #include "ReactivityProfiler_i.h"
 #include "ProfileBase.h"
 #include "ProfilerInfo.h"
+#include "concurrentmap.h"
 
 using namespace ATL;
 
@@ -66,10 +67,16 @@ public:
         /* [string][in] */ const WCHAR* wszAssemblyPath,
         /* [in] */ ICorProfilerAssemblyReferenceProvider* pAsmRefProvider) override;
 
+    virtual HRESULT STDMETHODCALLTYPE JITCompilationStarted(
+        /* [in] */ FunctionID functionId,
+        /* [in] */ BOOL fIsSafeToBlock) override;
+
 private:
     CProfilerInfo m_profilerInfo;
     const std::wstring m_supportAssemblyPath;
+    concurrent_map<ModuleID, bool> m_moduleInfoMap;
 
+    bool IsSystemAssembly(ModuleID moduleId);
     bool ReferencesObservableInterfaces(ModuleID moduleId);
     void AddSupportAssemblyReference(ModuleID moduleId);
 };
