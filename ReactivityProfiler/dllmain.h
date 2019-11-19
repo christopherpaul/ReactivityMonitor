@@ -8,3 +8,4 @@ public :
 };
 
 extern class CReactivityProfilerModule _AtlModule;
+extern HINSTANCE g_profilerModule;

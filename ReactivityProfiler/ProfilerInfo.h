@@ -159,6 +159,24 @@ private:
     CComQIPtr<IMetaDataAssemblyImport, &IID_IMetaDataAssemblyImport> m_metadata;
 };
 
+class CMetadataAssemblyEmit
+{
+public:
+    CMetadataAssemblyEmit(IUnknown* metadataAssemblyEmit) : m_metadata(metadataAssemblyEmit)
+    {
+    }
+
+    mdAssemblyRef DefineAssemblyRef(
+        const std::vector<byte>& publicKeyOrToken,
+        const std::wstring& name,
+        const ASSEMBLYMETADATA& metadata,
+        const std::vector<byte>& hash,
+        CorAssemblyFlags flags = afPA_None);
+
+private:
+    CComQIPtr<IMetaDataAssemblyEmit, &IID_IMetaDataAssemblyEmit> m_metadata;
+};
+
 class CProfilerInfo
 {
 public:
@@ -173,7 +191,8 @@ public:
 
     CMetadataImport GetMetadataImport(ModuleID moduleId, CorOpenFlags openFlags);
     CMetadataAssemblyImport GetMetadataAssemblyImport(ModuleID moduleId, CorOpenFlags openFlags);
+    CMetadataAssemblyEmit GetMetadataAssemblyEmit(ModuleID moduleId, CorOpenFlags openFlags);
 
 private:
-    CComQIPtr<ICorProfilerInfo5> m_profilerInfo;
+    CComQIPtr<ICorProfilerInfo6> m_profilerInfo;
 };

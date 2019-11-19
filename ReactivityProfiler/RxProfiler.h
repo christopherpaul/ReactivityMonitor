@@ -20,9 +20,7 @@ class ATL_NO_VTABLE CRxProfiler :
 	public CProfilerBase
 {
 public:
-	CRxProfiler()
-	{
-	}
+    CRxProfiler();
 
 DECLARE_REGISTRY_RESOURCEID(106)
 
@@ -64,8 +62,16 @@ public:
         /* [in] */ ModuleID moduleId,
         /* [in] */ HRESULT hrStatus) override;
 
+    virtual HRESULT STDMETHODCALLTYPE GetAssemblyReferences(
+        /* [string][in] */ const WCHAR* wszAssemblyPath,
+        /* [in] */ ICorProfilerAssemblyReferenceProvider* pAsmRefProvider) override;
+
 private:
     CProfilerInfo m_profilerInfo;
+    const std::wstring m_supportAssemblyPath;
+
+    bool ReferencesObservableInterfaces(ModuleID moduleId);
+    void AddSupportAssemblyReference(ModuleID moduleId);
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(RxProfiler), CRxProfiler)

@@ -39,6 +39,14 @@ CMetadataAssemblyImport CProfilerInfo::GetMetadataAssemblyImport(ModuleID module
     return CMetadataAssemblyImport(metadataImport);
 }
 
+CMetadataAssemblyEmit CProfilerInfo::GetMetadataAssemblyEmit(ModuleID moduleId, CorOpenFlags openFlags)
+{
+    IUnknown* metadataAssemblyEmit;
+    CHECK_SUCCESS(m_profilerInfo->GetModuleMetaData(moduleId, openFlags, IID_IMetaDataAssemblyEmit, &metadataAssemblyEmit));
+
+    return CMetadataAssemblyEmit(metadataAssemblyEmit);
+}
+
 CCorEnum<IMetaDataImport2, mdModuleRef> CMetadataImport::EnumModuleRefs()
 {
     CCorEnum<IMetaDataImport2, mdModuleRef> e(m_metadata.p, [=](auto imp, auto e, auto arr, auto c, auto pc) { return imp->EnumModuleRefs(e, arr, c, pc); });
@@ -54,4 +62,21 @@ CCorEnum<IMetaDataAssemblyImport, mdAssemblyRef> CMetadataAssemblyImport::EnumAs
 {
     CCorEnum<IMetaDataAssemblyImport, mdAssemblyRef> e(m_metadata.p, [=](auto imp, auto e, auto arr, auto c, auto pc) { return imp->EnumAssemblyRefs(e, arr, c, pc); });
     return e;
+}
+
+mdAssemblyRef CMetadataAssemblyEmit::DefineAssemblyRef(const std::vector<byte>& publicKeyOrToken, const std::wstring& name, const ASSEMBLYMETADATA& metadata, const std::vector<byte>& hash, CorAssemblyFlags flags)
+{
+    mdAssemblyRef token;
+    CHECK_SUCCESS(m_metadata->DefineAssemblyRef(
+        publicKeyOrToken.data(),
+        static_cast<ULONG>(publicKeyOrToken.size()),
+        name.c_str(),
+        &metadata,
+        hash.data(),
+        static_cast<ULONG>(hash.size()),
+        flags,
+        &token
+    ));
+
+    return token;
 }
