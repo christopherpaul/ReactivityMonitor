@@ -10,20 +10,17 @@
 // add headers that you want to pre-compile here
 #include "framework.h"
 
-#pragma pack(push)
-#pragma pack(4) // don't know if this is necessary - OpenCover does it
-
 #include <cor.h>
 #include <corsym.h>
 #include <corprof.h> 
 #include <corhlpr.h>
 
-#pragma pack(pop)
-
 #include <vector>
 #include <string>
 #include <functional>
 #include <memory>
+#include <unordered_map>
+#include <mutex>
 
 #include "ReleaseTrace.h"
 #include "Utility.h"
