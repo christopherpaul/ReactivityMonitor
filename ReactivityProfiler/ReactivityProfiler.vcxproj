@@ -277,6 +277,7 @@
     <ResourceCompile Include="ReactivityProfiler.rc" />
   </ItemGroup>
   <ItemGroup>
+    <SupportFile Include="..\ReactivityProfiler.Support\bin\$(Configuration)\netstandard2.0\*.dll" />
     <None Include="ReactivityProfiler.def" />
     <None Include="ReactivityProfiler.rgs" />
     <None Include="RxProfiler.rgs" />
@@ -287,4 +288,9 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  <Target Name="CopySupportFiles" AfterTargets="AfterBuild">
+    <Message Importance="high" Text="SupportFile: @(SupportFile)" />
+    <Message Importance="high" Text="OutDir: $(OutDir)" />
+    <Copy SourceFiles="@(SupportFile)" DestinationFolder="$(OutDir)" />
+  </Target>
 </Project>
