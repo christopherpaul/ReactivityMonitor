@@ -24,5 +24,6 @@
 
 #include "ReleaseTrace.h"
 #include "Utility.h"
+#include "simplespan.h"
 
 #endif //PCH_H

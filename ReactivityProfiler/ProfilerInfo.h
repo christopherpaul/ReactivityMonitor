@@ -143,16 +143,14 @@ struct MethodProps
     mdTypeDef classDefToken = 0;
     std::wstring name;
     DWORD attrFlags = 0;
-    const COR_SIGNATURE* sigBlob = nullptr;
-    ULONG sigBlobSize = 0;
+    simplespan<const COR_SIGNATURE> sigBlob;
     ULONG codeRva = 0;
     DWORD implFlags = 0;
 };
 
 struct AssemblyProps
 {
-    const byte* publicKey = nullptr;
-    ULONG publicKeySize = 0;
+    simplespan<const byte> publicKey;
     ULONG hashAlgId = 0;
     std::wstring name;
     ASSEMBLYMETADATA metadata = {};

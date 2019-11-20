@@ -69,6 +69,8 @@ MethodProps CMetadataImport::GetMethodProps(mdMethodDef methodDefToken)
 {
     MethodProps props;
     ULONG nameLength;
+    const COR_SIGNATURE* pSigBlob;
+    ULONG sigBlobSize;
     CHECK_SUCCESS(m_metadata->GetMethodProps(
         methodDefToken,
         &props.classDefToken,
@@ -76,8 +78,8 @@ MethodProps CMetadataImport::GetMethodProps(mdMethodDef methodDefToken)
         0,
         &nameLength,
         &props.attrFlags,
-        &props.sigBlob,
-        &props.sigBlobSize,
+        &pSigBlob,
+        &sigBlobSize,
         &props.codeRva,
         &props.implFlags
     ));
@@ -90,13 +92,14 @@ MethodProps CMetadataImport::GetMethodProps(mdMethodDef methodDefToken)
         static_cast<ULONG>(nameChars.size()),
         &nameLength,
         &props.attrFlags,
-        &props.sigBlob,
-        &props.sigBlobSize,
+        &pSigBlob,
+        &sigBlobSize,
         &props.codeRva,
         &props.implFlags
     ));
 
     props.name = std::wstring(nameChars.data(), nameChars.size());
+    props.sigBlob = { pSigBlob, sigBlobSize };
     return props;
 }
 
@@ -130,10 +133,11 @@ AssemblyProps CMetadataAssemblyImport::GetAssemblyProps(mdAssembly assemblyToken
     ULONG nameLength = 0;
     AssemblyProps props;
     const void* pk = nullptr;
+    ULONG pkSize = 0;
     CHECK_SUCCESS(m_metadata->GetAssemblyProps(
         assemblyToken,
         &pk,
-        &props.publicKeySize,
+        &pkSize,
         &props.hashAlgId,
         nullptr,
         0,
@@ -147,7 +151,7 @@ AssemblyProps CMetadataAssemblyImport::GetAssemblyProps(mdAssembly assemblyToken
     CHECK_SUCCESS(m_metadata->GetAssemblyProps(
         assemblyToken,
         &pk,
-        &props.publicKeySize,
+        &pkSize,
         &props.hashAlgId,
         nameChars.data(),
         static_cast<ULONG>(nameChars.size()),
@@ -156,8 +160,8 @@ AssemblyProps CMetadataAssemblyImport::GetAssemblyProps(mdAssembly assemblyToken
         &props.flags
     ));
 
-    props.publicKey = static_cast<const byte*>(pk);
-    props.name = std::wstring(nameChars.data(), nameChars.size());
+    props.publicKey = { static_cast<const byte*>(pk), pkSize };
+    props.name = { nameChars.data(), nameChars.size() };
 
     return props;
 }
