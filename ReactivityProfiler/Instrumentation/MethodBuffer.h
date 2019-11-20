@@ -1,3 +1,4 @@
+// This file originally taken from OpenCover project - see LICENSE_OPENCOVER
 #pragma once
 
 namespace Instrumentation

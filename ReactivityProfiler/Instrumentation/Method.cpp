@@ -1,3 +1,4 @@
+// This file originally taken from OpenCover project - see LICENSE_OPENCOVER
 #include "pch.h"
 #include "Method.h"
 #include "ReleaseTrace.h"
