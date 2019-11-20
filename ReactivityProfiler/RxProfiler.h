@@ -9,6 +9,7 @@
 #include "ProfileBase.h"
 #include "ProfilerInfo.h"
 #include "concurrentmap.h"
+#include "Instrumentation/Method.h"
 
 using namespace ATL;
 
@@ -79,6 +80,7 @@ private:
     bool IsExcludedAssembly(ModuleID moduleId);
     bool ReferencesObservableInterfaces(ModuleID moduleId);
     void AddSupportAssemblyReference(ModuleID moduleId);
+    void InstrumentMethodBody(const std::wstring& name, const FunctionInfo& info, const CMetadataImport& metadata);
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(RxProfiler), CRxProfiler)

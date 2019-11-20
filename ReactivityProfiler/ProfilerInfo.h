@@ -148,6 +148,13 @@ struct MethodProps
     DWORD implFlags = 0;
 };
 
+struct MemberRefProps
+{
+    mdToken declToken = 0; // token for declaring class/declaring module class/method def
+    std::wstring name;
+    simplespan<const COR_SIGNATURE> sigBlob;
+};
+
 struct AssemblyProps
 {
     simplespan<const byte> publicKey;
@@ -160,15 +167,18 @@ struct AssemblyProps
 class CMetadataImport
 {
 public:
-    CMetadataImport(IUnknown* metadataImport) : m_metadata(metadataImport)
+    CMetadataImport(IUnknown* metadataImport = nullptr) : m_metadata(metadataImport)
     {
     }
 
-    CCorEnum<IMetaDataImport2, mdModuleRef> EnumModuleRefs();
+    CCorEnum<IMetaDataImport2, mdModuleRef> EnumModuleRefs() const;
 
-    bool TryFindTypeRef(mdToken scope, const std::wstring& name, mdTypeRef& typeRef);
-    MethodProps GetMethodProps(mdMethodDef methodDefToken);
-    mdModule GetCurrentModule();
+    bool TryFindTypeRef(mdToken scope, const std::wstring& name, mdTypeRef& typeRef) const;
+    MethodProps GetMethodProps(mdMethodDef methodDefToken) const;
+    MemberRefProps GetMemberRefProps(mdMemberRef memberRefToken) const;
+    mdModule GetCurrentModule() const;
+
+    operator bool() const { return m_metadata; }
 
 private:
     CComQIPtr<IMetaDataImport2, &IID_IMetaDataImport2> m_metadata;

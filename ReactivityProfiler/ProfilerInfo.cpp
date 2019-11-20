@@ -70,18 +70,18 @@ CMetadataAssemblyEmit CProfilerInfo::GetMetadataAssemblyEmit(ModuleID moduleId, 
     return CMetadataAssemblyEmit(metadataAssemblyEmit);
 }
 
-CCorEnum<IMetaDataImport2, mdModuleRef> CMetadataImport::EnumModuleRefs()
+CCorEnum<IMetaDataImport2, mdModuleRef> CMetadataImport::EnumModuleRefs() const
 {
     CCorEnum<IMetaDataImport2, mdModuleRef> e(m_metadata.p, [=](auto imp, auto e, auto arr, auto c, auto pc) { return imp->EnumModuleRefs(e, arr, c, pc); });
     return e;
 }
 
-bool CMetadataImport::TryFindTypeRef(mdToken scope, const std::wstring& name, mdTypeRef& typeRef)
+bool CMetadataImport::TryFindTypeRef(mdToken scope, const std::wstring& name, mdTypeRef& typeRef) const
 {
     return SUCCEEDED(m_metadata->FindTypeRef(scope, name.c_str(), &typeRef));
 }
 
-MethodProps CMetadataImport::GetMethodProps(mdMethodDef methodDefToken)
+MethodProps CMetadataImport::GetMethodProps(mdMethodDef methodDefToken) const
 {
     MethodProps props;
     ULONG nameLength;
@@ -119,7 +119,38 @@ MethodProps CMetadataImport::GetMethodProps(mdMethodDef methodDefToken)
     return props;
 }
 
-mdModule CMetadataImport::GetCurrentModule()
+MemberRefProps CMetadataImport::GetMemberRefProps(mdMemberRef memberRefToken) const
+{
+    MemberRefProps props;
+    ULONG nameLength;
+    const COR_SIGNATURE* pSigBlob;
+    ULONG sigBlobSize;
+
+    CHECK_SUCCESS(m_metadata->GetMemberRefProps(
+        memberRefToken,
+        &props.declToken,
+        nullptr,
+        0,
+        &nameLength,
+        &pSigBlob,
+        &sigBlobSize));
+
+    std::vector<wchar_t> nameChars(nameLength);
+    CHECK_SUCCESS(m_metadata->GetMemberRefProps(
+        memberRefToken,
+        &props.declToken,
+        nameChars.data(),
+        nameChars.size(),
+        &nameLength,
+        &pSigBlob,
+        &sigBlobSize));
+
+    props.name = { nameChars.data(), nameChars.size() };
+    props.sigBlob = { pSigBlob, sigBlobSize };
+    return props;
+}
+
+mdModule CMetadataImport::GetCurrentModule() const
 {
     mdModule token;
     CHECK_SUCCESS(m_metadata->GetModuleFromScope(&token));

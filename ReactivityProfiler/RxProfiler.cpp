@@ -3,7 +3,6 @@
 #include "pch.h"
 #include "RxProfiler.h"
 #include "dllmain.h"
-#include "Instrumentation/Method.h"
 
 static const wchar_t * GetSupportAssemblyName();
 static std::wstring GetSupportAssemblyPath();
@@ -77,8 +76,6 @@ HRESULT CRxProfiler::GetAssemblyReferences(
 
 HRESULT CRxProfiler::JITCompilationStarted(FunctionID functionId, BOOL fIsSafeToBlock)
 {
-    using namespace Instrumentation;
-
     return HandleExceptions([=] {
         FunctionInfo info = m_profilerInfo.GetFunctionInfo(functionId);
         bool supportAssemblyReferenced;
@@ -88,27 +85,12 @@ HRESULT CRxProfiler::JITCompilationStarted(FunctionID functionId, BOOL fIsSafeTo
             return;
         }
 
-        // We're interested in this method
-
         CMetadataImport metadataImport = m_profilerInfo.GetMetadataImport(info.moduleId, ofRead);
         MethodProps props = metadataImport.GetMethodProps(info.functionToken);
 
         ATLTRACE(L"JITCompilationStarted for %s", props.name.c_str());
 
-        simplespan<const byte> ilCode = m_profilerInfo.GetILFunctionBody(info.moduleId, info.functionToken);
-        if (!ilCode)
-        {
-            ATLTRACE(L"%s is not an IL function", props.name.c_str());
-            return;
-        }
-
-        ATLTRACE(L"%s has %d bytes of IL", props.name.c_str(), ilCode.length());
-        const byte* codeBytes = ilCode.begin();
-        const IMAGE_COR_ILMETHOD* pMethodImage = reinterpret_cast<const IMAGE_COR_ILMETHOD*>(codeBytes);
-
-        Method method(pMethodImage);
-
-        ATLTRACE(L"%s has %d instructions", props.name.c_str(), method.GetNumberOfInstructions());
+        InstrumentMethodBody(props.name, info, metadataImport);
     });
 }
 
@@ -163,6 +145,44 @@ void CRxProfiler::AddSupportAssemblyReference(ModuleID moduleId)
     metadata.usRevisionNumber = 0;
 
     assemblyEmit.DefineAssemblyRef({}, GetSupportAssemblyName(), metadata, {});
+}
+
+void CRxProfiler::InstrumentMethodBody(const std::wstring& name, const FunctionInfo& info, const CMetadataImport& metadata)
+{
+    simplespan<const byte> ilCode = m_profilerInfo.GetILFunctionBody(info.moduleId, info.functionToken);
+    if (!ilCode)
+    {
+        ATLTRACE(L"%s is not an IL function", name.c_str());
+        return;
+    }
+
+    ATLTRACE(L"%s has %d bytes of IL", name.c_str(), ilCode.length());
+    const byte* codeBytes = ilCode.begin();
+    const IMAGE_COR_ILMETHOD* pMethodImage = reinterpret_cast<const IMAGE_COR_ILMETHOD*>(codeBytes);
+
+    Instrumentation::Method method(pMethodImage);
+
+    for (auto it = method.m_instructions.begin(); it < method.m_instructions.end(); it++)
+    {
+        auto pInstr = *it;
+        auto operation = pInstr->m_operation;
+        if (operation == CEE_CALL || operation == CEE_CALLVIRT)
+        {
+            mdToken method = static_cast<mdToken>(pInstr->m_operand);
+            switch (TypeFromToken(method))
+            {
+            case mdtMethodDef:
+                ATLTRACE(L"%s calls %s", name.c_str(), metadata.GetMethodProps(method).name.c_str());
+                break;
+            case mdtMethodSpec:
+                //TODO this is used for calls to generic methods (incl. methods of generic classes I guess)
+                break;
+            case mdtMemberRef:
+                ATLTRACE(L"%s calls %s", name.c_str(), metadata.GetMemberRefProps(method).name.c_str());
+                break;
+            }
+        }
+    }
 }
 
 const wchar_t * GetSupportAssemblyName()
