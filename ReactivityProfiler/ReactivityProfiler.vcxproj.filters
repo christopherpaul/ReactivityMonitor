@@ -17,6 +17,9 @@
       <UniqueIdentifier>{5fe6210e-870b-4476-8ef4-76a5d4e29002}</UniqueIdentifier>
       <SourceControlFiles>False</SourceControlFiles>
     </Filter>
+    <Filter Include="Instrumentation">
+      <UniqueIdentifier>{2dfeb06d-3286-4fe9-bf84-687bffa03c37}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
@@ -55,6 +58,21 @@
     <ClInclude Include="concurrentmap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Instrumentation\ExceptionHandler.h">
+      <Filter>Instrumentation</Filter>
+    </ClInclude>
+    <ClInclude Include="Instrumentation\Instruction.h">
+      <Filter>Instrumentation</Filter>
+    </ClInclude>
+    <ClInclude Include="Instrumentation\Method.h">
+      <Filter>Instrumentation</Filter>
+    </ClInclude>
+    <ClInclude Include="Instrumentation\MethodBuffer.h">
+      <Filter>Instrumentation</Filter>
+    </ClInclude>
+    <ClInclude Include="Instrumentation\Operations.h">
+      <Filter>Instrumentation</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ReactivityProfiler.cpp">
@@ -74,6 +92,18 @@
     </ClCompile>
     <ClCompile Include="ProfilerInfo.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Instrumentation\ExceptionHandler.cpp">
+      <Filter>Instrumentation</Filter>
+    </ClCompile>
+    <ClCompile Include="Instrumentation\Instruction.cpp">
+      <Filter>Instrumentation</Filter>
+    </ClCompile>
+    <ClCompile Include="Instrumentation\Method.cpp">
+      <Filter>Instrumentation</Filter>
+    </ClCompile>
+    <ClCompile Include="Instrumentation\Operations.cpp">
+      <Filter>Instrumentation</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
