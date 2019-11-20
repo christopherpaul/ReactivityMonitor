@@ -85,10 +85,21 @@ HRESULT CRxProfiler::JITCompilationStarted(FunctionID functionId, BOOL fIsSafeTo
             return;
         }
 
+        // We're interested in this method
+
         CMetadataImport metadataImport = m_profilerInfo.GetMetadataImport(info.moduleId, ofRead);
         MethodProps props = metadataImport.GetMethodProps(info.functionToken);
 
         ATLTRACE(L"JITCompilationStarted for %s", props.name.c_str());
+
+        simplespan<const byte> ilCode = m_profilerInfo.GetILFunctionBody(info.moduleId, info.functionToken);
+        if (!ilCode)
+        {
+            ATLTRACE(L"%s is not an IL function", props.name.c_str());
+            return;
+        }
+
+        ATLTRACE(L"%s has %d bytes of IL", props.name.c_str(), ilCode.length());
     });
 }
 

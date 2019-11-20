@@ -4,7 +4,7 @@ template <typename T>
 class simplespan
 {
 public:
-    simplespan() : this(nullptr, nullptr)
+    simplespan() : simplespan(nullptr, nullptr)
     {
     }
 
@@ -12,7 +12,7 @@ public:
     {
     }
 
-    simplespan(T* pStart, size_t count) : this(pStart, pStart + count)
+    simplespan(T* pStart, size_t count) : simplespan(pStart, pStart + count)
     {
     }
 
@@ -26,9 +26,23 @@ public:
         return m_pEnd;
     }
 
+    size_t length() const
+    {
+        if (!m_pStart)
+        {
+            return 0;
+        }
+        return m_pEnd - m_pStart;
+    }
+
     T& operator[](size_t index)
     {
         return m_pStart[index];
+    }
+
+    operator bool() const
+    {
+        return m_pStart;
     }
 
 private:

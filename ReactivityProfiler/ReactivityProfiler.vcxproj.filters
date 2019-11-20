@@ -73,6 +73,9 @@
     <ClInclude Include="Instrumentation\Operations.h">
       <Filter>Instrumentation</Filter>
     </ClInclude>
+    <ClInclude Include="simplespan.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ReactivityProfiler.cpp">

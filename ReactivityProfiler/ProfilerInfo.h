@@ -219,6 +219,7 @@ public:
 
     ModuleInfo GetModuleInfo(ModuleID moduleId);
     FunctionInfo GetFunctionInfo(FunctionID functionId);
+    simplespan<const byte> GetILFunctionBody(ModuleID moduleId, mdMethodDef methodToken);
 
     CMetadataImport GetMetadataImport(ModuleID moduleId, CorOpenFlags openFlags);
     CMetadataAssemblyImport GetMetadataAssemblyImport(ModuleID moduleId, CorOpenFlags openFlags);

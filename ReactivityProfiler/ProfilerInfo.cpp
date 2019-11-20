@@ -30,6 +30,22 @@ FunctionInfo CProfilerInfo::GetFunctionInfo(FunctionID functionId)
     return info;
 }
 
+// Note: returns null span if it's not an IL function
+simplespan<const byte> CProfilerInfo::GetILFunctionBody(ModuleID moduleId, mdMethodDef methodToken)
+{
+    const byte* data;
+    ULONG size;
+
+    HRESULT hr = m_profilerInfo->GetILFunctionBody(moduleId, methodToken, &data, &size);
+    if (hr == CORPROF_E_FUNCTION_NOT_IL)
+    {
+        return {};
+    }
+    CHECK_SUCCESS_MSG(hr, "GetILFunctionBody");
+
+    return { data, size };
+}
+
 CMetadataImport CProfilerInfo::GetMetadataImport(ModuleID moduleId, CorOpenFlags openFlags)
 {
     IUnknown* metadataImport;
