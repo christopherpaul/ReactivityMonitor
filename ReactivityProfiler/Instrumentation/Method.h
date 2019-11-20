@@ -11,7 +11,7 @@ namespace Instrumentation
 		public MethodBuffer
 	{
 	public:
-		explicit Method(IMAGE_COR_ILMETHOD* pMethod);
+		explicit Method(const IMAGE_COR_ILMETHOD* pMethod);
 		~Method();
 
 	public:
@@ -46,7 +46,7 @@ namespace Instrumentation
 		void RecalculateOffsets();
 
 	private:
-		void ReadMethod(IMAGE_COR_ILMETHOD* pMethod);
+		void ReadMethod(const IMAGE_COR_ILMETHOD* pMethod);
 		void ReadBody();
 
 		void ConvertShortBranches();

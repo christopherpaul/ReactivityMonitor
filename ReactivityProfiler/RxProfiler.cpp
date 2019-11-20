@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "RxProfiler.h"
 #include "dllmain.h"
+#include "Instrumentation/Method.h"
 
 static const wchar_t * GetSupportAssemblyName();
 static std::wstring GetSupportAssemblyPath();
@@ -76,6 +77,8 @@ HRESULT CRxProfiler::GetAssemblyReferences(
 
 HRESULT CRxProfiler::JITCompilationStarted(FunctionID functionId, BOOL fIsSafeToBlock)
 {
+    using namespace Instrumentation;
+
     return HandleExceptions([=] {
         FunctionInfo info = m_profilerInfo.GetFunctionInfo(functionId);
         bool supportAssemblyReferenced;
@@ -100,6 +103,12 @@ HRESULT CRxProfiler::JITCompilationStarted(FunctionID functionId, BOOL fIsSafeTo
         }
 
         ATLTRACE(L"%s has %d bytes of IL", props.name.c_str(), ilCode.length());
+        const byte* codeBytes = ilCode.begin();
+        const IMAGE_COR_ILMETHOD* pMethodImage = reinterpret_cast<const IMAGE_COR_ILMETHOD*>(codeBytes);
+
+        Method method(pMethodImage);
+
+        ATLTRACE(L"%s has %d instructions", props.name.c_str(), method.GetNumberOfInstructions());
     });
 }
 

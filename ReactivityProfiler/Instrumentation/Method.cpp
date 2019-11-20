@@ -5,7 +5,7 @@
 
 namespace Instrumentation
 {
-	Method::Method(IMAGE_COR_ILMETHOD* pMethod)
+	Method::Method(const IMAGE_COR_ILMETHOD* pMethod)
 	{
 		memset(&m_header, 0, 3 * sizeof(DWORD));
 		m_header.Size = 3;
@@ -29,14 +29,14 @@ namespace Instrumentation
 	}
 
 	/// <summary>Read the full method from the supplied buffer.</summary>
-	void Method::ReadMethod(IMAGE_COR_ILMETHOD* pMethod)
+	void Method::ReadMethod(const IMAGE_COR_ILMETHOD* pMethod)
 	{
 		BYTE* pCode;
-		auto fatImage = static_cast<COR_ILMETHOD_FAT*>(&pMethod->Fat);
+		auto fatImage = static_cast<const COR_ILMETHOD_FAT*>(&pMethod->Fat);
 		if (!fatImage->IsFat())
 		{
 			ATLTRACE(_T("TINY"));
-			auto tinyImage = static_cast<COR_ILMETHOD_TINY*>(&pMethod->Tiny);
+			auto tinyImage = static_cast<const COR_ILMETHOD_TINY*>(&pMethod->Tiny);
 			m_header.CodeSize = tinyImage->GetCodeSize();
 			pCode = tinyImage->GetCode();
 			ATLTRACE(_T("TINY(%X) => (%d + 1) : %d"), m_header.CodeSize, m_header.CodeSize, m_header.MaxStack);
