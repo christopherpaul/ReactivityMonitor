@@ -45,7 +45,7 @@ HRESULT CRxProfiler::ModuleLoadFinished(
         ModuleInfo moduleInfo = m_profilerInfo.GetModuleInfo(moduleId);
         ATLTRACE(L"ModuleLoadFinished (%x): %s", hrStatus, moduleInfo.name.c_str());
 
-        if (!IsSystemAssembly(moduleId) && 
+        if (!IsExcludedAssembly(moduleId) && 
             ReferencesObservableInterfaces(moduleId))
         {
             ATLTRACE(L"Adding support assembly reference to %s", moduleInfo.name.c_str());
@@ -92,12 +92,17 @@ HRESULT CRxProfiler::JITCompilationStarted(FunctionID functionId, BOOL fIsSafeTo
     });
 }
 
-bool CRxProfiler::IsSystemAssembly(ModuleID moduleId)
+bool CRxProfiler::IsExcludedAssembly(ModuleID moduleId)
 {
     CMetadataAssemblyImport mai = m_profilerInfo.GetMetadataAssemblyImport(moduleId, ofRead);
     AssemblyProps assemblyProps = mai.GetAssemblyProps();
 
     if (lstrcmpi(assemblyProps.name.c_str(), L"mscorlib") == 0)
+    {
+        return true;
+    }
+
+    if (lstrcmpi(assemblyProps.name.c_str(), GetSupportAssemblyName()) == 0)
     {
         return true;
     }

@@ -76,7 +76,7 @@ private:
     const std::wstring m_supportAssemblyPath;
     concurrent_map<ModuleID, bool> m_moduleInfoMap;
 
-    bool IsSystemAssembly(ModuleID moduleId);
+    bool IsExcludedAssembly(ModuleID moduleId);
     bool ReferencesObservableInterfaces(ModuleID moduleId);
     void AddSupportAssemblyReference(ModuleID moduleId);
 };
