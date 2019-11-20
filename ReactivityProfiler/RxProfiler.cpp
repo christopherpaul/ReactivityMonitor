@@ -169,18 +169,52 @@ void CRxProfiler::InstrumentMethodBody(const std::wstring& name, const FunctionI
         if (operation == CEE_CALL || operation == CEE_CALLVIRT)
         {
             mdToken method = static_cast<mdToken>(pInstr->m_operand);
-            switch (TypeFromToken(method))
+            auto tokenType = TypeFromToken(method);
+            mdToken methodDefOrRef;
+            simplespan<const COR_SIGNATURE> sigBlob;
+            if (tokenType == mdtMethodSpec)
+            {
+                // Generic
+                MethodSpecProps specProps = metadata.GetMethodSpecProps(method);
+                methodDefOrRef = specProps.genericMethodToken;
+                sigBlob = specProps.sigBlob;
+            }
+            else
+            {
+                methodDefOrRef = method;
+            }
+
+            std::wstring methodName;
+            switch (TypeFromToken(methodDefOrRef))
             {
             case mdtMethodDef:
-                ATLTRACE(L"%s calls %s", name.c_str(), metadata.GetMethodProps(method).name.c_str());
-                break;
-            case mdtMethodSpec:
-                //TODO this is used for calls to generic methods (incl. methods of generic classes I guess)
+            {
+                auto defProps = metadata.GetMethodProps(methodDefOrRef);
+                methodName = defProps.name;
+                if (tokenType == mdtMethodDef)
+                {
+                    sigBlob = defProps.sigBlob;
+                }
+            }
                 break;
             case mdtMemberRef:
-                ATLTRACE(L"%s calls %s", name.c_str(), metadata.GetMemberRefProps(method).name.c_str());
-                break;
+            {
+                auto refProps = metadata.GetMemberRefProps(methodDefOrRef);
+                methodName = refProps.name;
+                if (tokenType == mdtMemberRef)
+                {
+                    sigBlob = refProps.sigBlob;
+                }
             }
+                break;
+
+            default:
+                // Unexpected - ignore
+                ATLTRACE(L"Unexpected token type in CALL(VIRT). Token: %x - ignoring instruction", methodDefOrRef);
+                continue;
+            }
+
+            ATLTRACE(L"%s calls %s", name.c_str(), methodName.c_str());
         }
     }
 }

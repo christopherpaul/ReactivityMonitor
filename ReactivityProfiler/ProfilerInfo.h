@@ -155,6 +155,12 @@ struct MemberRefProps
     simplespan<const COR_SIGNATURE> sigBlob;
 };
 
+struct MethodSpecProps
+{
+    mdToken genericMethodToken;
+    simplespan<const COR_SIGNATURE> sigBlob;
+};
+
 struct AssemblyProps
 {
     simplespan<const byte> publicKey;
@@ -176,6 +182,7 @@ public:
     bool TryFindTypeRef(mdToken scope, const std::wstring& name, mdTypeRef& typeRef) const;
     MethodProps GetMethodProps(mdMethodDef methodDefToken) const;
     MemberRefProps GetMemberRefProps(mdMemberRef memberRefToken) const;
+    MethodSpecProps GetMethodSpecProps(mdMethodSpec methodSpecToken) const;
     mdModule GetCurrentModule() const;
 
     operator bool() const { return m_metadata; }

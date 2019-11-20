@@ -105,7 +105,7 @@ MethodProps CMetadataImport::GetMethodProps(mdMethodDef methodDefToken) const
         methodDefToken,
         &props.classDefToken,
         nameChars.data(),
-        static_cast<ULONG>(nameChars.size()),
+        nameLength,
         &nameLength,
         &props.attrFlags,
         &pSigBlob,
@@ -140,7 +140,7 @@ MemberRefProps CMetadataImport::GetMemberRefProps(mdMemberRef memberRefToken) co
         memberRefToken,
         &props.declToken,
         nameChars.data(),
-        nameChars.size(),
+        nameLength,
         &nameLength,
         &pSigBlob,
         &sigBlobSize));
@@ -148,6 +148,24 @@ MemberRefProps CMetadataImport::GetMemberRefProps(mdMemberRef memberRefToken) co
     props.name = { nameChars.data(), nameChars.size() };
     props.sigBlob = { pSigBlob, sigBlobSize };
     return props;
+}
+
+MethodSpecProps CMetadataImport::GetMethodSpecProps(mdMethodSpec methodSpecToken) const
+{
+    const COR_SIGNATURE* pSigBlob;
+    ULONG sigBlobSize;
+    mdToken parentToken;
+
+    CHECK_SUCCESS(m_metadata->GetMethodSpecProps(
+        methodSpecToken,
+        &parentToken,
+        &pSigBlob,
+        &sigBlobSize));
+
+    return {
+        parentToken,
+        { pSigBlob, sigBlobSize }
+    };
 }
 
 mdModule CMetadataImport::GetCurrentModule() const
@@ -194,14 +212,13 @@ AssemblyProps CMetadataAssemblyImport::GetAssemblyProps(mdAssembly assemblyToken
     ));
 
     std::vector<wchar_t> nameChars(nameLength);
-    nameLength = 0;
     CHECK_SUCCESS(m_metadata->GetAssemblyProps(
         assemblyToken,
         &pk,
         &pkSize,
         &props.hashAlgId,
         nameChars.data(),
-        static_cast<ULONG>(nameChars.size()),
+        nameLength,
         &nameLength,
         &props.metadata,
         &props.flags
