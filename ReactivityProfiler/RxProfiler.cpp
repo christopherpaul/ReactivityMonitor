@@ -4,8 +4,15 @@
 #include "RxProfiler.h"
 #include "dllmain.h"
 
+struct MethodCallInfo
+{
+    std::wstring name;
+    simplespan<const COR_SIGNATURE> sigBlob;
+};
+
 static const wchar_t * GetSupportAssemblyName();
 static std::wstring GetSupportAssemblyPath();
+static MethodCallInfo GetMethodCallInfo(mdToken method, const CMetadataImport& metadata);
 
 // CRxProfiler
 
@@ -169,52 +176,10 @@ void CRxProfiler::InstrumentMethodBody(const std::wstring& name, const FunctionI
         if (operation == CEE_CALL || operation == CEE_CALLVIRT)
         {
             mdToken method = static_cast<mdToken>(pInstr->m_operand);
-            auto tokenType = TypeFromToken(method);
-            mdToken methodDefOrRef;
-            simplespan<const COR_SIGNATURE> sigBlob;
-            if (tokenType == mdtMethodSpec)
-            {
-                // Generic
-                MethodSpecProps specProps = metadata.GetMethodSpecProps(method);
-                methodDefOrRef = specProps.genericMethodToken;
-                sigBlob = specProps.sigBlob;
-            }
-            else
-            {
-                methodDefOrRef = method;
-            }
 
-            std::wstring methodName;
-            switch (TypeFromToken(methodDefOrRef))
-            {
-            case mdtMethodDef:
-            {
-                auto defProps = metadata.GetMethodProps(methodDefOrRef);
-                methodName = defProps.name;
-                if (tokenType == mdtMethodDef)
-                {
-                    sigBlob = defProps.sigBlob;
-                }
-            }
-                break;
-            case mdtMemberRef:
-            {
-                auto refProps = metadata.GetMemberRefProps(methodDefOrRef);
-                methodName = refProps.name;
-                if (tokenType == mdtMemberRef)
-                {
-                    sigBlob = refProps.sigBlob;
-                }
-            }
-                break;
+            MethodCallInfo methodCallInfo = GetMethodCallInfo(method, metadata);
 
-            default:
-                // Unexpected - ignore
-                ATLTRACE(L"Unexpected token type in CALL(VIRT). Token: %x - ignoring instruction", methodDefOrRef);
-                continue;
-            }
-
-            ATLTRACE(L"%s calls %s", name.c_str(), methodName.c_str());
+            ATLTRACE(L"%s calls %s", name.c_str(), methodCallInfo.name.c_str());
         }
     }
 }
@@ -236,4 +201,54 @@ std::wstring GetSupportAssemblyPath()
     std::wstring thisDllPath(buffer.data());
 
     return thisDllPath.substr(0, thisDllPath.find_last_of(L'\\') + 1) + GetSupportAssemblyName() + L".dll";
+}
+
+MethodCallInfo GetMethodCallInfo(mdToken method, const CMetadataImport& metadata)
+{
+    auto tokenType = TypeFromToken(method);
+    mdToken methodDefOrRef;
+    simplespan<const COR_SIGNATURE> sigBlob;
+    if (tokenType == mdtMethodSpec)
+    {
+        // Generic
+        MethodSpecProps specProps = metadata.GetMethodSpecProps(method);
+        methodDefOrRef = specProps.genericMethodToken;
+        sigBlob = specProps.sigBlob;
+    }
+    else
+    {
+        methodDefOrRef = method;
+    }
+
+    std::wstring methodName;
+    switch (TypeFromToken(methodDefOrRef))
+    {
+    case mdtMethodDef:
+    {
+        auto defProps = metadata.GetMethodProps(methodDefOrRef);
+        methodName = defProps.name;
+        if (tokenType == mdtMethodDef)
+        {
+            sigBlob = defProps.sigBlob;
+        }
+    }
+    break;
+    case mdtMemberRef:
+    {
+        auto refProps = metadata.GetMemberRefProps(methodDefOrRef);
+        methodName = refProps.name;
+        if (tokenType == mdtMemberRef)
+        {
+            sigBlob = refProps.sigBlob;
+        }
+    }
+    break;
+
+    default:
+        // Unexpected - ignore
+        ATLTRACE(L"Unexpected token type in CALL(VIRT). Token: %x - ignoring instruction", methodDefOrRef);
+        return {};
+    }
+
+    return { methodName, sigBlob };
 }
