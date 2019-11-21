@@ -16,6 +16,9 @@ using namespace ATL;
 
 // CRxProfiler
 
+struct PerModuleData;
+struct ObservableTypeReferences;
+
 class ATL_NO_VTABLE CRxProfiler :
 	public CComObjectRootEx<CComMultiThreadModel>,
 	public CComCoClass<CRxProfiler, &CLSID_RxProfiler>,
@@ -75,12 +78,11 @@ public:
 private:
     CProfilerInfo m_profilerInfo;
     const std::wstring m_supportAssemblyPath;
-    concurrent_map<ModuleID, bool> m_moduleInfoMap;
+    concurrent_map<ModuleID, std::shared_ptr<PerModuleData>> m_moduleInfoMap;
 
-    bool IsExcludedAssembly(ModuleID moduleId);
-    bool ReferencesObservableInterfaces(ModuleID moduleId);
+    bool ReferencesObservableInterfaces(ModuleID moduleId, ObservableTypeReferences& typeRefs);
     void AddSupportAssemblyReference(ModuleID moduleId);
-    void InstrumentMethodBody(const std::wstring& name, const FunctionInfo& info, const CMetadataImport& metadata);
+    void InstrumentMethodBody(const std::wstring& name, const FunctionInfo& info, const CMetadataImport& metadata, const std::shared_ptr<PerModuleData>& pPerModuleData);
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(RxProfiler), CRxProfiler)

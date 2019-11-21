@@ -28,6 +28,21 @@ public:
         return inserted;
     }
 
+    Value add_or_get(Key key, std::function<Value()> valueFactory)
+    {
+        lock_guard lock(m_mutex);
+
+        auto location = m_map.find(key);
+        if (location == m_map.end())
+        {
+            Value value = valueFactory();
+            m_map.insert({ key, value });
+            return value;
+        }
+
+        return location->second;
+    }
+
 private:
     std::mutex m_mutex;
     std::unordered_map<Key, Value> m_map;

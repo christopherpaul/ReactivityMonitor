@@ -12,9 +12,24 @@ struct MethodCallInfo
     simplespan<const COR_SIGNATURE> genericInstBlob;
 };
 
+struct ObservableTypeReferences
+{
+    mdTypeRef m_IObservable = 0;
+};
+
+struct PerModuleData
+{
+    std::mutex m_mutex;
+
+    bool m_supportAssemblyReferenced = false;
+    AssemblyProps m_assemblyProps;
+    ObservableTypeReferences m_observableTypeRefs;
+};
+
 static const wchar_t * GetSupportAssemblyName();
 static std::wstring GetSupportAssemblyPath();
 static MethodCallInfo GetMethodCallInfo(mdToken method, const CMetadataImport& metadata);
+static bool IsExcludedAssembly(const AssemblyProps& assemblyProps);
 
 // CRxProfiler
 
@@ -54,12 +69,18 @@ HRESULT CRxProfiler::ModuleLoadFinished(
         ModuleInfo moduleInfo = m_profilerInfo.GetModuleInfo(moduleId);
         ATLTRACE(L"ModuleLoadFinished (%x): %s", hrStatus, moduleInfo.name.c_str());
 
-        if (!IsExcludedAssembly(moduleId) && 
-            ReferencesObservableInterfaces(moduleId))
+        auto pPerModuleData = m_moduleInfoMap.add_or_get(moduleId, [] { return std::make_shared<PerModuleData>(); });
+        CMetadataAssemblyImport mai = m_profilerInfo.GetMetadataAssemblyImport(moduleId, ofRead);
+
+        std::lock_guard<std::mutex> lock_pmd(pPerModuleData->m_mutex);
+        pPerModuleData->m_assemblyProps = mai.GetAssemblyProps();
+
+        if (!IsExcludedAssembly(pPerModuleData->m_assemblyProps) &&
+            ReferencesObservableInterfaces(moduleId, pPerModuleData->m_observableTypeRefs))
         {
             ATLTRACE(L"Adding support assembly reference to %s", moduleInfo.name.c_str());
             AddSupportAssemblyReference(moduleId);
-            m_moduleInfoMap.try_add(moduleId, true);
+            pPerModuleData->m_supportAssemblyReferenced = true;
         }
     });
 }
@@ -87,9 +108,9 @@ HRESULT CRxProfiler::JITCompilationStarted(FunctionID functionId, BOOL fIsSafeTo
 {
     return HandleExceptions([=] {
         FunctionInfo info = m_profilerInfo.GetFunctionInfo(functionId);
-        bool supportAssemblyReferenced;
-        if (!m_moduleInfoMap.try_get(info.moduleId, supportAssemblyReferenced) ||
-            !supportAssemblyReferenced)
+        std::shared_ptr<PerModuleData> pPerModuleData;
+        if (!m_moduleInfoMap.try_get(info.moduleId, pPerModuleData) ||
+            !pPerModuleData->m_supportAssemblyReferenced)
         {
             return;
         }
@@ -99,15 +120,12 @@ HRESULT CRxProfiler::JITCompilationStarted(FunctionID functionId, BOOL fIsSafeTo
 
         ATLTRACE(L"JITCompilationStarted for %s", props.name.c_str());
 
-        InstrumentMethodBody(props.name, info, metadataImport);
+        InstrumentMethodBody(props.name, info, metadataImport, pPerModuleData);
     });
 }
 
-bool CRxProfiler::IsExcludedAssembly(ModuleID moduleId)
+bool IsExcludedAssembly(const AssemblyProps& assemblyProps)
 {
-    CMetadataAssemblyImport mai = m_profilerInfo.GetMetadataAssemblyImport(moduleId, ofRead);
-    AssemblyProps assemblyProps = mai.GetAssemblyProps();
-
     if (lstrcmpi(assemblyProps.name.c_str(), L"mscorlib") == 0)
     {
         return true;
@@ -127,7 +145,7 @@ bool CRxProfiler::IsExcludedAssembly(ModuleID moduleId)
     return false;
 }
 
-bool CRxProfiler::ReferencesObservableInterfaces(ModuleID moduleId)
+bool CRxProfiler::ReferencesObservableInterfaces(ModuleID moduleId, ObservableTypeReferences& typeRefs)
 {
     CMetadataImport metadataImport = m_profilerInfo.GetMetadataImport(moduleId, ofRead);
     CMetadataAssemblyImport metadataAssemblyImport = m_profilerInfo.GetMetadataAssemblyImport(moduleId, ofRead);
@@ -136,6 +154,7 @@ bool CRxProfiler::ReferencesObservableInterfaces(ModuleID moduleId)
     {
         if (metadataImport.TryFindTypeRef(assemblyEnum.Current(), L"System.IObservable`1", observableRef))
         {
+            typeRefs.m_IObservable = observableRef;
             return true;
         }
     }
@@ -156,7 +175,7 @@ void CRxProfiler::AddSupportAssemblyReference(ModuleID moduleId)
     assemblyEmit.DefineAssemblyRef({}, GetSupportAssemblyName(), metadata, {});
 }
 
-void CRxProfiler::InstrumentMethodBody(const std::wstring& name, const FunctionInfo& info, const CMetadataImport& metadata)
+void CRxProfiler::InstrumentMethodBody(const std::wstring& name, const FunctionInfo& info, const CMetadataImport& metadata, const std::shared_ptr<PerModuleData>& pPerModuleData)
 {
     simplespan<const byte> ilCode = m_profilerInfo.GetILFunctionBody(info.moduleId, info.functionToken);
     if (!ilCode)
@@ -170,6 +189,11 @@ void CRxProfiler::InstrumentMethodBody(const std::wstring& name, const FunctionI
     const IMAGE_COR_ILMETHOD* pMethodImage = reinterpret_cast<const IMAGE_COR_ILMETHOD*>(codeBytes);
 
     Instrumentation::Method method(pMethodImage);
+
+    ObservableTypeReferences observableTypeRefs;
+    std::unique_lock<std::mutex> pmd_lock(pPerModuleData->m_mutex);
+    observableTypeRefs = pPerModuleData->m_observableTypeRefs;
+    pmd_lock.unlock();
 
     for (auto it = method.m_instructions.begin(); it < method.m_instructions.end(); it++)
     {
@@ -186,6 +210,21 @@ void CRxProfiler::InstrumentMethodBody(const std::wstring& name, const FunctionI
             try
             {
                 MethodSignatureReader::Check(methodCallInfo.sigBlob);
+
+                MethodSignatureReader sigReader(methodCallInfo.sigBlob);
+                sigReader.MoveNextParam(); // move to the return value "parameter"
+                auto returnReader = sigReader.GetParamReader();
+                if (!returnReader.IsVoid())
+                {
+                    auto returnTypeReader = returnReader.GetTypeReader();
+                    if (returnTypeReader.GetTypeKind() == ELEMENT_TYPE_GENERICINST)
+                    {
+                        if (returnTypeReader.GetToken() == observableTypeRefs.m_IObservable)
+                        {
+                            ATLTRACE(L"%s returns an IObservable!", methodCallInfo.name.c_str());
+                        }
+                    }
+                }
             }
             catch (std::exception ex)
             {
