@@ -214,10 +214,10 @@ public:
     }
 
     mdAssemblyRef DefineAssemblyRef(
-        const std::vector<byte>& publicKeyOrToken,
+        const simplespan<const byte>& publicKeyOrToken,
         const std::wstring& name,
         const ASSEMBLYMETADATA& metadata,
-        const std::vector<byte>& hash,
+        const simplespan<const byte>& hash,
         CorAssemblyFlags flags = afPA_None);
 
 private:
@@ -252,6 +252,8 @@ public:
     ModuleInfo GetModuleInfo(ModuleID moduleId);
     FunctionInfo GetFunctionInfo(FunctionID functionId);
     simplespan<const byte> GetILFunctionBody(ModuleID moduleId, mdMethodDef methodToken);
+    simplespan<byte> AllocateFunctionBody(ModuleID moduleId, size_t size);
+    void SetILFunctionBody(ModuleID moduleId, mdMethodDef methodToken, const simplespan<byte>& body);
 
     CMetadataImport GetMetadataImport(ModuleID moduleId, DWORD openFlags);
     CMetadataAssemblyImport GetMetadataAssemblyImport(ModuleID moduleId, DWORD openFlags);

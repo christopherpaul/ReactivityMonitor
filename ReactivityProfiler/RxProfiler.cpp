@@ -179,6 +179,7 @@ void CRxProfiler::AddSupportAssemblyReference(ModuleID moduleId, const Observabl
         0x10, 0x01, 0x02, 0x15, 0x12, 0x35, 0x01, 0x1e,
         0x00, 0x15, 0x12, 0x35, 0x01, 0x1e, 0x00, 0x08
     };
+    static const byte c_PublicKeyToken[] = { 0xa8, 0xb3, 0x93, 0x07, 0x28, 0x3e, 0x56, 0x3a };
 
     CMetadataAssemblyEmit assemblyEmit = m_profilerInfo.GetMetadataAssemblyEmit(moduleId, ofRead | ofWrite);
     CMetadataEmit emit = m_profilerInfo.GetMetadataEmit(moduleId, ofRead | ofWrite);
@@ -189,7 +190,7 @@ void CRxProfiler::AddSupportAssemblyReference(ModuleID moduleId, const Observabl
     metadata.usBuildNumber = 0;
     metadata.usRevisionNumber = 0;
 
-    refs.m_AssemblyRef = assemblyEmit.DefineAssemblyRef({}, GetSupportAssemblyName(), metadata, {});
+    refs.m_AssemblyRef = assemblyEmit.DefineAssemblyRef({c_PublicKeyToken, sizeof c_PublicKeyToken}, GetSupportAssemblyName(), metadata, {});
     refs.m_Instrument = emit.DefineTypeRefByName(refs.m_AssemblyRef, L"ReactivityProfiler.Support.Instrument");
     refs.m_Returned = emit.DefineMemberRef({
         refs.m_Instrument,
@@ -304,8 +305,19 @@ void CRxProfiler::InstrumentMethodBody(const std::wstring& name, const FunctionI
     // allow for the ldc.i4 instruction
     method.IncrementStackSize(1);
     
-    // for now just dump it out!
+#ifdef DEBUG
     method.DumpIL(true);
+#endif
+
+    DWORD size = method.GetMethodSize();
+
+    // buffer is owned by the runtime, we don't need to free it
+    auto rewrittenILBuffer = m_profilerInfo.AllocateFunctionBody(info.moduleId, size);
+    method.WriteMethod(reinterpret_cast<IMAGE_COR_ILMETHOD*>(rewrittenILBuffer.begin()));
+
+    m_profilerInfo.SetILFunctionBody(info.moduleId, info.functionToken, rewrittenILBuffer);
+
+    //should probably set the code map as well
 }
 
 const wchar_t * GetSupportAssemblyName()

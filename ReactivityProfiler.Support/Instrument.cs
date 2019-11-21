@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 
 namespace ReactivityProfiler.Support
@@ -8,6 +9,7 @@ namespace ReactivityProfiler.Support
     {
         public static IObservable<T> Returned<T>(IObservable<T> observable, int instrumentationPoint)
         {
+            Trace.WriteLine($"Observable returned at instrumentation point {instrumentationPoint}");
             return observable;
         }
     }

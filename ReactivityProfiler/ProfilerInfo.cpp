@@ -46,6 +46,26 @@ simplespan<const byte> CProfilerInfo::GetILFunctionBody(ModuleID moduleId, mdMet
     return { data, size };
 }
 
+simplespan<byte> CProfilerInfo::AllocateFunctionBody(ModuleID moduleId, size_t size)
+{
+    CComPtr<IMethodMalloc> allocator;
+    CHECK_SUCCESS(m_profilerInfo->GetILFunctionBodyAllocator(moduleId, &allocator));
+    
+    return {
+        static_cast<byte *>(allocator->Alloc(static_cast<ULONG>(size))),
+        size
+    };
+}
+
+void CProfilerInfo::SetILFunctionBody(ModuleID moduleId, mdMethodDef methodToken, const simplespan<byte>& body)
+{
+    CHECK_SUCCESS(m_profilerInfo->SetILFunctionBody(
+        moduleId,
+        methodToken,
+        body.begin()
+    ));
+}
+
 CMetadataImport CProfilerInfo::GetMetadataImport(ModuleID moduleId, DWORD openFlags)
 {
     IUnknown* metadataImport;
@@ -238,19 +258,21 @@ AssemblyProps CMetadataAssemblyImport::GetAssemblyProps(mdAssembly assemblyToken
     return props;
 }
 
-mdAssemblyRef CMetadataAssemblyEmit::DefineAssemblyRef(const std::vector<byte>& publicKeyOrToken, const std::wstring& name, const ASSEMBLYMETADATA& metadata, const std::vector<byte>& hash, CorAssemblyFlags flags)
+mdAssemblyRef CMetadataAssemblyEmit::DefineAssemblyRef(const simplespan<const byte>& publicKeyOrToken, const std::wstring& name, const ASSEMBLYMETADATA& metadata, const simplespan<const byte>& hash, CorAssemblyFlags flags)
 {
     mdAssemblyRef token;
     CHECK_SUCCESS(m_metadata->DefineAssemblyRef(
-        publicKeyOrToken.data(),
-        static_cast<ULONG>(publicKeyOrToken.size()),
+        publicKeyOrToken.begin(),
+        static_cast<ULONG>(publicKeyOrToken.length()),
         name.c_str(),
         &metadata,
-        hash.data(),
-        static_cast<ULONG>(hash.size()),
+        hash.begin(),
+        static_cast<ULONG>(hash.length()),
         flags,
         &token
     ));
+
+    ATLTRACE(L"DefineAssemblyRef: %s -> %x", name.c_str(), token);
 
     return token;
 }
@@ -263,6 +285,8 @@ mdTypeRef CMetadataEmit::DefineTypeRefByName(mdToken scope, const std::wstring& 
         typeName.c_str(),
         &token
     ));
+
+    ATLTRACE(L"DefineTypeRefByName: %x %s -> %x", scope, typeName.c_str(), token);
 
     return token;
 }
@@ -278,6 +302,8 @@ mdMemberRef CMetadataEmit::DefineMemberRef(const MemberRefProps& props)
         &token
     ));
 
+    ATLTRACE(L"DefineMemberRef: %x %s -> %x", props.declToken, props.name.c_str(), token);
+
     return token;
 }
 
@@ -290,6 +316,8 @@ mdMethodSpec CMetadataEmit::DefineMethodSpec(const MethodSpecProps& props)
         static_cast<ULONG>(props.sigBlob.length()),
         &token
     ));
+
+    ATLTRACE(L"DefineMethodSpec: %x -> %x", props.genericMethodToken, token);
 
     return token;
 }

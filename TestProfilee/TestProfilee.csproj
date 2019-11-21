@@ -25,4 +25,13 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
+  
+  <!-- For a "real" install you'd want the support assembly in the GAC but can't do that in the build without elevated privileges. -->
+  <ItemGroup>
+    <ProjectReference Include="..\ReactivityProfiler.Support\ReactivityProfiler.Support.csproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+      <OutputItemType>None</OutputItemType>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </ProjectReference>
+  </ItemGroup>
 </Project>
