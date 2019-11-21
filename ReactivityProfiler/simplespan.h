@@ -16,12 +16,12 @@ public:
     {
     }
 
-    T* begin()
+    T* begin() const
     {
         return m_pStart;
     }
 
-    T* end()
+    T* end() const
     {
         return m_pEnd;
     }
@@ -35,7 +35,7 @@ public:
         return m_pEnd - m_pStart;
     }
 
-    T& operator[](size_t index)
+    T& operator[](size_t index) const
     {
         return m_pStart[index];
     }

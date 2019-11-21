@@ -3,6 +3,7 @@
 #include "pch.h"
 #include "RxProfiler.h"
 #include "dllmain.h"
+#include "Signature.h"
 
 struct MethodCallInfo
 {
