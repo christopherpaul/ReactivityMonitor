@@ -19,9 +19,11 @@ namespace TestProfilee
             //    .Zip(Observable.Interval(TimeSpan.FromSeconds(1)), (x, _) => x);
 
             var observable = Observable.Interval(TimeSpan.FromSeconds(1));
-            observable.Subscribe(Console.WriteLine);
-
+            var sub = observable.Subscribe(Console.WriteLine);
+ 
             Console.ReadKey();
+
+            sub.Dispose();
         }
     }
 }
