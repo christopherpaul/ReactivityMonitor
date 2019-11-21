@@ -81,6 +81,11 @@ struct OperationDetails
     BYTE op2;
     OpcodeKind opcodeKind;
     TCHAR *stringName;
+
+    int totalLength() const
+    {
+        return length + operandSize;
+    }
 };
 
 typedef std::unordered_map<CanonicalName, OperationDetails> MapCanonicalNameOperationDetails;

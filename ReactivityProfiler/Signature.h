@@ -10,6 +10,8 @@ class SignatureParamReaderState;
 class MethodSignatureReaderState;
 class MethodSpecSignatureReaderState;
 
+class MethodSpecSignatureWriterState;
+
 class SignatureArrayShapeReader
 {
 public:
@@ -44,6 +46,8 @@ public:
     ULONG GetVariableNumber(); // for VAR, MVAR
     LONG GetGenArgCount(); // for GENERICINST
     bool MoveNextTypeArg(); // for GENERICINST
+
+    SignatureBlob GetSigSpan();
 
 private:
     const std::shared_ptr<SignatureTypeReaderState> m_state;
@@ -102,4 +106,15 @@ public:
 
 private:
     const std::shared_ptr<MethodSpecSignatureReaderState> m_state;
+};
+
+class MethodSpecSignatureWriter
+{
+public:
+    MethodSpecSignatureWriter(std::vector<COR_SIGNATURE>& buffer, ULONG typeArgCount);
+
+    void AddTypeArg(const SignatureBlob& sigBlobSpan);
+
+private:
+    const std::shared_ptr<MethodSpecSignatureWriterState> m_state;
 };

@@ -184,6 +184,12 @@ public:
     void AdvanceToType(); // for PTR/SZARRAY (no-op otherwise)
 
     void MoveToEnd(sigPtr& endPtr);
+    SignatureBlob GetSigSpan()
+    {
+        sigPtr endPtr;
+        MoveToEnd(endPtr);
+        return { m_start, endPtr };
+    }
 
     std::shared_ptr<SignatureTypeReaderState> m_typeReader;
     std::shared_ptr<MethodSignatureReaderState> m_methodSigReader;
@@ -1026,6 +1032,11 @@ bool SignatureTypeReader::MoveNextTypeArg()
     return m_state->MoveNextTypeArg();
 }
 
+SignatureBlob SignatureTypeReader::GetSigSpan()
+{
+    return m_state->GetSigSpan();
+}
+
 SignatureArrayShapeReader::SignatureArrayShapeReader(const std::shared_ptr<SignatureArrayShapeReaderState>& state) :
     m_state(state)
 {
@@ -1064,4 +1075,91 @@ bool SignatureArrayShapeReader::MoveNextLoBound()
 LONG SignatureArrayShapeReader::GetLoBound()
 {
     return m_state->m_currentLoBound;
+}
+
+
+// ============================ Writers start here ===========================
+
+class WriterBase
+{
+public:
+    WriterBase(std::vector<COR_SIGNATURE>& buffer) : m_buffer(buffer)
+    {
+    }
+
+    void Append(COR_SIGNATURE byte)
+    {
+        m_buffer.push_back(byte);
+    }
+
+    void Append(const SignatureBlob& sigBlobSpan)
+    {
+        m_buffer.insert(m_buffer.end(), sigBlobSpan.begin(), sigBlobSpan.end());
+    }
+
+    void AppendCompressedUnsigned(ULONG value);
+
+private:
+    std::vector<COR_SIGNATURE>& m_buffer;
+};
+
+void WriterBase::AppendCompressedUnsigned(ULONG value)
+{
+    if (value < 0x80)
+    {
+        Append(static_cast<COR_SIGNATURE>(value));
+        return;
+    }
+
+    if (value < 0x4000)
+    {
+        Append(static_cast<COR_SIGNATURE>((value >> 8) | 0x80));
+        Append(static_cast<COR_SIGNATURE>(value & 0xff));
+        return;
+    }
+
+    Append(static_cast<COR_SIGNATURE>((value >> 24) | 0xc0));
+    Append(static_cast<COR_SIGNATURE>((value >> 16) & 0xff));
+    Append(static_cast<COR_SIGNATURE>((value >> 8) & 0xff));
+    Append(static_cast<COR_SIGNATURE>(value & 0xff));
+}
+
+class MethodSpecSignatureWriterState : private WriterBase
+{
+public:
+    MethodSpecSignatureWriterState(std::vector<COR_SIGNATURE>& buffer, ULONG typeArgCount);
+
+    void AddTypeArg(const SignatureBlob& sigBlobSpan)
+    {
+        if (m_typeArgsAdded >= m_typeArgCount)
+        {
+            throw std::logic_error("AddTypeArg - too many type args added");
+        }
+
+        Append(sigBlobSpan);
+        m_typeArgsAdded++;
+    }
+
+private:
+    ULONG m_typeArgCount;
+    ULONG m_typeArgsAdded;
+};
+
+MethodSpecSignatureWriterState::MethodSpecSignatureWriterState(std::vector<COR_SIGNATURE>& buffer, ULONG typeArgCount) :
+    WriterBase(buffer),
+    m_typeArgCount(typeArgCount),
+    m_typeArgsAdded(0)
+{
+    Append(IMAGE_CEE_CS_CALLCONV_GENERICINST);
+    AppendCompressedUnsigned(typeArgCount);
+}
+
+MethodSpecSignatureWriter::MethodSpecSignatureWriter(std::vector<COR_SIGNATURE>& buffer, ULONG typeArgCount) :
+    m_state(new MethodSpecSignatureWriterState(buffer, typeArgCount))
+{
+}
+
+void MethodSpecSignatureWriter::AddTypeArg(const SignatureBlob& sigBlobSpan)
+{
+    m_state->AddTypeArg(sigBlobSpan);
 }

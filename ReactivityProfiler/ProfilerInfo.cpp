@@ -280,3 +280,16 @@ mdMemberRef CMetadataEmit::DefineMemberRef(const MemberRefProps& props)
 
     return token;
 }
+
+mdMethodSpec CMetadataEmit::DefineMethodSpec(const MethodSpecProps& props)
+{
+    mdMethodSpec token;
+    CHECK_SUCCESS(m_metadata->DefineMethodSpec(
+        props.genericMethodToken,
+        props.sigBlob.begin(),
+        static_cast<ULONG>(props.sigBlob.length()),
+        &token
+    ));
+
+    return token;
+}

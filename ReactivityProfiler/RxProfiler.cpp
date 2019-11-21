@@ -32,6 +32,8 @@ struct PerModuleData
     AssemblyProps m_assemblyProps;
     ObservableTypeReferences m_observableTypeRefs;
     SupportAssemblyReferences m_supportAssemblyRefs;
+
+    std::atomic_int32_t m_instrumentationPointSource = 0;
 };
 
 static const wchar_t * GetSupportAssemblyName();
@@ -198,6 +200,8 @@ void CRxProfiler::AddSupportAssemblyReference(ModuleID moduleId, const Observabl
 
 void CRxProfiler::InstrumentMethodBody(const std::wstring& name, const FunctionInfo& info, const CMetadataImport& metadata, const std::shared_ptr<PerModuleData>& pPerModuleData)
 {
+    using namespace Instrumentation;
+
     simplespan<const byte> ilCode = m_profilerInfo.GetILFunctionBody(info.moduleId, info.functionToken);
     if (!ilCode)
     {
@@ -209,16 +213,26 @@ void CRxProfiler::InstrumentMethodBody(const std::wstring& name, const FunctionI
     const byte* codeBytes = ilCode.begin();
     const IMAGE_COR_ILMETHOD* pMethodImage = reinterpret_cast<const IMAGE_COR_ILMETHOD*>(codeBytes);
 
-    Instrumentation::Method method(pMethodImage);
+    Method method(pMethodImage);
 
     ObservableTypeReferences observableTypeRefs;
+    SupportAssemblyReferences supportRefs;
     std::unique_lock<std::mutex> pmd_lock(pPerModuleData->m_mutex);
     observableTypeRefs = pPerModuleData->m_observableTypeRefs;
+    supportRefs = pPerModuleData->m_supportAssemblyRefs;
     pmd_lock.unlock();
+
+    struct ObservableCallInfo
+    {
+        const Instruction* m_pInstruction = 0;
+        simplespan<const COR_SIGNATURE> m_observableTypeArgSigSpan;
+    };
+
+    std::vector<ObservableCallInfo> observableCalls;
 
     for (auto it = method.m_instructions.begin(); it < method.m_instructions.end(); it++)
     {
-        auto pInstr = *it;
+        auto pInstr = it->get();
         auto operation = pInstr->m_operation;
         if (operation == CEE_CALL || operation == CEE_CALLVIRT)
         {
@@ -230,7 +244,7 @@ void CRxProfiler::InstrumentMethodBody(const std::wstring& name, const FunctionI
 
             try
             {
-                MethodSignatureReader::Check(methodCallInfo.sigBlob);
+                MethodSignatureReader::Check(methodCallInfo.sigBlob); // can turn this into a debug check once the reader is proven
 
                 MethodSignatureReader sigReader(methodCallInfo.sigBlob);
                 sigReader.MoveNextParam(); // move to the return value "parameter"
@@ -243,6 +257,9 @@ void CRxProfiler::InstrumentMethodBody(const std::wstring& name, const FunctionI
                         if (returnTypeReader.GetToken() == observableTypeRefs.m_IObservable)
                         {
                             ATLTRACE(L"%s returns an IObservable!", methodCallInfo.name.c_str());
+
+                            returnTypeReader.MoveNextTypeArg();
+                            observableCalls.push_back({ pInstr, returnTypeReader.GetTypeReader().GetSigSpan() });
                         }
                     }
                 }
@@ -253,6 +270,42 @@ void CRxProfiler::InstrumentMethodBody(const std::wstring& name, const FunctionI
             }
         }
     }
+
+    if (observableCalls.empty())
+    {
+        return;
+    }
+
+    CMetadataEmit emit = m_profilerInfo.GetMetadataEmit(info.moduleId, ofRead | ofWrite);
+
+    for (auto call : observableCalls)
+    {
+        // for now just add a MethodSpec token regardless - but really ought to avoid duplicates
+        std::vector<COR_SIGNATURE> sig;
+        MethodSpecSignatureWriter sigWriter(sig, 1);
+        sigWriter.AddTypeArg(call.m_observableTypeArgSigSpan);
+        mdMethodSpec methodSpecToken = emit.DefineMethodSpec({
+            supportRefs.m_Returned,
+            {sig.data(), sig.size()}
+        });
+
+        int32_t instrumentationPoint = ++pPerModuleData->m_instrumentationPointSource;
+        InstructionList instrs;
+        instrs.push_back(std::make_unique<Instruction>(CEE_LDC_I4, instrumentationPoint));
+        instrs.push_back(std::make_unique<Instruction>(CEE_CALL, methodSpecToken));
+
+        long offsetToInsertAt = call.m_pInstruction->m_origOffset + call.m_pInstruction->length();
+        ATLTRACE("Inserting at %lx: %d; %x", offsetToInsertAt, instrumentationPoint, methodSpecToken);
+        method.InsertInstructionsAtOriginalOffset(
+            offsetToInsertAt,
+            instrs);
+    }
+
+    // allow for the ldc.i4 instruction
+    method.IncrementStackSize(1);
+    
+    // for now just dump it out!
+    method.DumpIL(true);
 }
 
 const wchar_t * GetSupportAssemblyName()

@@ -21,6 +21,7 @@
 #include <memory>
 #include <unordered_map>
 #include <mutex>
+#include <atomic>
 
 #include "ReleaseTrace.h"
 #include "Utility.h"

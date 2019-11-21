@@ -42,7 +42,7 @@ namespace Instrumentation {
 
         long length() const
         {
-            return Operations::m_mapNameOperationDetails[m_operation].length;
+            return Operations::m_mapNameOperationDetails[m_operation].totalLength();
         }
 
 	public:

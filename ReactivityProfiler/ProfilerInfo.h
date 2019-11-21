@@ -233,6 +233,7 @@ public:
 
     mdTypeRef DefineTypeRefByName(mdToken scope, const std::wstring& typeName);
     mdMemberRef DefineMemberRef(const MemberRefProps& props);
+    mdMethodSpec DefineMethodSpec(const MethodSpecProps& props);
 
 private:
     CComQIPtr<IMetaDataEmit2, &IID_IMetaDataEmit2> m_metadata;
