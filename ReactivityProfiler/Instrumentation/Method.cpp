@@ -590,6 +590,7 @@ namespace Instrumentation
 				}
 				else
 				{
+#pragma warning(suppress:26451)
 					(*it)->m_operand = (*it)->m_branches[0]->m_offset - ((*it)->m_offset + details.length + details.operandSize);
 					(*it)->m_branchOffsets.push_back(static_cast<long>((*it)->m_operand));
 				}
@@ -616,8 +617,10 @@ namespace Instrumentation
 		{
 			m_header.Flags |= CorILMethod_MoreSects;
 			long align = sizeof(DWORD) - 1;
-			size = ((size + align) & ~align);
-			size += ((static_cast<long>(m_exceptions.size()) * 6) + 1) * sizeof(long);
+#pragma warning(suppress:26451)
+            size = ((size + align) & ~align);
+#pragma warning(suppress:26451)
+            size += ((static_cast<long>(m_exceptions.size()) * 6) + 1) * sizeof(long);
 		}
 
 		return size;
