@@ -80,7 +80,7 @@ public:
         return { m_typeDefOrRef, m_cmod == ELEMENT_TYPE_CMOD_REQD };
     }
 
-    ReaderBase& const m_reader;
+    ReaderBase& m_reader;
     byte m_cmod = 0;
     mdToken m_typeDefOrRef = 0;
 };
@@ -88,7 +88,11 @@ public:
 class MethodSignatureReaderState : private ReaderBase
 {
 public:
-    MethodSignatureReaderState(const sigSpan& sigBlob);
+    MethodSignatureReaderState(sigPtr start, sigPtr limit);
+    MethodSignatureReaderState(const sigSpan& sigBlob) :
+        MethodSignatureReaderState(sigBlob.begin(), sigBlob.end())
+    {
+    }
 
     byte GetCallConvByte()
     {
@@ -192,7 +196,7 @@ private:
     mdToken m_token;
     LONG m_typeArgCount;
     ULONG m_typeVarNumber;
-    ULONG m_currentTypeArg;
+    LONG m_currentTypeArg;
 
     enum
     {
@@ -218,12 +222,34 @@ class SignatureArrayShapeReaderState : ReaderBase
 public:
     SignatureArrayShapeReaderState(sigPtr start, sigPtr limit);
 
+    bool MoveNextSize();
+    ULONG GetLoBoundsCount();
+    bool MoveNextLoBound();
+
     void MoveToEnd(sigPtr& endPtr);
+
+    ULONG m_rank;
+    ULONG m_sizesCount;
+    ULONG m_currentSize;
+    LONG m_currentLoBound;
+
+private:
+    ULONG m_loboundsCount;
+    ULONG m_current;
+    enum
+    {
+        INIT,
+        SIZE,
+        POST_SIZES,
+        PRE_LOBOUNDS,
+        LOBOUND,
+        END
+    } m_where;
 };
 
 
-MethodSignatureReaderState::MethodSignatureReaderState(const sigSpan& sigBlob) :
-    ReaderBase(sigBlob),
+MethodSignatureReaderState::MethodSignatureReaderState(sigPtr start, sigPtr limit) :
+    ReaderBase(start, limit),
     m_currentParam(0),
     m_inVarArgParams(0),
     m_where(INIT)
@@ -634,6 +660,96 @@ void SignatureTypeReaderState::MoveToEnd(sigPtr& endPtr)
     endPtr = m_ptr;
 }
 
+SignatureArrayShapeReaderState::SignatureArrayShapeReaderState(sigPtr start, sigPtr limit) :
+    ReaderBase(start, limit),
+    m_loboundsCount(0),
+    m_current(0),
+    m_currentLoBound(0),
+    m_currentSize(0)
+{
+    m_rank = ReadCompressedUnsigned();
+    m_sizesCount = ReadCompressedUnsigned();
+    m_where = INIT;
+}
+
+bool SignatureArrayShapeReaderState::MoveNextSize()
+{
+    if (m_where == SIZE)
+    {
+        m_current++;
+    }
+    else if (m_where == INIT)
+    {
+        m_current = 0;
+    }
+    else
+    {
+        return false;
+    }
+
+    if (m_current >= m_sizesCount)
+    {
+        m_where = POST_SIZES;
+        return false;
+    }
+
+    m_currentSize = ReadCompressedUnsigned();
+    m_where = SIZE;
+    return true;
+}
+
+ULONG SignatureArrayShapeReaderState::GetLoBoundsCount()
+{
+    while (m_where < POST_SIZES)
+    {
+        MoveNextSize();
+    }
+
+    if (m_where == POST_SIZES)
+    {
+        m_loboundsCount = ReadCompressedUnsigned();
+        m_where = PRE_LOBOUNDS;
+    }
+
+    return m_loboundsCount;
+}
+
+bool SignatureArrayShapeReaderState::MoveNextLoBound()
+{
+    GetLoBoundsCount();
+
+    if (m_where == LOBOUND)
+    {
+        m_current++;
+    }
+    else if (m_where == PRE_LOBOUNDS)
+    {
+        m_current = 0;
+    }
+    else
+    {
+        return false;
+    }
+
+    if (m_current >= m_loboundsCount)
+    {
+        m_where = END;
+        return false;
+    }
+
+    m_currentLoBound = ReadCompressedSigned();
+    m_where = LOBOUND;
+    return true;
+}
+
+void SignatureArrayShapeReaderState::MoveToEnd(sigPtr& endPtr)
+{
+    while (MoveNextLoBound()) {}
+    endPtr = m_ptr;
+}
+
+
+
 ULONG ReaderBase::ReadCompressedUnsigned()
 {
     COR_SIGNATURE b1 = ReadByte();
@@ -893,4 +1009,44 @@ LONG SignatureTypeReader::GetGenArgCount()
 bool SignatureTypeReader::MoveNextTypeArg()
 {
     return m_state->MoveNextTypeArg();
+}
+
+SignatureArrayShapeReader::SignatureArrayShapeReader(const std::shared_ptr<SignatureArrayShapeReaderState>& state) :
+    m_state(state)
+{
+}
+
+ULONG SignatureArrayShapeReader::GetRank()
+{
+    return m_state->m_rank;
+}
+
+ULONG SignatureArrayShapeReader::GetNumSizes()
+{
+    return m_state->m_sizesCount;
+}
+
+bool SignatureArrayShapeReader::MoveNextSize()
+{
+    return m_state->MoveNextSize();
+}
+
+ULONG SignatureArrayShapeReader::GetSize()
+{
+    return m_state->m_currentSize;
+}
+
+ULONG SignatureArrayShapeReader::GetNumLoBounds()
+{
+    return m_state->GetLoBoundsCount();
+}
+
+bool SignatureArrayShapeReader::MoveNextLoBound()
+{
+    return m_state->MoveNextLoBound();
+}
+
+LONG SignatureArrayShapeReader::GetLoBound()
+{
+    return m_state->m_currentLoBound;
 }

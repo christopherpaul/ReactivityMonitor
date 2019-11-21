@@ -234,7 +234,6 @@
     <ClInclude Include="Instrumentation\Method.h" />
     <ClInclude Include="Instrumentation\MethodBuffer.h" />
     <ClInclude Include="Instrumentation\Operations.h" />
-    <ClInclude Include="MethodSignature.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="ProfileBase.h" />
     <ClInclude Include="ProfilerInfo.h" />
@@ -266,7 +265,6 @@
     <ClCompile Include="Instrumentation\Instruction.cpp" />
     <ClCompile Include="Instrumentation\Method.cpp" />
     <ClCompile Include="Instrumentation\Operations.cpp" />
-    <ClCompile Include="MethodSignature.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
