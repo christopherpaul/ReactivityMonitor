@@ -9,6 +9,7 @@ struct MethodCallInfo
 {
     std::wstring name;
     simplespan<const COR_SIGNATURE> sigBlob;
+    simplespan<const COR_SIGNATURE> genericInstBlob;
 };
 
 static const wchar_t * GetSupportAssemblyName();
@@ -181,6 +182,15 @@ void CRxProfiler::InstrumentMethodBody(const std::wstring& name, const FunctionI
             MethodCallInfo methodCallInfo = GetMethodCallInfo(method, metadata);
 
             ATLTRACE(L"%s calls %s", name.c_str(), methodCallInfo.name.c_str());
+
+            try
+            {
+                MethodSignatureReader::Check(methodCallInfo.sigBlob);
+            }
+            catch (std::exception ex)
+            {
+                RELTRACE("Failed to check signature blob: %s", ex.what());
+            }
         }
     }
 }
@@ -209,12 +219,13 @@ MethodCallInfo GetMethodCallInfo(mdToken method, const CMetadataImport& metadata
     auto tokenType = TypeFromToken(method);
     mdToken methodDefOrRef;
     simplespan<const COR_SIGNATURE> sigBlob;
+    simplespan<const COR_SIGNATURE> genericInstBlob;
     if (tokenType == mdtMethodSpec)
     {
         // Generic
         MethodSpecProps specProps = metadata.GetMethodSpecProps(method);
         methodDefOrRef = specProps.genericMethodToken;
-        sigBlob = specProps.sigBlob;
+        genericInstBlob = specProps.sigBlob;
     }
     else
     {
@@ -228,20 +239,14 @@ MethodCallInfo GetMethodCallInfo(mdToken method, const CMetadataImport& metadata
     {
         auto defProps = metadata.GetMethodProps(methodDefOrRef);
         methodName = defProps.name;
-        if (tokenType == mdtMethodDef)
-        {
-            sigBlob = defProps.sigBlob;
-        }
+        sigBlob = defProps.sigBlob;
     }
     break;
     case mdtMemberRef:
     {
         auto refProps = metadata.GetMemberRefProps(methodDefOrRef);
         methodName = refProps.name;
-        if (tokenType == mdtMemberRef)
-        {
-            sigBlob = refProps.sigBlob;
-        }
+        sigBlob = refProps.sigBlob;
     }
     break;
 
@@ -251,5 +256,5 @@ MethodCallInfo GetMethodCallInfo(mdToken method, const CMetadataImport& metadata
         return {};
     }
 
-    return { methodName, sigBlob };
+    return { methodName, sigBlob, genericInstBlob };
 }

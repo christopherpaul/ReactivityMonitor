@@ -2,7 +2,6 @@
 
 #include "Signature.h"
 
-typedef simplespan<const COR_SIGNATURE> sigSpan;
 typedef const COR_SIGNATURE* sigPtr;
 
 class ReaderBase
@@ -15,7 +14,7 @@ public:
     {
     }
 
-    ReaderBase(const sigSpan& span) : ReaderBase(span.begin(), span.end())
+    ReaderBase(const SignatureBlob& span) : ReaderBase(span.begin(), span.end())
     {
     }
 
@@ -89,7 +88,7 @@ class MethodSignatureReaderState : private ReaderBase
 {
 public:
     MethodSignatureReaderState(sigPtr start, sigPtr limit);
-    MethodSignatureReaderState(const sigSpan& sigBlob) :
+    MethodSignatureReaderState(const SignatureBlob& sigBlob) :
         MethodSignatureReaderState(sigBlob.begin(), sigBlob.end())
     {
     }
@@ -257,7 +256,7 @@ MethodSignatureReaderState::MethodSignatureReaderState(sigPtr start, sigPtr limi
     const uint16_t c_allowedCallConvs = 0x0511; // excludes localvar, field, property, genericinst & undefined values
     auto ccByte = ReadByte();
     auto callConv = ccByte & IMAGE_CEE_CS_CALLCONV_MASK;
-    if (!(callConv & c_allowedCallConvs))
+    if (!((1 << callConv) & c_allowedCallConvs))
     {
         throw std::domain_error("MethodSignatureReaderState: sigBlob is not a MethodDefSig/MethodRefSig");
     }
@@ -384,12 +383,15 @@ void SignatureParamReaderState::AdvanceToType()
     if (b == ELEMENT_TYPE_VOID)
     {
         ReadByte();
-        m_isVoid = true;
 
         if (m_kind != ParamKind::Return)
         {
             throw std::domain_error("SignatureParamReaderState::EnsureFlagsRead - Void element in parameter");
         }
+
+        m_isVoid = true;
+        m_where = END;
+        return;
     }
 
     m_where = TYPE;
@@ -437,7 +439,7 @@ SignatureTypeReaderState::SignatureTypeReaderState(sigPtr start, sigPtr limit) :
     case ELEMENT_TYPE_GENERICINST:
         ReadByte(); // advance past the class/valuetype byte
         m_token = ReadTypeDefOrRefEncoded();
-        m_typeArgCount = ReadCompressedSigned();
+        m_typeArgCount = ReadCompressedUnsigned(); // doc says it's signed but it doesn't appear to be
         m_where = GENERICINST_INIT;
         break;
 
@@ -832,7 +834,7 @@ mdToken ReaderBase::ReadTypeDefOrRefEncoded()
 
 
 
-MethodSignatureReader::MethodSignatureReader(const simplespan<const COR_SIGNATURE>& sigBlob) :
+MethodSignatureReader::MethodSignatureReader(const SignatureBlob& sigBlob) :
     MethodSignatureReader(std::make_shared<MethodSignatureReaderState>(sigBlob))
 {
 }
@@ -870,6 +872,19 @@ bool MethodSignatureReader::MoveNextParam()
 SignatureParamReader MethodSignatureReader::GetParamReader()
 {
     return SignatureParamReader(m_state->m_paramReader);
+}
+
+void MethodSignatureReader::Check(const SignatureBlob& sigBlob)
+{
+    MethodSignatureReaderState s(sigBlob);
+
+    sigPtr endPtr;
+    s.MoveToEnd(endPtr);
+
+    if (endPtr != sigBlob.end())
+    {
+        throw std::domain_error("Signature blob contains bytes beyond end of signature");
+    }
 }
 
 SignatureParamReader::SignatureParamReader(const std::shared_ptr<SignatureParamReaderState>& state) :

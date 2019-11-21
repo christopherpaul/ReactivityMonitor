@@ -1,5 +1,7 @@
 #pragma once
 
+typedef simplespan<const COR_SIGNATURE> SignatureBlob;
+
 class MethodSignatureReader;
 
 class SignatureArrayShapeReaderState;
@@ -69,7 +71,7 @@ private:
 class MethodSignatureReader
 {
 public:
-    MethodSignatureReader(const simplespan<const COR_SIGNATURE>& sigBlob);
+    MethodSignatureReader(const SignatureBlob& sigBlob);
     MethodSignatureReader(const std::shared_ptr<MethodSignatureReaderState>& state);
 
     bool HasThis();
@@ -81,6 +83,8 @@ public:
 
     SignatureParamReader GetParamReader();
 
+    static void Check(const SignatureBlob& sigBlob);
+
 private:
     const std::shared_ptr<MethodSignatureReaderState> m_state;
 };
@@ -88,7 +92,7 @@ private:
 class MethodSpecSignatureReader
 {
 public:
-    MethodSpecSignatureReader(const simplespan<const COR_SIGNATURE>& sigBlob);
+    MethodSpecSignatureReader(const SignatureBlob& sigBlob);
     MethodSpecSignatureReader(const std::shared_ptr<MethodSpecSignatureReaderState>& state);
 
     ULONG TypeArgCount();
