@@ -17,15 +17,6 @@ namespace Instrumentation
 
 	Method::~Method()
 	{
-		for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
-		{
-			delete *it;
-		}
-
-		for (auto it = m_exceptions.begin(); it != m_exceptions.end(); ++it)
-		{
-			delete *it;
-		}
 	}
 
 	/// <summary>Read the full method from the supplied buffer.</summary>
@@ -161,7 +152,7 @@ namespace Instrumentation
 
 		while (GetPosition() < m_header.CodeSize)
 		{
-			Instruction* pInstruction = new Instruction();
+			std::unique_ptr<Instruction> pInstruction(new Instruction());
 			pInstruction->m_offset = GetPosition();
 			pInstruction->m_origOffset = pInstruction->m_offset;
 
@@ -216,7 +207,7 @@ namespace Instrumentation
 				while (numbranches-- != 0) pInstruction->m_branchOffsets.push_back(Read<long>());
 			}
 
-			m_instructions.push_back(pInstruction);
+			m_instructions.push_back(std::move(pInstruction));
 		}
 
 		ReadSections();
@@ -230,13 +221,13 @@ namespace Instrumentation
 		RecalculateOffsets();
 	}
 
-	ExceptionHandler* Method::ReadExceptionHandler(
+	std::unique_ptr<ExceptionHandler> Method::ReadExceptionHandler(
 		enum CorExceptionFlag type,
 		long tryStart, long tryEnd,
 		long handlerStart, long handlerEnd,
 		long filterStart, ULONG token) {
 
-		auto pSection = new ExceptionHandler();
+		auto pSection = std::make_unique<ExceptionHandler>();
 		pSection->m_handlerType = type;
 		pSection->m_tryStart = GetInstructionAtOffset(tryStart);
 		pSection->m_tryEnd = GetInstructionAtOffset(tryStart + tryEnd);
@@ -318,7 +309,7 @@ namespace Instrumentation
 		{
 			if ((*it)->m_offset == offset)
 			{
-				return (*it);
+				return it->get();
 			}
 		}
 		_ASSERTE(FALSE);
@@ -350,21 +341,22 @@ namespace Instrumentation
 		{
 			if ((*it)->m_offset == offset)
 			{
-				return (*it);
+				return it->get();
 			}
 		}
 
 		if (isFinally || isFault || isFilter || isTyped)
 		{
-			auto pLast = m_instructions.back();
+			auto pLast = m_instructions.back().get();
 			auto& details = Operations::m_mapNameOperationDetails[pLast->m_operation];
 			if (offset == pLast->m_offset + details.length + details.operandSize)
 			{
 				// add a code label to hang the clause handler end off
-				auto pInstruction = new Instruction(CEE_CODE_LABEL);
+				auto pInstruction = std::make_unique<Instruction>(CEE_CODE_LABEL);
 				pInstruction->m_offset = offset;
-				m_instructions.push_back(pInstruction);
-				return pInstruction;
+                auto p = pInstruction.get();
+				m_instructions.push_back(std::move(pInstruction));
+				return p;
 			}
 		}
 		_ASSERTE(FALSE);
@@ -606,7 +598,7 @@ namespace Instrumentation
 	/// beforehand if any instrumentation has been done</remarks>
 	long Method::GetMethodSize()
 	{
-		auto lastInstruction = m_instructions.back();
+		auto lastInstruction = m_instructions.back().get();
 		auto& details = Operations::m_mapNameOperationDetails[lastInstruction->m_operation];
 
 		m_header.CodeSize = lastInstruction->m_offset + details.length + details.operandSize;
@@ -661,7 +653,7 @@ namespace Instrumentation
 		InstructionList clone;
 		for (auto it = instructions.begin(); it != instructions.end(); ++it)
 		{
-			clone.push_back(new Instruction(*(*it)));
+			clone.push_back(std::make_unique<Instruction>(*(*it)));
 		}
 
 		for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
@@ -669,7 +661,7 @@ namespace Instrumentation
 			if ((*it)->m_offset == offset)
 			{
 				++it;
-				m_instructions.insert(it, clone.begin(), clone.end());
+				m_instructions.insert(it, std::make_move_iterator(clone.begin()), std::make_move_iterator(clone.end()));
 				break;
 			}
 		}
@@ -704,7 +696,7 @@ namespace Instrumentation
 		InstructionList clone;
 		for (auto it = instructions.begin(); it != instructions.end(); ++it)
 		{
-			clone.push_back(new Instruction(*(*it)));
+			clone.push_back(std::make_unique<Instruction>(*(*it)));
 		}
 
 		long actualOffset = 0;
@@ -713,10 +705,10 @@ namespace Instrumentation
 		{
 			if ((*it)->m_origOffset == origOffset)
 			{
-				actualInstruction = *it;
+				actualInstruction = it->get();
 				actualOffset = (actualInstruction)->m_offset;
 				++it;
-				m_instructions.insert(it, clone.begin(), clone.end());
+				m_instructions.insert(it, std::make_move_iterator(clone.begin()), std::make_move_iterator(clone.end()));
 				break;
 			}
 		}
@@ -725,7 +717,7 @@ namespace Instrumentation
 		{
 			for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
 			{
-				if (*it == actualInstruction)
+				if (it->get() == actualInstruction)
 				{
 					Instruction orig = *(*it);
 					for (unsigned int i = 0; i < clone.size(); i++)

@@ -60,7 +60,7 @@ namespace Instrumentation
 		template<class flag, class start, class end>
 		void ReadExceptionHandlers(int count);
 
-		ExceptionHandler* ReadExceptionHandler(enum CorExceptionFlag type, long tryStart, long tryEnd, long handlerStart, long handlerEnd, long filterStart, ULONG token);
+		std::unique_ptr<ExceptionHandler> ReadExceptionHandler(enum CorExceptionFlag type, long tryStart, long tryEnd, long handlerStart, long handlerEnd, long filterStart, ULONG token);
 
 		void WriteSections();
 		bool DoesTryHandlerPointToOffset(long offset);

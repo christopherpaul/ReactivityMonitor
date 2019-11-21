@@ -9,7 +9,8 @@ namespace Instrumentation {
 	class Instruction;
 	class Method;
 
-	typedef std::vector<Instruction*> InstructionList;
+	typedef std::vector<std::unique_ptr<Instruction>> InstructionList;
+    typedef std::vector<Instruction*> InstructionReferenceList;
 
 	/// <summary>A representation of an IL instruction.</summary>
 	class Instruction
@@ -34,10 +35,15 @@ namespace Instrumentation {
 		bool m_isBranch;
 
 		std::vector<long> m_branchOffsets;
-		InstructionList m_branches;
-		InstructionList m_joins;
+		InstructionReferenceList m_branches;
+		InstructionReferenceList m_joins;
 
 		long m_origOffset;
+
+        long length() const
+        {
+            return Operations::m_mapNameOperationDetails[m_operation].length;
+        }
 
 	public:
 

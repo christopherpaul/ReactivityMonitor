@@ -8,7 +8,7 @@ namespace Instrumentation
 	class ExceptionHandler;
 	class Method;
 
-	typedef std::vector<ExceptionHandler *> ExceptionHandlerList;
+	typedef std::vector<std::unique_ptr<ExceptionHandler>> ExceptionHandlerList;
 
 	/// <summary>A representation of a try/catch section handler</summary>
 	class ExceptionHandler
