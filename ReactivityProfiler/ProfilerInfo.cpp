@@ -46,28 +46,36 @@ simplespan<const byte> CProfilerInfo::GetILFunctionBody(ModuleID moduleId, mdMet
     return { data, size };
 }
 
-CMetadataImport CProfilerInfo::GetMetadataImport(ModuleID moduleId, CorOpenFlags openFlags)
+CMetadataImport CProfilerInfo::GetMetadataImport(ModuleID moduleId, DWORD openFlags)
 {
     IUnknown* metadataImport;
     CHECK_SUCCESS(m_profilerInfo->GetModuleMetaData(moduleId, openFlags, IID_IMetaDataImport2, &metadataImport));
 
-    return CMetadataImport(metadataImport);
+    return metadataImport;
 }
 
-CMetadataAssemblyImport CProfilerInfo::GetMetadataAssemblyImport(ModuleID moduleId, CorOpenFlags openFlags)
+CMetadataAssemblyImport CProfilerInfo::GetMetadataAssemblyImport(ModuleID moduleId, DWORD openFlags)
 {
     IUnknown* metadataImport;
     CHECK_SUCCESS(m_profilerInfo->GetModuleMetaData(moduleId, openFlags, IID_IMetaDataAssemblyImport, &metadataImport));
 
-    return CMetadataAssemblyImport(metadataImport);
+    return metadataImport;
 }
 
-CMetadataAssemblyEmit CProfilerInfo::GetMetadataAssemblyEmit(ModuleID moduleId, CorOpenFlags openFlags)
+CMetadataAssemblyEmit CProfilerInfo::GetMetadataAssemblyEmit(ModuleID moduleId, DWORD openFlags)
 {
     IUnknown* metadataAssemblyEmit;
     CHECK_SUCCESS(m_profilerInfo->GetModuleMetaData(moduleId, openFlags, IID_IMetaDataAssemblyEmit, &metadataAssemblyEmit));
 
-    return CMetadataAssemblyEmit(metadataAssemblyEmit);
+    return metadataAssemblyEmit;
+}
+
+CMetadataEmit CProfilerInfo::GetMetadataEmit(ModuleID moduleId, DWORD openFlags)
+{
+    IUnknown* metadataEmit;
+    CHECK_SUCCESS(m_profilerInfo->GetModuleMetaData(moduleId, openFlags, IID_IMetaDataEmit2, &metadataEmit));
+
+    return metadataEmit;
 }
 
 CCorEnum<IMetaDataImport2, mdModuleRef> CMetadataImport::EnumModuleRefs() const
@@ -241,6 +249,32 @@ mdAssemblyRef CMetadataAssemblyEmit::DefineAssemblyRef(const std::vector<byte>& 
         hash.data(),
         static_cast<ULONG>(hash.size()),
         flags,
+        &token
+    ));
+
+    return token;
+}
+
+mdTypeRef CMetadataEmit::DefineTypeRefByName(mdToken scope, const std::wstring& typeName)
+{
+    mdTypeRef token;
+    CHECK_SUCCESS(m_metadata->DefineTypeRefByName(
+        scope,
+        typeName.c_str(),
+        &token
+    ));
+
+    return token;
+}
+
+mdMemberRef CMetadataEmit::DefineMemberRef(const MemberRefProps& props)
+{
+    mdMemberRef token;
+    CHECK_SUCCESS(m_metadata->DefineMemberRef(
+        props.declToken,
+        props.name.c_str(),
+        props.sigBlob.begin(),
+        static_cast<ULONG>(props.sigBlob.length()),
         &token
     ));
 

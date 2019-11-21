@@ -17,6 +17,13 @@ struct ObservableTypeReferences
     mdTypeRef m_IObservable = 0;
 };
 
+struct SupportAssemblyReferences
+{
+    mdAssemblyRef m_AssemblyRef = 0;
+    mdTypeRef m_Instrument = 0;
+    mdMemberRef m_Returned = 0;
+};
+
 struct PerModuleData
 {
     std::mutex m_mutex;
@@ -24,6 +31,7 @@ struct PerModuleData
     bool m_supportAssemblyReferenced = false;
     AssemblyProps m_assemblyProps;
     ObservableTypeReferences m_observableTypeRefs;
+    SupportAssemblyReferences m_supportAssemblyRefs;
 };
 
 static const wchar_t * GetSupportAssemblyName();
@@ -79,7 +87,7 @@ HRESULT CRxProfiler::ModuleLoadFinished(
             ReferencesObservableInterfaces(moduleId, pPerModuleData->m_observableTypeRefs))
         {
             ATLTRACE(L"Adding support assembly reference to %s", moduleInfo.name.c_str());
-            AddSupportAssemblyReference(moduleId);
+            AddSupportAssemblyReference(moduleId, pPerModuleData->m_observableTypeRefs, pPerModuleData->m_supportAssemblyRefs);
             pPerModuleData->m_supportAssemblyReferenced = true;
         }
     });
@@ -162,9 +170,16 @@ bool CRxProfiler::ReferencesObservableInterfaces(ModuleID moduleId, ObservableTy
     return false;
 }
 
-void CRxProfiler::AddSupportAssemblyReference(ModuleID moduleId)
+void CRxProfiler::AddSupportAssemblyReference(ModuleID moduleId, const ObservableTypeReferences& observableRefs, SupportAssemblyReferences& refs)
 {
-    CMetadataAssemblyEmit assemblyEmit = m_profilerInfo.GetMetadataAssemblyEmit(moduleId, ofReadWriteMask);
+    // would be nice to sync this automatically
+    static const COR_SIGNATURE c_ReturnedSig[] = { 
+        0x10, 0x01, 0x02, 0x15, 0x12, 0x35, 0x01, 0x1e,
+        0x00, 0x15, 0x12, 0x35, 0x01, 0x1e, 0x00, 0x08
+    };
+
+    CMetadataAssemblyEmit assemblyEmit = m_profilerInfo.GetMetadataAssemblyEmit(moduleId, ofRead | ofWrite);
+    CMetadataEmit emit = m_profilerInfo.GetMetadataEmit(moduleId, ofRead | ofWrite);
 
     ASSEMBLYMETADATA metadata = {};
     metadata.usMajorVersion = 1;
@@ -172,7 +187,13 @@ void CRxProfiler::AddSupportAssemblyReference(ModuleID moduleId)
     metadata.usBuildNumber = 0;
     metadata.usRevisionNumber = 0;
 
-    assemblyEmit.DefineAssemblyRef({}, GetSupportAssemblyName(), metadata, {});
+    refs.m_AssemblyRef = assemblyEmit.DefineAssemblyRef({}, GetSupportAssemblyName(), metadata, {});
+    refs.m_Instrument = emit.DefineTypeRefByName(refs.m_AssemblyRef, L"ReactivityProfiler.Support.Instrument");
+    refs.m_Returned = emit.DefineMemberRef({
+        refs.m_Instrument,
+        L"Returned",
+        {c_ReturnedSig, sizeof c_ReturnedSig}
+    });
 }
 
 void CRxProfiler::InstrumentMethodBody(const std::wstring& name, const FunctionInfo& info, const CMetadataImport& metadata, const std::shared_ptr<PerModuleData>& pPerModuleData)

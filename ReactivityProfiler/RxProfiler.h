@@ -18,6 +18,7 @@ using namespace ATL;
 
 struct PerModuleData;
 struct ObservableTypeReferences;
+struct SupportAssemblyReferences;
 
 class ATL_NO_VTABLE CRxProfiler :
 	public CComObjectRootEx<CComMultiThreadModel>,
@@ -81,7 +82,7 @@ private:
     concurrent_map<ModuleID, std::shared_ptr<PerModuleData>> m_moduleInfoMap;
 
     bool ReferencesObservableInterfaces(ModuleID moduleId, ObservableTypeReferences& typeRefs);
-    void AddSupportAssemblyReference(ModuleID moduleId);
+    void AddSupportAssemblyReference(ModuleID moduleId, const ObservableTypeReferences& observableRefs, SupportAssemblyReferences& refs);
     void InstrumentMethodBody(const std::wstring& name, const FunctionInfo& info, const CMetadataImport& metadata, const std::shared_ptr<PerModuleData>& pPerModuleData);
 };
 

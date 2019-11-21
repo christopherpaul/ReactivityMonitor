@@ -224,6 +224,20 @@ private:
     CComQIPtr<IMetaDataAssemblyEmit, &IID_IMetaDataAssemblyEmit> m_metadata;
 };
 
+class CMetadataEmit
+{
+public:
+    CMetadataEmit(IUnknown* metadataEmit) : m_metadata(metadataEmit)
+    {
+    }
+
+    mdTypeRef DefineTypeRefByName(mdToken scope, const std::wstring& typeName);
+    mdMemberRef DefineMemberRef(const MemberRefProps& props);
+
+private:
+    CComQIPtr<IMetaDataEmit2, &IID_IMetaDataEmit2> m_metadata;
+};
+
 class CProfilerInfo
 {
 public:
@@ -238,9 +252,10 @@ public:
     FunctionInfo GetFunctionInfo(FunctionID functionId);
     simplespan<const byte> GetILFunctionBody(ModuleID moduleId, mdMethodDef methodToken);
 
-    CMetadataImport GetMetadataImport(ModuleID moduleId, CorOpenFlags openFlags);
-    CMetadataAssemblyImport GetMetadataAssemblyImport(ModuleID moduleId, CorOpenFlags openFlags);
-    CMetadataAssemblyEmit GetMetadataAssemblyEmit(ModuleID moduleId, CorOpenFlags openFlags);
+    CMetadataImport GetMetadataImport(ModuleID moduleId, DWORD openFlags);
+    CMetadataAssemblyImport GetMetadataAssemblyImport(ModuleID moduleId, DWORD openFlags);
+    CMetadataAssemblyEmit GetMetadataAssemblyEmit(ModuleID moduleId, DWORD openFlags);
+    CMetadataEmit GetMetadataEmit(ModuleID moduleId, DWORD openFlags);
 
 private:
     CComQIPtr<ICorProfilerInfo6> m_profilerInfo;
