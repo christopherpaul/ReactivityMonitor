@@ -83,7 +83,7 @@ private:
 
     bool ReferencesObservableInterfaces(ModuleID moduleId, ObservableTypeReferences& typeRefs);
     void AddSupportAssemblyReference(ModuleID moduleId, const ObservableTypeReferences& observableRefs, SupportAssemblyReferences& refs);
-    void InstrumentMethodBody(const std::wstring& name, const FunctionInfo& info, const CMetadataImport& metadata, const std::shared_ptr<PerModuleData>& pPerModuleData);
+    void InstrumentMethodBody(const MethodProps& name, const FunctionInfo& info, const CMetadataImport& metadata, const std::shared_ptr<PerModuleData>& pPerModuleData);
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(RxProfiler), CRxProfiler)

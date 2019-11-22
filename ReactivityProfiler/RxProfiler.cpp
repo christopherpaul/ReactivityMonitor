@@ -130,7 +130,7 @@ HRESULT CRxProfiler::JITCompilationStarted(FunctionID functionId, BOOL fIsSafeTo
 
         ATLTRACE(L"JITCompilationStarted for %s", props.name.c_str());
 
-        InstrumentMethodBody(props.name, info, metadataImport, pPerModuleData);
+        InstrumentMethodBody(props, info, metadataImport, pPerModuleData);
     });
 }
 
@@ -199,18 +199,18 @@ void CRxProfiler::AddSupportAssemblyReference(ModuleID moduleId, const Observabl
     });
 }
 
-void CRxProfiler::InstrumentMethodBody(const std::wstring& name, const FunctionInfo& info, const CMetadataImport& metadata, const std::shared_ptr<PerModuleData>& pPerModuleData)
+void CRxProfiler::InstrumentMethodBody(const MethodProps& props, const FunctionInfo& info, const CMetadataImport& metadata, const std::shared_ptr<PerModuleData>& pPerModuleData)
 {
     using namespace Instrumentation;
 
     simplespan<const byte> ilCode = m_profilerInfo.GetILFunctionBody(info.moduleId, info.functionToken);
     if (!ilCode)
     {
-        ATLTRACE(L"%s is not an IL function", name.c_str());
+        ATLTRACE(L"%s is not an IL function", props.name.c_str());
         return;
     }
 
-    ATLTRACE(L"%s has %d bytes of IL", name.c_str(), ilCode.length());
+    ATLTRACE(L"%s has %d bytes of IL", props.name.c_str(), ilCode.length());
     const byte* codeBytes = ilCode.begin();
     const IMAGE_COR_ILMETHOD* pMethodImage = reinterpret_cast<const IMAGE_COR_ILMETHOD*>(codeBytes);
 
@@ -239,11 +239,12 @@ void CRxProfiler::InstrumentMethodBody(const std::wstring& name, const FunctionI
         auto operation = pInstr->m_operation;
         if (operation == CEE_CALL || operation == CEE_CALLVIRT)
         {
-            mdToken method = static_cast<mdToken>(pInstr->m_operand);
+            mdToken calledMethodToken = static_cast<mdToken>(pInstr->m_operand);
 
-            MethodCallInfo methodCallInfo = GetMethodCallInfo(method, metadata);
+            MethodCallInfo methodCallInfo = GetMethodCallInfo(calledMethodToken, metadata);
 
-            ATLTRACE(L"%s calls %s", name.c_str(), methodCallInfo.name.c_str());
+            ATLTRACE(L"%s calls %s (RVA %x)", props.name.c_str(), methodCallInfo.name.c_str(),
+                 props.codeRva + method.GetOriginalHeaderSize() + pInstr->m_origOffset);
 
             try
             {

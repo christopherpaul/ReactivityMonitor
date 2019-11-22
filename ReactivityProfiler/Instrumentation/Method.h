@@ -24,6 +24,7 @@ namespace Instrumentation
 		void PopulateILMap(ULONG mapSize, COR_IL_MAP* maps);
 
 		bool IsInstrumented(long offset, const InstructionList &instructions);
+        ULONG GetOriginalHeaderSize() const { return m_originalHeaderSize; } // lets us find original RVA of instructions
 
 	public:
 		void SetMinimumStackSize(unsigned int minimumStackSize)
@@ -68,6 +69,7 @@ namespace Instrumentation
 	private:
 		// all instrumented methods will be FAT (with FAT SECTIONS if exist) regardless
 		IMAGE_COR_ILMETHOD_FAT m_header;
+        ULONG m_originalHeaderSize;
 
 #ifdef TEST_FRAMEWORK
 	public:

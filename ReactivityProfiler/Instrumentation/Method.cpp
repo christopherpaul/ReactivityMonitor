@@ -30,11 +30,13 @@ namespace Instrumentation
 			auto tinyImage = static_cast<const COR_ILMETHOD_TINY*>(&pMethod->Tiny);
 			m_header.CodeSize = tinyImage->GetCodeSize();
 			pCode = tinyImage->GetCode();
+            m_originalHeaderSize = sizeof(IMAGE_COR_ILMETHOD_TINY);
 			ATLTRACE(_T("TINY(%X) => (%d + 1) : %d"), m_header.CodeSize, m_header.CodeSize, m_header.MaxStack);
 		}
 		else
 		{
-			memcpy(&m_header, pMethod, fatImage->Size * sizeof(DWORD));
+            m_originalHeaderSize = fatImage->Size * sizeof(DWORD);
+			memcpy(&m_header, pMethod, m_originalHeaderSize);
 			pCode = fatImage->GetCode();
 			ATLTRACE(_T("FAT(%X) => (%d + 12) : %d"), m_header.CodeSize, m_header.CodeSize, m_header.MaxStack);
 		}
