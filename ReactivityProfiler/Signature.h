@@ -12,6 +12,8 @@ class MethodSpecSignatureReaderState;
 
 class MethodSpecSignatureWriterState;
 
+class SignatureVisitor;
+
 class SignatureArrayShapeReader
 {
 public:
@@ -75,7 +77,7 @@ private:
 class MethodSignatureReader
 {
 public:
-    MethodSignatureReader(const SignatureBlob& sigBlob);
+    MethodSignatureReader(const SignatureBlob& sigBlob, SignatureVisitor* visitor = nullptr);
     MethodSignatureReader(const std::shared_ptr<MethodSignatureReaderState>& state);
 
     bool HasThis();
@@ -119,4 +121,11 @@ public:
 
 private:
     const std::shared_ptr<MethodSpecSignatureWriterState> m_state;
+};
+
+// Implement additional methods as and when they are needed
+class SignatureVisitor
+{
+public:
+    virtual void VisitMethodTypeVariable(ULONG varNumber, const SignatureBlob& span) {}
 };

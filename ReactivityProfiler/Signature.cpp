@@ -61,8 +61,9 @@ typedef std::unique_ptr<PrimitiveReader> UniquePrimitiveReader;
 class ReaderBase
 {
 public:
-    ReaderBase(UniquePrimitiveReader& reader) :
-        m_reader(std::move(reader))
+    ReaderBase(UniquePrimitiveReader& reader, SignatureVisitor* visitor) :
+        m_reader(std::move(reader)),
+        m_visitor(visitor)
     {
     }
 
@@ -71,16 +72,17 @@ public:
     }
 
 protected:
-    UniquePrimitiveReader&& MovePrimitiveReader()
-    {
-        return std::move(m_reader);
-    }
-
     virtual void MoveToEnd() = 0;
 
     void ReclaimPrimitiveReader(ReaderBase& childReader)
     {
         m_reader = childReader.ReturnPrimitiveReader();
+    }
+
+    template<typename TReader, typename ... TArgs>
+    std::shared_ptr<TReader> CreateChildReader(TArgs... args)
+    {
+        return std::make_shared<TReader>(std::move(m_reader), GetVisitor(), args...);
     }
 
     template<typename TReader>
@@ -125,15 +127,21 @@ protected:
         return m_reader->GetPtr();
     }
 
+    SignatureVisitor* GetVisitor()
+    {
+        return m_visitor;
+    }
+
 public:
     UniquePrimitiveReader&& ReturnPrimitiveReader()
     {
         MoveToEnd();
-        return MovePrimitiveReader();
+        return std::move(m_reader);
     }
 
 private:
     UniquePrimitiveReader m_reader;
+    SignatureVisitor* m_visitor;
 };
 
 class CustomModListReader
@@ -164,7 +172,7 @@ public:
 class MethodSignatureReaderState : public ReaderBase
 {
 public:
-    MethodSignatureReaderState(UniquePrimitiveReader& reader);
+    MethodSignatureReaderState(UniquePrimitiveReader& reader, SignatureVisitor* visitor);
 
     bool MoveNextParam();
 
@@ -198,7 +206,7 @@ enum class ParamKind
 class SignatureParamReaderState : public ReaderBase
 {
 public:
-    SignatureParamReaderState(UniquePrimitiveReader& reader, ParamKind kind);
+    SignatureParamReaderState(UniquePrimitiveReader& reader, SignatureVisitor* visitor, ParamKind kind);
 
     bool MoveNextCustomModifier();
     std::pair<mdToken, bool> GetCustomModifier();
@@ -228,7 +236,7 @@ public:
 class SignatureTypeReaderState : public ReaderBase
 {
 public:
-    SignatureTypeReaderState(UniquePrimitiveReader& reader);
+    SignatureTypeReaderState(UniquePrimitiveReader& reader, SignatureVisitor* visitor);
 
     CorElementType GetTypeKind()
     {
@@ -298,7 +306,7 @@ private:
 class SignatureArrayShapeReaderState : public ReaderBase
 {
 public:
-    SignatureArrayShapeReaderState(UniquePrimitiveReader& reader);
+    SignatureArrayShapeReaderState(UniquePrimitiveReader& reader, SignatureVisitor* visitor);
 
     bool MoveNextSize();
     ULONG GetLoBoundsCount();
@@ -328,7 +336,7 @@ private:
 class MethodSpecSignatureReaderState : public ReaderBase
 {
 public:
-    MethodSpecSignatureReaderState(UniquePrimitiveReader& reader);
+    MethodSpecSignatureReaderState(UniquePrimitiveReader& reader, SignatureVisitor* visitor);
 
     bool MoveNextArgType();
 
@@ -347,8 +355,8 @@ private:
     } m_where;
 };
 
-MethodSignatureReaderState::MethodSignatureReaderState(UniquePrimitiveReader& reader) :
-    ReaderBase(reader),
+MethodSignatureReaderState::MethodSignatureReaderState(UniquePrimitiveReader& reader, SignatureVisitor* visitor) :
+    ReaderBase(reader, visitor),
     m_currentParam(0),
     m_inVarArgParams(0),
     m_where(INIT)
@@ -384,7 +392,7 @@ bool MethodSignatureReaderState::MoveNextParam()
     {
         // first "param" is return, which is always present
         m_currentParam = 0;
-        m_paramReader.reset(new SignatureParamReaderState(MovePrimitiveReader(), ParamKind::Return));
+        m_paramReader = CreateChildReader<SignatureParamReaderState>(ParamKind::Return);
         m_where = PARAM;
         return true;
     }
@@ -405,7 +413,7 @@ bool MethodSignatureReaderState::MoveNextParam()
         m_inVarArgParams = true;
     }
 
-    m_paramReader.reset(new SignatureParamReaderState(MovePrimitiveReader(), m_inVarArgParams ? ParamKind::VarArg : ParamKind::Normal));
+    m_paramReader = CreateChildReader<SignatureParamReaderState>(m_inVarArgParams ? ParamKind::VarArg : ParamKind::Normal);
     return true;
 }
 
@@ -414,8 +422,8 @@ void MethodSignatureReaderState::MoveToEnd()
     while (MoveNextParam()) {}
 }
 
-SignatureParamReaderState::SignatureParamReaderState(UniquePrimitiveReader& reader, ParamKind kind) :
-    ReaderBase(reader),
+SignatureParamReaderState::SignatureParamReaderState(UniquePrimitiveReader& reader, SignatureVisitor* visitor, ParamKind kind) :
+    ReaderBase(reader, visitor),
     m_kind(kind),
     m_where(INIT),
     m_isTypedByRef(false),
@@ -492,7 +500,7 @@ void SignatureParamReaderState::AdvanceToType()
     }
 
     m_where = TYPE;
-    m_typeReader = std::make_shared<SignatureTypeReaderState>(MovePrimitiveReader());
+    m_typeReader = CreateChildReader<SignatureTypeReaderState>();
 }
 
 void SignatureParamReaderState::MoveToEnd()
@@ -504,20 +512,21 @@ void SignatureParamReaderState::MoveToEnd()
     }
 }
 
-SignatureTypeReaderState::SignatureTypeReaderState(UniquePrimitiveReader& reader) :
-    ReaderBase(reader),
+SignatureTypeReaderState::SignatureTypeReaderState(UniquePrimitiveReader& reader, SignatureVisitor* visitor) :
+    ReaderBase(reader, visitor),
     m_token(0),
     m_typeArgCount(0),
     m_currentTypeArg(0),
     m_isVoidPtr(false),
-    m_genericInstKind(0)
+    m_genericInstKind(0),
+    m_typeVarNumber(0)
 {
     m_start = GetPtr();
     m_typeKind = ReadByte();
     switch (m_typeKind)
     {
     case ELEMENT_TYPE_ARRAY:
-        m_typeReader = std::make_shared<SignatureTypeReaderState>(MovePrimitiveReader());
+        m_typeReader = CreateChildReader<SignatureTypeReaderState>();
         m_where = ARRAY_TYPE;
         break;
 
@@ -528,7 +537,7 @@ SignatureTypeReaderState::SignatureTypeReaderState(UniquePrimitiveReader& reader
         break;
 
     case ELEMENT_TYPE_FNPTR:
-        m_methodSigReader = std::make_shared<MethodSignatureReaderState>(MovePrimitiveReader());
+        m_methodSigReader = CreateChildReader<MethodSignatureReaderState>();
         m_where = FNPTR_METHOD_SIG;
         break;
 
@@ -543,6 +552,11 @@ SignatureTypeReaderState::SignatureTypeReaderState(UniquePrimitiveReader& reader
     case ELEMENT_TYPE_VAR:
         m_typeVarNumber = ReadCompressedUnsigned();
         m_where = END;
+
+        if (GetVisitor() && m_typeKind == ELEMENT_TYPE_MVAR)
+        {
+            GetVisitor()->VisitMethodTypeVariable(m_typeVarNumber, GetSigSpan());
+        }
         break;
 
     case ELEMENT_TYPE_PTR:
@@ -652,7 +666,7 @@ void SignatureTypeReaderState::AdvanceToArrayShape()
     {
         EndChildReader(m_typeReader);
 
-        m_arrayShapeReader = std::make_shared<SignatureArrayShapeReaderState>(MovePrimitiveReader());
+        m_arrayShapeReader = CreateChildReader<SignatureArrayShapeReaderState>();
         m_where = ARRAY_SHAPE;
     }
 }
@@ -676,7 +690,7 @@ bool SignatureTypeReaderState::MoveNextTypeArg()
         return false;
     }
 
-    m_typeReader = std::make_shared<SignatureTypeReaderState>(MovePrimitiveReader());
+    m_typeReader = CreateChildReader<SignatureTypeReaderState>();
     m_where = GENERICINST_TYPE;
     return true;
 }
@@ -710,7 +724,7 @@ void SignatureTypeReaderState::AdvanceToType()
         m_isVoidPtr = true;
     }
 
-    m_typeReader = std::make_shared<SignatureTypeReaderState>(MovePrimitiveReader());
+    m_typeReader = CreateChildReader<SignatureTypeReaderState>();
     m_where = where_next;
 }
 
@@ -752,8 +766,8 @@ void SignatureTypeReaderState::MoveToEnd()
     m_where = END;
 }
 
-SignatureArrayShapeReaderState::SignatureArrayShapeReaderState(UniquePrimitiveReader& reader) :
-    ReaderBase(reader),
+SignatureArrayShapeReaderState::SignatureArrayShapeReaderState(UniquePrimitiveReader& reader, SignatureVisitor* visitor) :
+    ReaderBase(reader, visitor),
     m_loboundsCount(0),
     m_current(0),
     m_currentLoBound(0),
@@ -839,8 +853,8 @@ void SignatureArrayShapeReaderState::MoveToEnd()
     while (MoveNextLoBound()) {}
 }
 
-MethodSpecSignatureReaderState::MethodSpecSignatureReaderState(UniquePrimitiveReader& reader) :
-    ReaderBase(reader),
+MethodSpecSignatureReaderState::MethodSpecSignatureReaderState(UniquePrimitiveReader& reader, SignatureVisitor* visitor) :
+    ReaderBase(reader, visitor),
     m_currentArgType(0)
 {
     byte ccByte = ReadByte();
@@ -876,7 +890,7 @@ bool MethodSpecSignatureReaderState::MoveNextArgType()
         return false;
     }
 
-    m_typeReader = std::make_shared<SignatureTypeReaderState>(MovePrimitiveReader());
+    m_typeReader = CreateChildReader<SignatureTypeReaderState>();
     m_where = TYPE;
     return true;
 }
@@ -972,14 +986,14 @@ mdToken PrimitiveReader::ReadTypeDefOrRefEncoded()
 // ========================== Reader class implementations =============================
 
 
-static std::shared_ptr<MethodSignatureReaderState> CreateMethodSignatureReaderState(const SignatureBlob& sigBlob)
+static std::shared_ptr<MethodSignatureReaderState> CreateMethodSignatureReaderState(const SignatureBlob& sigBlob, SignatureVisitor* visitor)
 {
     auto primitiveReader = std::make_unique<PrimitiveReader>(sigBlob);
-    return std::make_shared<MethodSignatureReaderState>(primitiveReader);
+    return std::make_shared<MethodSignatureReaderState>(primitiveReader, visitor);
 }
 
-MethodSignatureReader::MethodSignatureReader(const SignatureBlob& sigBlob) :
-    MethodSignatureReader(CreateMethodSignatureReaderState(sigBlob))
+MethodSignatureReader::MethodSignatureReader(const SignatureBlob& sigBlob, SignatureVisitor* visitor) :
+    MethodSignatureReader(CreateMethodSignatureReaderState(sigBlob, visitor))
 {
 }
 
@@ -1021,7 +1035,7 @@ SignatureParamReader MethodSignatureReader::GetParamReader()
 void MethodSignatureReader::Check(const SignatureBlob& sigBlob)
 {
     auto primitiveReader = std::make_unique<PrimitiveReader>(sigBlob);
-    MethodSignatureReaderState s(primitiveReader);
+    MethodSignatureReaderState s(primitiveReader, nullptr);
 
     primitiveReader = s.ReturnPrimitiveReader();
 
@@ -1219,7 +1233,7 @@ LONG SignatureArrayShapeReader::GetLoBound()
 static std::shared_ptr<MethodSpecSignatureReaderState> CreateMethodSpecSignatureReaderState(const SignatureBlob& sigBlob)
 {
     auto primitiveReader = std::make_unique<PrimitiveReader>(sigBlob);
-    return std::make_shared<MethodSpecSignatureReaderState>(primitiveReader);
+    return std::make_shared<MethodSpecSignatureReaderState>(primitiveReader, nullptr);
 }
 
 MethodSpecSignatureReader::MethodSpecSignatureReader(const SignatureBlob& sigBlob) :
@@ -1254,7 +1268,7 @@ SignatureTypeReader MethodSpecSignatureReader::GetArgTypeReader()
 void MethodSpecSignatureReader::Check(const SignatureBlob& sigBlob)
 {
     auto primitiveReader = std::make_unique<PrimitiveReader>(sigBlob);
-    MethodSpecSignatureReaderState s(primitiveReader);
+    MethodSpecSignatureReaderState s(primitiveReader, nullptr);
 
     primitiveReader = s.ReturnPrimitiveReader();
     auto endPtr = primitiveReader->GetPtr();
