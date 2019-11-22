@@ -4,6 +4,53 @@
 
 typedef const COR_SIGNATURE* sigPtr;
 
+// Implement additional methods as and when they are needed
+class SignatureVisitor
+{
+public:
+    virtual void VisitMethodTypeVariable(ULONG varNumber, const SignatureBlob& span) {}
+};
+
+class SubstitutingVisitor : public SignatureVisitor
+{
+public:
+    SubstitutingVisitor(sigPtr start, std::vector<COR_SIGNATURE>& buffer, std::vector<SignatureBlob>& typeArgSpans) :
+        m_ptr(start),
+        m_buffer(buffer),
+        m_typeArgSpans(typeArgSpans)
+    {
+    }
+
+    void VisitMethodTypeVariable(ULONG varNumber, const SignatureBlob& span) override
+    {
+        if (varNumber >= m_typeArgSpans.size())
+        {
+            throw std::domain_error("Not enough type arguments supplied for method type variable number");
+        }
+
+        // add everything up to the type var
+        m_buffer.insert(m_buffer.end(), m_ptr, span.begin());
+
+        const SignatureBlob& typeArgSpan = m_typeArgSpans[varNumber];
+
+        // add the corresponding type arg
+        m_buffer.insert(m_buffer.end(), typeArgSpan.begin(), typeArgSpan.end());
+
+        m_ptr = span.end();
+    }
+
+    void Complete(sigPtr endPtr)
+    {
+        m_buffer.insert(m_buffer.end(), m_ptr, endPtr);
+        m_ptr = endPtr;
+    }
+
+private:
+    sigPtr m_ptr;
+    std::vector<COR_SIGNATURE>& m_buffer;
+    std::vector<SignatureBlob>& m_typeArgSpans;
+};
+
 class PrimitiveReader
 {
 public:
@@ -69,6 +116,11 @@ public:
 
     virtual ~ReaderBase()
     {
+    }
+
+    void SetVisitor(SignatureVisitor* visitor)
+    {
+        m_visitor = visitor;
     }
 
 protected:
@@ -240,13 +292,17 @@ public:
 
     CorElementType GetTypeKind()
     {
+        ReadTypeKind();
         return static_cast<CorElementType>(m_typeKind);
     }
 
     CorElementType GetGenericInstKind()
     {
+        ReadTypeKind();
         return static_cast<CorElementType>(m_genericInstKind);
     }
+
+    void ReadTypeKind();
 
     mdToken GetToken();
     ULONG GetTypeVarNumber();
@@ -270,14 +326,14 @@ public:
     }
 
     sigPtr m_start;
-    byte m_typeKind;
-    byte m_genericInstKind;
     std::shared_ptr<SignatureTypeReaderState> m_typeReader;
     std::shared_ptr<MethodSignatureReaderState> m_methodSigReader;
     std::shared_ptr<SignatureArrayShapeReaderState> m_arrayShapeReader;
     bool m_isVoidPtr;
 
 private:
+    byte m_typeKind;
+    byte m_genericInstKind;
     CustomModListReader m_modsReader;
     mdToken m_token;
     LONG m_typeArgCount;
@@ -286,6 +342,7 @@ private:
 
     enum
     {
+        INIT,
         ARRAY_TYPE,
         ARRAY_SHAPE,
         FNPTR_METHOD_SIG,
@@ -519,9 +576,20 @@ SignatureTypeReaderState::SignatureTypeReaderState(UniquePrimitiveReader& reader
     m_currentTypeArg(0),
     m_isVoidPtr(false),
     m_genericInstKind(0),
-    m_typeVarNumber(0)
+    m_typeVarNumber(0),
+    m_where(INIT),
+    m_typeKind(0)
 {
     m_start = GetPtr();
+}
+
+void SignatureTypeReaderState::ReadTypeKind()
+{
+    if (m_where > INIT)
+    {
+        return;
+    }
+
     m_typeKind = ReadByte();
     switch (m_typeKind)
     {
@@ -730,6 +798,8 @@ void SignatureTypeReaderState::AdvanceToType()
 
 void SignatureTypeReaderState::MoveToEnd()
 {
+    ReadTypeKind();
+
     switch (m_where)
     {
     case ARRAY_TYPE:
@@ -986,14 +1056,14 @@ mdToken PrimitiveReader::ReadTypeDefOrRefEncoded()
 // ========================== Reader class implementations =============================
 
 
-static std::shared_ptr<MethodSignatureReaderState> CreateMethodSignatureReaderState(const SignatureBlob& sigBlob, SignatureVisitor* visitor)
+static std::shared_ptr<MethodSignatureReaderState> CreateMethodSignatureReaderState(const SignatureBlob& sigBlob)
 {
     auto primitiveReader = std::make_unique<PrimitiveReader>(sigBlob);
-    return std::make_shared<MethodSignatureReaderState>(primitiveReader, visitor);
+    return std::make_shared<MethodSignatureReaderState>(primitiveReader, nullptr);
 }
 
-MethodSignatureReader::MethodSignatureReader(const SignatureBlob& sigBlob, SignatureVisitor* visitor) :
-    MethodSignatureReader(CreateMethodSignatureReaderState(sigBlob, visitor))
+MethodSignatureReader::MethodSignatureReader(const SignatureBlob& sigBlob) :
+    MethodSignatureReader(CreateMethodSignatureReaderState(sigBlob))
 {
 }
 
@@ -1188,6 +1258,23 @@ bool SignatureTypeReader::MoveNextTypeArg()
 SignatureBlob SignatureTypeReader::GetSigSpan()
 {
     return m_state->GetSigSpan();
+}
+
+std::vector<COR_SIGNATURE> SignatureTypeReader::SubstituteMethodTypeArgs(const SignatureBlob& methodSpecSigBlob)
+{
+    std::vector<SignatureBlob> typeArgSpans;
+    MethodSpecSignatureReader specReader(methodSpecSigBlob);
+    while (specReader.MoveNextArgType())
+    {
+        typeArgSpans.push_back(specReader.GetArgTypeReader().GetSigSpan());
+    }
+
+    std::vector<COR_SIGNATURE> buffer;
+    SubstitutingVisitor visitor(m_state->m_start, buffer, typeArgSpans);
+    m_state->SetVisitor(&visitor);
+    visitor.Complete(m_state->GetSigSpan().end());
+
+    return buffer;
 }
 
 SignatureArrayShapeReader::SignatureArrayShapeReader(const std::shared_ptr<SignatureArrayShapeReaderState>& state) :

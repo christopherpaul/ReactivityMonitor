@@ -226,7 +226,9 @@ void CRxProfiler::InstrumentMethodBody(const std::wstring& name, const FunctionI
     struct ObservableCallInfo
     {
         const Instruction* m_pInstruction = 0;
-        simplespan<const COR_SIGNATURE> m_observableTypeArgSigSpan;
+        std::variant<
+            SignatureBlob,
+            std::vector<COR_SIGNATURE>> m_observableTypeArg;
     };
 
     std::vector<ObservableCallInfo> observableCalls;
@@ -261,26 +263,23 @@ void CRxProfiler::InstrumentMethodBody(const std::wstring& name, const FunctionI
                         {
                             ATLTRACE(L"%s returns an IObservable!", methodCallInfo.name.c_str());
 
+                            returnTypeReader.MoveNextTypeArg();
+
                             if (methodCallInfo.genericInstBlob)
                             {
                                 // Invoking a generic method, so need to construct the instantiated sig
 #ifdef DEBUG
                                 MethodSpecSignatureReader::Check(methodCallInfo.genericInstBlob);
 #endif
-
-                                MethodSpecSignatureReader specReader(methodCallInfo.genericInstBlob);
-                                std::vector<SignatureBlob> argTypeSpans;
-                                while (specReader.MoveNextArgType())
-                                {
-                                    argTypeSpans.push_back(specReader.GetArgTypeReader().GetSigSpan());
-                                }
-
-                                ATLTRACE(L"Skipping generic method call");
-                                continue;
+                                auto substSig = returnTypeReader
+                                    .GetTypeReader()
+                                    .SubstituteMethodTypeArgs(methodCallInfo.genericInstBlob);
+                                observableCalls.push_back({ pInstr, substSig });
                             }
-
-                            returnTypeReader.MoveNextTypeArg();
-                            observableCalls.push_back({ pInstr, returnTypeReader.GetTypeReader().GetSigSpan() });
+                            else
+                            {
+                                observableCalls.push_back({ pInstr, returnTypeReader.GetTypeReader().GetSigSpan() });
+                            }
                         }
                     }
                 }
@@ -301,10 +300,25 @@ void CRxProfiler::InstrumentMethodBody(const std::wstring& name, const FunctionI
 
     for (auto call : observableCalls)
     {
-        // for now just add a MethodSpec token regardless - but really ought to avoid duplicates
+        // Generate a call to Instrument.Returned(retval, n) to be inserted right after
+        // the call.
         std::vector<COR_SIGNATURE> sig;
         MethodSpecSignatureWriter sigWriter(sig, 1);
-        sigWriter.AddTypeArg(call.m_observableTypeArgSigSpan);
+        SignatureBlob argBlob;
+        if (std::holds_alternative<SignatureBlob>(call.m_observableTypeArg))
+        {
+            argBlob = std::get<SignatureBlob>(call.m_observableTypeArg);
+        }
+        else
+        {
+            auto& vec = std::get<std::vector<COR_SIGNATURE>>(call.m_observableTypeArg);
+            argBlob = { vec.data(), vec.size() };
+        }
+        sigWriter.AddTypeArg(argBlob);
+
+        // we'll probably end up asking for the same combinations many times,
+        // but (empirically) DefineMethodSpec is smart enough to return the
+        // same token each time.
         mdMethodSpec methodSpecToken = emit.DefineMethodSpec({
             supportRefs.m_Returned,
             {sig.data(), sig.size()}

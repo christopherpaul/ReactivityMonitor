@@ -68,14 +68,12 @@ namespace ReactivityProfiler.Support
             {
                 Trace("OnCompleted");
                 mObserver.OnCompleted();
-                OnUnsubscribe();
             }
 
             public void OnError(Exception error)
             {
                 Trace($"OnError({error.Message})");
                 mObserver.OnError(error);
-                OnUnsubscribe();
             }
 
             public void OnNext(T value)

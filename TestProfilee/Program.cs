@@ -25,11 +25,10 @@ namespace TestProfilee
 
             Console.WriteLine("Spinning up an observable...");
             IObservable<string> observable = new[] { "One", "two", "three" }.ToObservable()
-                .Repeat(10)
                 .Zip(Observable.Interval(TimeSpan.FromSeconds(1)), (x, _) => x);
 
             var sub = observable.Subscribe(Console.WriteLine);
-
+             
             Console.WriteLine("Press any key to unsubscribe and finish");
             Console.ReadKey();
 

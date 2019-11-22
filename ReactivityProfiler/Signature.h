@@ -12,8 +12,6 @@ class MethodSpecSignatureReaderState;
 
 class MethodSpecSignatureWriterState;
 
-class SignatureVisitor;
-
 class SignatureArrayShapeReader
 {
 public:
@@ -50,6 +48,7 @@ public:
     bool MoveNextTypeArg(); // for GENERICINST
 
     SignatureBlob GetSigSpan();
+    std::vector<COR_SIGNATURE> SubstituteMethodTypeArgs(const SignatureBlob& methodSpecSigBlob);
 
 private:
     const std::shared_ptr<SignatureTypeReaderState> m_state;
@@ -77,7 +76,7 @@ private:
 class MethodSignatureReader
 {
 public:
-    MethodSignatureReader(const SignatureBlob& sigBlob, SignatureVisitor* visitor = nullptr);
+    MethodSignatureReader(const SignatureBlob& sigBlob);
     MethodSignatureReader(const std::shared_ptr<MethodSignatureReaderState>& state);
 
     bool HasThis();
@@ -121,11 +120,4 @@ public:
 
 private:
     const std::shared_ptr<MethodSpecSignatureWriterState> m_state;
-};
-
-// Implement additional methods as and when they are needed
-class SignatureVisitor
-{
-public:
-    virtual void VisitMethodTypeVariable(ULONG varNumber, const SignatureBlob& span) {}
 };
