@@ -252,6 +252,27 @@ private:
     } m_where;
 };
 
+class MethodSpecSignatureReaderState : private ReaderBase
+{
+public:
+    MethodSpecSignatureReaderState(sigPtr start, sigPtr limit);
+
+    bool MoveNextArgType();
+
+    void MoveToEnd(sigPtr& endPtr);
+
+    ULONG m_argTypeCount;
+    std::shared_ptr<SignatureTypeReaderState> m_typeReader;
+
+private:
+    ULONG m_currentArgType;
+    enum
+    {
+        INIT,
+        TYPE,
+        END
+    } m_where;
+};
 
 MethodSignatureReaderState::MethodSignatureReaderState(sigPtr start, sigPtr limit) :
     ReaderBase(start, limit),
@@ -756,6 +777,55 @@ void SignatureArrayShapeReaderState::MoveToEnd(sigPtr& endPtr)
     endPtr = m_ptr;
 }
 
+MethodSpecSignatureReaderState::MethodSpecSignatureReaderState(sigPtr start, sigPtr limit) :
+    ReaderBase(start, limit),
+    m_currentArgType(0)
+{
+    byte ccByte = ReadByte();
+    if (ccByte != IMAGE_CEE_CS_CALLCONV_GENERICINST)
+    {
+        throw std::domain_error("MethodInst signature should start with GENERICINST");
+    }
+
+    m_argTypeCount = ReadCompressedUnsigned();
+
+    m_where = INIT;
+}
+
+bool MethodSpecSignatureReaderState::MoveNextArgType()
+{
+    if (m_where == INIT)
+    {
+        m_currentArgType = 0;
+    }
+    else if (m_where > TYPE)
+    {
+        return false;
+    }
+    else
+    {
+        m_typeReader->MoveToEnd(m_ptr);
+        m_typeReader.reset();
+        m_currentArgType++;
+    }
+
+    if (m_currentArgType >= m_argTypeCount)
+    {
+        m_where = END;
+        return false;
+    }
+
+    m_typeReader.reset(new SignatureTypeReaderState(m_ptr, m_limit));
+    m_where = TYPE;
+    return true;
+}
+
+void MethodSpecSignatureReaderState::MoveToEnd(sigPtr& endPtr)
+{
+    while (MoveNextArgType()) {}
+    endPtr = m_ptr;
+}
+
 
 
 ULONG ReaderBase::ReadCompressedUnsigned()
@@ -839,6 +909,8 @@ mdToken ReaderBase::ReadTypeDefOrRefEncoded()
 }
 
 
+// ========================== Reader class implementations =============================
+
 
 MethodSignatureReader::MethodSignatureReader(const SignatureBlob& sigBlob) :
     MethodSignatureReader(std::make_shared<MethodSignatureReaderState>(sigBlob))
@@ -889,7 +961,7 @@ void MethodSignatureReader::Check(const SignatureBlob& sigBlob)
 
     if (endPtr != sigBlob.end())
     {
-        throw std::domain_error("Signature blob contains bytes beyond end of signature");
+        throw std::domain_error("MethodDefOrRef signature blob contains bytes beyond end of signature");
     }
 }
 
@@ -1077,8 +1149,54 @@ LONG SignatureArrayShapeReader::GetLoBound()
     return m_state->m_currentLoBound;
 }
 
+MethodSpecSignatureReader::MethodSpecSignatureReader(const SignatureBlob& sigBlob) :
+    MethodSpecSignatureReader(std::make_shared<MethodSpecSignatureReaderState>(sigBlob.begin(), sigBlob.end()))
+{
+}
 
+MethodSpecSignatureReader::MethodSpecSignatureReader(const std::shared_ptr<MethodSpecSignatureReaderState>& state) :
+    m_state(state)
+{
+}
+
+ULONG MethodSpecSignatureReader::TypeArgCount()
+{
+    return m_state->m_argTypeCount;
+}
+
+bool MethodSpecSignatureReader::MoveNextArgType()
+{
+    return m_state->MoveNextArgType();
+}
+
+SignatureTypeReader MethodSpecSignatureReader::GetArgTypeReader()
+{
+    if (m_state->m_typeReader == nullptr)
+    {
+        throw std::logic_error("MethodSpecSignatureReader::GetArgTypeReader - bad call");
+    }
+    return m_state->m_typeReader;
+}
+
+void MethodSpecSignatureReader::Check(const SignatureBlob& sigBlob)
+{
+    MethodSpecSignatureReaderState s(sigBlob.begin(), sigBlob.end());
+
+    sigPtr endPtr;
+    s.MoveToEnd(endPtr);
+
+    if (endPtr != sigBlob.end())
+    {
+        throw std::domain_error("MethodSpec signature blob contains bytes beyond end of signature");
+    }
+}
+
+//
+//
 // ============================ Writers start here ===========================
+//
+//
+
 
 class WriterBase
 {
@@ -1163,3 +1281,4 @@ void MethodSpecSignatureWriter::AddTypeArg(const SignatureBlob& sigBlobSpan)
 {
     m_state->AddTypeArg(sigBlobSpan);
 }
+

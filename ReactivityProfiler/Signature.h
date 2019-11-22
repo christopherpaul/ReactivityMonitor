@@ -104,6 +104,8 @@ public:
     bool MoveNextArgType();
     SignatureTypeReader GetArgTypeReader();
 
+    static void Check(const SignatureBlob& sigBlob);
+
 private:
     const std::shared_ptr<MethodSpecSignatureReaderState> m_state;
 };

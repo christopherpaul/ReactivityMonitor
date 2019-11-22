@@ -245,7 +245,9 @@ void CRxProfiler::InstrumentMethodBody(const std::wstring& name, const FunctionI
 
             try
             {
-                MethodSignatureReader::Check(methodCallInfo.sigBlob); // can turn this into a debug check once the reader is proven
+#ifdef DEBUG
+                MethodSignatureReader::Check(methodCallInfo.sigBlob);
+#endif
 
                 MethodSignatureReader sigReader(methodCallInfo.sigBlob);
                 sigReader.MoveNextParam(); // move to the return value "parameter"
@@ -258,6 +260,24 @@ void CRxProfiler::InstrumentMethodBody(const std::wstring& name, const FunctionI
                         if (returnTypeReader.GetToken() == observableTypeRefs.m_IObservable)
                         {
                             ATLTRACE(L"%s returns an IObservable!", methodCallInfo.name.c_str());
+
+                            if (methodCallInfo.genericInstBlob)
+                            {
+                                // Invoking a generic method, so need to construct the instantiated sig
+#ifdef DEBUG
+                                MethodSpecSignatureReader::Check(methodCallInfo.genericInstBlob);
+#endif
+
+                                MethodSpecSignatureReader specReader(methodCallInfo.genericInstBlob);
+                                std::vector<SignatureBlob> argTypeSpans;
+                                while (specReader.MoveNextArgType())
+                                {
+                                    argTypeSpans.push_back(specReader.GetArgTypeReader().GetSigSpan());
+                                }
+
+                                ATLTRACE(L"Skipping generic method call");
+                                continue;
+                            }
 
                             returnTypeReader.MoveNextTypeArg();
                             observableCalls.push_back({ pInstr, returnTypeReader.GetTypeReader().GetSigSpan() });
