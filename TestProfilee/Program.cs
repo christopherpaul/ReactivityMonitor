@@ -9,6 +9,12 @@ namespace TestProfilee
 {
     class Program
     {
+        static void Pause()
+        {
+            Console.WriteLine("Press any key to unsubscribe and finish");
+            Console.ReadKey();
+        }
+
         static void Main(string[] args)
         {
             string[] envVars =
@@ -28,9 +34,8 @@ namespace TestProfilee
                 .Zip(Observable.Interval(TimeSpan.FromSeconds(1)), (x, _) => x);
 
             var sub = observable.Subscribe(Console.WriteLine);
-             
-            Console.WriteLine("Press any key to unsubscribe and finish");
-            Console.ReadKey();
+
+            Pause();
 
             sub.Dispose();
         }

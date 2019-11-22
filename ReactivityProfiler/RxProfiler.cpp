@@ -210,7 +210,7 @@ void CRxProfiler::InstrumentMethodBody(const MethodProps& props, const FunctionI
         return;
     }
 
-    ATLTRACE(L"%s has %d bytes of IL", props.name.c_str(), ilCode.length());
+    ATLTRACE(L"%s (%x) has %d bytes of IL starting at RVA 0x%x", props.name.c_str(), info.functionToken, ilCode.length(), props.codeRva);
     const byte* codeBytes = ilCode.begin();
     const IMAGE_COR_ILMETHOD* pMethodImage = reinterpret_cast<const IMAGE_COR_ILMETHOD*>(codeBytes);
 
@@ -244,7 +244,7 @@ void CRxProfiler::InstrumentMethodBody(const MethodProps& props, const FunctionI
             MethodCallInfo methodCallInfo = GetMethodCallInfo(calledMethodToken, metadata);
 
             ATLTRACE(L"%s calls %s (RVA %x)", props.name.c_str(), methodCallInfo.name.c_str(),
-                 props.codeRva + method.GetOriginalHeaderSize() + pInstr->m_origOffset);
+                 props.codeRva + pInstr->m_origOffset);
 
             try
             {
