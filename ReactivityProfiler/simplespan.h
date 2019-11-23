@@ -16,7 +16,7 @@ public:
     {
     }
 
-    simplespan(std::vector<std::remove_const_t<T>>& vec) : simplespan(vec.data(), vec.size())
+    simplespan(const std::vector<std::remove_const_t<T>>& vec) : simplespan(vec.data(), vec.size())
     {
     }
 

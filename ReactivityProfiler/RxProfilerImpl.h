@@ -1,13 +1,5 @@
 #pragma once
 
-struct MethodCallInfo
-{
-    std::wstring name;
-    SignatureBlob sigBlob;
-    SignatureBlob genericInstBlob;
-    SignatureBlob typeSpecBlob;
-};
-
 struct ObservableTypeReferences
 {
     mdTypeRef m_IObservable = 0;
@@ -36,5 +28,4 @@ struct PerModuleData
 
 extern const wchar_t* GetSupportAssemblyName();
 extern std::wstring GetSupportAssemblyPath();
-extern MethodCallInfo GetMethodCallInfo(mdToken method, const CMetadataImport& metadata);
 extern bool IsExcludedAssembly(const AssemblyProps& assemblyProps);
