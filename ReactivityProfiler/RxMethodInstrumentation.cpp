@@ -10,6 +10,7 @@ struct MethodCallInfo
     std::wstring name;
     SignatureBlob sigBlob;
     SignatureBlob genericInstBlob;
+    mdToken typeToken;
     SignatureBlob typeSpecBlob;
 };
 
@@ -29,7 +30,12 @@ static SignatureBlob getSpan(const SigSpanOrVector& ssov)
 struct ObservableCallInfo
 {
     const Instruction* m_pInstruction = 0;
-    SigSpanOrVector m_observableTypeArg;
+    SigSpanOrVector m_returnTypeArg; // if call returns IObservable<T>, this is T
+
+    // The follows vectors hold a value for each method argument starting with the first observable one.
+    std::vector<bool> m_argIsObservable;
+    // Span of the sig that applies to the parameter type
+    std::vector<SigSpanOrVector> m_argTypeSpan;
 };
 
 class MethodBodyInstrumenter
@@ -168,8 +174,6 @@ bool MethodBodyInstrumenter::TryFindObservableCalls()
 
         ATLTRACE(L"%s returns an IObservable!", methodCallInfo.name.c_str());
 
-        returnTypeReader.MoveNextTypeArg();
-
         std::vector<SignatureBlob> typeTypeArgs, methodTypeArgs;
 
         if (methodCallInfo.typeSpecBlob)
@@ -192,20 +196,58 @@ bool MethodBodyInstrumenter::TryFindObservableCalls()
             methodTypeArgs = MethodSpecSignatureReader::GetTypeArgSpans(methodCallInfo.genericInstBlob);
         }
 
+        // If there's any generic stuff going on, we need to fabricate new bits of
+        // sig using the type/method type arguments rather than just returning the
+        // appropriate span of the method sig. Set up a function to do this.
+        std::function<SigSpanOrVector(SignatureTypeReader&)> getSigSpanOrVector;
+        if (!methodTypeArgs.empty() || !typeTypeArgs.empty())
+        {
+            getSigSpanOrVector = [&typeTypeArgs, &methodTypeArgs](SignatureTypeReader& tr) {
+                return tr.SubstituteTypeArgs(typeTypeArgs, methodTypeArgs);
+            };
+        }
+        else
+        {
+            getSigSpanOrVector = [](SignatureTypeReader& tr) {
+                return tr.GetSigSpan();
+            };
+        }
+
         ObservableCallInfo callInfo;
         callInfo.m_pInstruction = pInstr;
 
         // Record the IObservable type argument for the return type
-        if (!methodTypeArgs.empty() || !typeTypeArgs.empty())
+        returnTypeReader.MoveNextTypeArg();
+        callInfo.m_returnTypeArg = getSigSpanOrVector(returnTypeReader.GetTypeReader());
+
+        // Now look at the arguments
+        while (sigReader.MoveNextParam())
         {
-            callInfo.m_observableTypeArg = returnTypeReader
-                .GetTypeReader()
-                .SubstituteTypeArgs(typeTypeArgs, methodTypeArgs);
+            auto paramReader = sigReader.GetParamReader();
+            if (paramReader.IsTypedByRef() || paramReader.IsByRef())
+            {
+                // Avoid dealing with anything except by-value args for now. This means
+                // we can't do anything with earlier args either.
+                callInfo.m_argIsObservable.clear();
+                callInfo.m_argTypeSpan.clear();
+                continue;
+            }
+
+            auto paramTypeReader = paramReader.GetTypeReader();
+            bool isObservable = 
+                paramTypeReader.GetTypeKind() == ELEMENT_TYPE_GENERICINST &&
+                paramTypeReader.GetToken() == observableTypeRefs.m_IObservable;
+
+            // No need to start recording arg info until the first observable arg
+            if (isObservable || !callInfo.m_argIsObservable.empty())
+            {
+                callInfo.m_argIsObservable.push_back(isObservable);
+                callInfo.m_argTypeSpan.push_back(getSigSpanOrVector(paramTypeReader));
+            }
         }
-        else
-        {
-            callInfo.m_observableTypeArg = returnTypeReader.GetTypeReader().GetSigSpan();
-        }
+
+        ATLTRACE(L"%s has %d observable args", methodCallInfo.name.c_str(),
+            std::count(callInfo.m_argIsObservable.begin(), callInfo.m_argIsObservable.end(), true));
 
         m_observableCalls.push_back(std::move(callInfo));
     }
@@ -231,7 +273,7 @@ void MethodBodyInstrumenter::InstrumentCall(ObservableCallInfo& call, CMetadataE
     // the call.
     std::vector<COR_SIGNATURE> sig;
     MethodSpecSignatureWriter sigWriter(sig, 1);
-    SignatureBlob argBlob = getSpan(call.m_observableTypeArg);
+    SignatureBlob argBlob = getSpan(call.m_returnTypeArg);
     sigWriter.AddTypeArg(argBlob);
 
     // we'll probably end up asking for the same combinations many times,
@@ -299,9 +341,9 @@ MethodCallInfo MethodBodyInstrumenter::GetMethodCallInfo(mdToken method)
     auto typeTokenType = TypeFromToken(typeToken);
     if (typeTokenType == mdtTypeSpec)
     {
-        // Generic type instance
+        // Generic type instance (or other constructed type, e.g. an array)
         typeSpecSig = m_metadataImport.GetTypeSpecFromToken(typeToken);
     }
 
-    return { methodName, sigBlob, genericInstBlob, typeSpecSig };
+    return { methodName, sigBlob, genericInstBlob, typeToken, typeSpecSig };
 }

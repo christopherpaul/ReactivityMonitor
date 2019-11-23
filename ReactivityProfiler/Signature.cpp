@@ -8,6 +8,7 @@ typedef const COR_SIGNATURE* sigPtr;
 class SignatureVisitor
 {
 public:
+    virtual void Attached(sigPtr start) {}
     virtual void VisitMethodTypeVariable(ULONG varNumber, const SignatureBlob& span) {}
     virtual void VisitTypeTypeVariable(ULONG varNumber, const SignatureBlob& span) {}
 };
@@ -16,15 +17,19 @@ class SubstitutingVisitor : public SignatureVisitor
 {
 public:
     SubstitutingVisitor(
-        sigPtr start, 
         std::vector<COR_SIGNATURE>& buffer, 
         const std::vector<SignatureBlob>& typeTypeArgSpans,
         const std::vector<SignatureBlob>& methodTypeArgSpans) :
-        m_ptr(start),
+        m_ptr(0),
         m_buffer(buffer),
         m_typeTypeArgSpans(typeTypeArgSpans),
         m_methodTypeArgSpans(methodTypeArgSpans)
     {
+    }
+
+    void Attached(sigPtr start)
+    {
+        m_ptr = start;
     }
 
     void VisitMethodTypeVariable(ULONG varNumber, const SignatureBlob& span) override
@@ -110,6 +115,11 @@ public:
         return m_ptr;
     }
 
+    void SetPtr(sigPtr ptr)
+    {
+        m_ptr = ptr;
+    }
+
 private:
     const sigPtr m_limit;
     sigPtr m_ptr;
@@ -137,10 +147,16 @@ public:
 
     void SetVisitor(SignatureVisitor* visitor)
     {
+        ResetToStartForVisitor();
         m_visitor = visitor;
+        m_visitor->Attached(GetPtr());
     }
 
 protected:
+    virtual void ResetToStartForVisitor()
+    {
+        throw std::logic_error("SetVisitor operation not supported");
+    }
     virtual void MoveToEnd() = 0;
 
     template<typename TReader, typename ... TArgs>
@@ -335,6 +351,7 @@ public:
     void AdvanceToType(); // for PTR/SZARRAY (no-op otherwise)
 
     void MoveToEnd() override;
+    void ResetToStartForVisitor() override;
 
     bool IsOkToReadTypeArgSpans()
     {
@@ -348,13 +365,13 @@ public:
         return { m_start, GetPtr() };
     }
 
-    sigPtr m_start;
     std::shared_ptr<SignatureTypeReaderState> m_typeReader;
     std::shared_ptr<MethodSignatureReaderState> m_methodSigReader;
     std::shared_ptr<SignatureArrayShapeReaderState> m_arrayShapeReader;
     bool m_isVoidPtr;
 
 private:
+    sigPtr m_start;
     byte m_typeKind;
     byte m_genericInstKind;
     CustomModListReader m_modsReader;
@@ -866,6 +883,19 @@ void SignatureTypeReaderState::MoveToEnd()
     m_where = END;
 }
 
+void SignatureTypeReaderState::ResetToStartForVisitor()
+{
+    if (m_where == INIT)
+    {
+        return;
+    }
+
+    // Bit of a hack but ensures known state
+    MoveToEnd();
+    PrimitiveReader().SetPtr(m_start);
+    m_where = INIT;
+}
+
 SignatureArrayShapeReaderState::SignatureArrayShapeReaderState(UniquePrimitiveReader& reader, SignatureVisitor* visitor) :
     ReaderBase(reader, visitor),
     m_loboundsCount(0),
@@ -1320,7 +1350,7 @@ SignatureBlob SignatureTypeReader::GetSigSpan()
 std::vector<COR_SIGNATURE> SignatureTypeReader::SubstituteTypeArgs(const std::vector<SignatureBlob>& typeTypeArgs, const std::vector<SignatureBlob>& methodTypeArgs)
 {
     std::vector<COR_SIGNATURE> buffer;
-    SubstitutingVisitor visitor(m_state->m_start, buffer, typeTypeArgs, methodTypeArgs);
+    SubstitutingVisitor visitor(buffer, typeTypeArgs, methodTypeArgs);
     m_state->SetVisitor(&visitor);
     visitor.Complete(m_state->GetSigSpan().end());
 
