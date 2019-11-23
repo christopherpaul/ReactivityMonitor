@@ -316,6 +316,9 @@ public:
         TYPE,
         END
     } m_where;
+
+protected:
+    virtual void OnPinnedConstraint();
 };
 
 class SignatureTypeReaderState : public ReaderBase
@@ -452,6 +455,49 @@ private:
     } m_where;
 };
 
+class SignatureLocalReaderState : public SignatureParamReaderState
+{
+public:
+    SignatureLocalReaderState(UniquePrimitiveReader& reader, SignatureVisitor* visitor) :
+        SignatureParamReaderState(reader, visitor, ParamKind::Normal),
+        m_hasPinnedConstraint(false)
+    {
+    }
+
+    bool m_hasPinnedConstraint;
+
+protected:
+    void OnPinnedConstraint() override
+    {
+        m_hasPinnedConstraint = true;
+    }
+};
+
+class LocalsSignatureReaderState : public ReaderBase
+{
+public:
+    LocalsSignatureReaderState(UniquePrimitiveReader& reader, SignatureVisitor* visitor);
+
+    bool MoveNext();
+    void MoveToEnd() override;
+
+    uint16_t m_count;
+    uint16_t m_current;
+
+    std::shared_ptr<SignatureLocalReaderState> m_localReader;
+    sigPtr m_startLocals;
+
+private:
+    enum
+    {
+        INIT,
+        LOCAL,
+        END
+    } m_where;
+};
+
+
+
 MethodSignatureReaderState::MethodSignatureReaderState(UniquePrimitiveReader& reader, SignatureVisitor* visitor) :
     ReaderBase(reader, visitor),
     m_currentParam(0),
@@ -536,6 +582,12 @@ bool SignatureParamReaderState::MoveNextCustomModifier()
         return false;
     }
 
+    if (PeekByte() == ELEMENT_TYPE_PINNED)
+    {
+        OnPinnedConstraint();
+        ReadByte();
+    }
+
     bool hasMod = m_modsReader.TryRead(PrimitiveReader());
     m_where = hasMod ? CUSTOM_MOD : PRE_TYPE;
     return hasMod;
@@ -607,6 +659,11 @@ void SignatureParamReaderState::MoveToEnd()
     {
         EndChildReader(m_typeReader);
     }
+}
+
+void SignatureParamReaderState::OnPinnedConstraint()
+{
+    throw std::domain_error("Constraint element is not allowed in a parameter");
 }
 
 SignatureTypeReaderState::SignatureTypeReaderState(UniquePrimitiveReader& reader, SignatureVisitor* visitor) :
@@ -893,6 +950,7 @@ void SignatureTypeReaderState::ResetToStartForVisitor()
     // Bit of a hack but ensures known state
     MoveToEnd();
     PrimitiveReader().SetPtr(m_start);
+    m_currentTypeArg = 0;
     m_where = INIT;
 }
 
@@ -1028,6 +1086,60 @@ bool MethodSpecSignatureReaderState::MoveNextArgType()
 void MethodSpecSignatureReaderState::MoveToEnd()
 {
     while (MoveNextArgType()) {}
+}
+
+LocalsSignatureReaderState::LocalsSignatureReaderState(UniquePrimitiveReader& reader, SignatureVisitor* visitor) :
+    ReaderBase(reader, visitor),
+    m_where(INIT),
+    m_current(0)
+{
+    byte ccByte = ReadByte();
+    if (ccByte != IMAGE_CEE_CS_CALLCONV_LOCAL_SIG)
+    {
+        throw std::domain_error("Locals signature has incorrect calling convention byte");
+    }
+
+    ULONG count = ReadCompressedUnsigned();
+    if (count > 0xfffe)
+    {
+        throw std::domain_error("Locals signature count exceeds maximum");
+    }
+
+    m_count = static_cast<uint16_t>(count);
+    m_startLocals = GetPtr();
+}
+
+bool LocalsSignatureReaderState::MoveNext()
+{
+    if (m_where == END)
+    {
+        return false;
+    }
+
+    if (m_where == INIT)
+    {
+        m_current = 0;
+    }
+    else
+    {
+        EndChildReader(m_localReader);
+        m_current++;
+    }
+
+    if (m_current >= m_count)
+    {
+        m_where = END;
+        return false;
+    }
+
+    m_localReader = CreateChildReader<SignatureLocalReaderState>();
+    m_where = LOCAL;
+    return true;
+}
+
+void LocalsSignatureReaderState::MoveToEnd()
+{
+    while (MoveNext()) {}
 }
 
 
@@ -1457,6 +1569,39 @@ std::vector<SignatureBlob> MethodSpecSignatureReader::GetTypeArgSpans(const Sign
 
     return typeArgSpans;
 }
+
+static std::shared_ptr<LocalsSignatureReaderState> CreateLocalsSignatureReaderState(const SignatureBlob& sigBlob)
+{
+    auto primitiveReader = std::make_unique<PrimitiveReader>(sigBlob);
+    return std::make_shared<LocalsSignatureReaderState>(primitiveReader, nullptr);
+}
+
+LocalsSignatureReader::LocalsSignatureReader(const SignatureBlob& sigBlob) :
+    m_state(CreateLocalsSignatureReaderState(sigBlob))
+{
+}
+
+uint16_t LocalsSignatureReader::GetCount()
+{
+    return m_state->m_count;
+}
+
+bool LocalsSignatureReader::MoveNext()
+{
+    return m_state->MoveNext();
+}
+
+SignatureLocalReader LocalsSignatureReader::GetLocalReader()
+{
+    if (!m_state->m_localReader)
+    {
+        throw std::logic_error("LocalsSignatureReader::GetLocalReader - bad call sequence");
+    }
+
+    return m_state->m_localReader;
+}
+
+
 
 //
 //
@@ -2003,3 +2148,24 @@ void MethodSpecSignatureWriter::AddTypeArg(const SignatureBlob& sigBlobSpan)
     m_state->AddTypeArg(sigBlobSpan);
 }
 
+
+std::vector<COR_SIGNATURE> LocalsSignatureReader::AppendLocals(const std::vector<SignatureBlob>& additionalLocals)
+{
+    size_t totalCount = GetCount() + additionalLocals.size();
+    if (totalCount > 0xfffe)
+    {
+        throw std::domain_error("Too many locals");
+    }
+
+    std::vector<COR_SIGNATURE> buffer;
+    PrimitiveWriter writer(buffer);
+    writer.Append(IMAGE_CEE_CS_CALLCONV_LOCAL_SIG);
+    writer.AppendCompressedUnsigned(static_cast<ULONG>(totalCount));
+    writer.Append({ m_state->m_startLocals, m_state->ReturnPrimitiveReader()->GetPtr() });
+    for (auto localSigSpan : additionalLocals)
+    {
+        writer.Append(localSigSpan);
+    }
+
+    return std::move(buffer);
+}

@@ -5,15 +5,6 @@
 
 using namespace Instrumentation;
 
-struct MethodCallInfo
-{
-    std::wstring name;
-    SignatureBlob sigBlob;
-    SignatureBlob genericInstBlob;
-    mdToken typeToken;
-    SignatureBlob typeSpecBlob;
-};
-
 typedef std::variant<SignatureBlob, std::vector<COR_SIGNATURE>> SigSpanOrVector;
 static SignatureBlob getSpan(const SigSpanOrVector& ssov)
 {
@@ -26,6 +17,15 @@ static SignatureBlob getSpan(const SigSpanOrVector& ssov)
         return std::get<std::vector<COR_SIGNATURE>>(ssov);
     }
 }
+
+struct MethodCallInfo
+{
+    std::wstring name;
+    SignatureBlob sigBlob;
+    SignatureBlob genericInstBlob;
+    mdToken typeToken;
+    SignatureBlob typeSpecBlob;
+};
 
 struct ObservableCallInfo
 {
@@ -258,6 +258,37 @@ bool MethodBodyInstrumenter::TryFindObservableCalls()
 void MethodBodyInstrumenter::InstrumentCall(ObservableCallInfo& call, CMetadataEmit& emit)
 {
     int32_t instrumentationPoint = ++m_pPerModuleData->m_instrumentationPointSource;
+
+    if (!call.m_argIsObservable.empty())
+    {
+        // Calling Instrument.Argument(arg, n) on each observable arg means we need to
+        // stash the stacked argument values somewhere temporarily, so add some extra
+        // locals.
+        // (Currently not taking account of the possibility of sharing these locals between
+        // multiple instrumentations.)
+        mdSignature localsSigTok = m_method->GetLocalsSignature();
+        ATLTRACE("Got locals token: %x", localsSigTok);
+        SignatureBlob localsSigBlob = m_metadataImport.GetSigFromToken(localsSigTok);
+        ATLTRACE("Got locals sig: %s", FormatBytes(localsSigBlob).c_str());
+        LocalsSignatureReader localsSigReader(localsSigBlob);
+        ATLTRACE("Locals count: %d", localsSigReader.GetCount());
+        ATLTRACE("Going to add %d", call.m_argTypeSpan.size());
+        std::vector<SignatureBlob> extraLocals;
+        std::transform(
+            call.m_argTypeSpan.begin(), call.m_argTypeSpan.end(), 
+            std::back_inserter(extraLocals),
+            getSpan);
+        for (auto s : extraLocals)
+        {
+            ATLTRACE("Extra local: %s", FormatBytes(s).c_str());
+        }
+        ATLTRACE("After transform: %d", extraLocals.size());
+        std::vector<COR_SIGNATURE> extendedLocalsSig = localsSigReader.AppendLocals(extraLocals);
+        ATLTRACE("After append: %s", FormatBytes(extendedLocalsSig).c_str());
+        mdSignature extendedLocalsTok = emit.GetTokenFromSig(extendedLocalsSig);
+        ATLTRACE("Got extended locals token: %x", extendedLocalsTok);
+        m_method->SetLocalsSignature(extendedLocalsTok);
+    }
 
     // Generate a call to Instrument.Calling(n) to be inserted right before the call.
     InstructionList callCallingInstrs;

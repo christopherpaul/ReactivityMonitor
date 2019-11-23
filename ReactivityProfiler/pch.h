@@ -25,6 +25,7 @@
 #include <variant>
 #include <sstream>
 #include <iomanip>
+#include <algorithm>
 
 #include "ReleaseTrace.h"
 #include "Utility.h"

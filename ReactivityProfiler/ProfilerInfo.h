@@ -186,6 +186,7 @@ public:
     MemberRefProps GetMemberRefProps(mdMemberRef memberRefToken) const;
     MethodSpecProps GetMethodSpecProps(mdMethodSpec methodSpecToken) const;
     SignatureBlob GetTypeSpecFromToken(mdTypeSpec typeSpecToken) const;
+    SignatureBlob GetSigFromToken(mdSignature sigTok) const;
     mdModule GetCurrentModule() const;
 
     operator bool() const { return m_metadata; }
@@ -237,6 +238,7 @@ public:
     mdTypeRef DefineTypeRefByName(mdToken scope, const std::wstring& typeName);
     mdMemberRef DefineMemberRef(const MemberRefProps& props);
     mdMethodSpec DefineMethodSpec(const MethodSpecProps& props);
+    mdSignature GetTokenFromSig(const SignatureBlob& sigBlob);
 
 private:
     CComQIPtr<IMetaDataEmit2, &IID_IMetaDataEmit2> m_metadata;

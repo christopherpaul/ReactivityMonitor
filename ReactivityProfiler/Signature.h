@@ -1,5 +1,5 @@
 #pragma once
-
+ 
 #include "common.h"
 
 class MethodSignatureReader;
@@ -9,6 +9,7 @@ class SignatureTypeReaderState;
 class SignatureParamReaderState;
 class MethodSignatureReaderState;
 class MethodSpecSignatureReaderState;
+class LocalsSignatureReaderState;
 
 class SignatureTypeWriterState;
 class SignatureParamWriterState;
@@ -118,6 +119,23 @@ public:
 
 private:
     const std::shared_ptr<MethodSpecSignatureReaderState> m_state;
+};
+
+typedef SignatureParamReader SignatureLocalReader;
+
+class LocalsSignatureReader
+{
+public:
+    LocalsSignatureReader(const SignatureBlob& sigBlob);
+
+    uint16_t GetCount();
+    bool MoveNext();
+    SignatureLocalReader GetLocalReader();
+
+    std::vector<COR_SIGNATURE> AppendLocals(const std::vector<SignatureBlob>& additionalLocals);
+
+private:
+    const std::shared_ptr<LocalsSignatureReaderState> m_state;
 };
 
 class SignatureTypeWriter

@@ -209,6 +209,19 @@ SignatureBlob CMetadataImport::GetTypeSpecFromToken(mdTypeSpec typeSpecToken) co
     return { pSigBlob, sigBlobSize };
 }
 
+SignatureBlob CMetadataImport::GetSigFromToken(mdSignature sigTok) const
+{
+    const COR_SIGNATURE* pSigBlob;
+    ULONG sigBlobSize;
+
+    CHECK_SUCCESS(m_metadata->GetSigFromToken(
+        sigTok,
+        &pSigBlob,
+        &sigBlobSize));
+
+    return { pSigBlob, sigBlobSize };
+}
+
 mdModule CMetadataImport::GetCurrentModule() const
 {
     mdModule token;
@@ -331,6 +344,20 @@ mdMethodSpec CMetadataEmit::DefineMethodSpec(const MethodSpecProps& props)
     ));
 
     ATLTRACE(L"DefineMethodSpec: %x -> %x", props.genericMethodToken, token);
+
+    return token;
+}
+
+mdSignature CMetadataEmit::GetTokenFromSig(const SignatureBlob& sigBlob)
+{
+    mdSignature token;
+    CHECK_SUCCESS(m_metadata->GetTokenFromSig(
+        sigBlob.begin(),
+        static_cast<ULONG>(sigBlob.length()),
+        &token
+    ));
+
+    ATLTRACE(L"GetTokenFromSig: %x", token);
 
     return token;
 }

@@ -61,8 +61,8 @@ TEST(MethodSignatureReader, SubstitutesTypeArgsForZip) {
 
     MethodSignatureReader methodRefSigReader(methodRefSig);
     EXPECT_EQ(methodRefSigReader.GenericParamCount(), 3);
-    EXPECT_EQ(methodRefSigReader.MoveNextParam(), true);
 
+    EXPECT_EQ(methodRefSigReader.MoveNextParam(), true);
     auto returnReader = methodRefSigReader.GetParamReader();
     auto returnTypeReader = returnReader.GetTypeReader();
     EXPECT_EQ(returnTypeReader.GetTypeKind(), ELEMENT_TYPE_GENERICINST);
@@ -75,4 +75,13 @@ TEST(MethodSignatureReader, SubstitutesTypeArgsForZip) {
 
     EXPECT_EQ(substituted.size(), 1);
     EXPECT_EQ(substituted[0], ELEMENT_TYPE_STRING);
+
+    EXPECT_EQ(methodRefSigReader.MoveNextParam(), true);
+    auto param1Reader = methodRefSigReader.GetParamReader();
+    auto param1TypeReader = param1Reader.GetTypeReader();
+    EXPECT_EQ(param1TypeReader.GetTypeKind(), ELEMENT_TYPE_GENERICINST);
+
+    auto param1Subst = param1TypeReader.SubstituteTypeArgs(std::vector<SignatureBlob>(), methodTypeArgSpans);
+    
+    EXPECT_EQ(param1Subst.size(), 5);
 }

@@ -25,6 +25,8 @@ namespace Instrumentation
 
 		bool IsInstrumented(long offset, const InstructionList &instructions);
         ULONG GetOriginalHeaderSize() const { return m_originalHeaderSize; } // lets us find original RVA of instructions
+        mdSignature GetLocalsSignature() const { return m_header.LocalVarSigTok; }
+        void SetLocalsSignature(mdSignature signatureToken) { m_header.LocalVarSigTok = signatureToken; }
 
 	public:
 		void SetMinimumStackSize(unsigned int minimumStackSize)
