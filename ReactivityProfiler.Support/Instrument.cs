@@ -15,6 +15,7 @@ namespace ReactivityProfiler.Support
         /// </summary>
         public static IObservable<T> Argument<T>(IObservable<T> observable, int instrumentationPoint)
         {
+            Trace.WriteLine($"Argument(X, {instrumentationPoint})");
             return observable;
         }
 
@@ -23,6 +24,7 @@ namespace ReactivityProfiler.Support
         /// </summary>
         public static void Calling(int instrumentationPoint)
         {
+            Trace.WriteLine($"Calling({instrumentationPoint})");
         }
 
         /// <summary>
@@ -36,7 +38,7 @@ namespace ReactivityProfiler.Support
             }
 
             int observableId = Interlocked.Increment(ref sObservableId);
-            Trace.WriteLine($"InstrPoint{instrumentationPoint}:Obs{observableId}");
+            Trace.WriteLine($"Returned(Obs{observableId}, {instrumentationPoint})");
             return new TracingObservable<T>(observable, observableId);
         }
     }

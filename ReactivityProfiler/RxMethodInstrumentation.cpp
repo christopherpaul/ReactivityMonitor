@@ -29,7 +29,8 @@ struct MethodCallInfo
 
 struct ObservableCallInfo
 {
-    const Instruction* m_pInstruction = 0;
+    int m_instructionOffset;
+    int m_instructionLength;
     SigSpanOrVector m_returnTypeArg; // if call returns IObservable<T>, this is T
 
     // The follows vectors hold a value for each method argument starting with the first observable one.
@@ -74,8 +75,15 @@ private:
 
 void CRxProfiler::InstrumentMethodBody(const MethodProps& props, const FunctionInfo& info, CMetadataImport& metadata, std::shared_ptr<PerModuleData>& pPerModuleData)
 {
-    MethodBodyInstrumenter instrumenter(m_profilerInfo, props, info, metadata, pPerModuleData);
-    instrumenter.Instrument();
+    try
+    {
+        MethodBodyInstrumenter instrumenter(m_profilerInfo, props, info, metadata, pPerModuleData);
+        instrumenter.Instrument();
+    }
+    catch (std::exception ex)
+    {
+        ATLTRACE("Exception while instrumenting: %s", ex.what());
+    }
 }
 
 void MethodBodyInstrumenter::Instrument()
@@ -214,7 +222,8 @@ bool MethodBodyInstrumenter::TryFindObservableCalls()
         }
 
         ObservableCallInfo callInfo;
-        callInfo.m_pInstruction = pInstr;
+        callInfo.m_instructionOffset = pInstr->m_origOffset;
+        callInfo.m_instructionLength = pInstr->length();
 
         // Record the IObservable type argument for the return type
         returnTypeReader.MoveNextTypeArg();
@@ -259,6 +268,7 @@ void MethodBodyInstrumenter::InstrumentCall(ObservableCallInfo& call, CMetadataE
 {
     int32_t instrumentationPoint = ++m_pPerModuleData->m_instrumentationPointSource;
 
+    InstructionList preCallInstrs;
     if (!call.m_argIsObservable.empty())
     {
         // Calling Instrument.Argument(arg, n) on each observable arg means we need to
@@ -267,38 +277,64 @@ void MethodBodyInstrumenter::InstrumentCall(ObservableCallInfo& call, CMetadataE
         // (Currently not taking account of the possibility of sharing these locals between
         // multiple instrumentations.)
         mdSignature localsSigTok = m_method->GetLocalsSignature();
-        ATLTRACE("Got locals token: %x", localsSigTok);
         SignatureBlob localsSigBlob = m_metadataImport.GetSigFromToken(localsSigTok);
         ATLTRACE("Got locals sig: %s", FormatBytes(localsSigBlob).c_str());
         LocalsSignatureReader localsSigReader(localsSigBlob);
-        ATLTRACE("Locals count: %d", localsSigReader.GetCount());
-        ATLTRACE("Going to add %d", call.m_argTypeSpan.size());
-        std::vector<SignatureBlob> extraLocals;
+        int existingLocalsCount = localsSigReader.GetCount();
+        int argCount = call.m_argIsObservable.size(); // not necessarily all args, but the ones we're dealing with
+        std::vector<SignatureBlob> argTypeSpans;
         std::transform(
             call.m_argTypeSpan.begin(), call.m_argTypeSpan.end(), 
-            std::back_inserter(extraLocals),
+            std::back_inserter(argTypeSpans),
             getSpan);
-        for (auto s : extraLocals)
-        {
-            ATLTRACE("Extra local: %s", FormatBytes(s).c_str());
-        }
-        ATLTRACE("After transform: %d", extraLocals.size());
-        std::vector<COR_SIGNATURE> extendedLocalsSig = localsSigReader.AppendLocals(extraLocals);
-        ATLTRACE("After append: %s", FormatBytes(extendedLocalsSig).c_str());
+        std::vector<COR_SIGNATURE> extendedLocalsSig = localsSigReader.AppendLocals(argTypeSpans);
         mdSignature extendedLocalsTok = emit.GetTokenFromSig(extendedLocalsSig);
-        ATLTRACE("Got extended locals token: %x", extendedLocalsTok);
+        ATLTRACE("Got extended locals token: %x for %s", extendedLocalsTok, FormatBytes(extendedLocalsSig).c_str());
         m_method->SetLocalsSignature(extendedLocalsTok);
+
+        // Step 1: working backwards through the args, store each arg into its local.
+        // Don't do arg 0 as we'd just have to load it again.
+        for (int arg = argCount - 1; arg > 0; arg--)
+        {
+            ATLTRACE("DBG: Step 1, arg %d", arg);
+            preCallInstrs.push_back(std::make_unique<Instruction>(CEE_STLOC, existingLocalsCount + arg));
+        }
+        // Step 2: working forwards through the args, load each arg, and call Instrument.Argument if observable.
+        for (int arg = 0; arg < argCount; arg++)
+        {
+            ATLTRACE("DBG: Step 2, arg %d", arg);
+            if (arg > 0)
+            {
+                preCallInstrs.push_back(std::make_unique<Instruction>(CEE_LDLOC, existingLocalsCount + arg));
+            }
+
+            if (call.m_argIsObservable[arg])
+            {
+                ATLTRACE("DBG: Argument instrs for arg %d: A: %s", arg, FormatBytes(getSpan(call.m_argTypeSpan[arg])).c_str());
+                SignatureTypeReader argTypeReader(getSpan(call.m_argTypeSpan[arg]));
+                ATLTRACE("DBG: Argument instrs for arg %d: B", arg);
+                argTypeReader.MoveNextTypeArg(); // we know it's an IObservable<T> and we want the T
+                ATLTRACE("DBG: Argument instrs for arg %d: C", arg);
+                std::vector<COR_SIGNATURE> argumentCallSig;
+                MethodSpecSignatureWriter(argumentCallSig, 1).AddTypeArg(argTypeReader.GetTypeReader().GetSigSpan());
+                ATLTRACE("DBG: Argument instrs for arg %d: D", arg);
+
+                mdMethodSpec argumentMethodSpecToken = emit.DefineMethodSpec({ supportRefs.m_Argument, argumentCallSig });
+
+                preCallInstrs.push_back(std::make_unique<Instruction>(CEE_LDC_I4, instrumentationPoint));
+                preCallInstrs.push_back(std::make_unique<Instruction>(CEE_CALL, argumentMethodSpecToken));
+            }
+        }
     }
 
     // Generate a call to Instrument.Calling(n) to be inserted right before the call.
-    InstructionList callCallingInstrs;
-    callCallingInstrs.push_back(std::make_unique<Instruction>(CEE_LDC_I4, instrumentationPoint));
-    callCallingInstrs.push_back(std::make_unique<Instruction>(CEE_CALL, supportRefs.m_Calling));
+    preCallInstrs.push_back(std::make_unique<Instruction>(CEE_LDC_I4, instrumentationPoint));
+    preCallInstrs.push_back(std::make_unique<Instruction>(CEE_CALL, supportRefs.m_Calling));
 
-    ATLTRACE("Inserting at %lx: %d", call.m_pInstruction->m_origOffset, instrumentationPoint);
+    ATLTRACE("Inserting %d instructions at %x", preCallInstrs.size(), call.m_instructionOffset);
     m_method->InsertInstructionsAtOriginalOffset(
-        call.m_pInstruction->m_origOffset,
-        callCallingInstrs);
+        call.m_instructionOffset,
+        preCallInstrs);
 
     // Generate a call to Instrument.Returned(retval, n) to be inserted right after
     // the call.
@@ -312,15 +348,15 @@ void MethodBodyInstrumenter::InstrumentCall(ObservableCallInfo& call, CMetadataE
     // same token each time.
     mdMethodSpec methodSpecToken = emit.DefineMethodSpec({ supportRefs.m_Returned, sig });
 
-    InstructionList callReturnedInstrs;
-    callReturnedInstrs.push_back(std::make_unique<Instruction>(CEE_LDC_I4, instrumentationPoint));
-    callReturnedInstrs.push_back(std::make_unique<Instruction>(CEE_CALL, methodSpecToken));
+    InstructionList postCallInstrs;
+    postCallInstrs.push_back(std::make_unique<Instruction>(CEE_LDC_I4, instrumentationPoint));
+    postCallInstrs.push_back(std::make_unique<Instruction>(CEE_CALL, methodSpecToken));
 
-    long offsetToInsertAt = call.m_pInstruction->m_origOffset + call.m_pInstruction->length();
-    ATLTRACE("Inserting at %lx: %d; %x", offsetToInsertAt, instrumentationPoint, methodSpecToken);
+    long offsetToInsertAt = call.m_instructionOffset + call.m_instructionLength;
+    ATLTRACE("Inserting %d instructions at %x", postCallInstrs.size(), offsetToInsertAt);
     m_method->InsertInstructionsAtOriginalOffset(
         offsetToInsertAt,
-        callReturnedInstrs);
+        postCallInstrs);
 }
 
 MethodCallInfo MethodBodyInstrumenter::GetMethodCallInfo(mdToken method)

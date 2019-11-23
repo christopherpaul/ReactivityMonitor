@@ -27,7 +27,7 @@ namespace TestProfilee
             {
                 Console.WriteLine($"\t{name} = {Environment.GetEnvironmentVariable(name)}");
             }
-            Console.WriteLine();
+            Console.WriteLine(); 
 
             Console.WriteLine("Spinning up an observable...");
             IObservable<string> observable = new[] { "One", "two", "three" }.ToObservable()

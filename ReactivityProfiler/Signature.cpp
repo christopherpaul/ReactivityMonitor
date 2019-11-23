@@ -845,6 +845,7 @@ void SignatureTypeReaderState::AdvanceToArrayShape()
 
 bool SignatureTypeReaderState::MoveNextTypeArg()
 {
+    ReadTypeKind();
     if (m_where != GENERICINST_INIT && m_where != GENERICINST_TYPE)
     {
         return false;
