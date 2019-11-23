@@ -22,6 +22,8 @@ struct SupportAssemblyReferences
 {
     mdAssemblyRef m_AssemblyRef = 0;
     mdTypeRef m_Instrument = 0;
+    mdMemberRef m_Argument = 0;
+    mdMemberRef m_Calling = 0;
     mdMemberRef m_Returned = 0;
 };
 
@@ -173,22 +175,18 @@ bool CRxProfiler::ReferencesObservableInterfaces(ModuleID moduleId, ObservableTy
     return false;
 }
 
-void CRxProfiler::AddSupportAssemblyReference(ModuleID moduleId, const ObservableTypeReferences& observableRefs, SupportAssemblyReferences& refs)
+static std::vector<COR_SIGNATURE> CreateInstrumentCallingSig()
 {
-    static const byte c_PublicKeyToken[] = { 0xa8, 0xb3, 0x93, 0x07, 0x28, 0x3e, 0x56, 0x3a };
+    std::vector<COR_SIGNATURE> callingMethodSig;
+    MethodSignatureWriter callingSigWriter(callingMethodSig, false, 1, 0);
+    callingSigWriter.SetVoidReturn();
+    callingSigWriter.WriteParam().SetPrimitiveKind(ELEMENT_TYPE_I4);
+    callingSigWriter.Complete();
+    return callingMethodSig;
+}
 
-    CMetadataAssemblyEmit assemblyEmit = m_profilerInfo.GetMetadataAssemblyEmit(moduleId, ofRead | ofWrite);
-    CMetadataEmit emit = m_profilerInfo.GetMetadataEmit(moduleId, ofRead | ofWrite);
-
-    ASSEMBLYMETADATA metadata = {};
-    metadata.usMajorVersion = 1;
-    metadata.usMinorVersion = 0;
-    metadata.usBuildNumber = 0;
-    metadata.usRevisionNumber = 0;
-
-    refs.m_AssemblyRef = assemblyEmit.DefineAssemblyRef({c_PublicKeyToken, sizeof c_PublicKeyToken}, GetSupportAssemblyName(), metadata, {});
-    refs.m_Instrument = emit.DefineTypeRefByName(refs.m_AssemblyRef, L"ReactivityProfiler.Support.Instrument");
-
+static std::vector<COR_SIGNATURE> CreateInstrumentReturnedSig(const ObservableTypeReferences& observableRefs)
+{
     // Construct signature for the reference to Instrument.Returned
     // IObservable<T> Returned<T>(IObservable<T>, int)
     std::vector<COR_SIGNATURE> returnedMethodSig;
@@ -212,10 +210,42 @@ void CRxProfiler::AddSupportAssemblyReference(ModuleID moduleId, const Observabl
     ATLTRACE("returnedMethodSig = %s", sigDump.str().c_str());
 #endif
 
+    return returnedMethodSig;
+}
+
+void CRxProfiler::AddSupportAssemblyReference(ModuleID moduleId, const ObservableTypeReferences& observableRefs, SupportAssemblyReferences& refs)
+{
+    static const byte c_PublicKeyToken[] = { 0xa8, 0xb3, 0x93, 0x07, 0x28, 0x3e, 0x56, 0x3a };
+
+    CMetadataAssemblyEmit assemblyEmit = m_profilerInfo.GetMetadataAssemblyEmit(moduleId, ofRead | ofWrite);
+    CMetadataEmit emit = m_profilerInfo.GetMetadataEmit(moduleId, ofRead | ofWrite);
+
+    ASSEMBLYMETADATA metadata = {};
+    metadata.usMajorVersion = 1;
+    metadata.usMinorVersion = 0;
+    metadata.usBuildNumber = 0;
+    metadata.usRevisionNumber = 0;
+
+    refs.m_AssemblyRef = assemblyEmit.DefineAssemblyRef({c_PublicKeyToken, sizeof c_PublicKeyToken}, GetSupportAssemblyName(), metadata, {});
+    refs.m_Instrument = emit.DefineTypeRefByName(refs.m_AssemblyRef, L"ReactivityProfiler.Support.Instrument");
+
+    static auto c_callingMethodSig = CreateInstrumentCallingSig();
+    refs.m_Calling = emit.DefineMemberRef({
+        refs.m_Instrument,
+        L"Calling",
+        c_callingMethodSig
+    });
+
+    auto returnedMethodSig = CreateInstrumentReturnedSig(observableRefs);
+    refs.m_Argument = emit.DefineMemberRef({
+        refs.m_Instrument,
+        L"Argument",
+        returnedMethodSig
+    });
     refs.m_Returned = emit.DefineMemberRef({
         refs.m_Instrument,
         L"Returned",
-        {returnedMethodSig.data(), returnedMethodSig.size()}
+        returnedMethodSig
     });
 }
 
@@ -350,8 +380,7 @@ void CRxProfiler::InstrumentMethodBody(const MethodProps& props, const FunctionI
         }
         else
         {
-            auto& vec = std::get<std::vector<COR_SIGNATURE>>(call.m_observableTypeArg);
-            argBlob = { vec.data(), vec.size() };
+            argBlob = std::get<std::vector<COR_SIGNATURE>>(call.m_observableTypeArg);
         }
         sigWriter.AddTypeArg(argBlob);
 
@@ -360,7 +389,7 @@ void CRxProfiler::InstrumentMethodBody(const MethodProps& props, const FunctionI
         // same token each time.
         mdMethodSpec methodSpecToken = emit.DefineMethodSpec({
             supportRefs.m_Returned,
-            {sig.data(), sig.size()}
+            sig
         });
 
         int32_t instrumentationPoint = ++pPerModuleData->m_instrumentationPointSource;

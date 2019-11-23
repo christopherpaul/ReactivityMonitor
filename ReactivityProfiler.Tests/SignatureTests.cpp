@@ -10,7 +10,7 @@ TEST(MethodSignatureReader, CheckPassesOnGoodBlobs) {
 
     for (auto sig : sigs)
     {
-        EXPECT_NO_THROW({ MethodSignatureReader::Check(simplespan<const COR_SIGNATURE>(sig.data(), sig.size())); })
+        EXPECT_NO_THROW({ MethodSignatureReader::Check(sig); })
             << sig;
     }
 }
@@ -27,7 +27,7 @@ TEST(MethodSignatureReader, SubstitutesTypeArgsForToObservable) {
         0x0a, 0x01, 0x0e
     };
 
-    MethodSignatureReader methodRefSigReader({ methodRefSig.data(), methodRefSig.size() });
+    MethodSignatureReader methodRefSigReader(methodRefSig);
     EXPECT_EQ(methodRefSigReader.GenericParamCount(), 1);
     EXPECT_EQ(methodRefSigReader.MoveNextParam(), true);
     
@@ -38,7 +38,7 @@ TEST(MethodSignatureReader, SubstitutesTypeArgsForToObservable) {
     EXPECT_EQ(returnTypeReader.MoveNextTypeArg(), true);
     auto typeArgReader = returnTypeReader.GetTypeReader();
 
-    auto methodTypeArgSpans = MethodSpecSignatureReader::GetTypeArgSpans({ methodSpecSig.data(), methodSpecSig.size() });
+    auto methodTypeArgSpans = MethodSpecSignatureReader::GetTypeArgSpans(methodSpecSig);
     auto substituted = typeArgReader.SubstituteTypeArgs(std::vector<SignatureBlob>(), methodTypeArgSpans);
 
     EXPECT_EQ(substituted.size(), 1);
@@ -59,7 +59,7 @@ TEST(MethodSignatureReader, SubstitutesTypeArgsForZip) {
         0x0a, 0x03, 0x0e, 0x0a, 0x0e
     };
 
-    MethodSignatureReader methodRefSigReader({ methodRefSig.data(), methodRefSig.size() });
+    MethodSignatureReader methodRefSigReader(methodRefSig);
     EXPECT_EQ(methodRefSigReader.GenericParamCount(), 3);
     EXPECT_EQ(methodRefSigReader.MoveNextParam(), true);
 
@@ -70,7 +70,7 @@ TEST(MethodSignatureReader, SubstitutesTypeArgsForZip) {
     EXPECT_EQ(returnTypeReader.MoveNextTypeArg(), true);
     auto typeArgReader = returnTypeReader.GetTypeReader();
 
-    auto methodTypeArgSpans = MethodSpecSignatureReader::GetTypeArgSpans({ methodSpecSig.data(), methodSpecSig.size() });
+    auto methodTypeArgSpans = MethodSpecSignatureReader::GetTypeArgSpans(methodSpecSig);
     auto substituted = typeArgReader.SubstituteTypeArgs(std::vector<SignatureBlob>(), methodTypeArgSpans);
 
     EXPECT_EQ(substituted.size(), 1);
