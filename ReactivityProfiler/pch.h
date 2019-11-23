@@ -23,6 +23,8 @@
 #include <mutex>
 #include <atomic>
 #include <variant>
+#include <sstream>
+#include <iomanip>
 
 #include "ReleaseTrace.h"
 #include "Utility.h"

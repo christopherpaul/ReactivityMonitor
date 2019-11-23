@@ -126,11 +126,6 @@ public:
 protected:
     virtual void MoveToEnd() = 0;
 
-    void ReclaimPrimitiveReader(ReaderBase& childReader)
-    {
-        m_reader = childReader.ReturnPrimitiveReader();
-    }
-
     template<typename TReader, typename ... TArgs>
     std::shared_ptr<TReader> CreateChildReader(TArgs... args)
     {
@@ -192,6 +187,11 @@ public:
     }
 
 private:
+    void ReclaimPrimitiveReader(ReaderBase& childReader)
+    {
+        m_reader = childReader.ReturnPrimitiveReader();
+    }
+
     UniquePrimitiveReader m_reader;
     SignatureVisitor* m_visitor;
 };
@@ -1372,11 +1372,10 @@ void MethodSpecSignatureReader::Check(const SignatureBlob& sigBlob)
 //
 //
 
-
-class WriterBase
+class PrimitiveWriter
 {
 public:
-    WriterBase(std::vector<COR_SIGNATURE>& buffer) : m_buffer(buffer)
+    PrimitiveWriter(std::vector<COR_SIGNATURE>& buffer) : m_buffer(buffer)
     {
     }
 
@@ -1392,11 +1391,79 @@ public:
 
     void AppendCompressedUnsigned(ULONG value);
 
+    void AppendTypeDefOrRefEncoded(mdToken value);
+
 private:
     std::vector<COR_SIGNATURE>& m_buffer;
 };
 
-void WriterBase::AppendCompressedUnsigned(ULONG value)
+typedef std::unique_ptr<PrimitiveWriter> UniquePrimitiveWriter;
+
+class WriterBase
+{
+public:
+    WriterBase(UniquePrimitiveWriter& writer)
+        : m_writer(std::move(writer))
+    {
+    }
+
+    virtual ~WriterBase()
+    {
+    }
+
+protected:
+    virtual void Complete() = 0;
+
+    template<typename TWriter, typename ... TArgs>
+    std::shared_ptr<TWriter> CreateChildWriter(TArgs... args)
+    {
+        return std::make_shared<TWriter>(std::move(m_writer), args...);
+    }
+
+    template<typename TWriter>
+    void EndChildWriter(std::shared_ptr<TWriter>& pChildWriter)
+    {
+        ReclaimPrimitiveWriter(*pChildWriter);
+        pChildWriter.reset();
+    }
+
+    void Append(COR_SIGNATURE byte)
+    {
+        m_writer->Append(byte);
+    }
+
+    void Append(const SignatureBlob& sigBlobSpan)
+    {
+        m_writer->Append(sigBlobSpan);
+    }
+
+    void AppendCompressedUnsigned(ULONG value)
+    {
+        m_writer->AppendCompressedUnsigned(value);
+    }
+
+    void AppendTypeDefOrRefEncoded(mdToken token)
+    {
+        m_writer->AppendTypeDefOrRefEncoded(token);
+    }
+
+public:
+    UniquePrimitiveWriter&& CompleteAndReturnPrimitiveWriter()
+    {
+        Complete();
+        return std::move(m_writer);
+    }
+
+private:
+    void ReclaimPrimitiveWriter(WriterBase& childWriter)
+    {
+        m_writer = childWriter.CompleteAndReturnPrimitiveWriter();
+    }
+
+    UniquePrimitiveWriter m_writer;
+};
+
+void PrimitiveWriter::AppendCompressedUnsigned(ULONG value)
 {
     if (value < 0x80)
     {
@@ -1417,10 +1484,384 @@ void WriterBase::AppendCompressedUnsigned(ULONG value)
     Append(static_cast<COR_SIGNATURE>(value & 0xff));
 }
 
-class MethodSpecSignatureWriterState : private WriterBase
+void PrimitiveWriter::AppendTypeDefOrRefEncoded(mdToken value)
+{
+    auto tokenType = TypeFromToken(value);
+    uint32_t encoded;
+    if (tokenType == mdtTypeDef)
+    {
+        encoded = 0;
+    }
+    else if (tokenType == mdtTypeRef)
+    {
+        encoded = 1;
+    }
+    else if (tokenType == mdtTypeSpec)
+    {
+        encoded = 2;
+    }
+    else
+    {
+        throw std::logic_error("PrimitiveWriter::AppendTypeDefOrRefEncoded - bad token type");
+    }
+
+    encoded |= RidFromToken(value) << 2;
+    AppendCompressedUnsigned(encoded);
+}
+
+
+
+
+class SignatureTypeWriterState : public WriterBase
 {
 public:
-    MethodSpecSignatureWriterState(std::vector<COR_SIGNATURE>& buffer, ULONG typeArgCount);
+    SignatureTypeWriterState(UniquePrimitiveWriter& writer);
+
+    void Write(const SignatureBlob& typeSigSpan);
+    void SetPrimitive(CorElementType kind);
+    void SetSimpleClass(mdToken typeDefOrRef);
+    void SetGenericClass(mdToken typeDefOrRef, ULONG typeArgCount);
+    void SetMethodTypeVar(ULONG varNumber);
+    std::shared_ptr<SignatureTypeWriterState> CreateNextTypeArgWriter();
+
+    void Complete() override;
+
+private:
+    void NextTypeArg();
+
+    ULONG m_typeArgCount;
+    ULONG m_currentTypeArg;
+    std::shared_ptr<SignatureTypeWriterState> m_typeArgWriter;
+    enum
+    {
+        INIT,
+        TYPE_ARG_COUNT_SET,
+        TYPE_ARG,
+        END
+    } m_where;
+};
+
+SignatureTypeWriterState::SignatureTypeWriterState(UniquePrimitiveWriter& writer) :
+    WriterBase(writer),
+    m_where(INIT),
+    m_typeArgCount(0),
+    m_currentTypeArg(0)
+{
+}
+
+void SignatureTypeWriterState::Write(const SignatureBlob& typeSigSpan)
+{
+    if (m_where != INIT)
+    {
+        throw std::logic_error("SignatureTypeWriterState::Write - bad call sequence");
+    }
+
+    Append(typeSigSpan);
+    m_where = END;
+}
+
+void SignatureTypeWriterState::SetPrimitive(CorElementType kind)
+{
+    if (m_where != INIT)
+    {
+        throw std::logic_error("SignatureTypeWriterState::SetPrimitive - bad call sequence");
+    }
+
+    if (kind >= ELEMENT_TYPE_PTR || kind <= ELEMENT_TYPE_VOID)
+    {
+        throw std::logic_error("SignatureTypeWriterState::SetPrimitive - bad kind");
+    }
+
+    Append(kind);
+    m_where = END;
+}
+
+void SignatureTypeWriterState::SetSimpleClass(mdToken typeDefOrRef)
+{
+    if (m_where != INIT)
+    {
+        throw std::logic_error("SignatureTypeWriterState::SetSimpleClass - bad call sequence");
+    }
+
+    Append(ELEMENT_TYPE_CLASS);
+    AppendTypeDefOrRefEncoded(typeDefOrRef);
+    m_where = END;
+}
+
+void SignatureTypeWriterState::SetGenericClass(mdToken typeDefOrRef, ULONG typeArgCount)
+{
+    if (m_where != INIT)
+    {
+        throw std::logic_error("SignatureTypeWriterState::SetGenericClass - bad call sequence");
+    }
+
+    Append(ELEMENT_TYPE_GENERICINST);
+    Append(ELEMENT_TYPE_CLASS);
+    AppendTypeDefOrRefEncoded(typeDefOrRef);
+    AppendCompressedUnsigned(typeArgCount);
+
+    m_typeArgCount = typeArgCount;
+    m_where = TYPE_ARG_COUNT_SET;
+}
+
+void SignatureTypeWriterState::SetMethodTypeVar(ULONG varNumber)
+{
+    if (m_where != INIT)
+    {
+        throw std::logic_error("SignatureTypeWriterState::SetMethodTypeVar - bad call sequence");
+    }
+
+    Append(ELEMENT_TYPE_MVAR);
+    AppendCompressedUnsigned(varNumber);
+    m_where = END;
+}
+
+void SignatureTypeWriterState::NextTypeArg()
+{
+    if (m_where == END)
+    {
+        return;
+    }
+
+    if (m_where == TYPE_ARG_COUNT_SET)
+    {
+        m_currentTypeArg = 0;
+        return;
+    }
+
+    if (m_where == TYPE_ARG)
+    {
+        EndChildWriter(m_typeArgWriter);
+        m_currentTypeArg++;
+        return;
+    }
+
+    throw std::logic_error("SignatureTypeWriterState::NextTypeArg - bad call sequence");
+}
+
+std::shared_ptr<SignatureTypeWriterState> SignatureTypeWriterState::CreateNextTypeArgWriter()
+{
+    NextTypeArg();
+
+    if (m_where == END || m_currentTypeArg >= m_typeArgCount)
+    {
+        throw std::logic_error("SignatureTypeWriterState::CreateNextTypeArgWriter - bad call sequence");
+    }
+
+    m_typeArgWriter = CreateChildWriter<SignatureTypeWriterState>();
+    m_where = TYPE_ARG;
+
+    return m_typeArgWriter;
+}
+
+void SignatureTypeWriterState::Complete()
+{
+    if (m_where == END)
+    {
+        return;
+    }
+
+    NextTypeArg();
+
+    if (m_currentTypeArg != m_typeArgCount)
+    {
+        throw std::logic_error("SignatureTypeWriterState::Complete - not all type args written");
+    }
+
+    m_where = END;
+}
+
+SignatureTypeWriter::SignatureTypeWriter(const std::shared_ptr<SignatureTypeWriterState>& state) :
+    m_state(state)
+{
+}
+
+void SignatureTypeWriter::Write(const SignatureBlob& typeSigSpan)
+{
+    m_state->Write(typeSigSpan);
+}
+
+void SignatureTypeWriter::SetPrimitiveKind(CorElementType kind)
+{
+    m_state->SetPrimitive(kind);
+}
+
+void SignatureTypeWriter::SetSimpleClass(mdToken typeDefOrRef)
+{
+    m_state->SetSimpleClass(typeDefOrRef);
+}
+
+void SignatureTypeWriter::SetGenericClass(mdToken typeDefOrRef, ULONG typeArgCount)
+{
+    m_state->SetGenericClass(typeDefOrRef, typeArgCount);
+}
+
+void SignatureTypeWriter::SetMethodTypeVar(ULONG varNumber)
+{
+    m_state->SetMethodTypeVar(varNumber);
+}
+
+SignatureTypeWriter SignatureTypeWriter::WriteTypeArg()
+{
+    return m_state->CreateNextTypeArgWriter();
+}
+
+
+
+
+class MethodSignatureWriterState : public WriterBase
+{
+public:
+    MethodSignatureWriterState(UniquePrimitiveWriter& writer, bool hasThis, ULONG paramCount, ULONG genericParamCount);
+
+    void SetVoidReturn();
+    std::shared_ptr<SignatureTypeWriterState> CreateNextParamTypeWriter();
+    void Complete() override;
+
+private:
+    void NextParam();
+
+    const ULONG m_paramCount;
+    ULONG m_currentParam;
+    std::shared_ptr<SignatureTypeWriterState> m_typeWriter;
+
+    enum
+    {
+        INIT,
+        WROTEVOID,
+        PARAM,
+        END
+    } m_where;
+};
+
+MethodSignatureWriterState::MethodSignatureWriterState(UniquePrimitiveWriter& writer, bool hasThis, ULONG paramCount, ULONG genericParamCount) :
+    WriterBase(writer),
+    m_paramCount(paramCount),
+    m_currentParam(0),
+    m_where(INIT)
+{
+    byte ccByte = IMAGE_CEE_CS_CALLCONV_DEFAULT;
+    if (hasThis)
+    {
+        ccByte |= IMAGE_CEE_CS_CALLCONV_HASTHIS;
+    }
+    if (genericParamCount > 0)
+    {
+        ccByte |= IMAGE_CEE_CS_CALLCONV_GENERIC;
+    }
+
+    Append(ccByte);
+    if (genericParamCount > 0)
+    {
+        AppendCompressedUnsigned(genericParamCount);
+    }
+
+    AppendCompressedUnsigned(paramCount);
+}
+
+void MethodSignatureWriterState::SetVoidReturn()
+{
+    if (m_where != INIT)
+    {
+        throw std::logic_error("MethodSignatureWriterState::SetVoidReturn - bad call");
+    }
+
+    Append(ELEMENT_TYPE_VOID);
+    m_where = WROTEVOID;
+}
+
+void MethodSignatureWriterState::NextParam()
+{
+    if (m_where == INIT)
+    {
+        m_currentParam = 0;
+    }
+    else if (m_where == WROTEVOID)
+    {
+        m_currentParam = 1;
+    }
+    else if (m_where == PARAM)
+    {
+        EndChildWriter(m_typeWriter);
+        m_currentParam++;
+    }
+}
+
+std::shared_ptr<SignatureTypeWriterState> MethodSignatureWriterState::CreateNextParamTypeWriter()
+{
+    NextParam();
+
+    if (m_where == END || m_currentParam > m_paramCount)
+    {
+        throw std::logic_error("MethodSignatureWriterState::CreateNextParamTypeWriter - bad call");
+    }
+
+    m_typeWriter = CreateChildWriter<SignatureTypeWriterState>();
+    m_where = PARAM;
+
+    return m_typeWriter;
+}
+
+void MethodSignatureWriterState::Complete()
+{
+    if (m_where == END || m_where == WROTEVOID)
+    {
+        m_where = END;
+        return;
+    }
+
+    if (m_where != PARAM)
+    {
+        throw std::logic_error("MethodSignatureWriterState::Complete - bad call");
+    }
+
+    NextParam();
+
+    if (m_currentParam != m_paramCount + 1) // +1 for return
+    {
+        throw std::logic_error("MethodSignatureWriterState::Complete - not all params written");
+    }
+
+    m_where = END;
+}
+
+static std::shared_ptr<MethodSignatureWriterState> CreateMethodSignatureWriterState(std::vector<COR_SIGNATURE>& buffer, bool hasThis, ULONG paramCount, ULONG genericParamCount)
+{
+    auto primitiveWriter = std::make_unique<PrimitiveWriter>(buffer);
+    return std::make_shared<MethodSignatureWriterState>(primitiveWriter, hasThis, paramCount, genericParamCount);
+}
+
+MethodSignatureWriter::MethodSignatureWriter(std::vector<COR_SIGNATURE>& buffer, bool hasThis, ULONG paramCount, ULONG genericParamCount) :
+    MethodSignatureWriter(CreateMethodSignatureWriterState(buffer, hasThis, paramCount, genericParamCount))
+{
+}
+
+MethodSignatureWriter::MethodSignatureWriter(const std::shared_ptr<MethodSignatureWriterState>& state) :
+    m_state(state)
+{
+}
+
+void MethodSignatureWriter::SetVoidReturn()
+{
+    m_state->SetVoidReturn();
+}
+
+SignatureTypeWriter MethodSignatureWriter::WriteParam()
+{
+    return m_state->CreateNextParamTypeWriter();
+}
+
+void MethodSignatureWriter::Complete()
+{
+    m_state->Complete();
+}
+
+
+
+class MethodSpecSignatureWriterState : public WriterBase
+{
+public:
+    MethodSpecSignatureWriterState(UniquePrimitiveWriter& writer, ULONG typeArgCount);
 
     void AddTypeArg(const SignatureBlob& sigBlobSpan)
     {
@@ -1433,13 +1874,21 @@ public:
         m_typeArgsAdded++;
     }
 
+    void Complete() override
+    {
+        if (m_typeArgsAdded != m_typeArgCount)
+        {
+            throw std::logic_error("Complete - not all type args added");
+        }
+    }
+
 private:
     ULONG m_typeArgCount;
     ULONG m_typeArgsAdded;
 };
 
-MethodSpecSignatureWriterState::MethodSpecSignatureWriterState(std::vector<COR_SIGNATURE>& buffer, ULONG typeArgCount) :
-    WriterBase(buffer),
+MethodSpecSignatureWriterState::MethodSpecSignatureWriterState(UniquePrimitiveWriter& writer, ULONG typeArgCount) :
+    WriterBase(writer),
     m_typeArgCount(typeArgCount),
     m_typeArgsAdded(0)
 {
@@ -1447,8 +1896,13 @@ MethodSpecSignatureWriterState::MethodSpecSignatureWriterState(std::vector<COR_S
     AppendCompressedUnsigned(typeArgCount);
 }
 
+static std::shared_ptr<MethodSpecSignatureWriterState> CreateMethodSpecSignatureWriterState(std::vector<COR_SIGNATURE>& buffer, ULONG typeArgCount)
+{
+    return std::make_shared<MethodSpecSignatureWriterState>(std::make_unique<PrimitiveWriter>(buffer), typeArgCount);
+}
+
 MethodSpecSignatureWriter::MethodSpecSignatureWriter(std::vector<COR_SIGNATURE>& buffer, ULONG typeArgCount) :
-    m_state(new MethodSpecSignatureWriterState(buffer, typeArgCount))
+    m_state(CreateMethodSpecSignatureWriterState(buffer, typeArgCount))
 {
 }
 

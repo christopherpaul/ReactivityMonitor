@@ -10,6 +10,9 @@ class SignatureParamReaderState;
 class MethodSignatureReaderState;
 class MethodSpecSignatureReaderState;
 
+class SignatureTypeWriterState;
+class SignatureParamWriterState;
+class MethodSignatureWriterState;
 class MethodSpecSignatureWriterState;
 
 class SignatureArrayShapeReader
@@ -109,6 +112,37 @@ public:
 
 private:
     const std::shared_ptr<MethodSpecSignatureReaderState> m_state;
+};
+
+class SignatureTypeWriter
+{
+public:
+    SignatureTypeWriter(const std::shared_ptr<SignatureTypeWriterState>& state);
+
+    void Write(const SignatureBlob& typeSigSpan);
+    void SetPrimitiveKind(CorElementType kind);
+    void SetSimpleClass(mdToken typeDefOrRef);
+    void SetGenericClass(mdToken typeDefOrRef, ULONG typeArgCount);
+    void SetMethodTypeVar(ULONG varNumber);
+    
+    SignatureTypeWriter WriteTypeArg();
+
+private:
+    const std::shared_ptr<SignatureTypeWriterState> m_state;
+};
+
+class MethodSignatureWriter
+{
+public:
+    MethodSignatureWriter(std::vector<COR_SIGNATURE>& buffer, bool hasThis, ULONG paramCount, ULONG genericParamCount);
+    MethodSignatureWriter(const std::shared_ptr<MethodSignatureWriterState>& state);
+
+    void SetVoidReturn();
+    SignatureTypeWriter WriteParam();
+    void Complete();
+
+private:
+    const std::shared_ptr<MethodSignatureWriterState> m_state;
 };
 
 class MethodSpecSignatureWriter

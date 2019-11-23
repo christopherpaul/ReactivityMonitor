@@ -174,11 +174,6 @@ bool CRxProfiler::ReferencesObservableInterfaces(ModuleID moduleId, ObservableTy
 
 void CRxProfiler::AddSupportAssemblyReference(ModuleID moduleId, const ObservableTypeReferences& observableRefs, SupportAssemblyReferences& refs)
 {
-    // would be nice to sync this automatically
-    static const COR_SIGNATURE c_ReturnedSig[] = { 
-        0x10, 0x01, 0x02, 0x15, 0x12, 0x35, 0x01, 0x1e,
-        0x00, 0x15, 0x12, 0x35, 0x01, 0x1e, 0x00, 0x08
-    };
     static const byte c_PublicKeyToken[] = { 0xa8, 0xb3, 0x93, 0x07, 0x28, 0x3e, 0x56, 0x3a };
 
     CMetadataAssemblyEmit assemblyEmit = m_profilerInfo.GetMetadataAssemblyEmit(moduleId, ofRead | ofWrite);
@@ -192,10 +187,34 @@ void CRxProfiler::AddSupportAssemblyReference(ModuleID moduleId, const Observabl
 
     refs.m_AssemblyRef = assemblyEmit.DefineAssemblyRef({c_PublicKeyToken, sizeof c_PublicKeyToken}, GetSupportAssemblyName(), metadata, {});
     refs.m_Instrument = emit.DefineTypeRefByName(refs.m_AssemblyRef, L"ReactivityProfiler.Support.Instrument");
+
+    // Construct signature for the reference to Instrument.Returned
+    // IObservable<T> Returned<T>(IObservable<T>, int)
+    std::vector<COR_SIGNATURE> returnedMethodSig;
+    MethodSignatureWriter sigWriter(returnedMethodSig, false, 2, 1); // <T>(,)
+    auto returnTypeWriter = sigWriter.WriteParam();
+    returnTypeWriter.SetGenericClass(observableRefs.m_IObservable, 1); // IObservable<>
+    returnTypeWriter.WriteTypeArg().SetMethodTypeVar(0); // of T
+    auto param1Writer = sigWriter.WriteParam();
+    param1Writer.SetGenericClass(observableRefs.m_IObservable, 1); // IObservable<>
+    param1Writer.WriteTypeArg().SetMethodTypeVar(0); // of T
+    auto param2Writer = sigWriter.WriteParam();
+    param2Writer.SetPrimitiveKind(ELEMENT_TYPE_I4);
+    sigWriter.Complete();
+
+#ifdef DEBUG
+    std::stringstream sigDump;
+    for (auto b : returnedMethodSig)
+    {
+        sigDump << std::hex << std::setfill('0') << std::setw(2) << (int)b << " ";
+    }
+    ATLTRACE("returnedMethodSig = %s", sigDump.str().c_str());
+#endif
+
     refs.m_Returned = emit.DefineMemberRef({
         refs.m_Instrument,
         L"Returned",
-        {c_ReturnedSig, sizeof c_ReturnedSig}
+        {returnedMethodSig.data(), returnedMethodSig.size()}
     });
 }
 
@@ -255,7 +274,7 @@ void CRxProfiler::InstrumentMethodBody(const MethodProps& props, const FunctionI
                 MethodSignatureReader sigReader(methodCallInfo.sigBlob);
                 sigReader.MoveNextParam(); // move to the return value "parameter"
                 auto returnReader = sigReader.GetParamReader();
-                if (!returnReader.IsVoid())
+                if (returnReader.HasType())
                 {
                     auto returnTypeReader = returnReader.GetTypeReader();
                     if (returnTypeReader.GetTypeKind() == ELEMENT_TYPE_GENERICINST)
