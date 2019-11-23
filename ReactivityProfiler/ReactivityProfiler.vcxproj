@@ -246,6 +246,7 @@
     <ClInclude Include="ReleaseTrace.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="RxProfiler.h" />
+    <ClInclude Include="RxProfilerImpl.h" />
     <ClInclude Include="Signature.h" />
     <ClInclude Include="simplespan.h" />
     <ClInclude Include="targetver.h" />
@@ -292,7 +293,9 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="RxMethodInstrumentation.cpp" />
     <ClCompile Include="RxProfiler.cpp" />
+    <ClCompile Include="RxSupportAssembly.cpp" />
     <ClCompile Include="Signature.cpp" />
   </ItemGroup>
   <ItemGroup>

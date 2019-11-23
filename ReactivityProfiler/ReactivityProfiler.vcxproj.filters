@@ -82,6 +82,9 @@
     <ClInclude Include="common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="RxProfilerImpl.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ReactivityProfiler.cpp">
@@ -115,6 +118,12 @@
       <Filter>Instrumentation</Filter>
     </ClCompile>
     <ClCompile Include="Signature.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RxSupportAssembly.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RxMethodInstrumentation.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
