@@ -38,7 +38,8 @@ TEST(MethodSignatureReader, SubstitutesTypeArgsForToObservable) {
     EXPECT_EQ(returnTypeReader.MoveNextTypeArg(), true);
     auto typeArgReader = returnTypeReader.GetTypeReader();
 
-    auto substituted = typeArgReader.SubstituteMethodTypeArgs({ methodSpecSig.data(), methodSpecSig.size() });
+    auto methodTypeArgSpans = MethodSpecSignatureReader::GetTypeArgSpans({ methodSpecSig.data(), methodSpecSig.size() });
+    auto substituted = typeArgReader.SubstituteTypeArgs(std::vector<SignatureBlob>(), methodTypeArgSpans);
 
     EXPECT_EQ(substituted.size(), 1);
     EXPECT_EQ(substituted[0], ELEMENT_TYPE_STRING);
@@ -69,7 +70,8 @@ TEST(MethodSignatureReader, SubstitutesTypeArgsForZip) {
     EXPECT_EQ(returnTypeReader.MoveNextTypeArg(), true);
     auto typeArgReader = returnTypeReader.GetTypeReader();
 
-    auto substituted = typeArgReader.SubstituteMethodTypeArgs({ methodSpecSig.data(), methodSpecSig.size() });
+    auto methodTypeArgSpans = MethodSpecSignatureReader::GetTypeArgSpans({ methodSpecSig.data(), methodSpecSig.size() });
+    auto substituted = typeArgReader.SubstituteTypeArgs(std::vector<SignatureBlob>(), methodTypeArgSpans);
 
     EXPECT_EQ(substituted.size(), 1);
     EXPECT_EQ(substituted[0], ELEMENT_TYPE_STRING);

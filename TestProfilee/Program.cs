@@ -35,6 +35,8 @@ namespace TestProfilee
 
             var sub = observable.Subscribe(Console.WriteLine);
 
+            GenericExamples.CallToMethodOnGenericType();
+
             Pause();
 
             sub.Dispose();

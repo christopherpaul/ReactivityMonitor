@@ -196,6 +196,19 @@ MethodSpecProps CMetadataImport::GetMethodSpecProps(mdMethodSpec methodSpecToken
     };
 }
 
+SignatureBlob CMetadataImport::GetTypeSpecFromToken(mdTypeSpec typeSpecToken) const
+{
+    const COR_SIGNATURE* pSigBlob;
+    ULONG sigBlobSize;
+
+    CHECK_SUCCESS(m_metadata->GetTypeSpecFromToken(
+        typeSpecToken,
+        &pSigBlob,
+        &sigBlobSize));
+
+    return { pSigBlob, sigBlobSize };
+}
+
 mdModule CMetadataImport::GetCurrentModule() const
 {
     mdModule token;

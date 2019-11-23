@@ -34,4 +34,18 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </ProjectReference>
   </ItemGroup>
+
+  <Target Name="DumpIL" AfterTargets="AfterBuild">
+    <GetFrameworkSdkPath>
+      <Output TaskParameter="Path" PropertyName="SdkPath" />
+    </GetFrameworkSdkPath>
+    <ItemGroup>
+      <IldasmExes Include="$(SdkPath)\**\ildasm.exe" />
+    </ItemGroup>
+    <CreateProperty Value="%(IldasmExes.Identity)">
+      <Output TaskParameter="Value" PropertyName="IldasmExe" />
+    </CreateProperty>
+    <Message Text="$(IldasmExe)" />
+    <Exec Command="&quot;$(IldasmExe)&quot; &quot;$(OutDir)$(AssemblyName).exe&quot; /METADATA=RAW /METADATA=HEAPS &quot;/OUT=$(OutDir)$(AssemblyName).il&quot;" />
+  </Target>
 </Project>

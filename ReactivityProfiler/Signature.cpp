@@ -9,34 +9,50 @@ class SignatureVisitor
 {
 public:
     virtual void VisitMethodTypeVariable(ULONG varNumber, const SignatureBlob& span) {}
+    virtual void VisitTypeTypeVariable(ULONG varNumber, const SignatureBlob& span) {}
 };
 
 class SubstitutingVisitor : public SignatureVisitor
 {
 public:
-    SubstitutingVisitor(sigPtr start, std::vector<COR_SIGNATURE>& buffer, std::vector<SignatureBlob>& typeArgSpans) :
+    SubstitutingVisitor(
+        sigPtr start, 
+        std::vector<COR_SIGNATURE>& buffer, 
+        const std::vector<SignatureBlob>& typeTypeArgSpans,
+        const std::vector<SignatureBlob>& methodTypeArgSpans) :
         m_ptr(start),
         m_buffer(buffer),
-        m_typeArgSpans(typeArgSpans)
+        m_typeTypeArgSpans(typeTypeArgSpans),
+        m_methodTypeArgSpans(methodTypeArgSpans)
     {
     }
 
     void VisitMethodTypeVariable(ULONG varNumber, const SignatureBlob& span) override
     {
-        if (varNumber >= m_typeArgSpans.size())
+        DoSubstitution(m_methodTypeArgSpans, varNumber, span);
+    }
+
+    void VisitTypeTypeVariable(ULONG varNumber, const SignatureBlob& span) override
+    {
+        DoSubstitution(m_typeTypeArgSpans, varNumber, span);
+    }
+
+    void DoSubstitution(const std::vector<SignatureBlob>& argSpans, ULONG varNumber, const SignatureBlob& varSpan)
+    {
+        if (varNumber >= argSpans.size())
         {
-            throw std::domain_error("Not enough type arguments supplied for method type variable number");
+            throw std::domain_error("Not enough type arguments supplied for type variable number");
         }
 
         // add everything up to the type var
-        m_buffer.insert(m_buffer.end(), m_ptr, span.begin());
+        m_buffer.insert(m_buffer.end(), m_ptr, varSpan.begin());
 
-        const SignatureBlob& typeArgSpan = m_typeArgSpans[varNumber];
+        const SignatureBlob& typeArgSpan = argSpans[varNumber];
 
         // add the corresponding type arg
         m_buffer.insert(m_buffer.end(), typeArgSpan.begin(), typeArgSpan.end());
 
-        m_ptr = span.end();
+        m_ptr = varSpan.end();
     }
 
     void Complete(sigPtr endPtr)
@@ -48,7 +64,8 @@ public:
 private:
     sigPtr m_ptr;
     std::vector<COR_SIGNATURE>& m_buffer;
-    std::vector<SignatureBlob>& m_typeArgSpans;
+    const std::vector<SignatureBlob>& m_typeTypeArgSpans;
+    const std::vector<SignatureBlob>& m_methodTypeArgSpans;
 };
 
 class PrimitiveReader
@@ -318,6 +335,12 @@ public:
     void AdvanceToType(); // for PTR/SZARRAY (no-op otherwise)
 
     void MoveToEnd() override;
+
+    bool IsOkToReadTypeArgSpans()
+    {
+        ReadTypeKind();
+        return m_where == GENERICINST_INIT;
+    }
 
     SignatureBlob GetSigSpan()
     {
@@ -621,9 +644,16 @@ void SignatureTypeReaderState::ReadTypeKind()
         m_typeVarNumber = ReadCompressedUnsigned();
         m_where = END;
 
-        if (GetVisitor() && m_typeKind == ELEMENT_TYPE_MVAR)
+        if (GetVisitor())
         {
-            GetVisitor()->VisitMethodTypeVariable(m_typeVarNumber, GetSigSpan());
+            if (m_typeKind == ELEMENT_TYPE_MVAR)
+            {
+                GetVisitor()->VisitMethodTypeVariable(m_typeVarNumber, GetSigSpan());
+            }
+            else
+            {
+                GetVisitor()->VisitTypeTypeVariable(m_typeVarNumber, GetSigSpan());
+            }
         }
         break;
 
@@ -1176,6 +1206,17 @@ SignatureTypeReader::SignatureTypeReader(const std::shared_ptr<SignatureTypeRead
 {
 }
 
+static std::shared_ptr<SignatureTypeReaderState> CreateSignatureTypeReaderState(const SignatureBlob& typeSpecSig)
+{
+    auto primitiveReader = std::make_unique<PrimitiveReader>(typeSpecSig);
+    return std::make_shared<SignatureTypeReaderState>(primitiveReader, nullptr);
+}
+
+SignatureTypeReader::SignatureTypeReader(const SignatureBlob& typeSpecSig) :
+    SignatureTypeReader(CreateSignatureTypeReaderState(typeSpecSig))
+{
+}
+
 CorElementType SignatureTypeReader::GetTypeKind()
 {
     return m_state->GetTypeKind();
@@ -1255,22 +1296,31 @@ bool SignatureTypeReader::MoveNextTypeArg()
     return m_state->MoveNextTypeArg();
 }
 
+std::vector<SignatureBlob> SignatureTypeReader::GetTypeArgSpans()
+{
+    if (!m_state->IsOkToReadTypeArgSpans())
+    {
+        throw std::logic_error("SignatureTypeReader::GetTypeArgSpans - bad call");
+    }
+
+    std::vector<SignatureBlob> typeArgSpans;
+    while (MoveNextTypeArg())
+    {
+        typeArgSpans.push_back(GetTypeReader().GetSigSpan());
+    }
+
+    return typeArgSpans;
+}
+
 SignatureBlob SignatureTypeReader::GetSigSpan()
 {
     return m_state->GetSigSpan();
 }
 
-std::vector<COR_SIGNATURE> SignatureTypeReader::SubstituteMethodTypeArgs(const SignatureBlob& methodSpecSigBlob)
+std::vector<COR_SIGNATURE> SignatureTypeReader::SubstituteTypeArgs(const std::vector<SignatureBlob>& typeTypeArgs, const std::vector<SignatureBlob>& methodTypeArgs)
 {
-    std::vector<SignatureBlob> typeArgSpans;
-    MethodSpecSignatureReader specReader(methodSpecSigBlob);
-    while (specReader.MoveNextArgType())
-    {
-        typeArgSpans.push_back(specReader.GetArgTypeReader().GetSigSpan());
-    }
-
     std::vector<COR_SIGNATURE> buffer;
-    SubstitutingVisitor visitor(m_state->m_start, buffer, typeArgSpans);
+    SubstitutingVisitor visitor(m_state->m_start, buffer, typeTypeArgs, methodTypeArgs);
     m_state->SetVisitor(&visitor);
     visitor.Complete(m_state->GetSigSpan().end());
 
@@ -1364,6 +1414,18 @@ void MethodSpecSignatureReader::Check(const SignatureBlob& sigBlob)
     {
         throw std::domain_error("MethodSpec signature blob contains bytes beyond end of signature");
     }
+}
+
+std::vector<SignatureBlob> MethodSpecSignatureReader::GetTypeArgSpans(const SignatureBlob& sigBlob)
+{
+    std::vector<SignatureBlob> typeArgSpans;
+    MethodSpecSignatureReader specReader(sigBlob);
+    while (specReader.MoveNextArgType())
+    {
+        typeArgSpans.push_back(specReader.GetArgTypeReader().GetSigSpan());
+    }
+
+    return typeArgSpans;
 }
 
 //

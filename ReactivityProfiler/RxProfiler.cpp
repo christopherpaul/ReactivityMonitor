@@ -8,8 +8,9 @@
 struct MethodCallInfo
 {
     std::wstring name;
-    simplespan<const COR_SIGNATURE> sigBlob;
-    simplespan<const COR_SIGNATURE> genericInstBlob;
+    SignatureBlob sigBlob;
+    SignatureBlob genericInstBlob;
+    SignatureBlob typeSpecBlob;
 };
 
 struct ObservableTypeReferences
@@ -285,15 +286,33 @@ void CRxProfiler::InstrumentMethodBody(const MethodProps& props, const FunctionI
 
                             returnTypeReader.MoveNextTypeArg();
 
+                            std::vector<SignatureBlob> typeTypeArgs, methodTypeArgs;
+
+                            if (methodCallInfo.typeSpecBlob)
+                            {
+                                // Invoking a method on a constructed type instance
+                                SignatureTypeReader typeSpecReader(methodCallInfo.typeSpecBlob);
+                                if (typeSpecReader.GetTypeKind() == ELEMENT_TYPE_GENERICINST)
+                                {
+                                    typeTypeArgs = typeSpecReader.GetTypeArgSpans();
+                                }
+                            }
+
                             if (methodCallInfo.genericInstBlob)
                             {
-                                // Invoking a generic method, so need to construct the instantiated sig
+                                // Invoking a generic method instance
 #ifdef DEBUG
                                 MethodSpecSignatureReader::Check(methodCallInfo.genericInstBlob);
 #endif
+
+                                methodTypeArgs = MethodSpecSignatureReader::GetTypeArgSpans(methodCallInfo.genericInstBlob);
+                            }
+
+                            if (!methodTypeArgs.empty() || !typeTypeArgs.empty())
+                            {
                                 auto substSig = returnTypeReader
                                     .GetTypeReader()
-                                    .SubstituteMethodTypeArgs(methodCallInfo.genericInstBlob);
+                                    .SubstituteTypeArgs(typeTypeArgs, methodTypeArgs);
                                 observableCalls.push_back({ pInstr, substSig });
                             }
                             else
@@ -395,13 +414,13 @@ std::wstring GetSupportAssemblyPath()
 
 MethodCallInfo GetMethodCallInfo(mdToken method, const CMetadataImport& metadata)
 {
-    auto tokenType = TypeFromToken(method);
+    auto methodTokenType = TypeFromToken(method);
     mdToken methodDefOrRef;
     simplespan<const COR_SIGNATURE> sigBlob;
     simplespan<const COR_SIGNATURE> genericInstBlob;
-    if (tokenType == mdtMethodSpec)
+    if (methodTokenType == mdtMethodSpec)
     {
-        // Generic
+        // Generic method instance
         MethodSpecProps specProps = metadata.GetMethodSpecProps(method);
         methodDefOrRef = specProps.genericMethodToken;
         genericInstBlob = specProps.sigBlob;
@@ -412,11 +431,13 @@ MethodCallInfo GetMethodCallInfo(mdToken method, const CMetadataImport& metadata
     }
 
     std::wstring methodName;
+    mdToken typeToken;
     switch (TypeFromToken(methodDefOrRef))
     {
     case mdtMethodDef:
     {
         auto defProps = metadata.GetMethodProps(methodDefOrRef);
+        typeToken = defProps.classDefToken;
         methodName = defProps.name;
         sigBlob = defProps.sigBlob;
     }
@@ -424,6 +445,7 @@ MethodCallInfo GetMethodCallInfo(mdToken method, const CMetadataImport& metadata
     case mdtMemberRef:
     {
         auto refProps = metadata.GetMemberRefProps(methodDefOrRef);
+        typeToken = refProps.declToken;
         methodName = refProps.name;
         sigBlob = refProps.sigBlob;
     }
@@ -435,5 +457,13 @@ MethodCallInfo GetMethodCallInfo(mdToken method, const CMetadataImport& metadata
         return {};
     }
 
-    return { methodName, sigBlob, genericInstBlob };
+    SignatureBlob typeSpecSig;
+    auto typeTokenType = TypeFromToken(typeToken);
+    if (typeTokenType == mdtTypeSpec)
+    {
+        // Generic type instance
+        typeSpecSig = metadata.GetTypeSpecFromToken(typeToken);
+    }
+
+    return { methodName, sigBlob, genericInstBlob, typeSpecSig };
 }

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "common.h"
+
 using namespace ATL;
 
 template<typename Metadata, typename Token, size_t batchSize = 10>
@@ -143,7 +145,7 @@ struct MethodProps
     mdTypeDef classDefToken = 0;
     std::wstring name;
     DWORD attrFlags = 0;
-    simplespan<const COR_SIGNATURE> sigBlob;
+    SignatureBlob sigBlob;
     ULONG codeRva = 0;
     DWORD implFlags = 0;
 };
@@ -152,13 +154,13 @@ struct MemberRefProps
 {
     mdToken declToken = 0; // token for declaring class/declaring module class/method def
     std::wstring name;
-    simplespan<const COR_SIGNATURE> sigBlob;
+    SignatureBlob sigBlob;
 };
 
 struct MethodSpecProps
 {
     mdToken genericMethodToken;
-    simplespan<const COR_SIGNATURE> sigBlob;
+    SignatureBlob sigBlob;
 };
 
 struct AssemblyProps
@@ -183,6 +185,7 @@ public:
     MethodProps GetMethodProps(mdMethodDef methodDefToken) const;
     MemberRefProps GetMemberRefProps(mdMemberRef memberRefToken) const;
     MethodSpecProps GetMethodSpecProps(mdMethodSpec methodSpecToken) const;
+    SignatureBlob GetTypeSpecFromToken(mdTypeSpec typeSpecToken) const;
     mdModule GetCurrentModule() const;
 
     operator bool() const { return m_metadata; }

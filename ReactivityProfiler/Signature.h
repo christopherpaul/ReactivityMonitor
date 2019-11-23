@@ -1,6 +1,6 @@
 #pragma once
 
-typedef simplespan<const COR_SIGNATURE> SignatureBlob;
+#include "common.h"
 
 class MethodSignatureReader;
 
@@ -36,6 +36,7 @@ class SignatureTypeReader
 {
 public:
     SignatureTypeReader(const std::shared_ptr<SignatureTypeReaderState>& state);
+    SignatureTypeReader(const SignatureBlob& typeSpecSig);
 
     CorElementType GetTypeKind();
     CorElementType GetGenericInstKind();
@@ -50,8 +51,12 @@ public:
     LONG GetGenArgCount(); // for GENERICINST
     bool MoveNextTypeArg(); // for GENERICINST
 
+    std::vector<SignatureBlob> GetTypeArgSpans();
+
     SignatureBlob GetSigSpan();
-    std::vector<COR_SIGNATURE> SubstituteMethodTypeArgs(const SignatureBlob& methodSpecSigBlob);
+    std::vector<COR_SIGNATURE> SubstituteTypeArgs(
+        const std::vector<SignatureBlob>& typeTypeArgs,
+        const std::vector<SignatureBlob>& methodTypeArgs);
 
 private:
     const std::shared_ptr<SignatureTypeReaderState> m_state;
@@ -109,6 +114,7 @@ public:
     SignatureTypeReader GetArgTypeReader();
 
     static void Check(const SignatureBlob& sigBlob);
+    static std::vector<SignatureBlob> GetTypeArgSpans(const SignatureBlob& sigBlob);
 
 private:
     const std::shared_ptr<MethodSpecSignatureReaderState> m_state;
