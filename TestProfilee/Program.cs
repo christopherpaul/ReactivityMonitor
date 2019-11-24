@@ -20,26 +20,28 @@ namespace TestProfilee
             string[] envVars =
             {
                 "COR_ENABLE_PROFILING",
-                "COR_PROFILER"
-            };
+                "COR_PROFILER" 
+            };  
             Console.WriteLine($"Profiling environment vars:");
             foreach (string name in envVars)
             {
                 Console.WriteLine($"\t{name} = {Environment.GetEnvironmentVariable(name)}");
             }
-            Console.WriteLine(); 
-
+            Console.WriteLine();  
+             
             Console.WriteLine("Spinning up an observable...");
             IObservable<string> observable = new[] { "One", "two", "three" }.ToObservable()
-                .Zip(Observable.Interval(TimeSpan.FromSeconds(1)), (x, _) => x);
+                .Zip(Observable.Interval(TimeSpan.FromSeconds(1)), (x, _) => x)
+                .Repeat();
 
             var sub = observable.Subscribe(Console.WriteLine);
 
             GenericExamples.CallToMethodOnGenericType();
 
             Pause();
-
+                
             sub.Dispose();
-        }
+        } 
     }
 }
+    

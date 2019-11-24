@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ReactivityProfiler.Support.Store;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
@@ -8,7 +9,18 @@ namespace ReactivityProfiler.Support
 {
     public static class Instrument
     {
-        private static int sObservableId;
+        static Instrument()
+        {
+            try
+            {
+                var launcher = new Server.Launcher();
+                launcher.Launch();
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError("{0}: failed to launch server: {1}", typeof(Instrument).FullName, ex);
+            }
+        }
 
         /// <summary>
         /// Called for each IObservable argument of an instrumented method call.
@@ -37,9 +49,10 @@ namespace ReactivityProfiler.Support
                 return observable;
             }
 
-            int observableId = Interlocked.Increment(ref sObservableId);
-            Trace.WriteLine($"Returned(Obs{observableId}, {instrumentationPoint})");
-            return new TracingObservable<T>(observable, observableId);
+            Trace.WriteLine($"Returned({instrumentationPoint})");
+
+            var obsInfo = new ObservableInfo(instrumentationPoint, new ObservableInfo[0]);
+            return new InstrumentedObservable<T>(observable, obsInfo);
         }
     }
 }

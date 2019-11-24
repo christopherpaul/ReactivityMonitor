@@ -30,10 +30,17 @@
   <ItemGroup>
     <ProjectReference Include="..\ReactivityProfiler.Support\ReactivityProfiler.Support.csproj">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-      <OutputItemType>None</OutputItemType>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <OutputItemType>SupportFile</OutputItemType>
     </ProjectReference>
   </ItemGroup>
+
+  <Target Name="CopySupport" AfterTargets="AfterBuild">
+    <ItemGroup>
+      <SupportFile Include="%(SupportFile.RootDir)%(SupportFile.Directory)*.dll" />
+    </ItemGroup>
+    <Message Importance="high" Text="Support file: %(SupportFile.Identity)" />
+    <Copy SourceFiles="@(SupportFile)" DestinationFolder="$(OutDir)" />
+  </Target>
 
   <Target Name="DumpIL" AfterTargets="AfterBuild">
     <GetFrameworkSdkPath>
