@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -26,6 +27,22 @@ namespace ReactivityProfiler.Support.Server
 
             app.Run(async (context) =>
             {
+                var instrData = Store.Stores.Instrumentation.GetData();
+                int cLineSize = 32;
+                var sb = new StringBuilder();
+                for (int line = 0; line <= instrData.Length / cLineSize; line++)
+                {
+                    int lineStart = line * cLineSize;
+                    int c = Math.Min(cLineSize, instrData.Length - lineStart);
+                    for (int i = 0; i < c; i++)
+                    {
+                        sb.Append($"{(int)instrData[lineStart + i]:x2} ");
+                    }
+                    sb.AppendLine();
+                    await context.Response.WriteAsync(sb.ToString());
+                    sb.Clear();
+                }
+
                 foreach (var sub in Store.Stores.Subscriptions.GetAllSubs())
                 {
                     await context.Response.WriteAsync($"{sub.Details.Timestamp.Ticks}:{sub.Details.ThreadId}:{sub.Observable.InstrumentationPoint}:{sub.Observable.ObservableId}:{sub.SubscriptionId}\r\n");

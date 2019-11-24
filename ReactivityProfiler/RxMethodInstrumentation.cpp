@@ -2,6 +2,7 @@
 #include "RxProfiler.h"
 #include "RxProfilerImpl.h"
 #include "Signature.h"
+#include "Store.h"
 
 using namespace Instrumentation;
 
@@ -29,8 +30,9 @@ struct MethodCallInfo
 
 struct ObservableCallInfo
 {
-    int m_instructionOffset;
-    int m_instructionLength;
+    std::wstring m_calledMethodName;
+    int m_instructionOffset = 0;
+    int m_instructionLength = 0;
     SigSpanOrVector m_returnTypeArg; // if call returns IObservable<T>, this is T
 
     // The follows vectors hold a value for each method argument starting with the first observable one.
@@ -222,6 +224,7 @@ bool MethodBodyInstrumenter::TryFindObservableCalls()
         }
 
         ObservableCallInfo callInfo;
+        callInfo.m_calledMethodName = methodCallInfo.name;
         callInfo.m_instructionOffset = pInstr->m_origOffset;
         callInfo.m_instructionLength = pInstr->length();
 
@@ -266,7 +269,9 @@ bool MethodBodyInstrumenter::TryFindObservableCalls()
 
 void MethodBodyInstrumenter::InstrumentCall(ObservableCallInfo& call, CMetadataEmit& emit)
 {
-    int32_t instrumentationPoint = ++m_pPerModuleData->m_instrumentationPointSource;
+    static std::atomic_int32_t m_instrumentationPointSource = 0;
+
+    int32_t instrumentationPoint = ++m_instrumentationPointSource;
 
     InstructionList preCallInstrs;
     if (!call.m_argIsObservable.empty())
@@ -357,6 +362,13 @@ void MethodBodyInstrumenter::InstrumentCall(ObservableCallInfo& call, CMetadataE
     m_method->InsertInstructionsAtOriginalOffset(
         offsetToInsertAt,
         postCallInstrs);
+
+    g_Store.AddInstrumentationInfo(
+        instrumentationPoint, 
+        m_functionInfo.moduleId, 
+        m_functionInfo.functionToken,
+        call.m_instructionOffset,
+        call.m_calledMethodName);
 }
 
 MethodCallInfo MethodBodyInstrumenter::GetMethodCallInfo(mdToken method)

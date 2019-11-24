@@ -5,6 +5,7 @@
 #include "RxProfilerImpl.h"
 
 #include "Signature.h"
+#include "Store.h"
 
 // CRxProfiler
 
@@ -56,6 +57,8 @@ HRESULT CRxProfiler::ModuleLoadFinished(
             ATLTRACE(L"Adding support assembly reference to %s", moduleInfo.name.c_str());
             AddSupportAssemblyReference(moduleId, pPerModuleData->m_observableTypeRefs, pPerModuleData->m_supportAssemblyRefs);
             pPerModuleData->m_supportAssemblyReferenced = true;
+
+            g_Store.AddModuleInfo(moduleId, moduleInfo.name);
         }
     });
 }

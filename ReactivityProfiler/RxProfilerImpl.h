@@ -22,8 +22,6 @@ struct PerModuleData
     AssemblyProps m_assemblyProps;
     ObservableTypeReferences m_observableTypeRefs;
     SupportAssemblyReferences m_supportAssemblyRefs;
-
-    std::atomic_int32_t m_instrumentationPointSource = 0;
 };
 
 extern const wchar_t* GetSupportAssemblyName();

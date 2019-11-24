@@ -85,6 +85,9 @@
     <ClInclude Include="RxProfilerImpl.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Store.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ReactivityProfiler.cpp">
@@ -124,6 +127,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="RxMethodInstrumentation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Store.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StoreAccess.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

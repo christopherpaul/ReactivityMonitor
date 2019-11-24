@@ -249,6 +249,7 @@
     <ClInclude Include="RxProfilerImpl.h" />
     <ClInclude Include="Signature.h" />
     <ClInclude Include="simplespan.h" />
+    <ClInclude Include="Store.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Utility.h" />
   </ItemGroup>
@@ -297,6 +298,8 @@
     <ClCompile Include="RxProfiler.cpp" />
     <ClCompile Include="RxSupportAssembly.cpp" />
     <ClCompile Include="Signature.cpp" />
+    <ClCompile Include="Store.cpp" />
+    <ClCompile Include="StoreAccess.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="ReactivityProfiler.rc" />
