@@ -28,6 +28,7 @@ namespace ReactivityProfiler.Support.Server
 
             app.Map("/instrumentation", ConfigureInstrumentation);
             app.Map("/subscriptions", ConfigureSubscriptions);
+            app.Map("/observable", ConfigureObservable);
 
             app.Run(context =>
             {
@@ -66,6 +67,41 @@ namespace ReactivityProfiler.Support.Server
                 foreach (var sub in Store.Stores.Subscriptions.GetAllSubs())
                 {
                     await context.Response.WriteAsync($"{sub.Details.Timestamp.Ticks}:{sub.Details.ThreadId}:{sub.Observable.InstrumentationPoint}:{sub.Observable.ObservableId}:{sub.SubscriptionId}\r\n");
+                }
+            });
+        }
+
+        private void ConfigureObservable(IApplicationBuilder app)
+        {
+            app.Run(async (context) =>
+            {
+                if (!string.Equals(context.Request.Method, HttpMethods.Get, StringComparison.OrdinalIgnoreCase))
+                {
+                    context.Response.StatusCode = StatusCodes.Status405MethodNotAllowed;
+                    return;
+                }
+
+                if (!long.TryParse(context.Request.Path.Value.Trim('/'), out long subId))
+                {
+                    context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                    await context.Response.WriteAsync($"Bad id, path = {context.Request.Path}");
+                    return;
+                }
+
+                var sub = Store.Stores.Subscriptions.GetSub(subId);
+                if (sub == null)
+                {
+                    context.Response.StatusCode = StatusCodes.Status404NotFound;
+                    await context.Response.WriteAsync($"Sub not found, ID = {subId}");
+                    return;
+                }
+
+                var obs = sub.Observable;
+
+                await context.Response.WriteAsync($"{obs.InstrumentationPoint}:{obs.ObservableId}\r\n");
+                foreach (var input in obs.Inputs)
+                {
+                    await context.Response.WriteAsync($"<<{input.InstrumentationPoint}:{input.ObservableId}\r\n");
                 }
             });
         }

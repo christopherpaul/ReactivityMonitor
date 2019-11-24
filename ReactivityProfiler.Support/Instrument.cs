@@ -22,12 +22,62 @@ namespace ReactivityProfiler.Support
             }
         }
 
+        private sealed class CallTracker
+        {
+            private readonly List<ObservableInfo> mInfoList = new List<ObservableInfo>();
+            private readonly Stack<(int InstrPoint, IReadOnlyList<ObservableInfo> Inputs)> mCallStack = new Stack<(int InstrPoint, IReadOnlyList<ObservableInfo> Inputs)>();
+            private int mCurrentInstrPoint;
+
+            public void AddInfo(int instrumentationPoint, ObservableInfo obsInfo)
+            {
+                if (instrumentationPoint != mCurrentInstrPoint)
+                {
+                    mInfoList.Clear();
+                    mCurrentInstrPoint = instrumentationPoint;
+                }
+                mInfoList.Add(obsInfo);
+            }
+
+            public void Calling(int instrumentationPoint)
+            {
+                if (instrumentationPoint != mCurrentInstrPoint)
+                {
+                    mInfoList.Clear();
+                }
+                mCallStack.Push((instrumentationPoint, mInfoList.ToArray()));
+                mInfoList.Clear();
+            }
+
+            public IReadOnlyList<ObservableInfo> Returned(int instrumentationPoint)
+            {
+                (int InstrPoint, IReadOnlyList<ObservableInfo> Inputs) entry;
+                do
+                {
+                    if (mCallStack.Count == 0)
+                    {
+                        return new ObservableInfo[0];
+                    }
+
+                    entry = mCallStack.Pop();
+                }
+                while (entry.InstrPoint != instrumentationPoint);
+
+                return entry.Inputs;
+            }
+        }
+
+        private static ThreadLocal<CallTracker> sTracker = new ThreadLocal<CallTracker>(() => new CallTracker());
+
         /// <summary>
         /// Called for each IObservable argument of an instrumented method call.
         /// </summary>
         public static IObservable<T> Argument<T>(IObservable<T> observable, int instrumentationPoint)
         {
             Trace.WriteLine($"Argument(X, {instrumentationPoint})");
+            if (observable is InstrumentedObservable<T> instrumented)
+            {
+                sTracker.Value.AddInfo(instrumentationPoint, instrumented.Info);
+            }
             return observable;
         }
 
@@ -37,6 +87,7 @@ namespace ReactivityProfiler.Support
         public static void Calling(int instrumentationPoint)
         {
             Trace.WriteLine($"Calling({instrumentationPoint})");
+            sTracker.Value.Calling(instrumentationPoint);
         }
 
         /// <summary>
@@ -51,7 +102,9 @@ namespace ReactivityProfiler.Support
 
             Trace.WriteLine($"Returned({instrumentationPoint})");
 
-            var obsInfo = new ObservableInfo(instrumentationPoint, new ObservableInfo[0]);
+            var inputs = sTracker.Value.Returned(instrumentationPoint);
+
+            var obsInfo = new ObservableInfo(instrumentationPoint, inputs);
             return new InstrumentedObservable<T>(observable, obsInfo);
         }
     }

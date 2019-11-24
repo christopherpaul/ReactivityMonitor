@@ -9,17 +9,18 @@ namespace ReactivityProfiler.Support
     internal sealed class InstrumentedObservable<T> : IObservable<T>
     {
         private readonly IObservable<T> mObservable;
-        private readonly ObservableInfo mInfo;
 
         public InstrumentedObservable(IObservable<T> observable, ObservableInfo info)
         {
             mObservable = observable;
-            mInfo = info;
+            Info = info;
         }
+
+        public ObservableInfo Info { get; }
 
         public IDisposable Subscribe(IObserver<T> observer)
         {
-            long subId = Stores.Subscriptions.CreateSub(mInfo);
+            long subId = Stores.Subscriptions.CreateSub(Info);
             var instrumentedObserver = new Observer(observer, subId);
             var subscription = mObservable.Subscribe(instrumentedObserver);
             return new Disposable(subscription, instrumentedObserver);
