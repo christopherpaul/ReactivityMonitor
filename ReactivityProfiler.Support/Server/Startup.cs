@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -25,22 +26,41 @@ namespace ReactivityProfiler.Support.Server
                 app.UseDeveloperExceptionPage();
             }
 
+            app.Map("/instrumentation", ConfigureInstrumentation);
+            app.Map("/subscriptions", ConfigureSubscriptions);
+
+            app.Run(context =>
+            {
+                context.Response.StatusCode = StatusCodes.Status404NotFound;
+                return Task.CompletedTask;
+            });
+        }
+
+        private void ConfigureInstrumentation(IApplicationBuilder app)
+        {
             app.Run(async (context) =>
             {
-                var instrData = Store.Stores.Instrumentation.GetData();
-                int cLineSize = 32;
-                var sb = new StringBuilder();
-                for (int line = 0; line <= instrData.Length / cLineSize; line++)
+                if (!string.Equals(context.Request.Method, HttpMethods.Get, StringComparison.OrdinalIgnoreCase))
                 {
-                    int lineStart = line * cLineSize;
-                    int c = Math.Min(cLineSize, instrData.Length - lineStart);
-                    for (int i = 0; i < c; i++)
-                    {
-                        sb.Append($"{(int)instrData[lineStart + i]:x2} ");
-                    }
-                    sb.AppendLine();
-                    await context.Response.WriteAsync(sb.ToString());
-                    sb.Clear();
+                    context.Response.StatusCode = StatusCodes.Status405MethodNotAllowed;
+                    return;
+                }
+
+                var instrData = Store.Stores.Instrumentation.GetData();
+                context.Response.ContentType = System.Net.Mime.MediaTypeNames.Application.Octet;
+                context.Response.ContentLength = instrData.Length;
+                await context.Response.Body.WriteAsync(instrData, 0, instrData.Length);
+            });
+        }
+
+        private void ConfigureSubscriptions(IApplicationBuilder app)
+        {
+            app.Run(async (context) =>
+            {
+                if (!string.Equals(context.Request.Method, HttpMethods.Get, StringComparison.OrdinalIgnoreCase))
+                {
+                    context.Response.StatusCode = StatusCodes.Status405MethodNotAllowed;
+                    return;
                 }
 
                 foreach (var sub in Store.Stores.Subscriptions.GetAllSubs())
