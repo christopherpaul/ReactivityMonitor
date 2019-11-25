@@ -9,6 +9,7 @@ namespace ReactivityProfiler.Support
 {
     public static class Instrument
     {
+        // Class constructor gives us an opportunity to fire up our server
         static Instrument()
         {
             try
@@ -22,6 +23,9 @@ namespace ReactivityProfiler.Support
             }
         }
 
+        /// <summary>
+        /// Per-thread tracking of instrumentation calls.
+        /// </summary>
         private sealed class CallTracker
         {
             private readonly List<ObservableInfo> mInfoList = new List<ObservableInfo>();
@@ -97,6 +101,13 @@ namespace ReactivityProfiler.Support
         {
             if (observable == null)
             {
+                return observable;
+            }
+
+            if (observable is InstrumentedObservable<T> instrObs)
+            {
+                // Already instrumented. Not sure if we'd want to associate it with any
+                // inputs to this call as well - for now assume not.
                 return observable;
             }
 
