@@ -34,22 +34,21 @@ public:
 
     void Write(const std::wstring& s)
     {
-        Write64(s.length());
-        m_buffer.write(reinterpret_cast<const byte*>(s.data()), s.length() * sizeof(wchar_t));
+        int length = static_cast<int>(s.length());
+        ATLTRACE(L"Write: s=%s, length=%d", s.c_str(), length);
+        Write32(length);
+        m_buffer.write(reinterpret_cast<const byte*>(s.data()), length * sizeof(wchar_t));
     }
 
-    void AppendToVector(std::vector<byte>& vec) const
+    std::vector<byte> Get() const
     {
         std::basic_string<byte> str = m_buffer.str();
         uint64_t contentLen = str.length();
 
-        size_t offset = vec.size();
-        size_t recordLen = (sizeof contentLen) + contentLen;
-        vec.resize(offset + recordLen);
-
-        byte* pContentLen = reinterpret_cast<byte*>(&contentLen);
-        std::copy(pContentLen, pContentLen + (sizeof contentLen), vec.begin() + offset);
-        std::copy(str.data(), str.data() + contentLen, vec.begin() + offset + (sizeof contentLen));
+        std::vector<byte> vec;
+        vec.resize(contentLen);
+        std::copy(str.begin(), str.end(), vec.begin());
+        return std::move(vec);
     }
 
 private:
@@ -67,37 +66,28 @@ public:
         int32_t instructionOffset,
         const std::wstring& calledMethodName);
 
-    int32_t GetStoreLength()
+    int32_t GetEventCount()
     {
         std::lock_guard lockBuffer(m_mutex);
         return static_cast<int32_t>(m_buffer.size());
     }
 
-    int32_t ReadStore(int32_t start, int32_t length, byte* buffer)
+    simplespan<byte> ReadEvent(int32_t index)
     {
-        ATLTRACE("ReadStore(%lu, %lu, <buf>)", start, length);
         std::lock_guard lockBuffer(m_mutex);
-        if (start >= m_buffer.size())
-        {
-            return 0;
-        }
-
-        size_t size = min(length, m_buffer.size() - start);
-
-        std::copy(m_buffer.begin() + start, m_buffer.begin() + start + size, buffer);
-
-        return static_cast<int32_t>(size);
+        auto& vec = m_buffer[index];
+        return vec;
     }
 
 private:
     void WriteRecord(const EventRecord& rec)
     {
         std::lock_guard lockBuffer(m_mutex);
-        rec.AppendToVector(m_buffer);
+        m_buffer.push_back(rec.Get());
     }
 
     std::mutex m_mutex;
-    std::vector<byte> m_buffer;
+    std::vector<std::vector<byte>> m_buffer;
 };
 
 Store::Store() :
@@ -120,15 +110,16 @@ void Store::AddInstrumentationInfo(int32_t instrumentationPoint, ModuleID module
         calledMethodName);
 }
 
-int32_t Store::GetStoreLength()
+int32_t Store::GetEventCount()
 {
-    return m_pImpl->GetStoreLength();
+    return m_pImpl->GetEventCount();
 }
 
-int32_t Store::ReadStore(int32_t start, int32_t length, byte* buffer)
+simplespan<byte> Store::ReadEvent(int32_t index)
 {
-    return m_pImpl->ReadStore(start, length, buffer);
+    return m_pImpl->ReadEvent(index);
 }
+
 
 void StoreImpl::AddModuleInfo(ModuleID moduleId, const std::wstring& modulePath)
 {

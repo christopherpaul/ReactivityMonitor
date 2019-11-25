@@ -1,12 +1,14 @@
 #include "pch.h"
 #include "Store.h"
 
-STDAPI_(int32_t) GetStoreLength()
+STDAPI_(int32_t) GetStoreEventCount()
 {
-    return g_Store.GetStoreLength();
+    return g_Store.GetEventCount();
 }
 
-STDAPI_(int32_t) ReadStore(int32_t start, byte* buffer, int32_t length)
+STDAPI_(void) ReadStoreEvent(int32_t index, byte** buffer, int32_t* size)
 {
-    return g_Store.ReadStore(start, length, buffer);
+    simplespan<byte> eventData = g_Store.ReadEvent(index);
+    *buffer = eventData.begin();
+    *size = static_cast<int>(eventData.length());
 }

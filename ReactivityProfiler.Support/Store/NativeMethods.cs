@@ -9,12 +9,21 @@ namespace ReactivityProfiler.Support.Store
     internal static class NativeMethods
     {
         [DllImport("ReactivityProfiler.dll")]
-        public extern static int GetStoreLength();
+        public extern static int GetStoreEventCount();
 
         [DllImport("ReactivityProfiler.dll")]
-        public extern static int ReadStore(
-            int offset,
-            byte[] buffer,
-            int byteCount);
+        private extern static void ReadStoreEvent(int index, ref IntPtr pEventData, ref int byteCount);
+
+        public static byte[] ReadStoreEvent(int index)
+        {
+            IntPtr pEventData = default;
+            int byteCount = default;
+            ReadStoreEvent(index, ref pEventData, ref byteCount);
+
+            byte[] buffer = new byte[byteCount];
+            Marshal.Copy(pEventData, buffer, 0, byteCount);
+
+            return buffer;
+        }
     }
 }

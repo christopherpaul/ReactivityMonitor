@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 
@@ -8,53 +9,57 @@ namespace ReactivityProfiler.Support.Store
 {
     internal sealed class InstrumentationStore
     {
-        public int GetSize()
+        public int GetEventCount()
         {
-            return (int)NativeMethods.GetStoreLength();
+            return NativeMethods.GetStoreEventCount();
         }
 
-        public byte[] GetData()
+        public object GetEvent(int index)
         {
-            return GetData(0, GetSize());
+            byte[] rawEvent = NativeMethods.ReadStoreEvent(index);
+            return Decode(rawEvent);
         }
 
-        public byte[] GetData(int offset, int bytesToRead)
+        private static object Decode(byte[] rawEvent)
         {
-            const int cMaxChunk = 1024;
-            var buffers = new List<byte[]>();
+            var reader = new BinaryReader(new MemoryStream(rawEvent), Encoding.Unicode);
+            uint eventTypeId = reader.ReadUInt32();
 
-            while (bytesToRead > 0)
+            switch (eventTypeId)
             {
-                int chunkSize = Math.Min(bytesToRead, cMaxChunk);
-                var chunkBuf = new byte[chunkSize];
-                int actuallyRead = NativeMethods.ReadStore(offset, chunkBuf, chunkSize);
-                if (actuallyRead < chunkSize)
-                {
-                    bytesToRead = 0;
-                    if (actuallyRead > 0)
-                    {
-                        var cb2 = new byte[actuallyRead];
-                        Array.Copy(chunkBuf, cb2, actuallyRead);
-                        buffers.Add(cb2);
-                    }
-                    break;
-                }
-
-                buffers.Add(chunkBuf);
-                offset += chunkSize;
-                bytesToRead -= chunkSize;
+                case 0:
+                    return DecodeModuleLoadEvent(reader);
+                case 1:
+                    return DecodeMethodCallInstrumentedEvent(reader);
+                default:
+                    return null;
             }
+        }
 
-            int total = buffers.Sum(b => b.Length);
-            var result = new byte[total];
-            int n = 0;
-            foreach (var buf in buffers)
-            {
-                Array.Copy(buf, 0, result, n, buf.Length);
-                n += buf.Length;
-            }
+        private static object DecodeModuleLoadEvent(BinaryReader reader)
+        {
+            var e = new ModuleLoadEvent();
+            e.ModuleId = reader.ReadUInt64();
+            e.ModulePath = ReadInt32LengthString(reader);
+            return e;
+        }
 
-            return result;
+        private static object DecodeMethodCallInstrumentedEvent(BinaryReader reader)
+        {
+            var e = new MethodCallInstrumentedEvent();
+            e.InstrumentationPointId = reader.ReadInt32();
+            e.ModuleId = reader.ReadUInt64();
+            e.FunctionToken = reader.ReadUInt32();
+            e.InstructionOffset = reader.ReadInt32();
+            e.CalledMethodName = ReadInt32LengthString(reader);
+            return e;
+        }
+
+        private static string ReadInt32LengthString(BinaryReader reader)
+        {
+            int length = reader.ReadInt32();
+            char[] chars = reader.ReadChars(length);
+            return new string(chars);
         }
     }
 }

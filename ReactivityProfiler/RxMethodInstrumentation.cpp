@@ -286,7 +286,7 @@ void MethodBodyInstrumenter::InstrumentCall(ObservableCallInfo& call, CMetadataE
         ATLTRACE("Got locals sig: %s", FormatBytes(localsSigBlob).c_str());
         LocalsSignatureReader localsSigReader(localsSigBlob);
         int existingLocalsCount = localsSigReader.GetCount();
-        int argCount = call.m_argIsObservable.size(); // not necessarily all args, but the ones we're dealing with
+        int argCount = static_cast<int>(call.m_argIsObservable.size()); // not necessarily all args, but the ones we're dealing with
         std::vector<SignatureBlob> argTypeSpans;
         std::transform(
             call.m_argTypeSpan.begin(), call.m_argTypeSpan.end(), 

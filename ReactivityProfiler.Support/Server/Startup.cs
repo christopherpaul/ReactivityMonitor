@@ -47,10 +47,28 @@ namespace ReactivityProfiler.Support.Server
                     return;
                 }
 
-                var instrData = Store.Stores.Instrumentation.GetData();
-                context.Response.ContentType = System.Net.Mime.MediaTypeNames.Application.Octet;
-                context.Response.ContentLength = instrData.Length;
-                await context.Response.Body.WriteAsync(instrData, 0, instrData.Length);
+                context.Response.ContentType = System.Net.Mime.MediaTypeNames.Text.Plain;
+
+                var instrStore = Store.Stores.Instrumentation;
+                int eventCount = instrStore.GetEventCount();
+                for (int i = 0; i < eventCount; i++)
+                {
+                    Trace.WriteLine($"Event {i}");
+                    object e = instrStore.GetEvent(i);
+                    Trace.WriteLine($"Event type {e.GetType()}");
+                    switch (e)
+                    {
+                        case Store.ModuleLoadEvent mle:
+                            Trace.WriteLine($"Writing module load");
+                            await context.Response.WriteAsync($"ModuleLoad: {mle.ModuleId:x8} from {mle.ModulePath}\r\n");
+                            break;
+
+                        case Store.MethodCallInstrumentedEvent mcie:
+                            Trace.WriteLine($"Writing method call instr");
+                            await context.Response.WriteAsync($"MethodCallInstr ID={mcie.InstrumentationPointId}: {mcie.ModuleId:x8}:{mcie.FunctionToken:x4}:IL_{mcie.InstructionOffset:x4} calling {mcie.CalledMethodName}\r\n");
+                            break;
+                    }
+                }
             });
         }
 

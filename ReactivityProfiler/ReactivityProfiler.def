@@ -8,5 +8,5 @@ EXPORTS
 	DllRegisterServer	PRIVATE
 	DllUnregisterServer	PRIVATE
 	DllInstall		PRIVATE
-	GetStoreLength
-	ReadStore
+	GetStoreEventCount
+	ReadStoreEvent

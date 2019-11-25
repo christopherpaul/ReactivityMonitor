@@ -18,7 +18,8 @@ ModuleInfo CProfilerInfo::GetModuleInfo(ModuleID moduleId)
     CHECK_SUCCESS(m_profilerInfo->GetModuleInfo(moduleId, &info.baseLoadAddress, 0, &nameCount, nullptr, &info.assemblyId));
     std::vector<WCHAR> nameChars(nameCount);
     CHECK_SUCCESS(m_profilerInfo->GetModuleInfo(moduleId, &info.baseLoadAddress, nameCount, &nameCount, nameChars.data(), &info.assemblyId));
-    info.name = std::wstring(nameChars.data(), nameCount);
+
+    info.name = std::wstring(nameChars.data(), nameCount - 1);
 
     return info;
 }
@@ -142,7 +143,7 @@ MethodProps CMetadataImport::GetMethodProps(mdMethodDef methodDefToken) const
         &props.implFlags
     ));
 
-    props.name = std::wstring(nameChars.data(), nameChars.size());
+    props.name = std::wstring(nameChars.data(), nameChars.size() - 1);
     props.sigBlob = { pSigBlob, sigBlobSize };
     return props;
 }
@@ -173,7 +174,7 @@ MemberRefProps CMetadataImport::GetMemberRefProps(mdMemberRef memberRefToken) co
         &pSigBlob,
         &sigBlobSize));
 
-    props.name = { nameChars.data(), nameChars.size() };
+    props.name = { nameChars.data(), nameChars.size() - 1 };
     props.sigBlob = { pSigBlob, sigBlobSize };
     return props;
 }

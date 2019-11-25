@@ -15,8 +15,8 @@ public:
         int32_t instructionOffset,
         const std::wstring& calledMethodName);
 
-    int32_t GetStoreLength();
-    int32_t ReadStore(int32_t start, int32_t length, byte* buffer);
+    int32_t GetEventCount();
+    simplespan<byte> ReadEvent(int32_t index);
 
 private:
     std::unique_ptr<StoreImpl> m_pImpl;

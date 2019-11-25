@@ -20,6 +20,10 @@ public:
     {
     }
 
+    simplespan(std::vector<std::remove_const_t<T>>& vec) : simplespan(vec.data(), vec.size())
+    {
+    }
+
     T* begin() const
     {
         return m_pStart;
