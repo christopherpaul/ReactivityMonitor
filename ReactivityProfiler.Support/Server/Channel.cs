@@ -21,7 +21,7 @@ namespace ReactivityProfiler.Support.Server
         {
             mMessageReceivedCallback = messageReceivedCallback;
 
-            string pipeName = $"{nameof(ReactivityProfiler)}.{Process.GetCurrentProcess().Id}";
+            string pipeName = $"{nameof(ReactivityProfiler)}.{Process.GetCurrentProcess().Id}.{Guid.NewGuid():N}";
             Trace.WriteLine($"Opening pipe: {pipeName}");
             mPipeStream = new NamedPipeServerStream(
                 pipeName,
@@ -43,6 +43,8 @@ namespace ReactivityProfiler.Support.Server
             mWriterThread = writerThread;
 
             mWriteQueue = new BlockingCollection<byte[]>();
+
+            Registry.SetChannelPipeName(pipeName);
         }
 
         public void Start()

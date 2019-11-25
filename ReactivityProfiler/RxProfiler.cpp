@@ -34,6 +34,7 @@ HRESULT CRxProfiler::Shutdown()
 {
     return HandleExceptions([] {
         RELTRACE("Shutdown");
+        RemoveTransientRegistryKey();
     });
 }
 

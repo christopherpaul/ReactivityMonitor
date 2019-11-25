@@ -4,7 +4,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace ReactivityProfiler.Support.Store
+namespace ReactivityProfiler.Support
 {
     internal static class NativeMethods
     {
@@ -25,5 +25,8 @@ namespace ReactivityProfiler.Support.Store
 
             return buffer;
         }
+
+        [DllImport("ReactivityProfiler.dll", CharSet = CharSet.Unicode)]
+        public extern static void SetChannelPipeName(string pipeName);
     }
 }

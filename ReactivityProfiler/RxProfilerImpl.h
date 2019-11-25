@@ -27,3 +27,4 @@ struct PerModuleData
 extern const wchar_t* GetSupportAssemblyName();
 extern std::wstring GetSupportAssemblyPath();
 extern bool IsExcludedAssembly(const AssemblyProps& assemblyProps);
+extern void RemoveTransientRegistryKey();

@@ -10,3 +10,4 @@ EXPORTS
 	DllInstall		PRIVATE
 	GetStoreEventCount
 	ReadStoreEvent
+	SetChannelPipeName

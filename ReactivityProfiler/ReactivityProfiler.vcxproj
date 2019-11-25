@@ -294,6 +294,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
       </PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="Registry.cpp" />
     <ClCompile Include="RxMethodInstrumentation.cpp" />
     <ClCompile Include="RxProfiler.cpp" />
     <ClCompile Include="RxSupportAssembly.cpp" />
