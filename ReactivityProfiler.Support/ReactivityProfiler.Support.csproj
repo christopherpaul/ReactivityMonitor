@@ -12,6 +12,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore" Version="2.2.0" />
+    <ProjectReference Include="..\ReactivityProfiler.Protocol\ReactivityProfiler.Protocol.csproj" />
   </ItemGroup>
 </Project>

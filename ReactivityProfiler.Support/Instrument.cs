@@ -13,8 +13,8 @@ namespace ReactivityProfiler.Support
         {
             try
             {
-                var launcher = new Server.Launcher();
-                launcher.Launch();
+                var server = new Server.Server(Services.Store);
+                server.Start();
             }
             catch (Exception ex)
             {

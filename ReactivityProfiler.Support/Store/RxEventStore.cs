@@ -4,11 +4,11 @@ using System.Text;
 
 namespace ReactivityProfiler.Support.Store
 {
-    internal sealed class RxEventStore
+    internal sealed class RxEventStore : IRxEventStore
     {
-        private readonly SubscriptionStore mSubStore;
+        private readonly ISubscriptionStore mSubStore;
 
-        public RxEventStore(SubscriptionStore subStore)
+        public RxEventStore(ISubscriptionStore subStore)
         {
             mSubStore = subStore;
         }

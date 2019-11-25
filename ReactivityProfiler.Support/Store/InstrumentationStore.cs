@@ -7,7 +7,7 @@ using System.Text;
 
 namespace ReactivityProfiler.Support.Store
 {
-    internal sealed class InstrumentationStore
+    internal sealed class InstrumentationStore : IInstrumentationStore
     {
         public int GetEventCount()
         {

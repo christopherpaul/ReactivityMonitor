@@ -4,17 +4,17 @@ using System.Text;
 
 namespace ReactivityProfiler.Support.Store
 {
-    internal static class Stores
+    internal sealed class Store : IStore
     {
-        static Stores()
+        public Store()
         {
             Instrumentation = new InstrumentationStore();
             Subscriptions = new SubscriptionStore();
             RxEvents = new RxEventStore(Subscriptions);
         }
 
-        public static InstrumentationStore Instrumentation { get; }
-        public static SubscriptionStore Subscriptions { get; }
-        public static RxEventStore RxEvents { get; }
+        public IInstrumentationStore Instrumentation { get; }
+        public ISubscriptionStore Subscriptions { get; }
+        public IRxEventStore RxEvents { get; }
     }
 }

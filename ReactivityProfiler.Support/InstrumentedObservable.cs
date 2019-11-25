@@ -20,7 +20,7 @@ namespace ReactivityProfiler.Support
 
         public IDisposable Subscribe(IObserver<T> observer)
         {
-            long subId = Stores.Subscriptions.CreateSub(Info);
+            long subId = Services.Store.Subscriptions.CreateSub(Info);
             var instrumentedObserver = new Observer(observer, subId);
             var subscription = mObservable.Subscribe(instrumentedObserver);
             return new Disposable(subscription, instrumentedObserver);
@@ -59,25 +59,25 @@ namespace ReactivityProfiler.Support
 
             public void OnUnsubscribe()
             {
-                Stores.Subscriptions.DeleteSub(mSubscriptionId);
+                Services.Store.Subscriptions.DeleteSub(mSubscriptionId);
                 mObserver = null;
             }
 
             public void OnCompleted()
             {
-                Stores.RxEvents.AddOnCompleted(mSubscriptionId);
+                Services.Store.RxEvents.AddOnCompleted(mSubscriptionId);
                 mObserver.OnCompleted();
             }
 
             public void OnError(Exception error)
             {
-                Stores.RxEvents.AddOnError(mSubscriptionId, error);
+                Services.Store.RxEvents.AddOnError(mSubscriptionId, error);
                 mObserver.OnError(error);
             }
 
             public void OnNext(T value)
             {
-                Stores.RxEvents.AddOnNext(mSubscriptionId, value);
+                Services.Store.RxEvents.AddOnNext(mSubscriptionId, value);
                 mObserver.OnNext(value);
             }
         }

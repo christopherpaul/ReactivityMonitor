@@ -5,9 +5,9 @@ using System.Text;
 
 namespace ReactivityProfiler.Support.Store
 {
-    internal sealed class SubscriptionStore
+    internal sealed class SubscriptionStore : ISubscriptionStore
     {
-        private readonly ConcurrentDictionary<long, SubscriptionInfo> mActiveSubscriptions = 
+        private readonly ConcurrentDictionary<long, SubscriptionInfo> mActiveSubscriptions =
             new ConcurrentDictionary<long, SubscriptionInfo>();
 
         public bool TraceEvents { get; set; } = true;

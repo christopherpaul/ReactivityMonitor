@@ -1,0 +1,32 @@
+﻿syntax = "proto3";
+option csharp_namespace = "ReactivityProfiler.Protocol";
+
+message EventMessage {
+	oneof Event {
+		ModuleLoadedEvent ModuleLoaded = 1;
+		MethodCallInstrumentedEvent MethodCallInstrumented = 2;
+	}
+}
+
+message ModuleLoadedEvent {
+	uint64 ModuleID = 1;
+	string Path = 2;
+}
+
+message MethodCallInstrumentedEvent {
+    int32 InstrumentationPointId = 1;
+    uint64 ModuleId = 2;
+    uint32 FunctionToken = 3;
+    int32 InstructionOffset = 4;
+    string CalledMethodName = 5;
+}
+
+message RequestMessage {
+	oneof Request {
+		SendInstrumentationEventsRequest SendInstrumentationEvents = 1;
+	}
+}
+
+message SendInstrumentationEventsRequest {
+
+}

@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <SignAssembly>true</SignAssembly>
+    <DelaySign>false</DelaySign>
+    <AssemblyOriginatorKeyFile>..\ReactivityProfiler.Support\ReactivityProfiler.Support.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Google.Protobuf" Version="3.10.1" />
+    <PackageReference Include="Google.Protobuf.Tools" Version="3.10.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProtoC Include="**\*.proto" />
+    <Compile Update="ReactivityProfilerProtocol.cs">
+      <AutoGen>true</AutoGen>
+      <DependentUpon>ReactivityProfilerProtocol.proto</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <Target Name="CompileProtobuf" BeforeTargets="BeforeBuild" Inputs="@(ProtoC)" Outputs="%(ProtoC.Filename).cs">
+    <PropertyGroup>
+      <ProtoInputDir>$(MSBuildProjectDirectory)</ProtoInputDir>
+      <ProtoOutputDir>$(MSBuildProjectDirectory)</ProtoOutputDir>
+    </PropertyGroup>
+    <Message Text="Invoking protobuf compiler for @(ProtoC)" />
+    <Exec Command="&quot;$(protoc_windows64)&quot; --proto_path=&quot;$(ProtoInputDir)&quot; --csharp_out=&quot;$(ProtoOutputDir)&quot; &quot;$(ProtoInputDir)\%(ProtoC.Identity)&quot;" />
+    <ItemGroup>
+      <FileWrites Include="%(ProtoC.Filename).cs"></FileWrites>
+    </ItemGroup>
+  </Target>
+  
+</Project>
