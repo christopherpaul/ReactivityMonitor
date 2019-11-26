@@ -41,12 +41,14 @@ namespace ReactivityProfiler.Support.Server
 
         private void StartSendingInstrumentationEvents()
         {
+            Trace.WriteLine("StartSendingInstrumentationEvents");
             var task = new Task(SendInstrumentationEvents, TaskCreationOptions.LongRunning);
             task.Start();
         }
 
         private void SendInstrumentationEvents()
         {
+            Trace.WriteLine("SendInstrumentationEvents");
             try
             {
                 int index = 0;
@@ -63,6 +65,7 @@ namespace ReactivityProfiler.Support.Server
                     {
                         object e = mStore.Instrumentation.GetEvent(index);
                         EventMessage msg = CreateEventMessage(e);
+                        Trace.WriteLine($"SendInstrumentationEvents: sending {msg}");
                         mChannel.SendMessage(msg.ToByteArray());
                         index++;
                     }
@@ -78,10 +81,10 @@ namespace ReactivityProfiler.Support.Server
         {
             switch (e)
             {
-                case Store.ModuleLoadEvent mle:
+                case ModuleLoadEvent mle:
                     return new EventMessage
                     {
-                        ModuleLoaded =
+                        ModuleLoaded = new ModuleLoadedEvent
                         {
                             ModuleID = mle.ModuleId,
                             Path = mle.ModulePath
@@ -91,7 +94,7 @@ namespace ReactivityProfiler.Support.Server
                 case Store.MethodCallInstrumentedEvent mcie:
                     return new EventMessage
                     {
-                        MethodCallInstrumented =
+                        MethodCallInstrumented = new Protocol.MethodCallInstrumentedEvent
                         {
                             InstrumentationPointId = mcie.InstrumentationPointId,
                             ModuleId = mcie.ModuleId,

@@ -13,7 +13,7 @@ namespace ReactivityProfiler.Support.Store
             mSubStore = subStore;
         }
 
-        public bool TraceEvents { get; } = true;
+        public bool TraceEvents { get; } = false;
 
         public void AddOnNext<T>(long subscriptionId, T value)
         {

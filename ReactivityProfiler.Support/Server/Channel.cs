@@ -27,7 +27,8 @@ namespace ReactivityProfiler.Support.Server
                 pipeName,
                 PipeDirection.InOut,
                 maxNumberOfServerInstances: 1,
-                transmissionMode: PipeTransmissionMode.Message);
+                transmissionMode: PipeTransmissionMode.Message,
+                options: PipeOptions.Asynchronous | PipeOptions.WriteThrough);
             mPipeStream.ReadMode = PipeTransmissionMode.Message;
 
             var readerThread = new Thread(ReceiveMessages);
@@ -60,19 +61,27 @@ namespace ReactivityProfiler.Support.Server
         public void SendMessage(byte[] message)
         {
             mWriteQueue.Add(message);
+            Trace.WriteLine("Message queued for sending");
         }
 
         public bool IsConnected => mPipeStream.IsConnected;
 
         private void SendMessages()
         {
-            foreach (byte[] message in mWriteQueue)
+            Trace.WriteLine("SendMessages thread started");
+            foreach (byte[] message in mWriteQueue.GetConsumingEnumerable())
             {
                 try
                 {
                     if (mPipeStream.IsConnected)
                     {
+                        Trace.WriteLine("Writing message to pipe");
                         mPipeStream.Write(message, 0, message.Length);
+                        Trace.WriteLine("Message written to pipe");
+                    }
+                    else
+                    {
+                        Trace.WriteLine("Not connected; message dropped.");
                     }
                 }
                 catch (Exception ex)
@@ -93,6 +102,7 @@ namespace ReactivityProfiler.Support.Server
                     {
                         Trace.WriteLine("Waiting for client to connect");
                         mPipeStream.WaitForConnection();
+                        Trace.WriteLine("Client has connected");
                     }
 
                     int bufferOffset = 0;
@@ -110,6 +120,7 @@ namespace ReactivityProfiler.Support.Server
                     }
                     while (!mPipeStream.IsMessageComplete);
 
+                    Trace.WriteLine("Received message from client");
                     OnMessageReceived(buffer, bufferOffset);
                 }
                 catch (Exception ex)

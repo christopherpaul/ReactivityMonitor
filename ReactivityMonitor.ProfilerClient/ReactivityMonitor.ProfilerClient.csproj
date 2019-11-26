@@ -4,4 +4,9 @@
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\ReactivityMonitor.Model\ReactivityMonitor.Model.csproj" />
+    <ProjectReference Include="..\ReactivityProfiler.Protocol\ReactivityProfiler.Protocol.csproj" />
+  </ItemGroup>
+
 </Project>
