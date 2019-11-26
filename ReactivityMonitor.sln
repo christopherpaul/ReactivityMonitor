@@ -14,9 +14,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactivityProfiler.Support"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ReactivityProfiler.Tests", "ReactivityProfiler.Tests\ReactivityProfiler.Tests.vcxproj", "{18AC2F8C-828E-4D3C-8A28-46B862DD8C72}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PdbReading.Experiment", "PdbReading.Experiment\PdbReading.Experiment.csproj", "{FFB2BE8B-BCFC-459C-9E41-6167ADC0929F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PdbReading.Experiment", "PdbReading.Experiment\PdbReading.Experiment.csproj", "{FFB2BE8B-BCFC-459C-9E41-6167ADC0929F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactivityProfiler.Protocol", "ReactivityProfiler.Protocol\ReactivityProfiler.Protocol.csproj", "{0E952B06-FA2E-43F5-A73C-C2B9884E0F3C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactivityProfiler.Protocol", "ReactivityProfiler.Protocol\ReactivityProfiler.Protocol.csproj", "{0E952B06-FA2E-43F5-A73C-C2B9884E0F3C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactivityMonitor", "ReactivityMonitor\ReactivityMonitor.csproj", "{38A583EE-AFFB-4EF9-9AD3-5E5F8DA0B088}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactivityMonitor.Model", "ReactivityMonitor.Model\ReactivityMonitor.Model.csproj", "{2E30E243-38D4-45DB-B864-3D67ADD15994}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactivityMonitor.ProfilerClient", "ReactivityMonitor.ProfilerClient\ReactivityMonitor.ProfilerClient.csproj", "{A71F5A1D-DD80-40E9-B3E7-51C4B22A2DCD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -74,6 +80,30 @@ Global
 		{0E952B06-FA2E-43F5-A73C-C2B9884E0F3C}.Release|x64.Build.0 = Release|Any CPU
 		{0E952B06-FA2E-43F5-A73C-C2B9884E0F3C}.Release|x86.ActiveCfg = Release|Any CPU
 		{0E952B06-FA2E-43F5-A73C-C2B9884E0F3C}.Release|x86.Build.0 = Release|Any CPU
+		{38A583EE-AFFB-4EF9-9AD3-5E5F8DA0B088}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{38A583EE-AFFB-4EF9-9AD3-5E5F8DA0B088}.Debug|x64.Build.0 = Debug|Any CPU
+		{38A583EE-AFFB-4EF9-9AD3-5E5F8DA0B088}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{38A583EE-AFFB-4EF9-9AD3-5E5F8DA0B088}.Debug|x86.Build.0 = Debug|Any CPU
+		{38A583EE-AFFB-4EF9-9AD3-5E5F8DA0B088}.Release|x64.ActiveCfg = Release|Any CPU
+		{38A583EE-AFFB-4EF9-9AD3-5E5F8DA0B088}.Release|x64.Build.0 = Release|Any CPU
+		{38A583EE-AFFB-4EF9-9AD3-5E5F8DA0B088}.Release|x86.ActiveCfg = Release|Any CPU
+		{38A583EE-AFFB-4EF9-9AD3-5E5F8DA0B088}.Release|x86.Build.0 = Release|Any CPU
+		{2E30E243-38D4-45DB-B864-3D67ADD15994}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{2E30E243-38D4-45DB-B864-3D67ADD15994}.Debug|x64.Build.0 = Debug|Any CPU
+		{2E30E243-38D4-45DB-B864-3D67ADD15994}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2E30E243-38D4-45DB-B864-3D67ADD15994}.Debug|x86.Build.0 = Debug|Any CPU
+		{2E30E243-38D4-45DB-B864-3D67ADD15994}.Release|x64.ActiveCfg = Release|Any CPU
+		{2E30E243-38D4-45DB-B864-3D67ADD15994}.Release|x64.Build.0 = Release|Any CPU
+		{2E30E243-38D4-45DB-B864-3D67ADD15994}.Release|x86.ActiveCfg = Release|Any CPU
+		{2E30E243-38D4-45DB-B864-3D67ADD15994}.Release|x86.Build.0 = Release|Any CPU
+		{A71F5A1D-DD80-40E9-B3E7-51C4B22A2DCD}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A71F5A1D-DD80-40E9-B3E7-51C4B22A2DCD}.Debug|x64.Build.0 = Debug|Any CPU
+		{A71F5A1D-DD80-40E9-B3E7-51C4B22A2DCD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A71F5A1D-DD80-40E9-B3E7-51C4B22A2DCD}.Debug|x86.Build.0 = Debug|Any CPU
+		{A71F5A1D-DD80-40E9-B3E7-51C4B22A2DCD}.Release|x64.ActiveCfg = Release|Any CPU
+		{A71F5A1D-DD80-40E9-B3E7-51C4B22A2DCD}.Release|x64.Build.0 = Release|Any CPU
+		{A71F5A1D-DD80-40E9-B3E7-51C4B22A2DCD}.Release|x86.ActiveCfg = Release|Any CPU
+		{A71F5A1D-DD80-40E9-B3E7-51C4B22A2DCD}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
