@@ -4,6 +4,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Disposables;
+using System.Reactive.Subjects;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -28,5 +30,14 @@ namespace ReactivityMonitor.Infrastructure
 
         protected void WhenActivated(Action<CompositeDisposable> activationBlock) => 
             ((IActivatableViewModel)this).WhenActivated(activationBlock);
+
+        protected void Set<T>(BehaviorSubject<T> subject, T value, [CallerMemberName] string propertyName = null)
+        {
+            if (!Equals(value, subject.Value))
+            {
+                subject.OnNext(value);
+                NotifyOfPropertyChange(propertyName);
+            }
+        }
     }
 }

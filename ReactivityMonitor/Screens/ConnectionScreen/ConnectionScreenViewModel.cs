@@ -4,33 +4,29 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using DynamicData;
 using ReactiveUI;
+using ReactivityMonitor.Connection;
 using ReactivityMonitor.Infrastructure;
+using ReactivityMonitor.Services;
 
 namespace ReactivityMonitor.Screens.ConnectionScreen
 {
-    public sealed class ConnectionScreenViewModel : ReactiveScreen, IConnectionScreenViewModel
+    public sealed class ConnectionScreenViewModel : ReactiveScreen, IConnectionScreen
     {
-        private readonly ServerDiscovery mServerDiscovery;
-
-        public ConnectionScreenViewModel()
+        public ConnectionScreenViewModel(IConnectionService connectionService)
         {
-            mServerDiscovery = new ServerDiscovery();
+            OpenSelectedServer = ReactiveCommand.Create(
+                execute: () => connectionService.Open(SelectedServer),
+                canExecute: mSelectedServer.Select(s => s != null));
 
-            this.WhenActivated(observables =>
+            WhenActivated(observables =>
             {
-                var changeSet = ObservableChangeSet.Create<Server, int>(list =>
-                {
-                    return Observable.Interval(TimeSpan.FromSeconds(1))
-                        .StartWith(0)
-                        .Select(_ => mServerDiscovery.Scan())
-                        .Subscribe(servers => list.EditDiff(servers, (s1, s2) => s1.ProcessId == s2.ProcessId));
-                }, server => server.ProcessId);
-
-                changeSet
+                connectionService.AvailableServers
                     .ObserveOnDispatcher()
                     .Bind(out mAvailableConnections)
                     .Subscribe()
@@ -40,5 +36,14 @@ namespace ReactivityMonitor.Screens.ConnectionScreen
 
         private ReadOnlyObservableCollection<Server> mAvailableConnections;
         public ReadOnlyObservableCollection<Server> AvailableConnections => mAvailableConnections;
+
+        private BehaviorSubject<Server> mSelectedServer = new BehaviorSubject<Server>(null);
+        public Server SelectedServer
+        {
+            get => mSelectedServer.Value;
+            set => Set(mSelectedServer, value);
+        }
+
+        public ICommand OpenSelectedServer { get; }
     }
 }

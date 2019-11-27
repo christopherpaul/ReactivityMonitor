@@ -5,6 +5,8 @@ namespace ReactivityMonitor
     using Caliburn.Micro;
     using ReactivityMonitor.Infrastructure;
     using ReactivityMonitor.Screens.ConnectionScreen;
+    using ReactivityMonitor.Screens.HomeScreen;
+    using ReactivityMonitor.Services;
 
     public class AppBootstrapper : BootstrapperBase
     {
@@ -24,10 +26,17 @@ namespace ReactivityMonitor
         {
             mContainer = new SimpleContainer();
 
+            // Framework services
             mContainer.Singleton<IWindowManager, WindowManager>();
             mContainer.Singleton<IEventAggregator, EventAggregator>();
+
+            // Application services
+            mContainer.Singleton<IConnectionService, ConnectionService>();
+
+            // Screens etc.
             mContainer.PerRequest<IShell, ShellViewModel>();
-            mContainer.PerRequest<IConnectionScreenViewModel, ConnectionScreenViewModel>();
+            mContainer.PerRequest<IConnectionScreen, ConnectionScreenViewModel>();
+            mContainer.PerRequest<IHomeScreen, HomeScreenViewModel>();
         }
 
         protected override object GetInstance(Type service, string key)

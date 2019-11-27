@@ -4,17 +4,29 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ReactivityMonitor.Screens.ConnectionScreen"
-             xmlns:rm="clr-namespace:ReactivityMonitor"
+             xmlns:conn="clr-namespace:ReactivityMonitor.Connection"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance Type=local:ConnectionScreenViewModel}">
-    <Grid>
-        <ListView ItemsSource="{Binding AvailableConnections}">
+    <DockPanel>
+        <Grid DockPanel.Dock="Top">
+            <Label Target="ConnectionList">_Processes available to connect to</Label>
+        </Grid>
+        <Grid DockPanel.Dock="Bottom">
+            <Button Command="{Binding OpenSelectedServer}">Open</Button>
+        </Grid>
+        <ListView x:Name="ConnectionList" ItemsSource="{Binding AvailableConnections}"
+                  SelectedValue="{Binding SelectedServer}">
             <ListView.ItemTemplate>
-                <DataTemplate DataType="{x:Type rm:Server}">
-                    <TextBlock Text="{Binding Path=ProcessName}"/>
+                <DataTemplate DataType="{x:Type conn:Server}">
+                    <StackPanel>
+                        <TextBlock Text="{Binding Path=ProcessName, Mode=OneWay}" Style="{StaticResource ItemHeadingText}" />
+                        <TextBlock Style="{StaticResource ItemSubText}">
+                            Process ID <Run Text="{Binding Path=ProcessId, Mode=OneWay}" />
+                        </TextBlock>
+                    </StackPanel>
                 </DataTemplate>
             </ListView.ItemTemplate>
         </ListView>
-    </Grid>
+    </DockPanel>
 </UserControl>

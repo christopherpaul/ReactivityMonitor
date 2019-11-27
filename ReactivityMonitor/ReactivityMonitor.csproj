@@ -47,8 +47,14 @@
     <Reference Include="DynamicData, Version=6.13.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\DynamicData.6.13.21\lib\net461\DynamicData.dll</HintPath>
     </Reference>
+    <Reference Include="Google.Protobuf, Version=3.10.1.0, Culture=neutral, PublicKeyToken=a7d26565bac4d604, processorArchitecture=MSIL">
+      <HintPath>..\packages\Google.Protobuf.3.10.1\lib\net45\Google.Protobuf.dll</HintPath>
+    </Reference>
     <Reference Include="ReactiveUI, Version=10.5.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\ReactiveUI.10.5.31\lib\net461\ReactiveUI.dll</HintPath>
+    </Reference>
+    <Reference Include="ReactiveUI.WPF, Version=10.5.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\ReactiveUI.WPF.10.5.31\lib\net461\ReactiveUI.WPF.dll</HintPath>
     </Reference>
     <Reference Include="Splat, Version=9.2.0.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Splat.9.2.5\lib\net461\Splat.dll</HintPath>
@@ -100,23 +106,36 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AppBootstrapper.cs" />
+    <Compile Include="Connection\ConnectionModel.cs" />
+    <Compile Include="Connection\IConnectionModel.cs" />
     <Compile Include="Infrastructure\TraceLogger.cs" />
     <Compile Include="Screens\ConnectionScreen\ConnectionScreenView.xaml.cs">
       <DependentUpon>ConnectionScreenView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Screens\ConnectionScreen\ConnectionScreenViewModel.cs" />
-    <Compile Include="Screens\ConnectionScreen\IConnectionScreenViewModel.cs" />
+    <Compile Include="Screens\ConnectionScreen\IConnectionScreen.cs" />
     <Compile Include="Connection\Server.cs" />
     <Compile Include="Connection\ServerDiscovery.cs" />
     <Compile Include="Infrastructure\ReactiveConductor.cs" />
     <Compile Include="Infrastructure\ReactiveScreen.cs" />
     <Compile Include="IShell.cs" />
+    <Compile Include="Screens\HomeScreen\HomeScreenView.xaml.cs">
+      <DependentUpon>HomeScreenView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Screens\HomeScreen\HomeScreenViewModel.cs" />
+    <Compile Include="Screens\HomeScreen\IHomeScreen.cs" />
+    <Compile Include="Services\ConnectionService.cs" />
+    <Compile Include="Services\IConnectionService.cs" />
     <Compile Include="ShellViewModel.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
     <Page Include="Screens\ConnectionScreen\ConnectionScreenView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Screens\HomeScreen\HomeScreenView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -151,6 +170,17 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
+  </ItemGroup>
+  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\ReactivityMonitor.Model\ReactivityMonitor.Model.csproj">
+      <Project>{2E30E243-38D4-45DB-B864-3D67ADD15994}</Project>
+      <Name>ReactivityMonitor.Model</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ReactivityMonitor.ProfilerClient\ReactivityMonitor.ProfilerClient.csproj">
+      <Project>{a71f5a1d-dd80-40e9-b3e7-51c4b22a2dcd}</Project>
+      <Name>ReactivityMonitor.ProfilerClient</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

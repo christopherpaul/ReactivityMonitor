@@ -9,6 +9,14 @@
                 <ResourceDictionary>
                     <local:AppBootstrapper x:Key="bootstrapper" />
                 </ResourceDictionary>
+                <ResourceDictionary>
+                    <Style x:Key="ItemHeadingText" TargetType="TextBlock">
+                        <Setter Property="FontSize" Value="14" />
+                    </Style>
+                    <Style x:Key="ItemSubText" TargetType="TextBlock">
+                        <Setter Property="FontSize" Value="10" />
+                    </Style>
+                </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>
