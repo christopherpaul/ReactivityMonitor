@@ -7,6 +7,10 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <DockPanel>
-        
+        <ContentControl x:Name="Calls" DockPanel.Dock="Left" />
+
+        <Grid>
+            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center">Content will go here</TextBlock>
+        </Grid>
     </DockPanel>
 </UserControl>

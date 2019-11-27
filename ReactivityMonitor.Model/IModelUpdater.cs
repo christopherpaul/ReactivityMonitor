@@ -7,6 +7,6 @@ namespace ReactivityMonitor.Model
     public interface IModelUpdater
     {
         void AddModule(ulong id, string path);
-        void AddInstrumentedCall(int id, ulong moduleId);
+        void AddInstrumentedCall(int id, ulong moduleId, string callingType, string callingMethod, string calledMethod, int instructionOffset);
     }
 }

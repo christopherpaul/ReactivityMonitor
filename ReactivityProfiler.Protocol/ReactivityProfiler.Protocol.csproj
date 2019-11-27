@@ -7,6 +7,10 @@
     <AssemblyOriginatorKeyFile>..\ReactivityProfiler.Support\ReactivityProfiler.Support.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
+  </PropertyGroup>
+
   <ItemGroup>
     <PackageReference Include="Google.Protobuf" Version="3.10.1" />
     <PackageReference Include="Google.Protobuf.Tools" Version="3.10.1" />

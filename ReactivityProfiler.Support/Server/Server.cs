@@ -100,7 +100,9 @@ namespace ReactivityProfiler.Support.Server
                             ModuleId = mcie.ModuleId,
                             FunctionToken = mcie.FunctionToken,
                             InstructionOffset = mcie.InstructionOffset,
-                            CalledMethodName = mcie.CalledMethodName
+                            CalledMethodName = mcie.CalledMethodName,
+                            OwningTypeName = mcie.OwningTypeName,
+                            CallingMethodName = mcie.CallingMethodName
                         }
                     };
 

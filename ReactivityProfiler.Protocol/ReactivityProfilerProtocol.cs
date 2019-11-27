@@ -28,21 +28,22 @@ namespace ReactivityProfiler.Protocol {
             "ZXNzYWdlEioKDE1vZHVsZUxvYWRlZBgBIAEoCzISLk1vZHVsZUxvYWRlZEV2",
             "ZW50SAASPgoWTWV0aG9kQ2FsbEluc3RydW1lbnRlZBgCIAEoCzIcLk1ldGhv",
             "ZENhbGxJbnN0cnVtZW50ZWRFdmVudEgAQgcKBUV2ZW50IjMKEU1vZHVsZUxv",
-            "YWRlZEV2ZW50EhAKCE1vZHVsZUlEGAEgASgEEgwKBFBhdGgYAiABKAkimwEK",
+            "YWRlZEV2ZW50EhAKCE1vZHVsZUlEGAEgASgEEgwKBFBhdGgYAiABKAkizgEK",
             "G01ldGhvZENhbGxJbnN0cnVtZW50ZWRFdmVudBIeChZJbnN0cnVtZW50YXRp",
             "b25Qb2ludElkGAEgASgFEhAKCE1vZHVsZUlkGAIgASgEEhUKDUZ1bmN0aW9u",
             "VG9rZW4YAyABKA0SGQoRSW5zdHJ1Y3Rpb25PZmZzZXQYBCABKAUSGAoQQ2Fs",
-            "bGVkTWV0aG9kTmFtZRgFIAEoCSJjCg5SZXF1ZXN0TWVzc2FnZRJGChlTZW5k",
-            "SW5zdHJ1bWVudGF0aW9uRXZlbnRzGAEgASgLMiEuU2VuZEluc3RydW1lbnRh",
-            "dGlvbkV2ZW50c1JlcXVlc3RIAEIJCgdSZXF1ZXN0IiIKIFNlbmRJbnN0cnVt",
-            "ZW50YXRpb25FdmVudHNSZXF1ZXN0Qh6qAhtSZWFjdGl2aXR5UHJvZmlsZXIu",
-            "UHJvdG9jb2xiBnByb3RvMw=="));
+            "bGVkTWV0aG9kTmFtZRgFIAEoCRIWCg5Pd25pbmdUeXBlTmFtZRgGIAEoCRIZ",
+            "ChFDYWxsaW5nTWV0aG9kTmFtZRgHIAEoCSJjCg5SZXF1ZXN0TWVzc2FnZRJG",
+            "ChlTZW5kSW5zdHJ1bWVudGF0aW9uRXZlbnRzGAEgASgLMiEuU2VuZEluc3Ry",
+            "dW1lbnRhdGlvbkV2ZW50c1JlcXVlc3RIAEIJCgdSZXF1ZXN0IiIKIFNlbmRJ",
+            "bnN0cnVtZW50YXRpb25FdmVudHNSZXF1ZXN0Qh6qAhtSZWFjdGl2aXR5UHJv",
+            "ZmlsZXIuUHJvdG9jb2xiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.EventMessage), global::ReactivityProfiler.Protocol.EventMessage.Parser, new[]{ "ModuleLoaded", "MethodCallInstrumented" }, new[]{ "Event" }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.ModuleLoadedEvent), global::ReactivityProfiler.Protocol.ModuleLoadedEvent.Parser, new[]{ "ModuleID", "Path" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.MethodCallInstrumentedEvent), global::ReactivityProfiler.Protocol.MethodCallInstrumentedEvent.Parser, new[]{ "InstrumentationPointId", "ModuleId", "FunctionToken", "InstructionOffset", "CalledMethodName" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.MethodCallInstrumentedEvent), global::ReactivityProfiler.Protocol.MethodCallInstrumentedEvent.Parser, new[]{ "InstrumentationPointId", "ModuleId", "FunctionToken", "InstructionOffset", "CalledMethodName", "OwningTypeName", "CallingMethodName" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.RequestMessage), global::ReactivityProfiler.Protocol.RequestMessage.Parser, new[]{ "SendInstrumentationEvents" }, new[]{ "Request" }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.SendInstrumentationEventsRequest), global::ReactivityProfiler.Protocol.SendInstrumentationEventsRequest.Parser, null, null, null, null)
           }));
@@ -442,6 +443,8 @@ namespace ReactivityProfiler.Protocol {
       functionToken_ = other.functionToken_;
       instructionOffset_ = other.instructionOffset_;
       calledMethodName_ = other.calledMethodName_;
+      owningTypeName_ = other.owningTypeName_;
+      callingMethodName_ = other.callingMethodName_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -505,6 +508,28 @@ namespace ReactivityProfiler.Protocol {
       }
     }
 
+    /// <summary>Field number for the "OwningTypeName" field.</summary>
+    public const int OwningTypeNameFieldNumber = 6;
+    private string owningTypeName_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public string OwningTypeName {
+      get { return owningTypeName_; }
+      set {
+        owningTypeName_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "CallingMethodName" field.</summary>
+    public const int CallingMethodNameFieldNumber = 7;
+    private string callingMethodName_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public string CallingMethodName {
+      get { return callingMethodName_; }
+      set {
+        callingMethodName_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as MethodCallInstrumentedEvent);
@@ -523,6 +548,8 @@ namespace ReactivityProfiler.Protocol {
       if (FunctionToken != other.FunctionToken) return false;
       if (InstructionOffset != other.InstructionOffset) return false;
       if (CalledMethodName != other.CalledMethodName) return false;
+      if (OwningTypeName != other.OwningTypeName) return false;
+      if (CallingMethodName != other.CallingMethodName) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -534,6 +561,8 @@ namespace ReactivityProfiler.Protocol {
       if (FunctionToken != 0) hash ^= FunctionToken.GetHashCode();
       if (InstructionOffset != 0) hash ^= InstructionOffset.GetHashCode();
       if (CalledMethodName.Length != 0) hash ^= CalledMethodName.GetHashCode();
+      if (OwningTypeName.Length != 0) hash ^= OwningTypeName.GetHashCode();
+      if (CallingMethodName.Length != 0) hash ^= CallingMethodName.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -567,6 +596,14 @@ namespace ReactivityProfiler.Protocol {
         output.WriteRawTag(42);
         output.WriteString(CalledMethodName);
       }
+      if (OwningTypeName.Length != 0) {
+        output.WriteRawTag(50);
+        output.WriteString(OwningTypeName);
+      }
+      if (CallingMethodName.Length != 0) {
+        output.WriteRawTag(58);
+        output.WriteString(CallingMethodName);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -589,6 +626,12 @@ namespace ReactivityProfiler.Protocol {
       }
       if (CalledMethodName.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(CalledMethodName);
+      }
+      if (OwningTypeName.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(OwningTypeName);
+      }
+      if (CallingMethodName.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(CallingMethodName);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -615,6 +658,12 @@ namespace ReactivityProfiler.Protocol {
       }
       if (other.CalledMethodName.Length != 0) {
         CalledMethodName = other.CalledMethodName;
+      }
+      if (other.OwningTypeName.Length != 0) {
+        OwningTypeName = other.OwningTypeName;
+      }
+      if (other.CallingMethodName.Length != 0) {
+        CallingMethodName = other.CallingMethodName;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -645,6 +694,14 @@ namespace ReactivityProfiler.Protocol {
           }
           case 42: {
             CalledMethodName = input.ReadString();
+            break;
+          }
+          case 50: {
+            OwningTypeName = input.ReadString();
+            break;
+          }
+          case 58: {
+            CallingMethodName = input.ReadString();
             break;
           }
         }

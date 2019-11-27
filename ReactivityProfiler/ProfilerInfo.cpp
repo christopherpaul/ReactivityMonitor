@@ -197,6 +197,36 @@ MethodSpecProps CMetadataImport::GetMethodSpecProps(mdMethodSpec methodSpecToken
     };
 }
 
+TypeDefProps CMetadataImport::GetTypeDefProps(mdTypeDef typeDefToken) const
+{
+    ULONG nameLength;
+    DWORD attrFlags;
+    mdToken extendsTypeToken;
+
+    CHECK_SUCCESS(m_metadata->GetTypeDefProps(
+        typeDefToken,
+        nullptr,
+        0,
+        &nameLength,
+        &attrFlags,
+        &extendsTypeToken));
+
+    std::vector<wchar_t> nameChars(nameLength);
+    CHECK_SUCCESS(m_metadata->GetTypeDefProps(
+        typeDefToken,
+        nameChars.data(),
+        nameLength,
+        &nameLength,
+        &attrFlags,
+        &extendsTypeToken));
+
+    return {
+        { nameChars.data(), nameChars.size() - 1 },
+        attrFlags,
+        extendsTypeToken
+    };
+}
+
 SignatureBlob CMetadataImport::GetTypeSpecFromToken(mdTypeSpec typeSpecToken) const
 {
     const COR_SIGNATURE* pSigBlob;

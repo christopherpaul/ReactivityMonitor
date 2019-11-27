@@ -63,6 +63,8 @@ public:
         int32_t instrumentationPoint,
         ModuleID moduleId,
         mdToken functionToken,
+        const std::wstring& owningTypeName,
+        const std::wstring& callingMethodName,
         int32_t instructionOffset,
         const std::wstring& calledMethodName);
 
@@ -100,12 +102,21 @@ void Store::AddModuleInfo(ModuleID moduleId, const std::wstring& modulePath)
     m_pImpl->AddModuleInfo(moduleId, modulePath);
 }
 
-void Store::AddInstrumentationInfo(int32_t instrumentationPoint, ModuleID moduleId, mdToken functionToken, int32_t instructionOffset, const std::wstring& calledMethodName)
+void Store::AddInstrumentationInfo(
+    int32_t instrumentationPoint, 
+    ModuleID moduleId, 
+    mdToken functionToken, 
+    const std::wstring& owningTypeName,
+    const std::wstring& callingMethodName,
+    int32_t instructionOffset,
+    const std::wstring& calledMethodName)
 {
     m_pImpl->AddInstrumentationInfo(
         instrumentationPoint,
         moduleId,
         functionToken,
+        owningTypeName,
+        callingMethodName,
         instructionOffset,
         calledMethodName);
 }
@@ -129,13 +140,22 @@ void StoreImpl::AddModuleInfo(ModuleID moduleId, const std::wstring& modulePath)
     WriteRecord(r);
 }
 
-void StoreImpl::AddInstrumentationInfo(int32_t instrumentationPoint, ModuleID moduleId, mdToken functionToken, int32_t instructionOffset, const std::wstring& calledMethodName)
+void StoreImpl::AddInstrumentationInfo(
+    int32_t instrumentationPoint, 
+    ModuleID moduleId, 
+    mdToken functionToken, 
+    const std::wstring& owningTypeName,
+    const std::wstring& callingMethodName,
+    int32_t instructionOffset,
+    const std::wstring& calledMethodName)
 {
     EventRecord r(EventId::InstrumentationInfo);
     r.Write32(instrumentationPoint);
     r.Write64(moduleId);
     r.Write32(functionToken);
     r.Write32(instructionOffset);
+    r.Write(owningTypeName);
+    r.Write(callingMethodName);
     r.Write(calledMethodName);
     WriteRecord(r);
 }

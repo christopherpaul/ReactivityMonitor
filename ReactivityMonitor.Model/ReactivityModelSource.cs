@@ -59,12 +59,12 @@ namespace ReactivityMonitor.Model
                 mParent = parent;
             }
 
-            public void AddInstrumentedCall(int id, ulong moduleId)
+            public void AddInstrumentedCall(int id, ulong moduleId, string callingType, string callingMethod, string calledMethod, int instructionOffset)
             {
                 var module = mParent.mModules.Lookup(moduleId);
                 if (module.HasValue)
                 {
-                    var ic = new InstrumentedCall(id, module.Value);
+                    var ic = new InstrumentedCall(id, module.Value, callingType, callingMethod, calledMethod, instructionOffset);
                     mParent.mInstrumentedCalls.AddOrUpdate(ic);
                     ((Module)module.Value).AddInstrumentedCall(ic);
                 }

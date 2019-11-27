@@ -150,6 +150,13 @@ struct MethodProps
     DWORD implFlags = 0;
 };
 
+struct TypeDefProps
+{
+    std::wstring name;
+    DWORD attrFlags = 0;
+    mdToken extendsTypeToken = 0;
+};
+
 struct MemberRefProps
 {
     mdToken declToken = 0; // token for declaring class/declaring module class/method def
@@ -185,6 +192,8 @@ public:
     MethodProps GetMethodProps(mdMethodDef methodDefToken) const;
     MemberRefProps GetMemberRefProps(mdMemberRef memberRefToken) const;
     MethodSpecProps GetMethodSpecProps(mdMethodSpec methodSpecToken) const;
+    TypeDefProps GetTypeDefProps(mdTypeDef typeDefToken) const;
+
     SignatureBlob GetTypeSpecFromToken(mdTypeSpec typeSpecToken) const;
     SignatureBlob GetSigFromToken(mdSignature sigTok) const;
     mdModule GetCurrentModule() const;

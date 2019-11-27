@@ -10,6 +10,8 @@ namespace ReactivityProfiler.Support.Store
         public ulong ModuleId { get; set; }
         public uint FunctionToken { get; set; }
         public int InstructionOffset { get; set; }
+        public string OwningTypeName { get; set; }
+        public string CallingMethodName { get; set; }
         public string CalledMethodName { get; set; }
     }
 }

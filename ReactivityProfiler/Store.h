@@ -12,6 +12,8 @@ public:
         int32_t instrumentationPoint, 
         ModuleID moduleId, 
         mdToken functionToken,
+        const std::wstring& owningTypeName,
+        const std::wstring& callingMethodName,
         int32_t instructionOffset,
         const std::wstring& calledMethodName);
 

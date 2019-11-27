@@ -19,6 +19,8 @@ message MethodCallInstrumentedEvent {
     uint32 FunctionToken = 3;
     int32 InstructionOffset = 4;
     string CalledMethodName = 5;
+	string OwningTypeName = 6;
+	string CallingMethodName = 7;
 }
 
 message RequestMessage {

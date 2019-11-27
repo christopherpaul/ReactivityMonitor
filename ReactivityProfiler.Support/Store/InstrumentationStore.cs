@@ -51,6 +51,8 @@ namespace ReactivityProfiler.Support.Store
             e.ModuleId = reader.ReadUInt64();
             e.FunctionToken = reader.ReadUInt32();
             e.InstructionOffset = reader.ReadInt32();
+            e.OwningTypeName = ReadInt32LengthString(reader);
+            e.CallingMethodName = ReadInt32LengthString(reader);
             e.CalledMethodName = ReadInt32LengthString(reader);
             return e;
         }

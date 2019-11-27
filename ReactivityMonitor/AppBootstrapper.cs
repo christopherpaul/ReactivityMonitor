@@ -4,6 +4,7 @@ namespace ReactivityMonitor
     using System.Collections.Generic;
     using Caliburn.Micro;
     using ReactivityMonitor.Infrastructure;
+    using ReactivityMonitor.Screens.CallsScreen;
     using ReactivityMonitor.Screens.ConnectionScreen;
     using ReactivityMonitor.Screens.HomeScreen;
     using ReactivityMonitor.Services;
@@ -37,6 +38,7 @@ namespace ReactivityMonitor
             mContainer.PerRequest<IShell, ShellViewModel>();
             mContainer.PerRequest<IConnectionScreen, ConnectionScreenViewModel>();
             mContainer.PerRequest<IHomeScreen, HomeScreenViewModel>();
+            mContainer.PerRequest<ICallsScreen, CallsScreenViewModel>();
         }
 
         protected override object GetInstance(Type service, string key)

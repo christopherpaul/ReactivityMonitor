@@ -55,7 +55,11 @@ namespace ReactivityMonitor.ProfilerClient
                 case MethodCallInstrumented:
                     mModelUpdater.AddInstrumentedCall(
                         msg.MethodCallInstrumented.InstrumentationPointId,
-                        msg.MethodCallInstrumented.ModuleId);
+                        msg.MethodCallInstrumented.ModuleId,
+                        msg.MethodCallInstrumented.OwningTypeName,
+                        msg.MethodCallInstrumented.CallingMethodName,
+                        msg.MethodCallInstrumented.CalledMethodName,
+                        msg.MethodCallInstrumented.InstructionOffset);
                     break;
             }
         }
