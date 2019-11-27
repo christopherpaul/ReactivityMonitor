@@ -6,9 +6,7 @@
              xmlns:local="clr-namespace:ReactivityMonitor.Screens.HomeScreen"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <TextBlock>
-            Connected to <Run Text="{Binding ConnectionModel.Server.ProcessName, Mode=OneTime}" />
-        </TextBlock>
-    </Grid>
+    <DockPanel>
+        
+    </DockPanel>
 </UserControl>

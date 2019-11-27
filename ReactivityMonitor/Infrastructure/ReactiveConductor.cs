@@ -13,7 +13,7 @@ namespace ReactivityMonitor.Infrastructure
         where T: class
     {
         private readonly ViewModelActivator mActivator = new ViewModelActivator();
-        ViewModelActivator IActivatableViewModel.Activator => mActivator;
+        public ViewModelActivator Activator => mActivator;
 
         protected sealed override void OnActivate()
         {

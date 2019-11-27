@@ -15,6 +15,8 @@ namespace ReactivityMonitor.Screens.HomeScreen
         {
             WhenActivated(disposables =>
             {
+                DisplayName = ConnectionModel.Server.ProcessName;
+
                 ConnectionModel.Connect().DisposeWith(disposables);
             });
         }

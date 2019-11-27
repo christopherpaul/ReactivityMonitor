@@ -20,6 +20,8 @@ namespace ReactivityMonitor.Screens.ConnectionScreen
     {
         public ConnectionScreenViewModel(IConnectionService connectionService)
         {
+            DisplayName = "Processes";
+
             OpenSelectedServer = ReactiveCommand.Create(
                 execute: () => connectionService.Open(SelectedServer),
                 canExecute: mSelectedServer.Select(s => s != null));

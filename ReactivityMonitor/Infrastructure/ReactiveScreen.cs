@@ -14,7 +14,7 @@ namespace ReactivityMonitor.Infrastructure
     public abstract class ReactiveScreen : Screen, IActivatableViewModel
     {
         private readonly ViewModelActivator mActivator = new ViewModelActivator();
-        ViewModelActivator IActivatableViewModel.Activator => mActivator;
+        public ViewModelActivator Activator => mActivator;
 
         protected sealed override void OnActivate()
         {
