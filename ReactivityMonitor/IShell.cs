@@ -1,6 +1,8 @@
+using Caliburn.Micro;
+
 namespace ReactivityMonitor
 {
-    public interface IShell
+    public interface IShell : IHaveActiveItem
     {
     }
 }

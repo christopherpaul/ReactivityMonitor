@@ -100,12 +100,26 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AppBootstrapper.cs" />
+    <Compile Include="Infrastructure\TraceLogger.cs" />
+    <Compile Include="Screens\ConnectionScreen\ConnectionScreenView.xaml.cs">
+      <DependentUpon>ConnectionScreenView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Screens\ConnectionScreen\ConnectionScreenViewModel.cs" />
+    <Compile Include="Screens\ConnectionScreen\IConnectionScreenViewModel.cs" />
+    <Compile Include="Connection\Server.cs" />
+    <Compile Include="Connection\ServerDiscovery.cs" />
+    <Compile Include="Infrastructure\ReactiveConductor.cs" />
+    <Compile Include="Infrastructure\ReactiveScreen.cs" />
     <Compile Include="IShell.cs" />
     <Compile Include="ShellViewModel.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Page Include="Screens\ConnectionScreen\ConnectionScreenView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="ShellView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

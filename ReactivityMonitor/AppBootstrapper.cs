@@ -3,9 +3,16 @@ namespace ReactivityMonitor
     using System;
     using System.Collections.Generic;
     using Caliburn.Micro;
+    using ReactivityMonitor.Infrastructure;
+    using ReactivityMonitor.Screens.ConnectionScreen;
 
     public class AppBootstrapper : BootstrapperBase
     {
+        static AppBootstrapper()
+        {
+            LogManager.GetLog = _ => new TraceLogger();
+        }
+
         private SimpleContainer mContainer;
 
         public AppBootstrapper()
@@ -20,6 +27,7 @@ namespace ReactivityMonitor
             mContainer.Singleton<IWindowManager, WindowManager>();
             mContainer.Singleton<IEventAggregator, EventAggregator>();
             mContainer.PerRequest<IShell, ShellViewModel>();
+            mContainer.PerRequest<IConnectionScreenViewModel, ConnectionScreenViewModel>();
         }
 
         protected override object GetInstance(Type service, string key)
