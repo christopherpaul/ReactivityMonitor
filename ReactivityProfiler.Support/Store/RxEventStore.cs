@@ -13,10 +13,20 @@ namespace ReactivityProfiler.Support.Store
             mSubStore = subStore;
         }
 
+        public IStoreEventSink EventSink { get; set; }
+
         public bool TraceEvents { get; } = false;
 
         public void AddOnNext<T>(long subscriptionId, T value)
         {
+            var details = CommonEventDetails.Capture();
+            var sub = mSubStore.GetSub(subscriptionId);
+            if (sub == null)
+            {
+                return;
+            }
+            EventSink.OnNext(ref details, sub, value);
+
             if (TraceEvents)
             {
                 Trace(subscriptionId, $"OnNext({value})");
@@ -25,6 +35,14 @@ namespace ReactivityProfiler.Support.Store
 
         public void AddOnCompleted(long subscriptionId)
         {
+            var details = CommonEventDetails.Capture();
+            var sub = mSubStore.GetSub(subscriptionId);
+            if (sub == null)
+            {
+                return;
+            }
+            EventSink.OnCompleted(ref details, sub);
+
             if (TraceEvents)
             {
                 Trace(subscriptionId, "OnCompleted");
@@ -33,6 +51,14 @@ namespace ReactivityProfiler.Support.Store
 
         public void AddOnError(long subscriptionId, Exception e)
         {
+            var details = CommonEventDetails.Capture();
+            var sub = mSubStore.GetSub(subscriptionId);
+            if (sub == null)
+            {
+                return;
+            }
+            EventSink.OnError(ref details, sub, e);
+
             if (TraceEvents)
             {
                 Trace(subscriptionId, $"OnError({e.Message})");

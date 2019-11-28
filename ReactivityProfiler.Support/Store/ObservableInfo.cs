@@ -10,19 +10,18 @@ namespace ReactivityProfiler.Support.Store
     /// </summary>
     internal sealed class ObservableInfo
     {
-        private static long sObservableIdSource;
-
         public ObservableInfo(int instrumentationPoint, IReadOnlyList<ObservableInfo> inputs)
         {
-            ObservableId = Interlocked.Increment(ref sObservableIdSource);
             Details = CommonEventDetails.Capture();
             InstrumentationPoint = instrumentationPoint;
             Inputs = inputs;
         }
 
-        public long ObservableId { get; }
+        public long ObservableId => Details.EventSequenceId;
         public int InstrumentationPoint { get; }
         public IReadOnlyList<ObservableInfo> Inputs { get; }
         public CommonEventDetails Details { get; }
+
+        public bool Monitoring { get; set; }
     }
 }

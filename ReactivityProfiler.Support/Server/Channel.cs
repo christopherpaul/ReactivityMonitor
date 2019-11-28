@@ -61,7 +61,6 @@ namespace ReactivityProfiler.Support.Server
         public void SendMessage(byte[] message)
         {
             mWriteQueue.Add(message);
-            Trace.WriteLine("Message queued for sending");
         }
 
         public bool IsConnected => mPipeStream.IsConnected;
@@ -75,9 +74,7 @@ namespace ReactivityProfiler.Support.Server
                 {
                     if (mPipeStream.IsConnected)
                     {
-                        Trace.WriteLine("Writing message to pipe");
                         mPipeStream.Write(message, 0, message.Length);
-                        Trace.WriteLine("Message written to pipe");
                     }
                     else
                     {

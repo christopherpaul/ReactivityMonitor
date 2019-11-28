@@ -24,28 +24,61 @@ namespace ReactivityProfiler.Protocol {
     static ReactivityProfilerProtocolReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "CiBSZWFjdGl2aXR5UHJvZmlsZXJQcm90b2NvbC5wcm90byKDAQoMRXZlbnRN",
+            "CiBSZWFjdGl2aXR5UHJvZmlsZXJQcm90b2NvbC5wcm90byLxAgoMRXZlbnRN",
             "ZXNzYWdlEioKDE1vZHVsZUxvYWRlZBgBIAEoCzISLk1vZHVsZUxvYWRlZEV2",
             "ZW50SAASPgoWTWV0aG9kQ2FsbEluc3RydW1lbnRlZBgCIAEoCzIcLk1ldGhv",
-            "ZENhbGxJbnN0cnVtZW50ZWRFdmVudEgAQgcKBUV2ZW50IjMKEU1vZHVsZUxv",
-            "YWRlZEV2ZW50EhAKCE1vZHVsZUlEGAEgASgEEgwKBFBhdGgYAiABKAkizgEK",
-            "G01ldGhvZENhbGxJbnN0cnVtZW50ZWRFdmVudBIeChZJbnN0cnVtZW50YXRp",
-            "b25Qb2ludElkGAEgASgFEhAKCE1vZHVsZUlkGAIgASgEEhUKDUZ1bmN0aW9u",
-            "VG9rZW4YAyABKA0SGQoRSW5zdHJ1Y3Rpb25PZmZzZXQYBCABKAUSGAoQQ2Fs",
-            "bGVkTWV0aG9kTmFtZRgFIAEoCRIWCg5Pd25pbmdUeXBlTmFtZRgGIAEoCRIZ",
-            "ChFDYWxsaW5nTWV0aG9kTmFtZRgHIAEoCSJjCg5SZXF1ZXN0TWVzc2FnZRJG",
-            "ChlTZW5kSW5zdHJ1bWVudGF0aW9uRXZlbnRzGAEgASgLMiEuU2VuZEluc3Ry",
-            "dW1lbnRhdGlvbkV2ZW50c1JlcXVlc3RIAEIJCgdSZXF1ZXN0IiIKIFNlbmRJ",
-            "bnN0cnVtZW50YXRpb25FdmVudHNSZXF1ZXN0Qh6qAhtSZWFjdGl2aXR5UHJv",
-            "ZmlsZXIuUHJvdG9jb2xiBnByb3RvMw=="));
+            "ZENhbGxJbnN0cnVtZW50ZWRFdmVudEgAEjAKD09ic2VydmFibGVDaGFpbhgD",
+            "IAEoCzIVLk9ic2VydmFibGVDaGFpbkV2ZW50SAASJAoJU3Vic2NyaWJlGAQg",
+            "ASgLMg8uU3Vic2NyaWJlRXZlbnRIABIoCgtVbnN1YnNjcmliZRgFIAEoCzIR",
+            "LlVuc3Vic2NyaWJlRXZlbnRIABIeCgZPbk5leHQYBiABKAsyDC5Pbk5leHRF",
+            "dmVudEgAEigKC09uQ29tcGxldGVkGAcgASgLMhEuT25Db21wbGV0ZWRFdmVu",
+            "dEgAEiAKB09uRXJyb3IYCCABKAsyDS5PbkVycm9yRXZlbnRIAEIHCgVFdmVu",
+            "dCIzChFNb2R1bGVMb2FkZWRFdmVudBIQCghNb2R1bGVJRBgBIAEoBBIMCgRQ",
+            "YXRoGAIgASgJIs4BChtNZXRob2RDYWxsSW5zdHJ1bWVudGVkRXZlbnQSHgoW",
+            "SW5zdHJ1bWVudGF0aW9uUG9pbnRJZBgBIAEoBRIQCghNb2R1bGVJZBgCIAEo",
+            "BBIVCg1GdW5jdGlvblRva2VuGAMgASgNEhkKEUluc3RydWN0aW9uT2Zmc2V0",
+            "GAQgASgFEhgKEENhbGxlZE1ldGhvZE5hbWUYBSABKAkSFgoOT3duaW5nVHlw",
+            "ZU5hbWUYBiABKAkSGQoRQ2FsbGluZ01ldGhvZE5hbWUYByABKAkiNwoUT2Jz",
+            "ZXJ2YWJsZUNoYWluRXZlbnQSHwoKT2JzZXJ2YWJsZRgBIAMoCzILLk9ic2Vy",
+            "dmFibGUiaQoKT2JzZXJ2YWJsZRIgCgxDcmVhdGVkRXZlbnQYASABKAsyCi5F",
+            "dmVudEluZm8SHgoWSW5zdHJ1bWVudGF0aW9uUG9pbnRJZBgCIAEoBRIZChFJ",
+            "bnB1dE9ic2VydmFibGVJZBgEIAMoAyJBCg5TdWJzY3JpYmVFdmVudBIZCgVF",
+            "dmVudBgBIAEoCzIKLkV2ZW50SW5mbxIUCgxPYnNlcnZhYmxlSWQYAiABKAMi",
+            "RQoQVW5zdWJzY3JpYmVFdmVudBIZCgVFdmVudBgBIAEoCzIKLkV2ZW50SW5m",
+            "bxIWCg5TdWJzY3JpcHRpb25JZBgCIAEoAyJACgtPbk5leHRFdmVudBIZCgVF",
+            "dmVudBgBIAEoCzIKLkV2ZW50SW5mbxIWCg5TdWJzY3JpcHRpb25JZBgCIAEo",
+            "AyJFChBPbkNvbXBsZXRlZEV2ZW50EhkKBUV2ZW50GAEgASgLMgouRXZlbnRJ",
+            "bmZvEhYKDlN1YnNjcmlwdGlvbklkGAIgASgDIlIKDE9uRXJyb3JFdmVudBIZ",
+            "CgVFdmVudBgBIAEoCzIKLkV2ZW50SW5mbxIWCg5TdWJzY3JpcHRpb25JZBgC",
+            "IAEoAxIPCgdNZXNzYWdlGAMgASgJIkQKCUV2ZW50SW5mbxISCgpTZXF1ZW5j",
+            "ZUlkGAEgASgDEhEKCVRpbWVzdGFtcBgCIAEoAxIQCghUaHJlYWRJZBgDIAEo",
+            "BSLJAQoOUmVxdWVzdE1lc3NhZ2USRgoZU2VuZEluc3RydW1lbnRhdGlvbkV2",
+            "ZW50cxgBIAEoCzIhLlNlbmRJbnN0cnVtZW50YXRpb25FdmVudHNSZXF1ZXN0",
+            "SAASMgoPU3RhcnRNb25pdG9yaW5nGAIgASgLMhcuU3RhcnRNb25pdG9yaW5n",
+            "UmVxdWVzdEgAEjAKDlN0b3BNb25pdG9yaW5nGAMgASgLMhYuU3RvcE1vbml0",
+            "b3JpbmdSZXF1ZXN0SABCCQoHUmVxdWVzdCIiCiBTZW5kSW5zdHJ1bWVudGF0",
+            "aW9uRXZlbnRzUmVxdWVzdCI4ChZTdGFydE1vbml0b3JpbmdSZXF1ZXN0Eh4K",
+            "Fkluc3RydW1lbnRhdGlvblBvaW50SWQYASADKAUiNwoVU3RvcE1vbml0b3Jp",
+            "bmdSZXF1ZXN0Eh4KFkluc3RydW1lbnRhdGlvblBvaW50SWQYAiADKAVCHqoC",
+            "G1JlYWN0aXZpdHlQcm9maWxlci5Qcm90b2NvbGIGcHJvdG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.EventMessage), global::ReactivityProfiler.Protocol.EventMessage.Parser, new[]{ "ModuleLoaded", "MethodCallInstrumented" }, new[]{ "Event" }, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.EventMessage), global::ReactivityProfiler.Protocol.EventMessage.Parser, new[]{ "ModuleLoaded", "MethodCallInstrumented", "ObservableChain", "Subscribe", "Unsubscribe", "OnNext", "OnCompleted", "OnError" }, new[]{ "Event" }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.ModuleLoadedEvent), global::ReactivityProfiler.Protocol.ModuleLoadedEvent.Parser, new[]{ "ModuleID", "Path" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.MethodCallInstrumentedEvent), global::ReactivityProfiler.Protocol.MethodCallInstrumentedEvent.Parser, new[]{ "InstrumentationPointId", "ModuleId", "FunctionToken", "InstructionOffset", "CalledMethodName", "OwningTypeName", "CallingMethodName" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.RequestMessage), global::ReactivityProfiler.Protocol.RequestMessage.Parser, new[]{ "SendInstrumentationEvents" }, new[]{ "Request" }, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.SendInstrumentationEventsRequest), global::ReactivityProfiler.Protocol.SendInstrumentationEventsRequest.Parser, null, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.ObservableChainEvent), global::ReactivityProfiler.Protocol.ObservableChainEvent.Parser, new[]{ "Observable" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.Observable), global::ReactivityProfiler.Protocol.Observable.Parser, new[]{ "CreatedEvent", "InstrumentationPointId", "InputObservableId" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.SubscribeEvent), global::ReactivityProfiler.Protocol.SubscribeEvent.Parser, new[]{ "Event", "ObservableId" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.UnsubscribeEvent), global::ReactivityProfiler.Protocol.UnsubscribeEvent.Parser, new[]{ "Event", "SubscriptionId" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.OnNextEvent), global::ReactivityProfiler.Protocol.OnNextEvent.Parser, new[]{ "Event", "SubscriptionId" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.OnCompletedEvent), global::ReactivityProfiler.Protocol.OnCompletedEvent.Parser, new[]{ "Event", "SubscriptionId" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.OnErrorEvent), global::ReactivityProfiler.Protocol.OnErrorEvent.Parser, new[]{ "Event", "SubscriptionId", "Message" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.EventInfo), global::ReactivityProfiler.Protocol.EventInfo.Parser, new[]{ "SequenceId", "Timestamp", "ThreadId" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.RequestMessage), global::ReactivityProfiler.Protocol.RequestMessage.Parser, new[]{ "SendInstrumentationEvents", "StartMonitoring", "StopMonitoring" }, new[]{ "Request" }, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.SendInstrumentationEventsRequest), global::ReactivityProfiler.Protocol.SendInstrumentationEventsRequest.Parser, null, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.StartMonitoringRequest), global::ReactivityProfiler.Protocol.StartMonitoringRequest.Parser, new[]{ "InstrumentationPointId" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.StopMonitoringRequest), global::ReactivityProfiler.Protocol.StopMonitoringRequest.Parser, new[]{ "InstrumentationPointId" }, null, null, null)
           }));
     }
     #endregion
@@ -84,6 +117,24 @@ namespace ReactivityProfiler.Protocol {
         case EventOneofCase.MethodCallInstrumented:
           MethodCallInstrumented = other.MethodCallInstrumented.Clone();
           break;
+        case EventOneofCase.ObservableChain:
+          ObservableChain = other.ObservableChain.Clone();
+          break;
+        case EventOneofCase.Subscribe:
+          Subscribe = other.Subscribe.Clone();
+          break;
+        case EventOneofCase.Unsubscribe:
+          Unsubscribe = other.Unsubscribe.Clone();
+          break;
+        case EventOneofCase.OnNext:
+          OnNext = other.OnNext.Clone();
+          break;
+        case EventOneofCase.OnCompleted:
+          OnCompleted = other.OnCompleted.Clone();
+          break;
+        case EventOneofCase.OnError:
+          OnError = other.OnError.Clone();
+          break;
       }
 
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
@@ -116,12 +167,84 @@ namespace ReactivityProfiler.Protocol {
       }
     }
 
+    /// <summary>Field number for the "ObservableChain" field.</summary>
+    public const int ObservableChainFieldNumber = 3;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::ReactivityProfiler.Protocol.ObservableChainEvent ObservableChain {
+      get { return eventCase_ == EventOneofCase.ObservableChain ? (global::ReactivityProfiler.Protocol.ObservableChainEvent) event_ : null; }
+      set {
+        event_ = value;
+        eventCase_ = value == null ? EventOneofCase.None : EventOneofCase.ObservableChain;
+      }
+    }
+
+    /// <summary>Field number for the "Subscribe" field.</summary>
+    public const int SubscribeFieldNumber = 4;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::ReactivityProfiler.Protocol.SubscribeEvent Subscribe {
+      get { return eventCase_ == EventOneofCase.Subscribe ? (global::ReactivityProfiler.Protocol.SubscribeEvent) event_ : null; }
+      set {
+        event_ = value;
+        eventCase_ = value == null ? EventOneofCase.None : EventOneofCase.Subscribe;
+      }
+    }
+
+    /// <summary>Field number for the "Unsubscribe" field.</summary>
+    public const int UnsubscribeFieldNumber = 5;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::ReactivityProfiler.Protocol.UnsubscribeEvent Unsubscribe {
+      get { return eventCase_ == EventOneofCase.Unsubscribe ? (global::ReactivityProfiler.Protocol.UnsubscribeEvent) event_ : null; }
+      set {
+        event_ = value;
+        eventCase_ = value == null ? EventOneofCase.None : EventOneofCase.Unsubscribe;
+      }
+    }
+
+    /// <summary>Field number for the "OnNext" field.</summary>
+    public const int OnNextFieldNumber = 6;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::ReactivityProfiler.Protocol.OnNextEvent OnNext {
+      get { return eventCase_ == EventOneofCase.OnNext ? (global::ReactivityProfiler.Protocol.OnNextEvent) event_ : null; }
+      set {
+        event_ = value;
+        eventCase_ = value == null ? EventOneofCase.None : EventOneofCase.OnNext;
+      }
+    }
+
+    /// <summary>Field number for the "OnCompleted" field.</summary>
+    public const int OnCompletedFieldNumber = 7;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::ReactivityProfiler.Protocol.OnCompletedEvent OnCompleted {
+      get { return eventCase_ == EventOneofCase.OnCompleted ? (global::ReactivityProfiler.Protocol.OnCompletedEvent) event_ : null; }
+      set {
+        event_ = value;
+        eventCase_ = value == null ? EventOneofCase.None : EventOneofCase.OnCompleted;
+      }
+    }
+
+    /// <summary>Field number for the "OnError" field.</summary>
+    public const int OnErrorFieldNumber = 8;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::ReactivityProfiler.Protocol.OnErrorEvent OnError {
+      get { return eventCase_ == EventOneofCase.OnError ? (global::ReactivityProfiler.Protocol.OnErrorEvent) event_ : null; }
+      set {
+        event_ = value;
+        eventCase_ = value == null ? EventOneofCase.None : EventOneofCase.OnError;
+      }
+    }
+
     private object event_;
     /// <summary>Enum of possible cases for the "Event" oneof.</summary>
     public enum EventOneofCase {
       None = 0,
       ModuleLoaded = 1,
       MethodCallInstrumented = 2,
+      ObservableChain = 3,
+      Subscribe = 4,
+      Unsubscribe = 5,
+      OnNext = 6,
+      OnCompleted = 7,
+      OnError = 8,
     }
     private EventOneofCase eventCase_ = EventOneofCase.None;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -150,6 +273,12 @@ namespace ReactivityProfiler.Protocol {
       }
       if (!object.Equals(ModuleLoaded, other.ModuleLoaded)) return false;
       if (!object.Equals(MethodCallInstrumented, other.MethodCallInstrumented)) return false;
+      if (!object.Equals(ObservableChain, other.ObservableChain)) return false;
+      if (!object.Equals(Subscribe, other.Subscribe)) return false;
+      if (!object.Equals(Unsubscribe, other.Unsubscribe)) return false;
+      if (!object.Equals(OnNext, other.OnNext)) return false;
+      if (!object.Equals(OnCompleted, other.OnCompleted)) return false;
+      if (!object.Equals(OnError, other.OnError)) return false;
       if (EventCase != other.EventCase) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -159,6 +288,12 @@ namespace ReactivityProfiler.Protocol {
       int hash = 1;
       if (eventCase_ == EventOneofCase.ModuleLoaded) hash ^= ModuleLoaded.GetHashCode();
       if (eventCase_ == EventOneofCase.MethodCallInstrumented) hash ^= MethodCallInstrumented.GetHashCode();
+      if (eventCase_ == EventOneofCase.ObservableChain) hash ^= ObservableChain.GetHashCode();
+      if (eventCase_ == EventOneofCase.Subscribe) hash ^= Subscribe.GetHashCode();
+      if (eventCase_ == EventOneofCase.Unsubscribe) hash ^= Unsubscribe.GetHashCode();
+      if (eventCase_ == EventOneofCase.OnNext) hash ^= OnNext.GetHashCode();
+      if (eventCase_ == EventOneofCase.OnCompleted) hash ^= OnCompleted.GetHashCode();
+      if (eventCase_ == EventOneofCase.OnError) hash ^= OnError.GetHashCode();
       hash ^= (int) eventCase_;
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -181,6 +316,30 @@ namespace ReactivityProfiler.Protocol {
         output.WriteRawTag(18);
         output.WriteMessage(MethodCallInstrumented);
       }
+      if (eventCase_ == EventOneofCase.ObservableChain) {
+        output.WriteRawTag(26);
+        output.WriteMessage(ObservableChain);
+      }
+      if (eventCase_ == EventOneofCase.Subscribe) {
+        output.WriteRawTag(34);
+        output.WriteMessage(Subscribe);
+      }
+      if (eventCase_ == EventOneofCase.Unsubscribe) {
+        output.WriteRawTag(42);
+        output.WriteMessage(Unsubscribe);
+      }
+      if (eventCase_ == EventOneofCase.OnNext) {
+        output.WriteRawTag(50);
+        output.WriteMessage(OnNext);
+      }
+      if (eventCase_ == EventOneofCase.OnCompleted) {
+        output.WriteRawTag(58);
+        output.WriteMessage(OnCompleted);
+      }
+      if (eventCase_ == EventOneofCase.OnError) {
+        output.WriteRawTag(66);
+        output.WriteMessage(OnError);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -194,6 +353,24 @@ namespace ReactivityProfiler.Protocol {
       }
       if (eventCase_ == EventOneofCase.MethodCallInstrumented) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(MethodCallInstrumented);
+      }
+      if (eventCase_ == EventOneofCase.ObservableChain) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(ObservableChain);
+      }
+      if (eventCase_ == EventOneofCase.Subscribe) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Subscribe);
+      }
+      if (eventCase_ == EventOneofCase.Unsubscribe) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Unsubscribe);
+      }
+      if (eventCase_ == EventOneofCase.OnNext) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(OnNext);
+      }
+      if (eventCase_ == EventOneofCase.OnCompleted) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(OnCompleted);
+      }
+      if (eventCase_ == EventOneofCase.OnError) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(OnError);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -218,6 +395,42 @@ namespace ReactivityProfiler.Protocol {
             MethodCallInstrumented = new global::ReactivityProfiler.Protocol.MethodCallInstrumentedEvent();
           }
           MethodCallInstrumented.MergeFrom(other.MethodCallInstrumented);
+          break;
+        case EventOneofCase.ObservableChain:
+          if (ObservableChain == null) {
+            ObservableChain = new global::ReactivityProfiler.Protocol.ObservableChainEvent();
+          }
+          ObservableChain.MergeFrom(other.ObservableChain);
+          break;
+        case EventOneofCase.Subscribe:
+          if (Subscribe == null) {
+            Subscribe = new global::ReactivityProfiler.Protocol.SubscribeEvent();
+          }
+          Subscribe.MergeFrom(other.Subscribe);
+          break;
+        case EventOneofCase.Unsubscribe:
+          if (Unsubscribe == null) {
+            Unsubscribe = new global::ReactivityProfiler.Protocol.UnsubscribeEvent();
+          }
+          Unsubscribe.MergeFrom(other.Unsubscribe);
+          break;
+        case EventOneofCase.OnNext:
+          if (OnNext == null) {
+            OnNext = new global::ReactivityProfiler.Protocol.OnNextEvent();
+          }
+          OnNext.MergeFrom(other.OnNext);
+          break;
+        case EventOneofCase.OnCompleted:
+          if (OnCompleted == null) {
+            OnCompleted = new global::ReactivityProfiler.Protocol.OnCompletedEvent();
+          }
+          OnCompleted.MergeFrom(other.OnCompleted);
+          break;
+        case EventOneofCase.OnError:
+          if (OnError == null) {
+            OnError = new global::ReactivityProfiler.Protocol.OnErrorEvent();
+          }
+          OnError.MergeFrom(other.OnError);
           break;
       }
 
@@ -248,6 +461,60 @@ namespace ReactivityProfiler.Protocol {
             }
             input.ReadMessage(subBuilder);
             MethodCallInstrumented = subBuilder;
+            break;
+          }
+          case 26: {
+            global::ReactivityProfiler.Protocol.ObservableChainEvent subBuilder = new global::ReactivityProfiler.Protocol.ObservableChainEvent();
+            if (eventCase_ == EventOneofCase.ObservableChain) {
+              subBuilder.MergeFrom(ObservableChain);
+            }
+            input.ReadMessage(subBuilder);
+            ObservableChain = subBuilder;
+            break;
+          }
+          case 34: {
+            global::ReactivityProfiler.Protocol.SubscribeEvent subBuilder = new global::ReactivityProfiler.Protocol.SubscribeEvent();
+            if (eventCase_ == EventOneofCase.Subscribe) {
+              subBuilder.MergeFrom(Subscribe);
+            }
+            input.ReadMessage(subBuilder);
+            Subscribe = subBuilder;
+            break;
+          }
+          case 42: {
+            global::ReactivityProfiler.Protocol.UnsubscribeEvent subBuilder = new global::ReactivityProfiler.Protocol.UnsubscribeEvent();
+            if (eventCase_ == EventOneofCase.Unsubscribe) {
+              subBuilder.MergeFrom(Unsubscribe);
+            }
+            input.ReadMessage(subBuilder);
+            Unsubscribe = subBuilder;
+            break;
+          }
+          case 50: {
+            global::ReactivityProfiler.Protocol.OnNextEvent subBuilder = new global::ReactivityProfiler.Protocol.OnNextEvent();
+            if (eventCase_ == EventOneofCase.OnNext) {
+              subBuilder.MergeFrom(OnNext);
+            }
+            input.ReadMessage(subBuilder);
+            OnNext = subBuilder;
+            break;
+          }
+          case 58: {
+            global::ReactivityProfiler.Protocol.OnCompletedEvent subBuilder = new global::ReactivityProfiler.Protocol.OnCompletedEvent();
+            if (eventCase_ == EventOneofCase.OnCompleted) {
+              subBuilder.MergeFrom(OnCompleted);
+            }
+            input.ReadMessage(subBuilder);
+            OnCompleted = subBuilder;
+            break;
+          }
+          case 66: {
+            global::ReactivityProfiler.Protocol.OnErrorEvent subBuilder = new global::ReactivityProfiler.Protocol.OnErrorEvent();
+            if (eventCase_ == EventOneofCase.OnError) {
+              subBuilder.MergeFrom(OnError);
+            }
+            input.ReadMessage(subBuilder);
+            OnError = subBuilder;
             break;
           }
         }
@@ -710,6 +977,1360 @@ namespace ReactivityProfiler.Protocol {
 
   }
 
+  public sealed partial class ObservableChainEvent : pb::IMessage<ObservableChainEvent> {
+    private static readonly pb::MessageParser<ObservableChainEvent> _parser = new pb::MessageParser<ObservableChainEvent>(() => new ObservableChainEvent());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<ObservableChainEvent> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[3]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public ObservableChainEvent() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public ObservableChainEvent(ObservableChainEvent other) : this() {
+      observable_ = other.observable_.Clone();
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public ObservableChainEvent Clone() {
+      return new ObservableChainEvent(this);
+    }
+
+    /// <summary>Field number for the "Observable" field.</summary>
+    public const int ObservableFieldNumber = 1;
+    private static readonly pb::FieldCodec<global::ReactivityProfiler.Protocol.Observable> _repeated_observable_codec
+        = pb::FieldCodec.ForMessage(10, global::ReactivityProfiler.Protocol.Observable.Parser);
+    private readonly pbc::RepeatedField<global::ReactivityProfiler.Protocol.Observable> observable_ = new pbc::RepeatedField<global::ReactivityProfiler.Protocol.Observable>();
+    /// <summary>
+    /// First observable is the one being monitored
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public pbc::RepeatedField<global::ReactivityProfiler.Protocol.Observable> Observable {
+      get { return observable_; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as ObservableChainEvent);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(ObservableChainEvent other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if(!observable_.Equals(other.observable_)) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      hash ^= observable_.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      observable_.WriteTo(output, _repeated_observable_codec);
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      size += observable_.CalculateSize(_repeated_observable_codec);
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(ObservableChainEvent other) {
+      if (other == null) {
+        return;
+      }
+      observable_.Add(other.observable_);
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            observable_.AddEntriesFrom(input, _repeated_observable_codec);
+            break;
+          }
+        }
+      }
+    }
+
+  }
+
+  /// <summary>
+  /// Observable's ID is CreatedEvent.SequenceId
+  /// </summary>
+  public sealed partial class Observable : pb::IMessage<Observable> {
+    private static readonly pb::MessageParser<Observable> _parser = new pb::MessageParser<Observable>(() => new Observable());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<Observable> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[4]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public Observable() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public Observable(Observable other) : this() {
+      createdEvent_ = other.createdEvent_ != null ? other.createdEvent_.Clone() : null;
+      instrumentationPointId_ = other.instrumentationPointId_;
+      inputObservableId_ = other.inputObservableId_.Clone();
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public Observable Clone() {
+      return new Observable(this);
+    }
+
+    /// <summary>Field number for the "CreatedEvent" field.</summary>
+    public const int CreatedEventFieldNumber = 1;
+    private global::ReactivityProfiler.Protocol.EventInfo createdEvent_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::ReactivityProfiler.Protocol.EventInfo CreatedEvent {
+      get { return createdEvent_; }
+      set {
+        createdEvent_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "InstrumentationPointId" field.</summary>
+    public const int InstrumentationPointIdFieldNumber = 2;
+    private int instrumentationPointId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int InstrumentationPointId {
+      get { return instrumentationPointId_; }
+      set {
+        instrumentationPointId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "InputObservableId" field.</summary>
+    public const int InputObservableIdFieldNumber = 4;
+    private static readonly pb::FieldCodec<long> _repeated_inputObservableId_codec
+        = pb::FieldCodec.ForInt64(34);
+    private readonly pbc::RepeatedField<long> inputObservableId_ = new pbc::RepeatedField<long>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public pbc::RepeatedField<long> InputObservableId {
+      get { return inputObservableId_; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as Observable);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(Observable other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (!object.Equals(CreatedEvent, other.CreatedEvent)) return false;
+      if (InstrumentationPointId != other.InstrumentationPointId) return false;
+      if(!inputObservableId_.Equals(other.inputObservableId_)) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (createdEvent_ != null) hash ^= CreatedEvent.GetHashCode();
+      if (InstrumentationPointId != 0) hash ^= InstrumentationPointId.GetHashCode();
+      hash ^= inputObservableId_.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      if (createdEvent_ != null) {
+        output.WriteRawTag(10);
+        output.WriteMessage(CreatedEvent);
+      }
+      if (InstrumentationPointId != 0) {
+        output.WriteRawTag(16);
+        output.WriteInt32(InstrumentationPointId);
+      }
+      inputObservableId_.WriteTo(output, _repeated_inputObservableId_codec);
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (createdEvent_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(CreatedEvent);
+      }
+      if (InstrumentationPointId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(InstrumentationPointId);
+      }
+      size += inputObservableId_.CalculateSize(_repeated_inputObservableId_codec);
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(Observable other) {
+      if (other == null) {
+        return;
+      }
+      if (other.createdEvent_ != null) {
+        if (createdEvent_ == null) {
+          CreatedEvent = new global::ReactivityProfiler.Protocol.EventInfo();
+        }
+        CreatedEvent.MergeFrom(other.CreatedEvent);
+      }
+      if (other.InstrumentationPointId != 0) {
+        InstrumentationPointId = other.InstrumentationPointId;
+      }
+      inputObservableId_.Add(other.inputObservableId_);
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            if (createdEvent_ == null) {
+              CreatedEvent = new global::ReactivityProfiler.Protocol.EventInfo();
+            }
+            input.ReadMessage(CreatedEvent);
+            break;
+          }
+          case 16: {
+            InstrumentationPointId = input.ReadInt32();
+            break;
+          }
+          case 34:
+          case 32: {
+            inputObservableId_.AddEntriesFrom(input, _repeated_inputObservableId_codec);
+            break;
+          }
+        }
+      }
+    }
+
+  }
+
+  /// <summary>
+  /// Subscription's ID is Event.SequenceId from this event
+  /// </summary>
+  public sealed partial class SubscribeEvent : pb::IMessage<SubscribeEvent> {
+    private static readonly pb::MessageParser<SubscribeEvent> _parser = new pb::MessageParser<SubscribeEvent>(() => new SubscribeEvent());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<SubscribeEvent> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[5]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public SubscribeEvent() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public SubscribeEvent(SubscribeEvent other) : this() {
+      event_ = other.event_ != null ? other.event_.Clone() : null;
+      observableId_ = other.observableId_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public SubscribeEvent Clone() {
+      return new SubscribeEvent(this);
+    }
+
+    /// <summary>Field number for the "Event" field.</summary>
+    public const int EventFieldNumber = 1;
+    private global::ReactivityProfiler.Protocol.EventInfo event_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::ReactivityProfiler.Protocol.EventInfo Event {
+      get { return event_; }
+      set {
+        event_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "ObservableId" field.</summary>
+    public const int ObservableIdFieldNumber = 2;
+    private long observableId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public long ObservableId {
+      get { return observableId_; }
+      set {
+        observableId_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as SubscribeEvent);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(SubscribeEvent other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (!object.Equals(Event, other.Event)) return false;
+      if (ObservableId != other.ObservableId) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (event_ != null) hash ^= Event.GetHashCode();
+      if (ObservableId != 0L) hash ^= ObservableId.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      if (event_ != null) {
+        output.WriteRawTag(10);
+        output.WriteMessage(Event);
+      }
+      if (ObservableId != 0L) {
+        output.WriteRawTag(16);
+        output.WriteInt64(ObservableId);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (event_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Event);
+      }
+      if (ObservableId != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(ObservableId);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(SubscribeEvent other) {
+      if (other == null) {
+        return;
+      }
+      if (other.event_ != null) {
+        if (event_ == null) {
+          Event = new global::ReactivityProfiler.Protocol.EventInfo();
+        }
+        Event.MergeFrom(other.Event);
+      }
+      if (other.ObservableId != 0L) {
+        ObservableId = other.ObservableId;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            if (event_ == null) {
+              Event = new global::ReactivityProfiler.Protocol.EventInfo();
+            }
+            input.ReadMessage(Event);
+            break;
+          }
+          case 16: {
+            ObservableId = input.ReadInt64();
+            break;
+          }
+        }
+      }
+    }
+
+  }
+
+  public sealed partial class UnsubscribeEvent : pb::IMessage<UnsubscribeEvent> {
+    private static readonly pb::MessageParser<UnsubscribeEvent> _parser = new pb::MessageParser<UnsubscribeEvent>(() => new UnsubscribeEvent());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<UnsubscribeEvent> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[6]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public UnsubscribeEvent() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public UnsubscribeEvent(UnsubscribeEvent other) : this() {
+      event_ = other.event_ != null ? other.event_.Clone() : null;
+      subscriptionId_ = other.subscriptionId_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public UnsubscribeEvent Clone() {
+      return new UnsubscribeEvent(this);
+    }
+
+    /// <summary>Field number for the "Event" field.</summary>
+    public const int EventFieldNumber = 1;
+    private global::ReactivityProfiler.Protocol.EventInfo event_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::ReactivityProfiler.Protocol.EventInfo Event {
+      get { return event_; }
+      set {
+        event_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "SubscriptionId" field.</summary>
+    public const int SubscriptionIdFieldNumber = 2;
+    private long subscriptionId_;
+    /// <summary>
+    /// refers to Event.SequenceId of the SubscribeEvent
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public long SubscriptionId {
+      get { return subscriptionId_; }
+      set {
+        subscriptionId_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as UnsubscribeEvent);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(UnsubscribeEvent other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (!object.Equals(Event, other.Event)) return false;
+      if (SubscriptionId != other.SubscriptionId) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (event_ != null) hash ^= Event.GetHashCode();
+      if (SubscriptionId != 0L) hash ^= SubscriptionId.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      if (event_ != null) {
+        output.WriteRawTag(10);
+        output.WriteMessage(Event);
+      }
+      if (SubscriptionId != 0L) {
+        output.WriteRawTag(16);
+        output.WriteInt64(SubscriptionId);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (event_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Event);
+      }
+      if (SubscriptionId != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(SubscriptionId);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(UnsubscribeEvent other) {
+      if (other == null) {
+        return;
+      }
+      if (other.event_ != null) {
+        if (event_ == null) {
+          Event = new global::ReactivityProfiler.Protocol.EventInfo();
+        }
+        Event.MergeFrom(other.Event);
+      }
+      if (other.SubscriptionId != 0L) {
+        SubscriptionId = other.SubscriptionId;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            if (event_ == null) {
+              Event = new global::ReactivityProfiler.Protocol.EventInfo();
+            }
+            input.ReadMessage(Event);
+            break;
+          }
+          case 16: {
+            SubscriptionId = input.ReadInt64();
+            break;
+          }
+        }
+      }
+    }
+
+  }
+
+  public sealed partial class OnNextEvent : pb::IMessage<OnNextEvent> {
+    private static readonly pb::MessageParser<OnNextEvent> _parser = new pb::MessageParser<OnNextEvent>(() => new OnNextEvent());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<OnNextEvent> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[7]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public OnNextEvent() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public OnNextEvent(OnNextEvent other) : this() {
+      event_ = other.event_ != null ? other.event_.Clone() : null;
+      subscriptionId_ = other.subscriptionId_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public OnNextEvent Clone() {
+      return new OnNextEvent(this);
+    }
+
+    /// <summary>Field number for the "Event" field.</summary>
+    public const int EventFieldNumber = 1;
+    private global::ReactivityProfiler.Protocol.EventInfo event_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::ReactivityProfiler.Protocol.EventInfo Event {
+      get { return event_; }
+      set {
+        event_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "SubscriptionId" field.</summary>
+    public const int SubscriptionIdFieldNumber = 2;
+    private long subscriptionId_;
+    /// <summary>
+    /// refers to Event.SequenceId of the SubscribeEvent
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public long SubscriptionId {
+      get { return subscriptionId_; }
+      set {
+        subscriptionId_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as OnNextEvent);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(OnNextEvent other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (!object.Equals(Event, other.Event)) return false;
+      if (SubscriptionId != other.SubscriptionId) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (event_ != null) hash ^= Event.GetHashCode();
+      if (SubscriptionId != 0L) hash ^= SubscriptionId.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      if (event_ != null) {
+        output.WriteRawTag(10);
+        output.WriteMessage(Event);
+      }
+      if (SubscriptionId != 0L) {
+        output.WriteRawTag(16);
+        output.WriteInt64(SubscriptionId);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (event_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Event);
+      }
+      if (SubscriptionId != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(SubscriptionId);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(OnNextEvent other) {
+      if (other == null) {
+        return;
+      }
+      if (other.event_ != null) {
+        if (event_ == null) {
+          Event = new global::ReactivityProfiler.Protocol.EventInfo();
+        }
+        Event.MergeFrom(other.Event);
+      }
+      if (other.SubscriptionId != 0L) {
+        SubscriptionId = other.SubscriptionId;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            if (event_ == null) {
+              Event = new global::ReactivityProfiler.Protocol.EventInfo();
+            }
+            input.ReadMessage(Event);
+            break;
+          }
+          case 16: {
+            SubscriptionId = input.ReadInt64();
+            break;
+          }
+        }
+      }
+    }
+
+  }
+
+  public sealed partial class OnCompletedEvent : pb::IMessage<OnCompletedEvent> {
+    private static readonly pb::MessageParser<OnCompletedEvent> _parser = new pb::MessageParser<OnCompletedEvent>(() => new OnCompletedEvent());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<OnCompletedEvent> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[8]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public OnCompletedEvent() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public OnCompletedEvent(OnCompletedEvent other) : this() {
+      event_ = other.event_ != null ? other.event_.Clone() : null;
+      subscriptionId_ = other.subscriptionId_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public OnCompletedEvent Clone() {
+      return new OnCompletedEvent(this);
+    }
+
+    /// <summary>Field number for the "Event" field.</summary>
+    public const int EventFieldNumber = 1;
+    private global::ReactivityProfiler.Protocol.EventInfo event_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::ReactivityProfiler.Protocol.EventInfo Event {
+      get { return event_; }
+      set {
+        event_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "SubscriptionId" field.</summary>
+    public const int SubscriptionIdFieldNumber = 2;
+    private long subscriptionId_;
+    /// <summary>
+    /// refers to Event.SequenceId of the SubscribeEvent
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public long SubscriptionId {
+      get { return subscriptionId_; }
+      set {
+        subscriptionId_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as OnCompletedEvent);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(OnCompletedEvent other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (!object.Equals(Event, other.Event)) return false;
+      if (SubscriptionId != other.SubscriptionId) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (event_ != null) hash ^= Event.GetHashCode();
+      if (SubscriptionId != 0L) hash ^= SubscriptionId.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      if (event_ != null) {
+        output.WriteRawTag(10);
+        output.WriteMessage(Event);
+      }
+      if (SubscriptionId != 0L) {
+        output.WriteRawTag(16);
+        output.WriteInt64(SubscriptionId);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (event_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Event);
+      }
+      if (SubscriptionId != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(SubscriptionId);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(OnCompletedEvent other) {
+      if (other == null) {
+        return;
+      }
+      if (other.event_ != null) {
+        if (event_ == null) {
+          Event = new global::ReactivityProfiler.Protocol.EventInfo();
+        }
+        Event.MergeFrom(other.Event);
+      }
+      if (other.SubscriptionId != 0L) {
+        SubscriptionId = other.SubscriptionId;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            if (event_ == null) {
+              Event = new global::ReactivityProfiler.Protocol.EventInfo();
+            }
+            input.ReadMessage(Event);
+            break;
+          }
+          case 16: {
+            SubscriptionId = input.ReadInt64();
+            break;
+          }
+        }
+      }
+    }
+
+  }
+
+  public sealed partial class OnErrorEvent : pb::IMessage<OnErrorEvent> {
+    private static readonly pb::MessageParser<OnErrorEvent> _parser = new pb::MessageParser<OnErrorEvent>(() => new OnErrorEvent());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<OnErrorEvent> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[9]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public OnErrorEvent() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public OnErrorEvent(OnErrorEvent other) : this() {
+      event_ = other.event_ != null ? other.event_.Clone() : null;
+      subscriptionId_ = other.subscriptionId_;
+      message_ = other.message_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public OnErrorEvent Clone() {
+      return new OnErrorEvent(this);
+    }
+
+    /// <summary>Field number for the "Event" field.</summary>
+    public const int EventFieldNumber = 1;
+    private global::ReactivityProfiler.Protocol.EventInfo event_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::ReactivityProfiler.Protocol.EventInfo Event {
+      get { return event_; }
+      set {
+        event_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "SubscriptionId" field.</summary>
+    public const int SubscriptionIdFieldNumber = 2;
+    private long subscriptionId_;
+    /// <summary>
+    /// refers to Event.SequenceId of the SubscribeEvent
+    /// </summary>
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public long SubscriptionId {
+      get { return subscriptionId_; }
+      set {
+        subscriptionId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "Message" field.</summary>
+    public const int MessageFieldNumber = 3;
+    private string message_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public string Message {
+      get { return message_; }
+      set {
+        message_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as OnErrorEvent);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(OnErrorEvent other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (!object.Equals(Event, other.Event)) return false;
+      if (SubscriptionId != other.SubscriptionId) return false;
+      if (Message != other.Message) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (event_ != null) hash ^= Event.GetHashCode();
+      if (SubscriptionId != 0L) hash ^= SubscriptionId.GetHashCode();
+      if (Message.Length != 0) hash ^= Message.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      if (event_ != null) {
+        output.WriteRawTag(10);
+        output.WriteMessage(Event);
+      }
+      if (SubscriptionId != 0L) {
+        output.WriteRawTag(16);
+        output.WriteInt64(SubscriptionId);
+      }
+      if (Message.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(Message);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (event_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Event);
+      }
+      if (SubscriptionId != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(SubscriptionId);
+      }
+      if (Message.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Message);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(OnErrorEvent other) {
+      if (other == null) {
+        return;
+      }
+      if (other.event_ != null) {
+        if (event_ == null) {
+          Event = new global::ReactivityProfiler.Protocol.EventInfo();
+        }
+        Event.MergeFrom(other.Event);
+      }
+      if (other.SubscriptionId != 0L) {
+        SubscriptionId = other.SubscriptionId;
+      }
+      if (other.Message.Length != 0) {
+        Message = other.Message;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10: {
+            if (event_ == null) {
+              Event = new global::ReactivityProfiler.Protocol.EventInfo();
+            }
+            input.ReadMessage(Event);
+            break;
+          }
+          case 16: {
+            SubscriptionId = input.ReadInt64();
+            break;
+          }
+          case 26: {
+            Message = input.ReadString();
+            break;
+          }
+        }
+      }
+    }
+
+  }
+
+  public sealed partial class EventInfo : pb::IMessage<EventInfo> {
+    private static readonly pb::MessageParser<EventInfo> _parser = new pb::MessageParser<EventInfo>(() => new EventInfo());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<EventInfo> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[10]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public EventInfo() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public EventInfo(EventInfo other) : this() {
+      sequenceId_ = other.sequenceId_;
+      timestamp_ = other.timestamp_;
+      threadId_ = other.threadId_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public EventInfo Clone() {
+      return new EventInfo(this);
+    }
+
+    /// <summary>Field number for the "SequenceId" field.</summary>
+    public const int SequenceIdFieldNumber = 1;
+    private long sequenceId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public long SequenceId {
+      get { return sequenceId_; }
+      set {
+        sequenceId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "Timestamp" field.</summary>
+    public const int TimestampFieldNumber = 2;
+    private long timestamp_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public long Timestamp {
+      get { return timestamp_; }
+      set {
+        timestamp_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "ThreadId" field.</summary>
+    public const int ThreadIdFieldNumber = 3;
+    private int threadId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int ThreadId {
+      get { return threadId_; }
+      set {
+        threadId_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as EventInfo);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(EventInfo other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (SequenceId != other.SequenceId) return false;
+      if (Timestamp != other.Timestamp) return false;
+      if (ThreadId != other.ThreadId) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (SequenceId != 0L) hash ^= SequenceId.GetHashCode();
+      if (Timestamp != 0L) hash ^= Timestamp.GetHashCode();
+      if (ThreadId != 0) hash ^= ThreadId.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      if (SequenceId != 0L) {
+        output.WriteRawTag(8);
+        output.WriteInt64(SequenceId);
+      }
+      if (Timestamp != 0L) {
+        output.WriteRawTag(16);
+        output.WriteInt64(Timestamp);
+      }
+      if (ThreadId != 0) {
+        output.WriteRawTag(24);
+        output.WriteInt32(ThreadId);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (SequenceId != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(SequenceId);
+      }
+      if (Timestamp != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(Timestamp);
+      }
+      if (ThreadId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(ThreadId);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(EventInfo other) {
+      if (other == null) {
+        return;
+      }
+      if (other.SequenceId != 0L) {
+        SequenceId = other.SequenceId;
+      }
+      if (other.Timestamp != 0L) {
+        Timestamp = other.Timestamp;
+      }
+      if (other.ThreadId != 0) {
+        ThreadId = other.ThreadId;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            SequenceId = input.ReadInt64();
+            break;
+          }
+          case 16: {
+            Timestamp = input.ReadInt64();
+            break;
+          }
+          case 24: {
+            ThreadId = input.ReadInt32();
+            break;
+          }
+        }
+      }
+    }
+
+  }
+
   public sealed partial class RequestMessage : pb::IMessage<RequestMessage> {
     private static readonly pb::MessageParser<RequestMessage> _parser = new pb::MessageParser<RequestMessage>(() => new RequestMessage());
     private pb::UnknownFieldSet _unknownFields;
@@ -718,7 +2339,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[3]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[11]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -738,6 +2359,12 @@ namespace ReactivityProfiler.Protocol {
       switch (other.RequestCase) {
         case RequestOneofCase.SendInstrumentationEvents:
           SendInstrumentationEvents = other.SendInstrumentationEvents.Clone();
+          break;
+        case RequestOneofCase.StartMonitoring:
+          StartMonitoring = other.StartMonitoring.Clone();
+          break;
+        case RequestOneofCase.StopMonitoring:
+          StopMonitoring = other.StopMonitoring.Clone();
           break;
       }
 
@@ -760,11 +2387,35 @@ namespace ReactivityProfiler.Protocol {
       }
     }
 
+    /// <summary>Field number for the "StartMonitoring" field.</summary>
+    public const int StartMonitoringFieldNumber = 2;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::ReactivityProfiler.Protocol.StartMonitoringRequest StartMonitoring {
+      get { return requestCase_ == RequestOneofCase.StartMonitoring ? (global::ReactivityProfiler.Protocol.StartMonitoringRequest) request_ : null; }
+      set {
+        request_ = value;
+        requestCase_ = value == null ? RequestOneofCase.None : RequestOneofCase.StartMonitoring;
+      }
+    }
+
+    /// <summary>Field number for the "StopMonitoring" field.</summary>
+    public const int StopMonitoringFieldNumber = 3;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::ReactivityProfiler.Protocol.StopMonitoringRequest StopMonitoring {
+      get { return requestCase_ == RequestOneofCase.StopMonitoring ? (global::ReactivityProfiler.Protocol.StopMonitoringRequest) request_ : null; }
+      set {
+        request_ = value;
+        requestCase_ = value == null ? RequestOneofCase.None : RequestOneofCase.StopMonitoring;
+      }
+    }
+
     private object request_;
     /// <summary>Enum of possible cases for the "Request" oneof.</summary>
     public enum RequestOneofCase {
       None = 0,
       SendInstrumentationEvents = 1,
+      StartMonitoring = 2,
+      StopMonitoring = 3,
     }
     private RequestOneofCase requestCase_ = RequestOneofCase.None;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -792,6 +2443,8 @@ namespace ReactivityProfiler.Protocol {
         return true;
       }
       if (!object.Equals(SendInstrumentationEvents, other.SendInstrumentationEvents)) return false;
+      if (!object.Equals(StartMonitoring, other.StartMonitoring)) return false;
+      if (!object.Equals(StopMonitoring, other.StopMonitoring)) return false;
       if (RequestCase != other.RequestCase) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -800,6 +2453,8 @@ namespace ReactivityProfiler.Protocol {
     public override int GetHashCode() {
       int hash = 1;
       if (requestCase_ == RequestOneofCase.SendInstrumentationEvents) hash ^= SendInstrumentationEvents.GetHashCode();
+      if (requestCase_ == RequestOneofCase.StartMonitoring) hash ^= StartMonitoring.GetHashCode();
+      if (requestCase_ == RequestOneofCase.StopMonitoring) hash ^= StopMonitoring.GetHashCode();
       hash ^= (int) requestCase_;
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -818,6 +2473,14 @@ namespace ReactivityProfiler.Protocol {
         output.WriteRawTag(10);
         output.WriteMessage(SendInstrumentationEvents);
       }
+      if (requestCase_ == RequestOneofCase.StartMonitoring) {
+        output.WriteRawTag(18);
+        output.WriteMessage(StartMonitoring);
+      }
+      if (requestCase_ == RequestOneofCase.StopMonitoring) {
+        output.WriteRawTag(26);
+        output.WriteMessage(StopMonitoring);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -828,6 +2491,12 @@ namespace ReactivityProfiler.Protocol {
       int size = 0;
       if (requestCase_ == RequestOneofCase.SendInstrumentationEvents) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(SendInstrumentationEvents);
+      }
+      if (requestCase_ == RequestOneofCase.StartMonitoring) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(StartMonitoring);
+      }
+      if (requestCase_ == RequestOneofCase.StopMonitoring) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(StopMonitoring);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -846,6 +2515,18 @@ namespace ReactivityProfiler.Protocol {
             SendInstrumentationEvents = new global::ReactivityProfiler.Protocol.SendInstrumentationEventsRequest();
           }
           SendInstrumentationEvents.MergeFrom(other.SendInstrumentationEvents);
+          break;
+        case RequestOneofCase.StartMonitoring:
+          if (StartMonitoring == null) {
+            StartMonitoring = new global::ReactivityProfiler.Protocol.StartMonitoringRequest();
+          }
+          StartMonitoring.MergeFrom(other.StartMonitoring);
+          break;
+        case RequestOneofCase.StopMonitoring:
+          if (StopMonitoring == null) {
+            StopMonitoring = new global::ReactivityProfiler.Protocol.StopMonitoringRequest();
+          }
+          StopMonitoring.MergeFrom(other.StopMonitoring);
           break;
       }
 
@@ -869,6 +2550,24 @@ namespace ReactivityProfiler.Protocol {
             SendInstrumentationEvents = subBuilder;
             break;
           }
+          case 18: {
+            global::ReactivityProfiler.Protocol.StartMonitoringRequest subBuilder = new global::ReactivityProfiler.Protocol.StartMonitoringRequest();
+            if (requestCase_ == RequestOneofCase.StartMonitoring) {
+              subBuilder.MergeFrom(StartMonitoring);
+            }
+            input.ReadMessage(subBuilder);
+            StartMonitoring = subBuilder;
+            break;
+          }
+          case 26: {
+            global::ReactivityProfiler.Protocol.StopMonitoringRequest subBuilder = new global::ReactivityProfiler.Protocol.StopMonitoringRequest();
+            if (requestCase_ == RequestOneofCase.StopMonitoring) {
+              subBuilder.MergeFrom(StopMonitoring);
+            }
+            input.ReadMessage(subBuilder);
+            StopMonitoring = subBuilder;
+            break;
+          }
         }
       }
     }
@@ -883,7 +2582,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[4]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[12]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -970,6 +2669,250 @@ namespace ReactivityProfiler.Protocol {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
+        }
+      }
+    }
+
+  }
+
+  public sealed partial class StartMonitoringRequest : pb::IMessage<StartMonitoringRequest> {
+    private static readonly pb::MessageParser<StartMonitoringRequest> _parser = new pb::MessageParser<StartMonitoringRequest>(() => new StartMonitoringRequest());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<StartMonitoringRequest> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[13]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public StartMonitoringRequest() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public StartMonitoringRequest(StartMonitoringRequest other) : this() {
+      instrumentationPointId_ = other.instrumentationPointId_.Clone();
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public StartMonitoringRequest Clone() {
+      return new StartMonitoringRequest(this);
+    }
+
+    /// <summary>Field number for the "InstrumentationPointId" field.</summary>
+    public const int InstrumentationPointIdFieldNumber = 1;
+    private static readonly pb::FieldCodec<int> _repeated_instrumentationPointId_codec
+        = pb::FieldCodec.ForInt32(10);
+    private readonly pbc::RepeatedField<int> instrumentationPointId_ = new pbc::RepeatedField<int>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public pbc::RepeatedField<int> InstrumentationPointId {
+      get { return instrumentationPointId_; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as StartMonitoringRequest);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(StartMonitoringRequest other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if(!instrumentationPointId_.Equals(other.instrumentationPointId_)) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      hash ^= instrumentationPointId_.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      instrumentationPointId_.WriteTo(output, _repeated_instrumentationPointId_codec);
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      size += instrumentationPointId_.CalculateSize(_repeated_instrumentationPointId_codec);
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(StartMonitoringRequest other) {
+      if (other == null) {
+        return;
+      }
+      instrumentationPointId_.Add(other.instrumentationPointId_);
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 10:
+          case 8: {
+            instrumentationPointId_.AddEntriesFrom(input, _repeated_instrumentationPointId_codec);
+            break;
+          }
+        }
+      }
+    }
+
+  }
+
+  public sealed partial class StopMonitoringRequest : pb::IMessage<StopMonitoringRequest> {
+    private static readonly pb::MessageParser<StopMonitoringRequest> _parser = new pb::MessageParser<StopMonitoringRequest>(() => new StopMonitoringRequest());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<StopMonitoringRequest> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[14]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public StopMonitoringRequest() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public StopMonitoringRequest(StopMonitoringRequest other) : this() {
+      instrumentationPointId_ = other.instrumentationPointId_.Clone();
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public StopMonitoringRequest Clone() {
+      return new StopMonitoringRequest(this);
+    }
+
+    /// <summary>Field number for the "InstrumentationPointId" field.</summary>
+    public const int InstrumentationPointIdFieldNumber = 2;
+    private static readonly pb::FieldCodec<int> _repeated_instrumentationPointId_codec
+        = pb::FieldCodec.ForInt32(18);
+    private readonly pbc::RepeatedField<int> instrumentationPointId_ = new pbc::RepeatedField<int>();
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public pbc::RepeatedField<int> InstrumentationPointId {
+      get { return instrumentationPointId_; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as StopMonitoringRequest);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(StopMonitoringRequest other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if(!instrumentationPointId_.Equals(other.instrumentationPointId_)) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      hash ^= instrumentationPointId_.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      instrumentationPointId_.WriteTo(output, _repeated_instrumentationPointId_codec);
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      size += instrumentationPointId_.CalculateSize(_repeated_instrumentationPointId_codec);
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(StopMonitoringRequest other) {
+      if (other == null) {
+        return;
+      }
+      instrumentationPointId_.Add(other.instrumentationPointId_);
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 18:
+          case 16: {
+            instrumentationPointId_.AddEntriesFrom(input, _repeated_instrumentationPointId_codec);
+            break;
+          }
         }
       }
     }

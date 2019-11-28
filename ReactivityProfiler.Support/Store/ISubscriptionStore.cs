@@ -8,5 +8,6 @@ namespace ReactivityProfiler.Support.Store
         void DeleteSub(long subId);
         IEnumerable<SubscriptionInfo> GetAllSubs();
         SubscriptionInfo GetSub(long subId);
+        IEnumerable<SubscriptionInfo> GetSubs(int instrumentationPointId);
     }
 }

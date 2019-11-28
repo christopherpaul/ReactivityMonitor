@@ -5,6 +5,12 @@ message EventMessage {
 	oneof Event {
 		ModuleLoadedEvent ModuleLoaded = 1;
 		MethodCallInstrumentedEvent MethodCallInstrumented = 2;
+		ObservableChainEvent ObservableChain = 3;
+		SubscribeEvent Subscribe = 4;
+		UnsubscribeEvent Unsubscribe = 5;
+		OnNextEvent OnNext = 6;
+		OnCompletedEvent OnCompleted = 7;
+		OnErrorEvent OnError = 8;
 	}
 }
 
@@ -23,12 +29,68 @@ message MethodCallInstrumentedEvent {
 	string CallingMethodName = 7;
 }
 
+message ObservableChainEvent {
+	// First observable is the one being monitored
+	repeated Observable Observable = 1;
+}
+
+// Observable's ID is CreatedEvent.SequenceId
+message Observable {
+	EventInfo CreatedEvent = 1;
+	int32 InstrumentationPointId = 2;
+	repeated int64 InputObservableId = 4;
+}
+
+// Subscription's ID is Event.SequenceId from this event
+message SubscribeEvent {
+	EventInfo Event = 1;
+	int64 ObservableId = 2;
+}
+
+message UnsubscribeEvent {
+	EventInfo Event = 1;
+	int64 SubscriptionId = 2; // refers to Event.SequenceId of the SubscribeEvent
+}
+
+message OnNextEvent {
+	EventInfo Event = 1;
+	int64 SubscriptionId = 2; // refers to Event.SequenceId of the SubscribeEvent
+	// might want to add some representation of the value?
+}
+
+message OnCompletedEvent {
+	EventInfo Event = 1;
+	int64 SubscriptionId = 2; // refers to Event.SequenceId of the SubscribeEvent
+}
+
+message OnErrorEvent {
+	EventInfo Event = 1;
+	int64 SubscriptionId = 2; // refers to Event.SequenceId of the SubscribeEvent
+	string Message = 3;
+}
+
+message EventInfo {
+	int64 SequenceId = 1;
+	int64 Timestamp = 2;
+	int32 ThreadId = 3;
+}
+
 message RequestMessage {
 	oneof Request {
 		SendInstrumentationEventsRequest SendInstrumentationEvents = 1;
+		StartMonitoringRequest StartMonitoring = 2;
+		StopMonitoringRequest StopMonitoring = 3;
 	}
 }
 
 message SendInstrumentationEventsRequest {
 
+}
+
+message StartMonitoringRequest {
+	repeated int32 InstrumentationPointId = 1;
+}
+
+message StopMonitoringRequest {
+	repeated int32 InstrumentationPointId = 2;
 }

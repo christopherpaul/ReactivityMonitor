@@ -7,17 +7,24 @@ namespace ReactivityProfiler.Support.Store
 {
     internal struct CommonEventDetails
     {
-        public CommonEventDetails(DateTime timestamp, int threadId)
+        private static long sEventSequenceIdSource;
+
+        public CommonEventDetails(long eventSequenceId, DateTime timestamp, int threadId)
         {
+            EventSequenceId = eventSequenceId;
             Timestamp = timestamp;
             ThreadId = threadId;
         }
 
         public static CommonEventDetails Capture()
         {
-            return new CommonEventDetails(DateTime.UtcNow, Thread.CurrentThread.ManagedThreadId);
+            return new CommonEventDetails(
+                Interlocked.Increment(ref sEventSequenceIdSource),
+                DateTime.UtcNow, 
+                Thread.CurrentThread.ManagedThreadId);
         }
 
+        public long EventSequenceId { get; }
         public DateTime Timestamp { get; }
         public int ThreadId { get; }
     }

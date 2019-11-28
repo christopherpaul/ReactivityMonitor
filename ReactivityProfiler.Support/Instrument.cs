@@ -116,6 +116,7 @@ namespace ReactivityProfiler.Support
             var inputs = sTracker.Value.Returned(instrumentationPoint);
 
             var obsInfo = new ObservableInfo(instrumentationPoint, inputs);
+            Services.Store.NotifyObservableCreated(obsInfo);
             return new InstrumentedObservable<T>(observable, obsInfo);
         }
     }
