@@ -23,9 +23,15 @@ namespace ReactivityMonitor
             Initialize();
         }
 
+        protected override void OnStartup(object sender, System.Windows.StartupEventArgs e)
+        {
+            DisplayRootViewFor<IShell>();
+        }
+
         protected override void Configure()
         {
             mContainer = new SimpleContainer();
+            mContainer.Instance<IServiceProvider>(new ServiceProvider(mContainer));
 
             // Framework services
             mContainer.Singleton<IWindowManager, WindowManager>();
@@ -37,6 +43,7 @@ namespace ReactivityMonitor
             mContainer.Singleton<IDialogService, DialogService>();
 
             // Screens etc.
+            mContainer.Singleton<IScreenFactory, ScreenFactory>();
             mContainer.PerRequest<IShell, ShellViewModel>();
             mContainer.PerRequest<IConnectionScreen, ConnectionScreenViewModel>();
             mContainer.PerRequest<IHomeScreen, HomeScreenViewModel>();
@@ -58,9 +65,16 @@ namespace ReactivityMonitor
             mContainer.BuildUp(instance);
         }
 
-        protected override void OnStartup(object sender, System.Windows.StartupEventArgs e)
+        private sealed class ServiceProvider : IServiceProvider
         {
-            DisplayRootViewFor<IShell>();
+            private readonly SimpleContainer mContainer;
+
+            public ServiceProvider(SimpleContainer container)
+            {
+                mContainer = container;
+            }
+
+            public object GetService(Type type) => mContainer.GetInstance(type, null);
         }
     }
 }

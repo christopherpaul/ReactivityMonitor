@@ -9,13 +9,13 @@ using System.Reactive.Disposables;
 using ReactivityMonitor.Connection;
 using ReactiveUI;
 using IScreen = Caliburn.Micro.IScreen;
+using ReactivityMonitor.Screens;
 
 namespace ReactivityMonitor
 {
     public class ShellViewModel : ReactiveConductor<IScreen>, IShell
     {
-        public ShellViewModel(IConnectionService connectionService, IConnectionScreen connectionScreen,
-            IHomeScreen homeScreen)
+        public ShellViewModel(IConnectionService connectionService, IScreenFactory screenFactory)
         {
             DisplayName = "Reactivity Monitor";
 
@@ -39,10 +39,11 @@ namespace ReactivityMonitor
             {
                 if (conn == null)
                 {
-                    return connectionScreen;
+                    return screenFactory.CreateConnectionScreen();
                 }
                 else
                 {
+                    var homeScreen = screenFactory.CreateHomeScreen();
                     homeScreen.ConnectionModel = conn;
                     return homeScreen;
                 }

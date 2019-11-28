@@ -111,6 +111,7 @@
     <Compile Include="Connection\IConnectionModel.cs" />
     <Compile Include="Connection\LaunchInfo.cs" />
     <Compile Include="Infrastructure\TraceLogger.cs" />
+    <Compile Include="ScreenFactory.cs" />
     <Compile Include="Screens\CallsScreen\CallsScreenView.xaml.cs">
       <DependentUpon>CallsScreenView.xaml</DependentUpon>
     </Compile>
@@ -133,6 +134,7 @@
     </Compile>
     <Compile Include="Screens\HomeScreen\HomeScreenViewModel.cs" />
     <Compile Include="Screens\HomeScreen\IHomeScreen.cs" />
+    <Compile Include="IScreenFactory.cs" />
     <Compile Include="Services\ConcurrencyService.cs" />
     <Compile Include="Services\ConnectionService.cs" />
     <Compile Include="Services\DialogService.cs" />
