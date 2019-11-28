@@ -7,7 +7,9 @@ namespace ReactivityMonitor
     using ReactivityMonitor.Screens.CallsScreen;
     using ReactivityMonitor.Screens.ConnectionScreen;
     using ReactivityMonitor.Screens.HomeScreen;
+    using ReactivityMonitor.Screens.MonitoringScreen;
     using ReactivityMonitor.Services;
+    using ReactivityMonitor.Workspace;
 
     public class AppBootstrapper : BootstrapperBase
     {
@@ -42,12 +44,16 @@ namespace ReactivityMonitor
             mContainer.Singleton<IConcurrencyService, ConcurrencyService>();
             mContainer.Singleton<IDialogService, DialogService>();
 
+            // Units of work
+            mContainer.PerRequest<IWorkspace, Workspace.Workspace>();
+
             // Screens etc.
             mContainer.Singleton<IScreenFactory, ScreenFactory>();
             mContainer.PerRequest<IShell, ShellViewModel>();
             mContainer.PerRequest<IConnectionScreen, ConnectionScreenViewModel>();
             mContainer.PerRequest<IHomeScreen, HomeScreenViewModel>();
             mContainer.PerRequest<ICallsScreen, CallsScreenViewModel>();
+            mContainer.PerRequest<IMonitoringScreen, MonitoringScreenViewModel>();
         }
 
         protected override object GetInstance(Type service, string key)

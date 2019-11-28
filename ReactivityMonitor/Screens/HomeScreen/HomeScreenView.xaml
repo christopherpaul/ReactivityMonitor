@@ -9,8 +9,6 @@
     <DockPanel>
         <ContentControl x:Name="Calls" DockPanel.Dock="Left" />
 
-        <Grid>
-            <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center">Content will go here</TextBlock>
-        </Grid>
+        <ContentControl x:Name="Monitoring" />
     </DockPanel>
 </UserControl>

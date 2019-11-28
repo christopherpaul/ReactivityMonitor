@@ -3,20 +3,15 @@ using ReactivityMonitor.Model;
 using ReactivityMonitor.Workspace;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Input;
 
-namespace ReactivityMonitor.Screens.CallsScreen
+namespace ReactivityMonitor.Screens.MonitoringScreen
 {
-    public interface ICallsScreen : IScreen
+    public interface IMonitoringScreen : IScreen
     {
         IReactivityModel Model { get; set; }
         IWorkspace Workspace { get; set; }
-
-        ReadOnlyObservableCollection<ICallingMethod> CallingMethods { get; }
-        ICommand MonitorCall { get; }
     }
 }

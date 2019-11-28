@@ -11,56 +11,65 @@ using System.Reactive.Linq;
 using DynamicData.Binding;
 using System.Reactive.Disposables;
 using System.Reactive.Concurrency;
+using ReactivityMonitor.Workspace;
+using System.Windows.Input;
+using ReactivityMonitor.Services;
+using ReactiveUI;
 
 namespace ReactivityMonitor.Screens.CallsScreen
 {
     public sealed class CallsScreenViewModel : ReactiveScreen, ICallsScreen
     {
-        public CallsScreenViewModel()
+        public CallsScreenViewModel(IConcurrencyService concurrencyService)
         {
             WhenActivated(disposables =>
             {
-                var dispatcherScheduler = DispatcherScheduler.Current;
-
                 Model.InstrumentedCalls.Connect()
                     .Group(ic => (ic.CallingType, ic.CallingMethod))
                     .Sort(SortExpressionComparer<IGroup<IInstrumentedCall, int, (string, string)>>.Ascending(x => x.Key))
                     .Transform(grp =>
                     {
-                        var callingMethod = new CallingMethod(grp.Key.Item1, grp.Key.Item2);
-                        grp.Cache.Connect()
+                        var callsChanges = grp.Cache.Connect()
                             .Sort(SortExpressionComparer<IInstrumentedCall>.Ascending(ic => ic.InstructionOffset))
                             .Transform(ic => (ICall)new Call(ic))
-                            .ObserveOn(dispatcherScheduler)
-                            .Bind(out var calls)
-                            .Subscribe()
-                            .DisposeWith(disposables);
+                            .ObserveOn(concurrencyService.DispatcherRxScheduler);
 
-                        callingMethod.Calls = calls;
-
+                        var callingMethod = new CallingMethod(grp.Key.Item1, grp.Key.Item2, callsChanges);
                         return (ICallingMethod)callingMethod;
                     })
-                    .ObserveOn(dispatcherScheduler)
+                    .ObserveOn(concurrencyService.DispatcherRxScheduler)
                     .Bind(out var callingMethods)
+                    .DisposeMany()
                     .Subscribe()
                     .DisposeWith(disposables);
 
                 CallingMethods = callingMethods;
             });
+
+            MonitorCall = ReactiveCommand.Create((Call c) => Workspace.StartMonitoringCall(c.InstrumentedCall));
         }
 
         public IReactivityModel Model { get; set; }
+        public IWorkspace Workspace { get; set; }
 
         public ReadOnlyObservableCollection<ICallingMethod> CallingMethods { get; private set; }
+        public ICommand MonitorCall { get; }
 
 
-        private sealed class CallingMethod : ICallingMethod
+        private sealed class CallingMethod : ICallingMethod, IDisposable
         {
-            public CallingMethod(string typeName, string methodName)
+            private readonly IDisposable mDisposable;
+
+            public CallingMethod(string typeName, string methodName, IObservable<IChangeSet<ICall, int>> callsChanges)
             {
                 TypeName = typeName;
                 Name = methodName;
 
+                mDisposable = callsChanges
+                    .Bind(out var calls)
+                    .Subscribe();
+
+                Calls = calls;
             }
 
             public string TypeName { get; }
@@ -68,18 +77,22 @@ namespace ReactivityMonitor.Screens.CallsScreen
             public string Name { get; }
 
             public ReadOnlyObservableCollection<ICall> Calls { get; set; }
+
+            public void Dispose()
+            {
+                mDisposable.Dispose();
+            }
         }
 
         private sealed class Call : ICall
         {
-            private readonly IInstrumentedCall mCall;
-
             public Call(IInstrumentedCall call)
             {
-                mCall = call;
+                InstrumentedCall = call;
             }
 
-            public string CalledMethodName => mCall.CalledMethod;
+            public IInstrumentedCall InstrumentedCall { get; }
+            public string CalledMethodName => InstrumentedCall.CalledMethod;
         }
     }
 }
