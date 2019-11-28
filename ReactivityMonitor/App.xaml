@@ -16,6 +16,11 @@
                     <Style x:Key="ItemSubText" TargetType="TextBlock">
                         <Setter Property="FontSize" Value="10" />
                     </Style>
+                    <Style TargetType="Button">
+                        <Setter Property="MinWidth" Value="100" />
+                        <Setter Property="Margin" Value="8,2,8,2" />
+                        <Setter Property="Padding" Value="4,2,4,2" />
+                    </Style>
                 </ResourceDictionary>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

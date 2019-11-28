@@ -106,8 +106,10 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="AppBootstrapper.cs" />
+    <Compile Include="Connection\ConnectionException.cs" />
     <Compile Include="Connection\ConnectionModel.cs" />
     <Compile Include="Connection\IConnectionModel.cs" />
+    <Compile Include="Connection\LaunchInfo.cs" />
     <Compile Include="Infrastructure\TraceLogger.cs" />
     <Compile Include="Screens\CallsScreen\CallsScreenView.xaml.cs">
       <DependentUpon>CallsScreenView.xaml</DependentUpon>
@@ -131,8 +133,12 @@
     </Compile>
     <Compile Include="Screens\HomeScreen\HomeScreenViewModel.cs" />
     <Compile Include="Screens\HomeScreen\IHomeScreen.cs" />
+    <Compile Include="Services\ConcurrencyService.cs" />
     <Compile Include="Services\ConnectionService.cs" />
+    <Compile Include="Services\DialogService.cs" />
+    <Compile Include="Services\IConcurrencyService.cs" />
     <Compile Include="Services\IConnectionService.cs" />
+    <Compile Include="Services\IDialogService.cs" />
     <Compile Include="ShellViewModel.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>

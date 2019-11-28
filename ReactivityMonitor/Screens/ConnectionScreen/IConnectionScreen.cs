@@ -10,5 +10,6 @@ namespace ReactivityMonitor.Screens.ConnectionScreen
         ReadOnlyObservableCollection<Server> AvailableConnections { get; }
         Server SelectedServer { get; set; }
         ICommand OpenSelectedServer { get; }
+        ICommand BrowseAndLaunch { get; }
     }
 }

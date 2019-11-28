@@ -33,6 +33,8 @@ namespace ReactivityMonitor
 
             // Application services
             mContainer.Singleton<IConnectionService, ConnectionService>();
+            mContainer.Singleton<IConcurrencyService, ConcurrencyService>();
+            mContainer.Singleton<IDialogService, DialogService>();
 
             // Screens etc.
             mContainer.PerRequest<IShell, ShellViewModel>();

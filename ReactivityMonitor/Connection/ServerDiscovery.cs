@@ -15,6 +15,25 @@ namespace ReactivityMonitor.Connection
         private const string cServers = "Servers";
         private const string cPipeName = "PipeName";
 
+        public bool TryGetServer(Process process, out Server server)
+        {
+            using (var software = Registry.CurrentUser.OpenSubKey(cSoftware))
+            using (var product = software?.OpenSubKey(cProduct))
+            using (var servers = product?.OpenSubKey(cServers))
+            using (var key = servers?.OpenSubKey(process.Id.ToString()))
+            {
+                string pipeName = key?.GetValue(cPipeName) as string;
+                if (pipeName == null)
+                {
+                    server = null;
+                    return false;
+                }
+
+                server = new Server(process.Id, process.ProcessName, pipeName);
+                return true;
+            }
+        }
+
         public IReadOnlyList<Server> Scan()
         {
             var list = new List<Server>();

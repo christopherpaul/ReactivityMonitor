@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ReactivityMonitor.Services
@@ -14,7 +15,8 @@ namespace ReactivityMonitor.Services
 
         IObservable<IConnectionModel> WhenConnectionChanges { get; }
 
-        void Open(Server server);
+        Task Launch(LaunchInfo launchInfo, CancellationToken cancellationToken = default);
+        Task Open(Server server, CancellationToken cancellation = default);
         void Close();
     }
 }
