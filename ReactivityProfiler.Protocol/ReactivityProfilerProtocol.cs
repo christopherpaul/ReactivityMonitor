@@ -24,51 +24,49 @@ namespace ReactivityProfiler.Protocol {
     static ReactivityProfilerProtocolReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "CiBSZWFjdGl2aXR5UHJvZmlsZXJQcm90b2NvbC5wcm90byLxAgoMRXZlbnRN",
+            "CiBSZWFjdGl2aXR5UHJvZmlsZXJQcm90b2NvbC5wcm90byL1AgoMRXZlbnRN",
             "ZXNzYWdlEioKDE1vZHVsZUxvYWRlZBgBIAEoCzISLk1vZHVsZUxvYWRlZEV2",
             "ZW50SAASPgoWTWV0aG9kQ2FsbEluc3RydW1lbnRlZBgCIAEoCzIcLk1ldGhv",
-            "ZENhbGxJbnN0cnVtZW50ZWRFdmVudEgAEjAKD09ic2VydmFibGVDaGFpbhgD",
-            "IAEoCzIVLk9ic2VydmFibGVDaGFpbkV2ZW50SAASJAoJU3Vic2NyaWJlGAQg",
-            "ASgLMg8uU3Vic2NyaWJlRXZlbnRIABIoCgtVbnN1YnNjcmliZRgFIAEoCzIR",
-            "LlVuc3Vic2NyaWJlRXZlbnRIABIeCgZPbk5leHQYBiABKAsyDC5Pbk5leHRF",
-            "dmVudEgAEigKC09uQ29tcGxldGVkGAcgASgLMhEuT25Db21wbGV0ZWRFdmVu",
-            "dEgAEiAKB09uRXJyb3IYCCABKAsyDS5PbkVycm9yRXZlbnRIAEIHCgVFdmVu",
-            "dCIzChFNb2R1bGVMb2FkZWRFdmVudBIQCghNb2R1bGVJRBgBIAEoBBIMCgRQ",
-            "YXRoGAIgASgJIs4BChtNZXRob2RDYWxsSW5zdHJ1bWVudGVkRXZlbnQSHgoW",
-            "SW5zdHJ1bWVudGF0aW9uUG9pbnRJZBgBIAEoBRIQCghNb2R1bGVJZBgCIAEo",
-            "BBIVCg1GdW5jdGlvblRva2VuGAMgASgNEhkKEUluc3RydWN0aW9uT2Zmc2V0",
-            "GAQgASgFEhgKEENhbGxlZE1ldGhvZE5hbWUYBSABKAkSFgoOT3duaW5nVHlw",
-            "ZU5hbWUYBiABKAkSGQoRQ2FsbGluZ01ldGhvZE5hbWUYByABKAkiNwoUT2Jz",
-            "ZXJ2YWJsZUNoYWluRXZlbnQSHwoKT2JzZXJ2YWJsZRgBIAMoCzILLk9ic2Vy",
-            "dmFibGUiaQoKT2JzZXJ2YWJsZRIgCgxDcmVhdGVkRXZlbnQYASABKAsyCi5F",
-            "dmVudEluZm8SHgoWSW5zdHJ1bWVudGF0aW9uUG9pbnRJZBgCIAEoBRIZChFJ",
-            "bnB1dE9ic2VydmFibGVJZBgEIAMoAyJBCg5TdWJzY3JpYmVFdmVudBIZCgVF",
-            "dmVudBgBIAEoCzIKLkV2ZW50SW5mbxIUCgxPYnNlcnZhYmxlSWQYAiABKAMi",
-            "RQoQVW5zdWJzY3JpYmVFdmVudBIZCgVFdmVudBgBIAEoCzIKLkV2ZW50SW5m",
-            "bxIWCg5TdWJzY3JpcHRpb25JZBgCIAEoAyJACgtPbk5leHRFdmVudBIZCgVF",
-            "dmVudBgBIAEoCzIKLkV2ZW50SW5mbxIWCg5TdWJzY3JpcHRpb25JZBgCIAEo",
-            "AyJFChBPbkNvbXBsZXRlZEV2ZW50EhkKBUV2ZW50GAEgASgLMgouRXZlbnRJ",
-            "bmZvEhYKDlN1YnNjcmlwdGlvbklkGAIgASgDIlIKDE9uRXJyb3JFdmVudBIZ",
-            "CgVFdmVudBgBIAEoCzIKLkV2ZW50SW5mbxIWCg5TdWJzY3JpcHRpb25JZBgC",
-            "IAEoAxIPCgdNZXNzYWdlGAMgASgJIkQKCUV2ZW50SW5mbxISCgpTZXF1ZW5j",
-            "ZUlkGAEgASgDEhEKCVRpbWVzdGFtcBgCIAEoAxIQCghUaHJlYWRJZBgDIAEo",
-            "BSLJAQoOUmVxdWVzdE1lc3NhZ2USRgoZU2VuZEluc3RydW1lbnRhdGlvbkV2",
-            "ZW50cxgBIAEoCzIhLlNlbmRJbnN0cnVtZW50YXRpb25FdmVudHNSZXF1ZXN0",
-            "SAASMgoPU3RhcnRNb25pdG9yaW5nGAIgASgLMhcuU3RhcnRNb25pdG9yaW5n",
-            "UmVxdWVzdEgAEjAKDlN0b3BNb25pdG9yaW5nGAMgASgLMhYuU3RvcE1vbml0",
-            "b3JpbmdSZXF1ZXN0SABCCQoHUmVxdWVzdCIiCiBTZW5kSW5zdHJ1bWVudGF0",
-            "aW9uRXZlbnRzUmVxdWVzdCI4ChZTdGFydE1vbml0b3JpbmdSZXF1ZXN0Eh4K",
-            "Fkluc3RydW1lbnRhdGlvblBvaW50SWQYASADKAUiNwoVU3RvcE1vbml0b3Jp",
-            "bmdSZXF1ZXN0Eh4KFkluc3RydW1lbnRhdGlvblBvaW50SWQYAiADKAVCHqoC",
-            "G1JlYWN0aXZpdHlQcm9maWxlci5Qcm90b2NvbGIGcHJvdG8z"));
+            "ZENhbGxJbnN0cnVtZW50ZWRFdmVudEgAEjQKEU9ic2VydmFibGVDcmVhdGVk",
+            "GAMgASgLMhcuT2JzZXJ2YWJsZUNyZWF0ZWRFdmVudEgAEiQKCVN1YnNjcmli",
+            "ZRgEIAEoCzIPLlN1YnNjcmliZUV2ZW50SAASKAoLVW5zdWJzY3JpYmUYBSAB",
+            "KAsyES5VbnN1YnNjcmliZUV2ZW50SAASHgoGT25OZXh0GAYgASgLMgwuT25O",
+            "ZXh0RXZlbnRIABIoCgtPbkNvbXBsZXRlZBgHIAEoCzIRLk9uQ29tcGxldGVk",
+            "RXZlbnRIABIgCgdPbkVycm9yGAggASgLMg0uT25FcnJvckV2ZW50SABCBwoF",
+            "RXZlbnQiMwoRTW9kdWxlTG9hZGVkRXZlbnQSEAoITW9kdWxlSUQYASABKAQS",
+            "DAoEUGF0aBgCIAEoCSLOAQobTWV0aG9kQ2FsbEluc3RydW1lbnRlZEV2ZW50",
+            "Eh4KFkluc3RydW1lbnRhdGlvblBvaW50SWQYASABKAUSEAoITW9kdWxlSWQY",
+            "AiABKAQSFQoNRnVuY3Rpb25Ub2tlbhgDIAEoDRIZChFJbnN0cnVjdGlvbk9m",
+            "ZnNldBgEIAEoBRIYChBDYWxsZWRNZXRob2ROYW1lGAUgASgJEhYKDk93bmlu",
+            "Z1R5cGVOYW1lGAYgASgJEhkKEUNhbGxpbmdNZXRob2ROYW1lGAcgASgJInUK",
+            "Fk9ic2VydmFibGVDcmVhdGVkRXZlbnQSIAoMQ3JlYXRlZEV2ZW50GAEgASgL",
+            "MgouRXZlbnRJbmZvEh4KFkluc3RydW1lbnRhdGlvblBvaW50SWQYAiABKAUS",
+            "GQoRSW5wdXRPYnNlcnZhYmxlSWQYBCADKAMiQQoOU3Vic2NyaWJlRXZlbnQS",
+            "GQoFRXZlbnQYASABKAsyCi5FdmVudEluZm8SFAoMT2JzZXJ2YWJsZUlkGAIg",
+            "ASgDIkUKEFVuc3Vic2NyaWJlRXZlbnQSGQoFRXZlbnQYASABKAsyCi5FdmVu",
+            "dEluZm8SFgoOU3Vic2NyaXB0aW9uSWQYAiABKAMiQAoLT25OZXh0RXZlbnQS",
+            "GQoFRXZlbnQYASABKAsyCi5FdmVudEluZm8SFgoOU3Vic2NyaXB0aW9uSWQY",
+            "AiABKAMiRQoQT25Db21wbGV0ZWRFdmVudBIZCgVFdmVudBgBIAEoCzIKLkV2",
+            "ZW50SW5mbxIWCg5TdWJzY3JpcHRpb25JZBgCIAEoAyJSCgxPbkVycm9yRXZl",
+            "bnQSGQoFRXZlbnQYASABKAsyCi5FdmVudEluZm8SFgoOU3Vic2NyaXB0aW9u",
+            "SWQYAiABKAMSDwoHTWVzc2FnZRgDIAEoCSJECglFdmVudEluZm8SEgoKU2Vx",
+            "dWVuY2VJZBgBIAEoAxIRCglUaW1lc3RhbXAYAiABKAMSEAoIVGhyZWFkSWQY",
+            "AyABKAUiyQEKDlJlcXVlc3RNZXNzYWdlEkYKGVNlbmRJbnN0cnVtZW50YXRp",
+            "b25FdmVudHMYASABKAsyIS5TZW5kSW5zdHJ1bWVudGF0aW9uRXZlbnRzUmVx",
+            "dWVzdEgAEjIKD1N0YXJ0TW9uaXRvcmluZxgCIAEoCzIXLlN0YXJ0TW9uaXRv",
+            "cmluZ1JlcXVlc3RIABIwCg5TdG9wTW9uaXRvcmluZxgDIAEoCzIWLlN0b3BN",
+            "b25pdG9yaW5nUmVxdWVzdEgAQgkKB1JlcXVlc3QiIgogU2VuZEluc3RydW1l",
+            "bnRhdGlvbkV2ZW50c1JlcXVlc3QiOAoWU3RhcnRNb25pdG9yaW5nUmVxdWVz",
+            "dBIeChZJbnN0cnVtZW50YXRpb25Qb2ludElkGAEgAygFIjcKFVN0b3BNb25p",
+            "dG9yaW5nUmVxdWVzdBIeChZJbnN0cnVtZW50YXRpb25Qb2ludElkGAIgAygF",
+            "Qh6qAhtSZWFjdGl2aXR5UHJvZmlsZXIuUHJvdG9jb2xiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.EventMessage), global::ReactivityProfiler.Protocol.EventMessage.Parser, new[]{ "ModuleLoaded", "MethodCallInstrumented", "ObservableChain", "Subscribe", "Unsubscribe", "OnNext", "OnCompleted", "OnError" }, new[]{ "Event" }, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.EventMessage), global::ReactivityProfiler.Protocol.EventMessage.Parser, new[]{ "ModuleLoaded", "MethodCallInstrumented", "ObservableCreated", "Subscribe", "Unsubscribe", "OnNext", "OnCompleted", "OnError" }, new[]{ "Event" }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.ModuleLoadedEvent), global::ReactivityProfiler.Protocol.ModuleLoadedEvent.Parser, new[]{ "ModuleID", "Path" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.MethodCallInstrumentedEvent), global::ReactivityProfiler.Protocol.MethodCallInstrumentedEvent.Parser, new[]{ "InstrumentationPointId", "ModuleId", "FunctionToken", "InstructionOffset", "CalledMethodName", "OwningTypeName", "CallingMethodName" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.ObservableChainEvent), global::ReactivityProfiler.Protocol.ObservableChainEvent.Parser, new[]{ "Observable" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.Observable), global::ReactivityProfiler.Protocol.Observable.Parser, new[]{ "CreatedEvent", "InstrumentationPointId", "InputObservableId" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.ObservableCreatedEvent), global::ReactivityProfiler.Protocol.ObservableCreatedEvent.Parser, new[]{ "CreatedEvent", "InstrumentationPointId", "InputObservableId" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.SubscribeEvent), global::ReactivityProfiler.Protocol.SubscribeEvent.Parser, new[]{ "Event", "ObservableId" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.UnsubscribeEvent), global::ReactivityProfiler.Protocol.UnsubscribeEvent.Parser, new[]{ "Event", "SubscriptionId" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.OnNextEvent), global::ReactivityProfiler.Protocol.OnNextEvent.Parser, new[]{ "Event", "SubscriptionId" }, null, null, null),
@@ -117,8 +115,8 @@ namespace ReactivityProfiler.Protocol {
         case EventOneofCase.MethodCallInstrumented:
           MethodCallInstrumented = other.MethodCallInstrumented.Clone();
           break;
-        case EventOneofCase.ObservableChain:
-          ObservableChain = other.ObservableChain.Clone();
+        case EventOneofCase.ObservableCreated:
+          ObservableCreated = other.ObservableCreated.Clone();
           break;
         case EventOneofCase.Subscribe:
           Subscribe = other.Subscribe.Clone();
@@ -167,14 +165,14 @@ namespace ReactivityProfiler.Protocol {
       }
     }
 
-    /// <summary>Field number for the "ObservableChain" field.</summary>
-    public const int ObservableChainFieldNumber = 3;
+    /// <summary>Field number for the "ObservableCreated" field.</summary>
+    public const int ObservableCreatedFieldNumber = 3;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::ReactivityProfiler.Protocol.ObservableChainEvent ObservableChain {
-      get { return eventCase_ == EventOneofCase.ObservableChain ? (global::ReactivityProfiler.Protocol.ObservableChainEvent) event_ : null; }
+    public global::ReactivityProfiler.Protocol.ObservableCreatedEvent ObservableCreated {
+      get { return eventCase_ == EventOneofCase.ObservableCreated ? (global::ReactivityProfiler.Protocol.ObservableCreatedEvent) event_ : null; }
       set {
         event_ = value;
-        eventCase_ = value == null ? EventOneofCase.None : EventOneofCase.ObservableChain;
+        eventCase_ = value == null ? EventOneofCase.None : EventOneofCase.ObservableCreated;
       }
     }
 
@@ -239,7 +237,7 @@ namespace ReactivityProfiler.Protocol {
       None = 0,
       ModuleLoaded = 1,
       MethodCallInstrumented = 2,
-      ObservableChain = 3,
+      ObservableCreated = 3,
       Subscribe = 4,
       Unsubscribe = 5,
       OnNext = 6,
@@ -273,7 +271,7 @@ namespace ReactivityProfiler.Protocol {
       }
       if (!object.Equals(ModuleLoaded, other.ModuleLoaded)) return false;
       if (!object.Equals(MethodCallInstrumented, other.MethodCallInstrumented)) return false;
-      if (!object.Equals(ObservableChain, other.ObservableChain)) return false;
+      if (!object.Equals(ObservableCreated, other.ObservableCreated)) return false;
       if (!object.Equals(Subscribe, other.Subscribe)) return false;
       if (!object.Equals(Unsubscribe, other.Unsubscribe)) return false;
       if (!object.Equals(OnNext, other.OnNext)) return false;
@@ -288,7 +286,7 @@ namespace ReactivityProfiler.Protocol {
       int hash = 1;
       if (eventCase_ == EventOneofCase.ModuleLoaded) hash ^= ModuleLoaded.GetHashCode();
       if (eventCase_ == EventOneofCase.MethodCallInstrumented) hash ^= MethodCallInstrumented.GetHashCode();
-      if (eventCase_ == EventOneofCase.ObservableChain) hash ^= ObservableChain.GetHashCode();
+      if (eventCase_ == EventOneofCase.ObservableCreated) hash ^= ObservableCreated.GetHashCode();
       if (eventCase_ == EventOneofCase.Subscribe) hash ^= Subscribe.GetHashCode();
       if (eventCase_ == EventOneofCase.Unsubscribe) hash ^= Unsubscribe.GetHashCode();
       if (eventCase_ == EventOneofCase.OnNext) hash ^= OnNext.GetHashCode();
@@ -316,9 +314,9 @@ namespace ReactivityProfiler.Protocol {
         output.WriteRawTag(18);
         output.WriteMessage(MethodCallInstrumented);
       }
-      if (eventCase_ == EventOneofCase.ObservableChain) {
+      if (eventCase_ == EventOneofCase.ObservableCreated) {
         output.WriteRawTag(26);
-        output.WriteMessage(ObservableChain);
+        output.WriteMessage(ObservableCreated);
       }
       if (eventCase_ == EventOneofCase.Subscribe) {
         output.WriteRawTag(34);
@@ -354,8 +352,8 @@ namespace ReactivityProfiler.Protocol {
       if (eventCase_ == EventOneofCase.MethodCallInstrumented) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(MethodCallInstrumented);
       }
-      if (eventCase_ == EventOneofCase.ObservableChain) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(ObservableChain);
+      if (eventCase_ == EventOneofCase.ObservableCreated) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(ObservableCreated);
       }
       if (eventCase_ == EventOneofCase.Subscribe) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Subscribe);
@@ -396,11 +394,11 @@ namespace ReactivityProfiler.Protocol {
           }
           MethodCallInstrumented.MergeFrom(other.MethodCallInstrumented);
           break;
-        case EventOneofCase.ObservableChain:
-          if (ObservableChain == null) {
-            ObservableChain = new global::ReactivityProfiler.Protocol.ObservableChainEvent();
+        case EventOneofCase.ObservableCreated:
+          if (ObservableCreated == null) {
+            ObservableCreated = new global::ReactivityProfiler.Protocol.ObservableCreatedEvent();
           }
-          ObservableChain.MergeFrom(other.ObservableChain);
+          ObservableCreated.MergeFrom(other.ObservableCreated);
           break;
         case EventOneofCase.Subscribe:
           if (Subscribe == null) {
@@ -464,12 +462,12 @@ namespace ReactivityProfiler.Protocol {
             break;
           }
           case 26: {
-            global::ReactivityProfiler.Protocol.ObservableChainEvent subBuilder = new global::ReactivityProfiler.Protocol.ObservableChainEvent();
-            if (eventCase_ == EventOneofCase.ObservableChain) {
-              subBuilder.MergeFrom(ObservableChain);
+            global::ReactivityProfiler.Protocol.ObservableCreatedEvent subBuilder = new global::ReactivityProfiler.Protocol.ObservableCreatedEvent();
+            if (eventCase_ == EventOneofCase.ObservableCreated) {
+              subBuilder.MergeFrom(ObservableCreated);
             }
             input.ReadMessage(subBuilder);
-            ObservableChain = subBuilder;
+            ObservableCreated = subBuilder;
             break;
           }
           case 34: {
@@ -977,11 +975,14 @@ namespace ReactivityProfiler.Protocol {
 
   }
 
-  public sealed partial class ObservableChainEvent : pb::IMessage<ObservableChainEvent> {
-    private static readonly pb::MessageParser<ObservableChainEvent> _parser = new pb::MessageParser<ObservableChainEvent>(() => new ObservableChainEvent());
+  /// <summary>
+  /// Observable's ID is CreatedEvent.SequenceId
+  /// </summary>
+  public sealed partial class ObservableCreatedEvent : pb::IMessage<ObservableCreatedEvent> {
+    private static readonly pb::MessageParser<ObservableCreatedEvent> _parser = new pb::MessageParser<ObservableCreatedEvent>(() => new ObservableCreatedEvent());
     private pb::UnknownFieldSet _unknownFields;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static pb::MessageParser<ObservableChainEvent> Parser { get { return _parser; } }
+    public static pb::MessageParser<ObservableCreatedEvent> Parser { get { return _parser; } }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
@@ -994,141 +995,14 @@ namespace ReactivityProfiler.Protocol {
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public ObservableChainEvent() {
+    public ObservableCreatedEvent() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public ObservableChainEvent(ObservableChainEvent other) : this() {
-      observable_ = other.observable_.Clone();
-      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public ObservableChainEvent Clone() {
-      return new ObservableChainEvent(this);
-    }
-
-    /// <summary>Field number for the "Observable" field.</summary>
-    public const int ObservableFieldNumber = 1;
-    private static readonly pb::FieldCodec<global::ReactivityProfiler.Protocol.Observable> _repeated_observable_codec
-        = pb::FieldCodec.ForMessage(10, global::ReactivityProfiler.Protocol.Observable.Parser);
-    private readonly pbc::RepeatedField<global::ReactivityProfiler.Protocol.Observable> observable_ = new pbc::RepeatedField<global::ReactivityProfiler.Protocol.Observable>();
-    /// <summary>
-    /// First observable is the one being monitored
-    /// </summary>
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public pbc::RepeatedField<global::ReactivityProfiler.Protocol.Observable> Observable {
-      get { return observable_; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override bool Equals(object other) {
-      return Equals(other as ObservableChainEvent);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public bool Equals(ObservableChainEvent other) {
-      if (ReferenceEquals(other, null)) {
-        return false;
-      }
-      if (ReferenceEquals(other, this)) {
-        return true;
-      }
-      if(!observable_.Equals(other.observable_)) return false;
-      return Equals(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override int GetHashCode() {
-      int hash = 1;
-      hash ^= observable_.GetHashCode();
-      if (_unknownFields != null) {
-        hash ^= _unknownFields.GetHashCode();
-      }
-      return hash;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public override string ToString() {
-      return pb::JsonFormatter.ToDiagnosticString(this);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void WriteTo(pb::CodedOutputStream output) {
-      observable_.WriteTo(output, _repeated_observable_codec);
-      if (_unknownFields != null) {
-        _unknownFields.WriteTo(output);
-      }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public int CalculateSize() {
-      int size = 0;
-      size += observable_.CalculateSize(_repeated_observable_codec);
-      if (_unknownFields != null) {
-        size += _unknownFields.CalculateSize();
-      }
-      return size;
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(ObservableChainEvent other) {
-      if (other == null) {
-        return;
-      }
-      observable_.Add(other.observable_);
-      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(pb::CodedInputStream input) {
-      uint tag;
-      while ((tag = input.ReadTag()) != 0) {
-        switch(tag) {
-          default:
-            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
-            break;
-          case 10: {
-            observable_.AddEntriesFrom(input, _repeated_observable_codec);
-            break;
-          }
-        }
-      }
-    }
-
-  }
-
-  /// <summary>
-  /// Observable's ID is CreatedEvent.SequenceId
-  /// </summary>
-  public sealed partial class Observable : pb::IMessage<Observable> {
-    private static readonly pb::MessageParser<Observable> _parser = new pb::MessageParser<Observable>(() => new Observable());
-    private pb::UnknownFieldSet _unknownFields;
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static pb::MessageParser<Observable> Parser { get { return _parser; } }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[4]; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    pbr::MessageDescriptor pb::IMessage.Descriptor {
-      get { return Descriptor; }
-    }
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public Observable() {
-      OnConstruction();
-    }
-
-    partial void OnConstruction();
-
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public Observable(Observable other) : this() {
+    public ObservableCreatedEvent(ObservableCreatedEvent other) : this() {
       createdEvent_ = other.createdEvent_ != null ? other.createdEvent_.Clone() : null;
       instrumentationPointId_ = other.instrumentationPointId_;
       inputObservableId_ = other.inputObservableId_.Clone();
@@ -1136,8 +1010,8 @@ namespace ReactivityProfiler.Protocol {
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public Observable Clone() {
-      return new Observable(this);
+    public ObservableCreatedEvent Clone() {
+      return new ObservableCreatedEvent(this);
     }
 
     /// <summary>Field number for the "CreatedEvent" field.</summary>
@@ -1174,11 +1048,11 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
-      return Equals(other as Observable);
+      return Equals(other as ObservableCreatedEvent);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public bool Equals(Observable other) {
+    public bool Equals(ObservableCreatedEvent other) {
       if (ReferenceEquals(other, null)) {
         return false;
       }
@@ -1241,7 +1115,7 @@ namespace ReactivityProfiler.Protocol {
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public void MergeFrom(Observable other) {
+    public void MergeFrom(ObservableCreatedEvent other) {
       if (other == null) {
         return;
       }
@@ -1299,7 +1173,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[5]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[4]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1462,7 +1336,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[6]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[5]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1628,7 +1502,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[7]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[6]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1794,7 +1668,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[8]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[7]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1960,7 +1834,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[9]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[8]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2154,7 +2028,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[10]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[9]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2339,7 +2213,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[11]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[10]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2582,7 +2456,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[12]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[11]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2683,7 +2557,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[13]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[12]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2805,7 +2679,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[14]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[13]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]

@@ -10,6 +10,9 @@ namespace ReactivityProfiler.Support.Store
     /// </summary>
     internal sealed class ObservableInfo
     {
+        private static int sCurrentMonitoringRevision;
+        private int mMonitoringRevision = -1;
+
         public ObservableInfo(int instrumentationPoint, IReadOnlyList<ObservableInfo> inputs)
         {
             Details = CommonEventDetails.Capture();
@@ -22,6 +25,25 @@ namespace ReactivityProfiler.Support.Store
         public IReadOnlyList<ObservableInfo> Inputs { get; }
         public CommonEventDetails Details { get; }
 
-        public bool Monitoring { get; set; }
+        public bool Monitoring
+        {
+            get => mMonitoringRevision == sCurrentMonitoringRevision;
+            set
+            {
+                if (value)
+                {
+                    mMonitoringRevision = sCurrentMonitoringRevision;
+                }
+                else
+                {
+                    mMonitoringRevision = -1;
+                }
+            }
+        }
+
+        public static void StopMonitoringAll()
+        {
+            sCurrentMonitoringRevision++;
+        }
     }
 }

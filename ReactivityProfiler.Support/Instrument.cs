@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Text;
 using System.Threading;
 
@@ -77,10 +78,14 @@ namespace ReactivityProfiler.Support
         /// </summary>
         public static IObservable<T> Argument<T>(IObservable<T> observable, int instrumentationPoint)
         {
-            Trace.WriteLine($"Argument(X, {instrumentationPoint})");
             if (observable is InstrumentedObservable<T> instrumented)
             {
+                Trace.WriteLine($"{instrumentationPoint}: Argument({instrumented.Info.ObservableId})");
                 sTracker.Value.AddInfo(instrumentationPoint, instrumented.Info);
+            }
+            else
+            {
+                Trace.WriteLine($"{instrumentationPoint}: Argument(?)");
             }
             return observable;
         }
@@ -90,7 +95,7 @@ namespace ReactivityProfiler.Support
         /// </summary>
         public static void Calling(int instrumentationPoint)
         {
-            Trace.WriteLine($"Calling({instrumentationPoint})");
+            Trace.WriteLine($"{instrumentationPoint}: Calling");
             sTracker.Value.Calling(instrumentationPoint);
         }
 
@@ -111,11 +116,10 @@ namespace ReactivityProfiler.Support
                 return observable;
             }
 
-            Trace.WriteLine($"Returned({instrumentationPoint})");
-
             var inputs = sTracker.Value.Returned(instrumentationPoint);
-
             var obsInfo = new ObservableInfo(instrumentationPoint, inputs);
+            Trace.WriteLine($"{instrumentationPoint}: Returned({obsInfo.ObservableId} <- {string.Join(", ", inputs.Select(x => x.ObservableId))})");
+
             Services.Store.NotifyObservableCreated(obsInfo);
             return new InstrumentedObservable<T>(observable, obsInfo);
         }

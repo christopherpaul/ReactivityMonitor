@@ -5,7 +5,7 @@ message EventMessage {
 	oneof Event {
 		ModuleLoadedEvent ModuleLoaded = 1;
 		MethodCallInstrumentedEvent MethodCallInstrumented = 2;
-		ObservableChainEvent ObservableChain = 3;
+		ObservableCreatedEvent ObservableCreated = 3;
 		SubscribeEvent Subscribe = 4;
 		UnsubscribeEvent Unsubscribe = 5;
 		OnNextEvent OnNext = 6;
@@ -29,13 +29,8 @@ message MethodCallInstrumentedEvent {
 	string CallingMethodName = 7;
 }
 
-message ObservableChainEvent {
-	// First observable is the one being monitored
-	repeated Observable Observable = 1;
-}
-
 // Observable's ID is CreatedEvent.SequenceId
-message Observable {
+message ObservableCreatedEvent {
 	EventInfo CreatedEvent = 1;
 	int32 InstrumentationPointId = 2;
 	repeated int64 InputObservableId = 4;

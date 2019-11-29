@@ -82,27 +82,31 @@ namespace ReactivityProfiler.Support.Store
 
             public void StopMonitoringAll()
             {
-                foreach (var instrumentationPoint in mMonitoredInstrumentationPoints.Keys)
-                {
-                    var obses = new HashSet<long>();
-                    foreach (var sub in Subscriptions.GetSubs(instrumentationPoint))
-                    {
-                        if (obses.Add(sub.Observable.ObservableId))
-                        {
-                            UnmonitorChain(sub.Observable);
-                        }
-                    }
-                }
-
                 mMonitoredInstrumentationPoints.Clear();
+                ObservableInfo.StopMonitoringAll();
             }
 
-            public void ObservableCreated(ObservableInfo obs)
+            public void ObservableCreated(ObservableInfo rootObs)
             {
-                if (mMonitoredInstrumentationPoints.ContainsKey(obs.InstrumentationPoint))
+                if (mMonitoredInstrumentationPoints.ContainsKey(rootObs.InstrumentationPoint))
                 {
-                    MonitorChain(obs);
-                    mEventSink?.ObservableCreated(obs);
+                    MonitorChain(rootObs);
+
+                    void MonitorChain(ObservableInfo obs)
+                    {
+                        if (obs.Monitoring)
+                        {
+                            return;
+                        }
+
+                        mEventSink?.ObservableCreated(obs);
+
+                        obs.Monitoring = true;
+                        foreach (var input in obs.Inputs)
+                        {
+                            MonitorChain(input);
+                        }
+                    }
                 }
             }
 
@@ -143,20 +147,6 @@ namespace ReactivityProfiler.Support.Store
                 if (sub.Observable.Monitoring)
                 {
                     mEventSink?.Unsubscribed(ref details, sub);
-                }
-            }
-
-            private void MonitorChain(ObservableInfo observable)
-            {
-                if (observable.Monitoring)
-                {
-                    return;
-                }
-
-                observable.Monitoring = true;
-                foreach (var input in observable.Inputs)
-                {
-                    MonitorChain(input);
                 }
             }
 

@@ -11,6 +11,8 @@ namespace ReactivityMonitor.Model
 
         IObservableCache<IInstrumentedCall, int> InstrumentedCalls { get; }
 
+        IObservableCache<IObservableInstance, long> ObservableInstances { get; }
+
         void StartMonitorCall(int instrumentedCallId);
         void StopMonitorCall(int instrumentedCallId);
     }

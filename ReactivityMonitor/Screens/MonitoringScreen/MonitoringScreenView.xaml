@@ -7,12 +7,15 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <ListView ItemsSource="{Binding MonitoredCalls}">
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding Title, Mode=OneTime}" />
-                </DataTemplate>
-            </ListView.ItemTemplate>
+        <ListView ItemsSource="{Binding Items}">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Seq" DisplayMemberBinding="{Binding SequenceId}" />
+                    <GridViewColumn Header="Time" DisplayMemberBinding="{Binding Timestamp}" />
+                    <GridViewColumn Header="Thread" DisplayMemberBinding="{Binding ThreadId}" />
+                    <GridViewColumn Header="Method" DisplayMemberBinding="{Binding MethodName}" />
+                </GridView>
+            </ListView.View>
         </ListView>
     </Grid>
 </UserControl>

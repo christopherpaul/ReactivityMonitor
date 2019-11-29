@@ -82,21 +82,48 @@ namespace ReactivityMonitor.ProfilerClient
             switch (msg.EventCase)
             {
                 case ModuleLoaded:
-                    mModelUpdater.AddModule(
-                        msg.ModuleLoaded.ModuleID,
-                        msg.ModuleLoaded.Path);
+                    OnModuleLoaded(msg.ModuleLoaded);
                     break;
 
                 case MethodCallInstrumented:
-                    mModelUpdater.AddInstrumentedCall(
-                        msg.MethodCallInstrumented.InstrumentationPointId,
-                        msg.MethodCallInstrumented.ModuleId,
-                        msg.MethodCallInstrumented.OwningTypeName,
-                        msg.MethodCallInstrumented.CallingMethodName,
-                        msg.MethodCallInstrumented.CalledMethodName,
-                        msg.MethodCallInstrumented.InstructionOffset);
+                    OnMethodCallInstrumented(msg.MethodCallInstrumented);
+                    break;
+
+                case ObservableCreated:
+                    OnObservableChain(msg.ObservableCreated);
                     break;
             }
+        }
+
+        private void OnModuleLoaded(Protocol.ModuleLoadedEvent e)
+        {
+            mModelUpdater.AddModule(e.ModuleID, e.Path);
+        }
+
+        private void OnMethodCallInstrumented(Protocol.MethodCallInstrumentedEvent e)
+        {
+            mModelUpdater.AddInstrumentedCall(
+                e.InstrumentationPointId,
+                e.ModuleId,
+                e.OwningTypeName,
+                e.CallingMethodName,
+                e.CalledMethodName,
+                e.InstructionOffset);
+        }
+
+        private void OnObservableChain(Protocol.ObservableCreatedEvent e)
+        {
+            mModelUpdater.AddObservableInstance(GetEventInfo(e.CreatedEvent), e.InstrumentationPointId);
+
+            foreach (var inputObsId in e.InputObservableId)
+            {
+                mModelUpdater.RelateObservableInstances(inputObsId, e.CreatedEvent.SequenceId);
+            }
+        }
+
+        private EventInfo GetEventInfo(Protocol.EventInfo info)
+        {
+            return new EventInfo(info.SequenceId, new DateTime(info.Timestamp, DateTimeKind.Utc), info.ThreadId);
         }
 
         private void SendRequest(Protocol.RequestMessage msg)

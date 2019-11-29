@@ -8,5 +8,7 @@ namespace ReactivityMonitor.Model
     {
         void AddModule(ulong id, string path);
         void AddInstrumentedCall(int id, ulong moduleId, string callingType, string callingMethod, string calledMethod, int instructionOffset);
+        void AddObservableInstance(EventInfo created, int instrumentationPoint);
+        void RelateObservableInstances(long inputObsId, long outputObsId);
     }
 }

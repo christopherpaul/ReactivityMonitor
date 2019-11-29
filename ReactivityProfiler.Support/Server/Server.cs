@@ -161,26 +161,14 @@ namespace ReactivityProfiler.Support.Server
 
             void IStoreEventSink.ObservableCreated(ObservableInfo obs)
             {
-                var ev = new ObservableChainEvent();
-                var obses = new HashSet<long>();
-
-                AddChain(obs);
-                SendEvent(new EventMessage { ObservableChain = ev });
-
-                void AddChain(ObservableInfo o)
+                var ev = new ObservableCreatedEvent()
                 {
-                    if (obses.Add(o.ObservableId))
-                    {
-                        var obsPart = new Observable
-                        {
-                            CreatedEvent = GetEventInfo(o.Details),
-                            InstrumentationPointId = o.InstrumentationPoint
-                        };
-                        obsPart.InputObservableId.Add(o.Inputs.Select(i => i.ObservableId));
+                    CreatedEvent = GetEventInfo(obs.Details),
+                    InstrumentationPointId = obs.InstrumentationPoint
+                };
+                ev.InputObservableId.Add(obs.Inputs.Select(i => i.ObservableId));
 
-                        ev.Observable.Add(obsPart);
-                    }
-                }
+                SendEvent(new EventMessage { ObservableCreated = ev });
             }
 
             void IStoreEventSink.Subscribed(SubscriptionInfo sub)
