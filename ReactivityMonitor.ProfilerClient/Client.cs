@@ -92,7 +92,52 @@ namespace ReactivityMonitor.ProfilerClient
                 case ObservableCreated:
                     OnObservableChain(msg.ObservableCreated);
                     break;
+
+                case Subscribe:
+                    OnSubscribe(msg.Subscribe);
+                    break;
+
+                case Unsubscribe:
+                    OnUnsubscribe(msg.Unsubscribe);
+                    break;
+
+                case OnNext:
+                    OnOnNext(msg.OnNext);
+                    break;
+
+                case OnCompleted:
+                    OnOnCompleted(msg.OnCompleted);
+                    break;
+
+                case OnError:
+                    OnOnError(msg.OnError);
+                    break;
             }
+        }
+
+        private void OnOnError(Protocol.OnErrorEvent onError)
+        {
+            mModelUpdater.AddOnError(GetEventInfo(onError.Event), onError.SubscriptionId, onError.Message);
+        }
+
+        private void OnOnCompleted(Protocol.OnCompletedEvent onCompleted)
+        {
+            mModelUpdater.AddOnCompleted(GetEventInfo(onCompleted.Event), onCompleted.SubscriptionId);
+        }
+
+        private void OnOnNext(Protocol.OnNextEvent onNext)
+        {
+            mModelUpdater.AddOnNext(GetEventInfo(onNext.Event), onNext.SubscriptionId);
+        }
+
+        private void OnUnsubscribe(Protocol.UnsubscribeEvent unsubscribe)
+        {
+            mModelUpdater.AddUnsubscription(GetEventInfo(unsubscribe.Event), unsubscribe.SubscriptionId);
+        }
+
+        private void OnSubscribe(Protocol.SubscribeEvent subscribe)
+        {
+            mModelUpdater.AddSubscription(GetEventInfo(subscribe.Event), subscribe.ObservableId);
         }
 
         private void OnModuleLoaded(Protocol.ModuleLoadedEvent e)

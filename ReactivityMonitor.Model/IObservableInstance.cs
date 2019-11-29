@@ -10,6 +10,12 @@ namespace ReactivityMonitor.Model
         EventInfo Created { get; }
         long ObservableId { get; }
         IInstrumentedCall Call { get; }
-        IObservable<IChangeSet<IObservableInstance>> Inputs { get; }
+        IObservable<IObservableInstance> Inputs { get; }
+
+        /// <summary>
+        /// All subscriptions that (have) been made to this observable instance. This is a
+        /// cold observable.
+        /// </summary>
+        IObservable<ISubscription> Subscriptions { get; }
     }
 }

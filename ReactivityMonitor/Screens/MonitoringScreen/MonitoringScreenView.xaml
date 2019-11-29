@@ -6,16 +6,25 @@
              xmlns:local="clr-namespace:ReactivityMonitor.Screens.MonitoringScreen"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <ListView ItemsSource="{Binding Items}">
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Header="Seq" DisplayMemberBinding="{Binding SequenceId}" />
-                    <GridViewColumn Header="Time" DisplayMemberBinding="{Binding Timestamp}" />
-                    <GridViewColumn Header="Thread" DisplayMemberBinding="{Binding ThreadId}" />
-                    <GridViewColumn Header="Method" DisplayMemberBinding="{Binding MethodName}" />
-                </GridView>
-            </ListView.View>
-        </ListView>
-    </Grid>
+    <ItemsControl ItemsSource="{Binding Items}">
+        <ItemsControl.ItemTemplate>
+            <DataTemplate>
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock FontWeight="Bold">
+                                    <Run Text="{Binding SequenceId, Mode=OneTime}" />: <Run Text="{Binding MethodName, Mode=OneTime}" /> [created <Run Text="{Binding Timestamp, Mode=OneTime}" /> on thread <Run Text="{Binding ThreadId, Mode=OneTime}" />]
+                        </TextBlock>
+                    </StackPanel>
+
+                    <ItemsControl ItemsSource="{Binding SubItems}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock>Placeholder</TextBlock>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>    
+            </DataTemplate>
+        </ItemsControl.ItemTemplate>
+    </ItemsControl>
 </UserControl>

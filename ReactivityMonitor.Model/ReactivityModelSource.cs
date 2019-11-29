@@ -3,7 +3,9 @@ using ReactivityMonitor.Model.Extensions;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Text;
 
 namespace ReactivityMonitor.Model
@@ -16,7 +18,10 @@ namespace ReactivityMonitor.Model
         private readonly ISourceCache<IModule, ulong> mModules;
         private readonly ISourceCache<IInstrumentedCall, int> mInstrumentedCalls;
         private readonly ISourceCache<IObservableInstance, long> mObservableInstances;
-        private readonly ConcurrentDictionary<long, ISourceCache<long, long>> mObservableInputs;
+        private readonly ISourceCache<ISubscription, long> mSubscriptions;
+        private readonly ConcurrentDictionary<long, ISubject<long>> mObservableInputs;
+        private readonly ConcurrentDictionary<long, ISubject<long>> mObservableSubscriptions;
+        private readonly ConcurrentDictionary<long, ISubject<StreamEvent>> mSubscriptionStreamEvents;
 
         private readonly ISourceCache<int, int> mRequestedInstrumentedCalls;
 
@@ -25,7 +30,10 @@ namespace ReactivityMonitor.Model
             mModules = new SourceCache<IModule, ulong>(m => m.ModuleId);
             mInstrumentedCalls = new SourceCache<IInstrumentedCall, int>(ic => ic.InstrumentedCallId);
             mObservableInstances = new SourceCache<IObservableInstance, long>(obs => obs.ObservableId);
-            mObservableInputs = new ConcurrentDictionary<long, ISourceCache<long, long>>();
+            mSubscriptions = new SourceCache<ISubscription, long>(sub => sub.SubscriptionId);
+            mObservableInputs = new ConcurrentDictionary<long, ISubject<long>>();
+            mObservableSubscriptions = new ConcurrentDictionary<long, ISubject<long>>();
+            mSubscriptionStreamEvents = new ConcurrentDictionary<long, ISubject<StreamEvent>>();
 
             mRequestedInstrumentedCalls = new SourceCache<int, int>(id => id);
 
@@ -38,8 +46,14 @@ namespace ReactivityMonitor.Model
         public IModelUpdater Updater { get; }
         public IProfilerControl ProfilerControl { get; }
 
-        private ISourceCache<long, long> GetInputsCache(long obsId) =>
-            mObservableInputs.GetOrAdd(obsId, _ => new SourceCache<long, long>(id => id));
+        private ISubject<long> GetInputs(long obsId) =>
+            mObservableInputs.GetOrAdd(obsId, _ => new ReplaySubject<long>());
+
+        private ISubject<long> GetSubscriptions(long obsId) =>
+            mObservableSubscriptions.GetOrAdd(obsId, _ => new ReplaySubject<long>());
+
+        private ISubject<StreamEvent> GetStreamEvents(long subId) =>
+            mSubscriptionStreamEvents.GetOrAdd(subId, _ => new ReplaySubject<StreamEvent>());
 
         private sealed class ModelImpl : IReactivityModel
         {
@@ -116,12 +130,16 @@ namespace ReactivityMonitor.Model
                     : AddPlaceholderCall();
 
                 var inputs =
-                    mParent.GetInputsCache(created.SequenceId).Connect()
-                        .MergeMany(inputId => mParent.mObservableInstances.Watch(inputId)
-                            .Select(chg => chg.ToChangeSet()))
-                        .RemoveKey();
+                    mParent.GetInputs(created.SequenceId)
+                        .Distinct()
+                        .SelectMany(inputId => mParent.mObservableInstances.WatchValue(inputId).Take(1));
 
-                var obs = new ObservableInstance(created, instrumentedCall, inputs);
+                var subs =
+                    mParent.GetSubscriptions(created.SequenceId)
+                        .Distinct()
+                        .SelectMany(subId => mParent.mSubscriptions.WatchValue(subId).Take(1));
+
+                var obs = new ObservableInstance(created, instrumentedCall, inputs, subs);
                 mParent.mObservableInstances.AddOrUpdate(obs);
 
                 IInstrumentedCall AddPlaceholderCall()
@@ -132,7 +150,47 @@ namespace ReactivityMonitor.Model
 
             public void RelateObservableInstances(long inputObsId, long outputObsId)
             {
-                mParent.GetInputsCache(outputObsId).AddOrUpdate(inputObsId);
+                mParent.GetInputs(outputObsId).OnNext(inputObsId);
+            }
+
+            public void AddSubscription(EventInfo subscribed, long observableId)
+            {
+                var observableMaybe = mParent.mObservableInstances.Lookup(observableId);
+                if (!observableMaybe.HasValue)
+                {
+                    Trace.TraceWarning("Couldn't find an observable with ID {0}", observableId);
+                    return;
+                }
+
+                var events = mParent.GetStreamEvents(subscribed.SequenceId);
+                events.OnNext(new SubscribeEvent(subscribed));
+
+                var sub = new Subscription(subscribed.SequenceId, observableMaybe.Value, events);
+
+                mParent.mSubscriptions.AddOrUpdate(sub);
+                mParent.GetSubscriptions(observableId).OnNext(sub.SubscriptionId);
+            }
+
+            public void AddOnNext(EventInfo info, long subscriptionId)
+            {
+                mParent.GetStreamEvents(subscriptionId).OnNext(new OnNextEvent(info));
+            }
+
+            public void AddOnCompleted(EventInfo info, long subscriptionId)
+            {
+                mParent.GetStreamEvents(subscriptionId).OnNext(new OnCompletedEvent(info));
+            }
+
+            public void AddOnError(EventInfo info, long subscriptionId, string message)
+            {
+                mParent.GetStreamEvents(subscriptionId).OnNext(new OnErrorEvent(info, message));
+            }
+
+            public void AddUnsubscription(EventInfo info, long subscriptionId)
+            {
+                ISubject<StreamEvent> events = mParent.GetStreamEvents(subscriptionId);
+                events.OnNext(new UnsubscribeEvent(info));
+                events.OnCompleted();
             }
         }
     }

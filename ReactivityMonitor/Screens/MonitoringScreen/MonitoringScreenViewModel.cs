@@ -1,4 +1,5 @@
 ﻿using DynamicData;
+using DynamicData.Binding;
 using ReactivityMonitor.Infrastructure;
 using ReactivityMonitor.Model;
 using ReactivityMonitor.Services;
@@ -8,10 +9,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Data;
 
 namespace ReactivityMonitor.Screens.MonitoringScreen
 {
@@ -22,9 +25,12 @@ namespace ReactivityMonitor.Screens.MonitoringScreen
             WhenActivated(disposables =>
             {
                 Model.ObservableInstances.Connect()
-                    .Transform(obs => new Item(obs))
+                    .Transform(obs => new ObservableItem(obs))
+                    .Sort(SortExpressionComparer<ObservableItem>.Ascending(obs => obs.SequenceId))
                     .ObserveOn(concurrencyService.DispatcherRxScheduler)
                     .Bind(out var observableInstances)
+                    .Transform(obsItem => obsItem.SubscribeToSubscriptions(concurrencyService.DispatcherRxScheduler))
+                    .DisposeMany()
                     .Subscribe()
                     .DisposeWith(disposables);
 
@@ -35,15 +41,18 @@ namespace ReactivityMonitor.Screens.MonitoringScreen
         public IReactivityModel Model { get; set; }
         public IWorkspace Workspace { get; set; }
 
-        public ReadOnlyObservableCollection<Item> Items { get; private set; }
+        public ReadOnlyObservableCollection<ObservableItem> Items { get; private set; }
 
-        public sealed class Item
+        public sealed class ObservableItem
         {
             private readonly IObservableInstance mObs;
+            private readonly ObservableCollection<SubscriptionItem> mSubItems;
 
-            public Item(IObservableInstance obs)
+            public ObservableItem(IObservableInstance obs)
             {
                 mObs = obs;
+                mSubItems = new ObservableCollection<SubscriptionItem>();
+                SubItems = new ReadOnlyObservableCollection<SubscriptionItem>(mSubItems);
             }
 
             public long SequenceId => mObs.Created.SequenceId;
@@ -51,6 +60,26 @@ namespace ReactivityMonitor.Screens.MonitoringScreen
             public long ThreadId => mObs.Created.ThreadId;
 
             public string MethodName => mObs.Call.CalledMethod;
+
+            public IDisposable SubscribeToSubscriptions(IScheduler dispatcherRxScheduler)
+            {
+                return mObs.Subscriptions
+                    .Select(sub => new SubscriptionItem(sub))
+                    .ObserveOn(dispatcherRxScheduler)
+                    .Subscribe(Add);
+            }
+
+            public ReadOnlyObservableCollection<SubscriptionItem> SubItems { get; }
+
+            private void Add(SubscriptionItem sub) => mSubItems.Add(sub);
+        }
+
+        public sealed class SubscriptionItem
+        {
+            public SubscriptionItem(ISubscription sub)
+            {
+
+            }
         }
     }
 }
