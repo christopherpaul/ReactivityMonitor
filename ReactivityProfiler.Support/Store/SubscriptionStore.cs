@@ -13,7 +13,7 @@ namespace ReactivityProfiler.Support.Store
             new ConcurrentDictionary<int, InstrumentationPointSubscriptions>();
         private readonly Func<int, InstrumentationPointSubscriptions> mIpsFactory = _ => new InstrumentationPointSubscriptions();
 
-        public bool TraceEvents { get; set; } = true;
+        public bool TraceEvents { get; set; } = false;
 
         public IStoreEventSink EventSink { get; set; }
 
