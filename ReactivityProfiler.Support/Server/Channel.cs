@@ -9,22 +9,24 @@ using System.Threading;
 
 namespace ReactivityProfiler.Support.Server
 {
-    internal sealed class Channel
+    internal sealed class Channel : IDisposable
     {
         private readonly Action<Stream> mMessageReceivedCallback;
+        private readonly Action mDisconnectedCallback;
         private readonly NamedPipeServerStream mPipeStream;
         private readonly Thread mReaderThread;
         private readonly Thread mWriterThread;
         private readonly BlockingCollection<byte[]> mWriteQueue;
+        private readonly string mPipeName;
 
-        public Channel(Action<Stream> messageReceivedCallback)
+        public Channel(Action<Stream> messageReceivedCallback, Action disconnectedCallback)
         {
             mMessageReceivedCallback = messageReceivedCallback;
-
-            string pipeName = $"{nameof(ReactivityProfiler)}.{Process.GetCurrentProcess().Id}.{Guid.NewGuid():N}";
-            Trace.WriteLine($"Opening pipe: {pipeName}");
+            mDisconnectedCallback = disconnectedCallback;
+            mPipeName = $"{nameof(ReactivityProfiler)}.{Process.GetCurrentProcess().Id}.{Guid.NewGuid():N}";
+            Trace.WriteLine($"Opening pipe: {mPipeName}");
             mPipeStream = new NamedPipeServerStream(
-                pipeName,
+                mPipeName,
                 PipeDirection.InOut,
                 maxNumberOfServerInstances: 1,
                 transmissionMode: PipeTransmissionMode.Message,
@@ -44,14 +46,11 @@ namespace ReactivityProfiler.Support.Server
             mWriterThread = writerThread;
 
             mWriteQueue = new BlockingCollection<byte[]>();
-
-            Registry.SetChannelPipeName(pipeName);
         }
 
         public void Start()
         {
             mReaderThread.Start();
-            mWriterThread.Start();
         }
 
         /// <summary>
@@ -90,18 +89,20 @@ namespace ReactivityProfiler.Support.Server
 
         private void ReceiveMessages()
         {
-            byte[] buffer = new byte[64];
-            while (true)
+            try
             {
-                try
-                {
-                    if (!mPipeStream.IsConnected)
-                    {
-                        Trace.WriteLine("Waiting for client to connect");
-                        mPipeStream.WaitForConnection();
-                        Trace.WriteLine("Client has connected");
-                    }
+                Registry.SetChannelPipeName(mPipeName);
 
+                Trace.WriteLine("Waiting for client to connect");
+                mPipeStream.WaitForConnection();
+                Trace.WriteLine("Client has connected");
+                Registry.ClearChannelPipeName();
+
+                mWriterThread.Start();
+
+                byte[] buffer = new byte[64];
+                while (mPipeStream.IsConnected)
+                {
                     int bufferOffset = 0;
                     do
                     {
@@ -113,21 +114,23 @@ namespace ReactivityProfiler.Support.Server
                         }
 
                         int bytesRead = mPipeStream.Read(buffer, bufferOffset, remainingBufferSize);
+                        Trace.WriteLine($"Pipe read returned with {bytesRead} bytes; IsMessageComplete={mPipeStream.IsMessageComplete}");
                         bufferOffset += bytesRead;
                     }
                     while (!mPipeStream.IsMessageComplete);
 
-                    Trace.WriteLine("Received message from client");
-                    OnMessageReceived(buffer, bufferOffset);
-                }
-                catch (Exception ex)
-                {
-                    Trace.TraceError("Error reading pipe: {0}", ex);
-
-                    // Pause and keep trying
-                    Thread.Sleep(1000);
+                    if (bufferOffset > 0)
+                    {
+                        OnMessageReceived(buffer, bufferOffset);
+                    }
                 }
             }
+            catch (Exception ex)
+            {
+                Trace.TraceError("Error reading pipe: {0}", ex);
+            }
+
+            mDisconnectedCallback();
         }
 
         private void OnMessageReceived(byte[] buffer, int length)
@@ -140,6 +143,12 @@ namespace ReactivityProfiler.Support.Server
             {
                 Trace.TraceError("Error processing message: {0}", ex);
             }
+        }
+
+        public void Dispose()
+        {
+            mWriteQueue.CompleteAdding();
+            mPipeStream.Dispose();
         }
     }
 }

@@ -11,5 +11,6 @@
         void SinkEvents(IStoreEventSink sink);
         void StartMonitoring(int instrumentationPoint);
         void StopMonitoring(int instrumentationPoint);
+        void StopMonitoringAll();
     }
 }

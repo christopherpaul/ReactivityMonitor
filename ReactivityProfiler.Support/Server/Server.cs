@@ -13,21 +13,35 @@ using System.Linq;
 
 namespace ReactivityProfiler.Support.Server
 {
-    internal sealed class Server : IStoreEventSink
+    internal sealed class Server
     {
         private readonly IStore mStore;
-        private readonly Channel mChannel;
+        private Channel mChannel;
 
         public Server(IStore store)
         {
             mStore = store;
-            mChannel = new Channel(OnMessageReceived);
         }
 
         public void Start()
         {
-            mStore.SinkEvents(this);
+            CreateChannel();
+        }
+
+        private void CreateChannel()
+        {
+            mChannel = new Channel(OnMessageReceived, OnChannelDisconnected);
             mChannel.Start();
+            mStore.SinkEvents(new StoreEventSink(mChannel));
+        }
+
+        private void OnChannelDisconnected()
+        {
+            mStore.StopMonitoringAll();
+            mChannel.Dispose();
+            mChannel = null;
+
+            CreateChannel();
         }
 
         private void OnMessageReceived(Stream message)
@@ -59,17 +73,17 @@ namespace ReactivityProfiler.Support.Server
         private void StartSendingInstrumentationEvents()
         {
             Trace.WriteLine("StartSendingInstrumentationEvents");
-            var task = new Task(SendInstrumentationEvents, TaskCreationOptions.LongRunning);
+            var task = new Task(() => SendInstrumentationEvents(mChannel), TaskCreationOptions.LongRunning);
             task.Start();
         }
 
-        private void SendInstrumentationEvents()
+        private void SendInstrumentationEvents(Channel channel)
         {
             Trace.WriteLine("SendInstrumentationEvents");
             try
             {
                 int index = 0;
-                while (mChannel.IsConnected)
+                while (channel.IsConnected)
                 {
                     int eventCount = mStore.Instrumentation.GetEventCount();
                     if (index == eventCount)
@@ -82,7 +96,7 @@ namespace ReactivityProfiler.Support.Server
                     {
                         object e = mStore.Instrumentation.GetEvent(index);
                         EventMessage msg = CreateInstrumentationMessage(e);
-                        SendEvent(msg);
+                        SendEvent(channel, msg);
                         index++;
                     }
                 }
@@ -127,105 +141,120 @@ namespace ReactivityProfiler.Support.Server
             }
         }
 
-        void IStoreEventSink.ObservableCreated(ObservableInfo obs)
+        private static void SendEvent(Channel channel, EventMessage msg)
         {
-            var ev = new ObservableChainEvent();
-            var obses = new HashSet<long>();
-
-            AddChain(obs);
-            SendEvent(new EventMessage { ObservableChain = ev });
-            
-            void AddChain(ObservableInfo o)
+            if (channel != null)
             {
-                if (obses.Add(o.ObservableId))
-                {
-                    var obsPart = new Observable
-                    {
-                        CreatedEvent = GetEventInfo(o.Details),
-                        InstrumentationPointId = o.InstrumentationPoint
-                    };
-                    obsPart.InputObservableId.Add(o.Inputs.Select(i => i.ObservableId));
-
-                    ev.Observable.Add(obsPart);
-                }
+                Trace.WriteLine($"Sending message to client: {msg}");
+                channel.SendMessage(msg.ToByteArray());
             }
         }
 
-        void IStoreEventSink.Subscribed(SubscriptionInfo sub)
+        private sealed class StoreEventSink : IStoreEventSink
         {
-            SendEvent(new EventMessage
+            private readonly Channel mChannel;
+
+            public StoreEventSink(Channel channel)
             {
-                Subscribe = new SubscribeEvent
+                mChannel = channel;
+            }
+
+            void IStoreEventSink.ObservableCreated(ObservableInfo obs)
+            {
+                var ev = new ObservableChainEvent();
+                var obses = new HashSet<long>();
+
+                AddChain(obs);
+                SendEvent(new EventMessage { ObservableChain = ev });
+
+                void AddChain(ObservableInfo o)
                 {
-                    Event = GetEventInfo(sub.Details),
-                    ObservableId = sub.Observable.ObservableId
-                }
-            });
-        }
+                    if (obses.Add(o.ObservableId))
+                    {
+                        var obsPart = new Observable
+                        {
+                            CreatedEvent = GetEventInfo(o.Details),
+                            InstrumentationPointId = o.InstrumentationPoint
+                        };
+                        obsPart.InputObservableId.Add(o.Inputs.Select(i => i.ObservableId));
 
-        void IStoreEventSink.Unsubscribed(ref CommonEventDetails details, SubscriptionInfo sub)
-        {
-            SendEvent(new EventMessage
+                        ev.Observable.Add(obsPart);
+                    }
+                }
+            }
+
+            void IStoreEventSink.Subscribed(SubscriptionInfo sub)
             {
-                Unsubscribe = new UnsubscribeEvent
+                SendEvent(new EventMessage
                 {
-                    Event = GetEventInfo(details),
-                    SubscriptionId = sub.SubscriptionId
-                }
-            });
-        }
+                    Subscribe = new SubscribeEvent
+                    {
+                        Event = GetEventInfo(sub.Details),
+                        ObservableId = sub.Observable.ObservableId
+                    }
+                });
+            }
 
-        void IStoreEventSink.OnNext<T>(ref CommonEventDetails details, SubscriptionInfo sub, T value)
-        {
-            SendEvent(new EventMessage
+            void IStoreEventSink.Unsubscribed(ref CommonEventDetails details, SubscriptionInfo sub)
             {
-                OnNext = new OnNextEvent
+                SendEvent(new EventMessage
                 {
-                    Event = GetEventInfo(details),
-                    SubscriptionId = sub.SubscriptionId
-                }
-            });
-        }
+                    Unsubscribe = new UnsubscribeEvent
+                    {
+                        Event = GetEventInfo(details),
+                        SubscriptionId = sub.SubscriptionId
+                    }
+                });
+            }
 
-        void IStoreEventSink.OnCompleted(ref CommonEventDetails details, SubscriptionInfo sub)
-        {
-            SendEvent(new EventMessage
+            void IStoreEventSink.OnNext<T>(ref CommonEventDetails details, SubscriptionInfo sub, T value)
             {
-                OnCompleted = new OnCompletedEvent
+                SendEvent(new EventMessage
                 {
-                    Event = GetEventInfo(details),
-                    SubscriptionId = sub.SubscriptionId
-                }
-            });
-        }
+                    OnNext = new OnNextEvent
+                    {
+                        Event = GetEventInfo(details),
+                        SubscriptionId = sub.SubscriptionId
+                    }
+                });
+            }
 
-        void IStoreEventSink.OnError(ref CommonEventDetails details, SubscriptionInfo sub, Exception error)
-        {
-            SendEvent(new EventMessage
+            void IStoreEventSink.OnCompleted(ref CommonEventDetails details, SubscriptionInfo sub)
             {
-                OnError = new OnErrorEvent
+                SendEvent(new EventMessage
                 {
-                    Event = GetEventInfo(details),
-                    SubscriptionId = sub.SubscriptionId,
-                    Message = error.Message
-                }
-            });
-        }
+                    OnCompleted = new OnCompletedEvent
+                    {
+                        Event = GetEventInfo(details),
+                        SubscriptionId = sub.SubscriptionId
+                    }
+                });
+            }
 
-        private EventInfo GetEventInfo(CommonEventDetails details)
-        {
-            return new EventInfo
+            void IStoreEventSink.OnError(ref CommonEventDetails details, SubscriptionInfo sub, Exception error)
             {
-                SequenceId = details.EventSequenceId,
-                Timestamp = details.Timestamp.Ticks,
-                ThreadId = details.ThreadId
-            };
-        }
+                SendEvent(new EventMessage
+                {
+                    OnError = new OnErrorEvent
+                    {
+                        Event = GetEventInfo(details),
+                        SubscriptionId = sub.SubscriptionId,
+                        Message = error.Message
+                    }
+                });
+            }
 
-        private void SendEvent(EventMessage msg)
-        {
-            Trace.WriteLine($"Sending message to client: {msg}");
-            mChannel.SendMessage(msg.ToByteArray());
+            private EventInfo GetEventInfo(CommonEventDetails details)
+            {
+                return new EventInfo
+                {
+                    SequenceId = details.EventSequenceId,
+                    Timestamp = details.Timestamp.Ticks,
+                    ThreadId = details.ThreadId
+                };
+            }
+
+            private void SendEvent(EventMessage msg) => Server.SendEvent(mChannel, msg);
         }
     }
 }

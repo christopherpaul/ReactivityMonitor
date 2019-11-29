@@ -10,5 +10,10 @@ namespace ReactivityProfiler.Support
         {
             NativeMethods.SetChannelPipeName(pipeName);
         }
+
+        public static void ClearChannelPipeName()
+        {
+            NativeMethods.SetChannelPipeName(null);
+        }
     }
 }

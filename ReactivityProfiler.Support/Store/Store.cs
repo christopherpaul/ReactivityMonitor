@@ -34,6 +34,8 @@ namespace ReactivityProfiler.Support.Store
 
         public void StopMonitoring(int instrumentationPoint) => mEventMediator.StopMonitoring(instrumentationPoint);
 
+        public void StopMonitoringAll() => mEventMediator.StopMonitoringAll();
+
         private sealed class EventMediator : IStoreEventSink
         {
             private IStoreEventSink mEventSink;
@@ -76,6 +78,23 @@ namespace ReactivityProfiler.Support.Store
                         }
                     }
                 }
+            }
+
+            public void StopMonitoringAll()
+            {
+                foreach (var instrumentationPoint in mMonitoredInstrumentationPoints.Keys)
+                {
+                    var obses = new HashSet<long>();
+                    foreach (var sub in Subscriptions.GetSubs(instrumentationPoint))
+                    {
+                        if (obses.Add(sub.Observable.ObservableId))
+                        {
+                            UnmonitorChain(sub.Observable);
+                        }
+                    }
+                }
+
+                mMonitoredInstrumentationPoints.Clear();
             }
 
             public void ObservableCreated(ObservableInfo obs)

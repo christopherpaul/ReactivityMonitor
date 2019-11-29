@@ -7,6 +7,6 @@ namespace ReactivityMonitor.Model
 {
     public interface IProfilerControl
     {
-        IObservableList<int> RequestedInstrumentedCallIds { get; }
+        IObservable<IChangeSet<int>> RequestedInstrumentedCallIds { get; }
     }
 }

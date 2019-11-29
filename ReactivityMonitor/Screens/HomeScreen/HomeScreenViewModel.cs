@@ -1,4 +1,5 @@
 ﻿using Caliburn.Micro;
+using DynamicData;
 using ReactivityMonitor.Connection;
 using ReactivityMonitor.Infrastructure;
 using ReactivityMonitor.Screens.CallsScreen;
@@ -34,6 +35,13 @@ namespace ReactivityMonitor.Screens.HomeScreen
                 monitoringScreen.Workspace = workspace;
 
                 ConnectionModel.Connect().DisposeWith(disposables);
+
+                workspace.MonitoredCalls.Connect()
+                    .Transform(call => call.Call.InstrumentedCallId)
+                    .OnItemAdded(ConnectionModel.Model.StartMonitorCall)
+                    .OnItemRemoved(ConnectionModel.Model.StopMonitorCall)
+                    .Subscribe()
+                    .DisposeWith(disposables);
             });
         }
 

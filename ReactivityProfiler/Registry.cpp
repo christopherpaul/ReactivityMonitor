@@ -50,5 +50,12 @@ STDAPI_(void) SetChannelPipeName(const wchar_t* pszPipeName)
     CRegKey key;
     OpenTransientRegistryKey(key);
 
-    CHECK_SUCCESS(key.SetStringValue(c_PipeName, pszPipeName));
+    if (pszPipeName != nullptr)
+    {
+        CHECK_SUCCESS(key.SetStringValue(c_PipeName, pszPipeName));
+    }
+    else
+    {
+        key.DeleteValue(c_PipeName);
+    }
 }
