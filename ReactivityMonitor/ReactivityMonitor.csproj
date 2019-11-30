@@ -63,6 +63,8 @@
     <Compile Include="Connection\ConnectionModel.cs" />
     <Compile Include="Connection\IConnectionModel.cs" />
     <Compile Include="Connection\LaunchInfo.cs" />
+    <Compile Include="Infrastructure\Activation.cs" />
+    <Compile Include="Infrastructure\ReactiveViewModel.cs" />
     <Compile Include="Infrastructure\TraceLogger.cs" />
     <Compile Include="ScreenFactory.cs" />
     <Compile Include="Screens\CallsScreen\CallsScreenView.xaml.cs">
@@ -93,6 +95,8 @@
       <DependentUpon>MonitoringScreenView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Screens\MonitoringScreen\MonitoringScreenViewModel.cs" />
+    <Compile Include="Screens\MonitoringScreen\ObservableItem.cs" />
+    <Compile Include="Screens\MonitoringScreen\SubscriptionItem.cs" />
     <Compile Include="Services\ConcurrencyService.cs" />
     <Compile Include="Services\ConnectionService.cs" />
     <Compile Include="Services\DialogService.cs" />
