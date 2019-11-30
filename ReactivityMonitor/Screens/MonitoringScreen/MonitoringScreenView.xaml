@@ -30,19 +30,19 @@
                                     <ItemsControl ItemsSource="{Binding StreamEvents}">
                                         <ItemsControl.Resources>
                                             <DataTemplate DataType="{x:Type mod:SubscribeEvent}">
-                                                <Rectangle Width="2" Height="10" Fill="Gray" />
+                                                <Rectangle Width="2" Height="10" Fill="Gray" ToolTip="Subscribed" />
                                             </DataTemplate>
                                             <DataTemplate DataType="{x:Type mod:UnsubscribeEvent}">
-                                                <Rectangle Width="2" Height="10" Fill="Black" />
+                                                <Rectangle Width="2" Height="10" Fill="Black" ToolTip="Unsubscribed" />
                                             </DataTemplate>
                                             <DataTemplate DataType="{x:Type mod:OnNextEvent}">
-                                                <Ellipse Width="6" Height="6" Fill="Blue" />
+                                                <Ellipse Width="6" Height="6" Fill="Blue" ToolTip="{Binding ValueString}" />
                                             </DataTemplate>
                                             <DataTemplate DataType="{x:Type mod:OnCompletedEvent}">
-                                                <Rectangle Width="4" Height="10" Fill="Green" />
+                                                <Rectangle Width="4" Height="10" Fill="Green" ToolTip="Completed" />
                                             </DataTemplate>
                                             <DataTemplate DataType="{x:Type mod:OnErrorEvent}">
-                                                <Rectangle Width="4" Height="10" Fill="Red" />
+                                                <Rectangle Width="4" Height="10" Fill="Red" ToolTip="{Binding Message}" />
                                             </DataTemplate>
                                         </ItemsControl.Resources>
                                         

@@ -171,9 +171,9 @@ namespace ReactivityMonitor.Model
                 mParent.GetSubscriptions(observableId).OnNext(sub.SubscriptionId);
             }
 
-            public void AddOnNext(EventInfo info, long subscriptionId)
+            public void AddOnNext(EventInfo info, long subscriptionId, string valueString)
             {
-                mParent.GetStreamEvents(subscriptionId).OnNext(new OnNextEvent(info));
+                mParent.GetStreamEvents(subscriptionId).OnNext(new OnNextEvent(info, valueString));
             }
 
             public void AddOnCompleted(EventInfo info, long subscriptionId)

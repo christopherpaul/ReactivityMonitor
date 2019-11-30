@@ -12,7 +12,7 @@ namespace ReactivityMonitor.Model
         void RelateObservableInstances(long inputObsId, long outputObsId);
 
         void AddSubscription(EventInfo subscribed, long observableId);
-        void AddOnNext(EventInfo info, long subscriptionId);
+        void AddOnNext(EventInfo info, long subscriptionId, string valueString);
         void AddOnCompleted(EventInfo info, long subscriptionId);
         void AddOnError(EventInfo info, long subscriptionId, string message);
         void AddUnsubscription(EventInfo info, long subscriptionId);

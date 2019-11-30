@@ -44,22 +44,23 @@ namespace ReactivityProfiler.Protocol {
             "GQoRSW5wdXRPYnNlcnZhYmxlSWQYBCADKAMiQQoOU3Vic2NyaWJlRXZlbnQS",
             "GQoFRXZlbnQYASABKAsyCi5FdmVudEluZm8SFAoMT2JzZXJ2YWJsZUlkGAIg",
             "ASgDIkUKEFVuc3Vic2NyaWJlRXZlbnQSGQoFRXZlbnQYASABKAsyCi5FdmVu",
-            "dEluZm8SFgoOU3Vic2NyaXB0aW9uSWQYAiABKAMiQAoLT25OZXh0RXZlbnQS",
+            "dEluZm8SFgoOU3Vic2NyaXB0aW9uSWQYAiABKAMiVQoLT25OZXh0RXZlbnQS",
             "GQoFRXZlbnQYASABKAsyCi5FdmVudEluZm8SFgoOU3Vic2NyaXB0aW9uSWQY",
-            "AiABKAMiRQoQT25Db21wbGV0ZWRFdmVudBIZCgVFdmVudBgBIAEoCzIKLkV2",
-            "ZW50SW5mbxIWCg5TdWJzY3JpcHRpb25JZBgCIAEoAyJSCgxPbkVycm9yRXZl",
-            "bnQSGQoFRXZlbnQYASABKAsyCi5FdmVudEluZm8SFgoOU3Vic2NyaXB0aW9u",
-            "SWQYAiABKAMSDwoHTWVzc2FnZRgDIAEoCSJECglFdmVudEluZm8SEgoKU2Vx",
-            "dWVuY2VJZBgBIAEoAxIRCglUaW1lc3RhbXAYAiABKAMSEAoIVGhyZWFkSWQY",
-            "AyABKAUiyQEKDlJlcXVlc3RNZXNzYWdlEkYKGVNlbmRJbnN0cnVtZW50YXRp",
-            "b25FdmVudHMYASABKAsyIS5TZW5kSW5zdHJ1bWVudGF0aW9uRXZlbnRzUmVx",
-            "dWVzdEgAEjIKD1N0YXJ0TW9uaXRvcmluZxgCIAEoCzIXLlN0YXJ0TW9uaXRv",
-            "cmluZ1JlcXVlc3RIABIwCg5TdG9wTW9uaXRvcmluZxgDIAEoCzIWLlN0b3BN",
-            "b25pdG9yaW5nUmVxdWVzdEgAQgkKB1JlcXVlc3QiIgogU2VuZEluc3RydW1l",
-            "bnRhdGlvbkV2ZW50c1JlcXVlc3QiOAoWU3RhcnRNb25pdG9yaW5nUmVxdWVz",
-            "dBIeChZJbnN0cnVtZW50YXRpb25Qb2ludElkGAEgAygFIjcKFVN0b3BNb25p",
-            "dG9yaW5nUmVxdWVzdBIeChZJbnN0cnVtZW50YXRpb25Qb2ludElkGAIgAygF",
-            "Qh6qAhtSZWFjdGl2aXR5UHJvZmlsZXIuUHJvdG9jb2xiBnByb3RvMw=="));
+            "AiABKAMSEwoLVmFsdWVTdHJpbmcYAyABKAkiRQoQT25Db21wbGV0ZWRFdmVu",
+            "dBIZCgVFdmVudBgBIAEoCzIKLkV2ZW50SW5mbxIWCg5TdWJzY3JpcHRpb25J",
+            "ZBgCIAEoAyJSCgxPbkVycm9yRXZlbnQSGQoFRXZlbnQYASABKAsyCi5FdmVu",
+            "dEluZm8SFgoOU3Vic2NyaXB0aW9uSWQYAiABKAMSDwoHTWVzc2FnZRgDIAEo",
+            "CSJECglFdmVudEluZm8SEgoKU2VxdWVuY2VJZBgBIAEoAxIRCglUaW1lc3Rh",
+            "bXAYAiABKAMSEAoIVGhyZWFkSWQYAyABKAUiyQEKDlJlcXVlc3RNZXNzYWdl",
+            "EkYKGVNlbmRJbnN0cnVtZW50YXRpb25FdmVudHMYASABKAsyIS5TZW5kSW5z",
+            "dHJ1bWVudGF0aW9uRXZlbnRzUmVxdWVzdEgAEjIKD1N0YXJ0TW9uaXRvcmlu",
+            "ZxgCIAEoCzIXLlN0YXJ0TW9uaXRvcmluZ1JlcXVlc3RIABIwCg5TdG9wTW9u",
+            "aXRvcmluZxgDIAEoCzIWLlN0b3BNb25pdG9yaW5nUmVxdWVzdEgAQgkKB1Jl",
+            "cXVlc3QiIgogU2VuZEluc3RydW1lbnRhdGlvbkV2ZW50c1JlcXVlc3QiOAoW",
+            "U3RhcnRNb25pdG9yaW5nUmVxdWVzdBIeChZJbnN0cnVtZW50YXRpb25Qb2lu",
+            "dElkGAEgAygFIjcKFVN0b3BNb25pdG9yaW5nUmVxdWVzdBIeChZJbnN0cnVt",
+            "ZW50YXRpb25Qb2ludElkGAIgAygFQh6qAhtSZWFjdGl2aXR5UHJvZmlsZXIu",
+            "UHJvdG9jb2xiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
@@ -69,7 +70,7 @@ namespace ReactivityProfiler.Protocol {
             new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.ObservableCreatedEvent), global::ReactivityProfiler.Protocol.ObservableCreatedEvent.Parser, new[]{ "CreatedEvent", "InstrumentationPointId", "InputObservableId" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.SubscribeEvent), global::ReactivityProfiler.Protocol.SubscribeEvent.Parser, new[]{ "Event", "ObservableId" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.UnsubscribeEvent), global::ReactivityProfiler.Protocol.UnsubscribeEvent.Parser, new[]{ "Event", "SubscriptionId" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.OnNextEvent), global::ReactivityProfiler.Protocol.OnNextEvent.Parser, new[]{ "Event", "SubscriptionId" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.OnNextEvent), global::ReactivityProfiler.Protocol.OnNextEvent.Parser, new[]{ "Event", "SubscriptionId", "ValueString" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.OnCompletedEvent), global::ReactivityProfiler.Protocol.OnCompletedEvent.Parser, new[]{ "Event", "SubscriptionId" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.OnErrorEvent), global::ReactivityProfiler.Protocol.OnErrorEvent.Parser, new[]{ "Event", "SubscriptionId", "Message" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.EventInfo), global::ReactivityProfiler.Protocol.EventInfo.Parser, new[]{ "SequenceId", "Timestamp", "ThreadId" }, null, null, null),
@@ -1521,6 +1522,7 @@ namespace ReactivityProfiler.Protocol {
     public OnNextEvent(OnNextEvent other) : this() {
       event_ = other.event_ != null ? other.event_.Clone() : null;
       subscriptionId_ = other.subscriptionId_;
+      valueString_ = other.valueString_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -1554,6 +1556,17 @@ namespace ReactivityProfiler.Protocol {
       }
     }
 
+    /// <summary>Field number for the "ValueString" field.</summary>
+    public const int ValueStringFieldNumber = 3;
+    private string valueString_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public string ValueString {
+      get { return valueString_; }
+      set {
+        valueString_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as OnNextEvent);
@@ -1569,6 +1582,7 @@ namespace ReactivityProfiler.Protocol {
       }
       if (!object.Equals(Event, other.Event)) return false;
       if (SubscriptionId != other.SubscriptionId) return false;
+      if (ValueString != other.ValueString) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -1577,6 +1591,7 @@ namespace ReactivityProfiler.Protocol {
       int hash = 1;
       if (event_ != null) hash ^= Event.GetHashCode();
       if (SubscriptionId != 0L) hash ^= SubscriptionId.GetHashCode();
+      if (ValueString.Length != 0) hash ^= ValueString.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -1598,6 +1613,10 @@ namespace ReactivityProfiler.Protocol {
         output.WriteRawTag(16);
         output.WriteInt64(SubscriptionId);
       }
+      if (ValueString.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(ValueString);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -1611,6 +1630,9 @@ namespace ReactivityProfiler.Protocol {
       }
       if (SubscriptionId != 0L) {
         size += 1 + pb::CodedOutputStream.ComputeInt64Size(SubscriptionId);
+      }
+      if (ValueString.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(ValueString);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -1632,6 +1654,9 @@ namespace ReactivityProfiler.Protocol {
       if (other.SubscriptionId != 0L) {
         SubscriptionId = other.SubscriptionId;
       }
+      if (other.ValueString.Length != 0) {
+        ValueString = other.ValueString;
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -1652,6 +1677,10 @@ namespace ReactivityProfiler.Protocol {
           }
           case 16: {
             SubscriptionId = input.ReadInt64();
+            break;
+          }
+          case 26: {
+            ValueString = input.ReadString();
             break;
           }
         }

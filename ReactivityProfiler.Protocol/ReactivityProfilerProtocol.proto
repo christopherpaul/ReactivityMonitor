@@ -50,7 +50,7 @@ message UnsubscribeEvent {
 message OnNextEvent {
 	EventInfo Event = 1;
 	int64 SubscriptionId = 2; // refers to Event.SequenceId of the SubscribeEvent
-	// might want to add some representation of the value?
+	string ValueString = 3;
 }
 
 message OnCompletedEvent {

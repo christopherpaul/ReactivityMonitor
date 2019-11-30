@@ -127,7 +127,7 @@ namespace ReactivityMonitor.ProfilerClient
 
         private void OnOnNext(Protocol.OnNextEvent onNext)
         {
-            mModelUpdater.AddOnNext(GetEventInfo(onNext.Event), onNext.SubscriptionId);
+            mModelUpdater.AddOnNext(GetEventInfo(onNext.Event), onNext.SubscriptionId, onNext.ValueString);
         }
 
         private void OnUnsubscribe(Protocol.UnsubscribeEvent unsubscribe)

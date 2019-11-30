@@ -202,9 +202,22 @@ namespace ReactivityProfiler.Support.Server
                     OnNext = new OnNextEvent
                     {
                         Event = GetEventInfo(details),
-                        SubscriptionId = sub.SubscriptionId
+                        SubscriptionId = sub.SubscriptionId,
+                        ValueString = GetStringFor(value)
                     }
                 });
+            }
+
+            private string GetStringFor<T>(T value)
+            {
+                try
+                {
+                    return value.ToString();
+                }
+                catch
+                {
+                    return string.Empty;
+                }
             }
 
             void IStoreEventSink.OnCompleted(ref CommonEventDetails details, SubscriptionInfo sub)
