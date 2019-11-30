@@ -96,6 +96,7 @@
     </Compile>
     <Compile Include="Screens\MonitoringScreen\MonitoringScreenViewModel.cs" />
     <Compile Include="Screens\MonitoringScreen\ObservableItem.cs" />
+    <Compile Include="Screens\MonitoringScreen\StreamEventPanel.cs" />
     <Compile Include="Screens\MonitoringScreen\SubscriptionItem.cs" />
     <Compile Include="Services\ConcurrencyService.cs" />
     <Compile Include="Services\ConnectionService.cs" />

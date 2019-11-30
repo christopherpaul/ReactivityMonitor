@@ -2,6 +2,10 @@ namespace ReactivityMonitor
 {
     using System;
     using System.Collections.Generic;
+    using System.IO;
+    using System.Windows.Controls;
+    using System.Windows.Markup;
+    using System.Xml;
     using Caliburn.Micro;
     using ReactivityMonitor.Infrastructure;
     using ReactivityMonitor.Screens.CallsScreen;
@@ -27,6 +31,17 @@ namespace ReactivityMonitor
 
         protected override void OnStartup(object sender, System.Windows.StartupEventArgs e)
         {
+            //// This code can be used to extract the default style for a WPF control
+            //var control = Application.FindResource(typeof(ItemsControl));
+            //var sw = new StringWriter();
+            //using (XmlTextWriter writer = new XmlTextWriter(sw))
+            //{
+            //    writer.Formatting = Formatting.Indented;
+            //    XamlWriter.Save(control, writer);
+            //}
+
+            //string s = sw.ToString();
+
             DisplayRootViewFor<IShell>();
         }
 

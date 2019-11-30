@@ -1,5 +1,7 @@
 ﻿using DynamicData;
+using DynamicData.Aggregation;
 using DynamicData.Binding;
+using ReactiveUI;
 using ReactivityMonitor.Infrastructure;
 using ReactivityMonitor.Model;
 using ReactivityMonitor.Services;
@@ -31,6 +33,12 @@ namespace ReactivityMonitor.Screens.MonitoringScreen
                     .Subscribe()
                     .DisposeWith(disposables);
 
+                Model.ObservableInstances.Connect()
+                    .Minimum(obs => obs.Created.Timestamp)
+                    .DistinctUntilChanged()
+                    .Subscribe(timestamp => StartTime = timestamp)
+                    .DisposeWith(disposables);
+
                 Items = observableInstances;
             });
         }
@@ -39,5 +47,12 @@ namespace ReactivityMonitor.Screens.MonitoringScreen
         public IWorkspace Workspace { get; set; }
 
         public ReadOnlyObservableCollection<ObservableItem> Items { get; private set; }
+
+        private DateTime mStartTime;
+        public DateTime StartTime
+        {
+            get => mStartTime;
+            private set => Set(ref mStartTime, value);
+        }
     }
 }
