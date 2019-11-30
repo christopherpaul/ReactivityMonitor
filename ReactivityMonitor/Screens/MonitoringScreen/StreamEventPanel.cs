@@ -15,13 +15,13 @@ namespace ReactivityMonitor.Screens.MonitoringScreen
             nameof(StartTime),
             typeof(DateTime?),
             typeof(StreamEventPanel),
-            new FrameworkPropertyMetadata { AffectsArrange = true });
+            new FrameworkPropertyMetadata { AffectsMeasure = true, AffectsArrange = true });
 
         public static readonly DependencyProperty TimeScaleProperty = DependencyProperty.Register(
             nameof(TimeScale), 
             typeof(double), 
             typeof(StreamEventPanel),
-            new FrameworkPropertyMetadata((double)10, FrameworkPropertyMetadataOptions.AffectsArrange));
+            new FrameworkPropertyMetadata((double)10, FrameworkPropertyMetadataOptions.AffectsMeasure | FrameworkPropertyMetadataOptions.AffectsArrange));
 
         /// <summary>
         /// Horizontal scale, in pixels per second.
@@ -45,6 +45,8 @@ namespace ReactivityMonitor.Screens.MonitoringScreen
         {
             Size noConstraint = new Size(Double.PositiveInfinity, Double.PositiveInfinity);
             Size desiredSize = default;
+            DateTime? startTime = StartTime;
+            double timeScale = TimeScale;
 
             foreach (UIElement child in InternalChildren)
             {
@@ -54,7 +56,11 @@ namespace ReactivityMonitor.Screens.MonitoringScreen
                 }
 
                 child.Measure(noConstraint);
-                desiredSize.Height = Math.Max(desiredSize.Height, child.DesiredSize.Height);
+                var childSize = child.DesiredSize;
+                desiredSize.Height = Math.Max(desiredSize.Height, childSize.Height);
+
+                double right = GetChildTimeOffsetSeconds(child, ref startTime) * timeScale + childSize.Width / 2;
+                desiredSize.Width = Math.Max(desiredSize.Width, right);
             }
 
             return desiredSize;
@@ -76,18 +82,23 @@ namespace ReactivityMonitor.Screens.MonitoringScreen
                 Size childSize = child.DesiredSize;
                 double top = middle - childSize.Height / 2;
 
-                DateTime childTimestamp = GetChildTimestamp(child);
-                if (!startTime.HasValue)
-                {
-                    startTime = childTimestamp;
-                }
-
-                double left = (childTimestamp - startTime.Value).TotalSeconds * timeScale - childSize.Width / 2;
+                double left = GetChildTimeOffsetSeconds(child, ref startTime) * timeScale - childSize.Width / 2;
 
                 child.Arrange(new Rect(left, top, childSize.Width, childSize.Height));
             }
 
             return finalSize;
+        }
+
+        private double GetChildTimeOffsetSeconds(UIElement child, ref DateTime? startTime)
+        {
+            DateTime childTimestamp = GetChildTimestamp(child);
+            if (!startTime.HasValue)
+            {
+                startTime = childTimestamp;
+            }
+
+            return (childTimestamp - startTime.Value).TotalSeconds;
         }
 
         private DateTime GetChildTimestamp(UIElement child)

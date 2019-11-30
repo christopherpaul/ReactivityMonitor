@@ -90,6 +90,7 @@
     <Compile Include="Screens\HomeScreen\HomeScreenViewModel.cs" />
     <Compile Include="Screens\HomeScreen\IHomeScreen.cs" />
     <Compile Include="IScreenFactory.cs" />
+    <Compile Include="Screens\MonitoringScreen\NonScrolling.cs" />
     <Compile Include="Screens\MonitoringScreen\IMonitoringScreen.cs" />
     <Compile Include="Screens\MonitoringScreen\MonitoringScreenView.xaml.cs">
       <DependentUpon>MonitoringScreenView.xaml</DependentUpon>
