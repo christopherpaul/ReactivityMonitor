@@ -237,6 +237,14 @@ TypeDefProps CMetadataImport::GetTypeDefProps(mdTypeDef typeDefToken) const
     };
 }
 
+mdTypeDef CMetadataImport::GetParentTypeDef(mdTypeDef nestedTypeDefToken) const
+{
+    mdTypeDef parentToken;
+    CHECK_SUCCESS(m_metadata->GetNestedClassProps(nestedTypeDefToken, &parentToken));
+
+    return parentToken;
+}
+
 SignatureBlob CMetadataImport::GetTypeSpecFromToken(mdTypeSpec typeSpecToken) const
 {
     const COR_SIGNATURE* pSigBlob;

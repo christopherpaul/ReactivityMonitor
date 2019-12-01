@@ -26,17 +26,17 @@ namespace ReactivityMonitor.Screens.CallsScreen
             {
                 Model.InstrumentedCalls.Connect()
                     .Group(ic => (ic.CallingType, ic.CallingMethod))
-                    .Sort(SortExpressionComparer<IGroup<IInstrumentedCall, int, (string, string)>>.Ascending(x => x.Key))
                     .Transform(grp =>
                     {
                         var callsChanges = grp.Cache.Connect()
-                            .Sort(SortExpressionComparer<IInstrumentedCall>.Ascending(ic => ic.InstructionOffset))
                             .Transform(ic => (ICall)new Call(ic))
+                            .Sort(SortExpressionComparer<ICall>.Ascending(ic => ic.InstructionOffset))
                             .ObserveOn(concurrencyService.DispatcherRxScheduler);
 
                         var callingMethod = new CallingMethod(grp.Key.Item1, grp.Key.Item2, callsChanges);
                         return (ICallingMethod)callingMethod;
                     })
+                    .Sort(SortExpressionComparer<ICallingMethod>.Ascending(x => (x.TypeName, x.Name)))
                     .ObserveOn(concurrencyService.DispatcherRxScheduler)
                     .Bind(out var callingMethods)
                     .DisposeMany()
@@ -93,6 +93,8 @@ namespace ReactivityMonitor.Screens.CallsScreen
 
             public IInstrumentedCall InstrumentedCall { get; }
             public string CalledMethodName => InstrumentedCall.CalledMethod;
+
+            public int InstructionOffset => InstrumentedCall.InstructionOffset;
         }
     }
 }

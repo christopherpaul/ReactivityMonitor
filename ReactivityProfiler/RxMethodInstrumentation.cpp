@@ -67,7 +67,7 @@ private:
     const FunctionInfo& m_functionInfo;
     CMetadataImport& m_metadataImport;
     std::shared_ptr<PerModuleData>& m_pPerModuleData;
-    TypeDefProps m_owningTypeProps;
+    std::wstring m_owningTypeName;
 
     ObservableTypeReferences observableTypeRefs;
     SupportAssemblyReferences supportRefs;
@@ -109,7 +109,15 @@ void MethodBodyInstrumenter::Instrument()
         return;
     }
 
-    m_owningTypeProps = m_metadataImport.GetTypeDefProps(m_methodProps.classDefToken);
+    auto owningTypeProps = m_metadataImport.GetTypeDefProps(m_methodProps.classDefToken);
+    m_owningTypeName = owningTypeProps.name;
+    mdTypeDef typeDefToken = m_methodProps.classDefToken;
+    while (IsTdNested(owningTypeProps.attrFlags))
+    {
+        typeDefToken = m_metadataImport.GetParentTypeDef(typeDefToken);
+        owningTypeProps = m_metadataImport.GetTypeDefProps(typeDefToken);
+        m_owningTypeName = owningTypeProps.name + L"." + m_owningTypeName;
+    }
 
     CMetadataEmit emit = m_profilerInfo.GetMetadataEmit(m_functionInfo.moduleId, ofRead | ofWrite);
 
@@ -370,7 +378,7 @@ void MethodBodyInstrumenter::InstrumentCall(ObservableCallInfo& call, CMetadataE
         instrumentationPoint, 
         m_functionInfo.moduleId, 
         m_functionInfo.functionToken,
-        m_owningTypeProps.name,
+        m_owningTypeName,
         m_methodProps.name,
         call.m_instructionOffset,
         call.m_calledMethodName);

@@ -9,5 +9,6 @@ namespace ReactivityMonitor.Screens.CallsScreen
     public interface ICall
     {
         string CalledMethodName { get; }
+        int InstructionOffset { get; }
     }
 }

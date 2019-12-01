@@ -195,6 +195,7 @@ public:
     MemberRefProps GetMemberRefProps(mdMemberRef memberRefToken) const;
     MethodSpecProps GetMethodSpecProps(mdMethodSpec methodSpecToken) const;
     TypeDefProps GetTypeDefProps(mdTypeDef typeDefToken) const;
+    mdTypeDef GetParentTypeDef(mdTypeDef nestedTypeDefToken) const;
 
     SignatureBlob GetTypeSpecFromToken(mdTypeSpec typeSpecToken) const;
     SignatureBlob GetSigFromToken(mdSignature sigTok) const;
