@@ -188,7 +188,9 @@ public:
 
     CCorEnum<IMetaDataImport2, mdModuleRef> EnumModuleRefs() const;
 
+    bool TryFindTypeDef(const std::wstring& name, mdToken enclosingTypeToken, mdTypeDef& typeDef);
     bool TryFindTypeRef(mdToken scope, const std::wstring& name, mdTypeRef& typeRef) const;
+    bool TryFindMethod(mdTypeDef typeToken, const std::wstring& name, const SignatureBlob& sigBlob, mdMethodDef& methodDef) const;
     MethodProps GetMethodProps(mdMethodDef methodDefToken) const;
     MemberRefProps GetMemberRefProps(mdMemberRef memberRefToken) const;
     MethodSpecProps GetMethodSpecProps(mdMethodSpec methodSpecToken) const;
@@ -248,6 +250,10 @@ public:
     mdMemberRef DefineMemberRef(const MemberRefProps& props);
     mdMethodSpec DefineMethodSpec(const MethodSpecProps& props);
     mdSignature GetTokenFromSig(const SignatureBlob& sigBlob);
+    mdTypeDef DefineTypeDef(const TypeDefProps& props, const simplespan<mdToken>& interfaces);
+    mdMethodDef DefineMethod(const MethodProps& props);
+    mdString DefineString(const std::wstring& s);
+    mdCustomAttribute DefineCustomAttribute(mdToken owner, mdToken attributeType, const simplespan<const byte>& attrData);
 
 private:
     CComQIPtr<IMetaDataEmit2, &IID_IMetaDataEmit2> m_metadata;

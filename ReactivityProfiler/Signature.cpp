@@ -1805,7 +1805,9 @@ void SignatureTypeWriterState::SetPrimitive(CorElementType kind)
         throw std::logic_error("SignatureTypeWriterState::SetPrimitive - bad call sequence");
     }
 
-    if (kind >= ELEMENT_TYPE_PTR || kind <= ELEMENT_TYPE_VOID)
+    if (kind <= ELEMENT_TYPE_VOID ||
+        (kind >= ELEMENT_TYPE_PTR && kind != ELEMENT_TYPE_OBJECT && kind != ELEMENT_TYPE_STRING
+            && kind != ELEMENT_TYPE_I && kind != ELEMENT_TYPE_U))
     {
         throw std::logic_error("SignatureTypeWriterState::SetPrimitive - bad kind");
     }
@@ -2094,6 +2096,25 @@ void MethodSignatureWriter::Complete()
     m_state->Complete();
 }
 
+static std::vector<COR_SIGNATURE> WriteMethodSig(bool hasInstance, ULONG paramCount, std::function<void(MethodSignatureWriter&)> config)
+{
+    std::vector<COR_SIGNATURE> buffer;
+    MethodSignatureWriter writer(buffer, hasInstance, paramCount, 0);
+    config(writer);
+    writer.Complete();
+    return buffer;
+}
+
+std::vector<COR_SIGNATURE> MethodSignatureWriter::WriteStatic(ULONG paramCount, std::function<void(MethodSignatureWriter&)> config)
+{
+    return WriteMethodSig(false, paramCount, config);
+}
+
+std::vector<COR_SIGNATURE> MethodSignatureWriter::WriteInstance(ULONG paramCount, std::function<void(MethodSignatureWriter&)> config)
+{
+    return WriteMethodSig(true, paramCount, config);
+}
+
 
 
 class MethodSpecSignatureWriterState : public WriterBase
@@ -2168,5 +2189,125 @@ std::vector<COR_SIGNATURE> LocalsSignatureReader::AppendLocals(const std::vector
         writer.Append(localSigSpan);
     }
 
-    return std::move(buffer);
+    return buffer;
+}
+
+
+
+
+
+class LocalsSignatureWriterState : public WriterBase
+{
+public:
+    LocalsSignatureWriterState(UniquePrimitiveWriter& writer, ULONG count);
+
+    std::shared_ptr<SignatureTypeWriterState> CreateNextTypeWriter();
+    void Complete() override;
+
+private:
+    void NextLocal();
+
+    const ULONG m_count;
+    ULONG m_current;
+    std::shared_ptr<SignatureTypeWriterState> m_typeWriter;
+
+    enum
+    {
+        INIT,
+        LOCAL,
+        END
+    } m_where;
+};
+
+LocalsSignatureWriterState::LocalsSignatureWriterState(UniquePrimitiveWriter& writer, ULONG count) :
+    WriterBase(writer),
+    m_count(count),
+    m_current(0),
+    m_where(INIT)
+{
+    byte ccByte = IMAGE_CEE_CS_CALLCONV_LOCAL_SIG;
+    Append(ccByte);
+    AppendCompressedUnsigned(count);
+}
+
+void LocalsSignatureWriterState::NextLocal()
+{
+    if (m_where == INIT)
+    {
+        m_current = 0;
+    }
+    else if (m_where == LOCAL)
+    {
+        EndChildWriter(m_typeWriter);
+        m_current++;
+    }
+}
+
+std::shared_ptr<SignatureTypeWriterState> LocalsSignatureWriterState::CreateNextTypeWriter()
+{
+    NextLocal();
+
+    if (m_where == END || m_current > m_count)
+    {
+        throw std::logic_error("LocalsSignatureWriterState::CreateNextTypeWriter - bad call");
+    }
+
+    m_typeWriter = CreateChildWriter<SignatureTypeWriterState>();
+    m_where = LOCAL;
+
+    return m_typeWriter;
+}
+
+void LocalsSignatureWriterState::Complete()
+{
+    if (m_where == END)
+    {
+        return;
+    }
+
+    NextLocal();
+
+    if (m_current != m_count)
+    {
+        throw std::logic_error("LocalsSignatureWriterState::Complete - not all locals written");
+    }
+
+    m_where = END;
+}
+
+
+static std::shared_ptr<LocalsSignatureWriterState> CreateLocalsSignatureWriterState(std::vector<COR_SIGNATURE>& buffer, ULONG count)
+{
+    auto primitiveWriter = std::make_unique<PrimitiveWriter>(buffer);
+    return std::make_shared<LocalsSignatureWriterState>(primitiveWriter, count);
+}
+
+LocalsSignatureWriter::LocalsSignatureWriter(std::vector<COR_SIGNATURE>& buffer, ULONG count) :
+    LocalsSignatureWriter(CreateLocalsSignatureWriterState(buffer, count))
+{
+}
+
+LocalsSignatureWriter::LocalsSignatureWriter(const std::shared_ptr<LocalsSignatureWriterState>& state) :
+    m_state(state)
+{
+}
+
+SignatureTypeWriter LocalsSignatureWriter::WriteLocal()
+{
+    return m_state->CreateNextTypeWriter();
+}
+
+void LocalsSignatureWriter::Complete()
+{
+    m_state->Complete();
+}
+
+std::vector<COR_SIGNATURE> LocalsSignatureWriter::MakeSig(ULONG count, std::function<void(LocalsSignatureWriter&)> config)
+{
+    std::vector<COR_SIGNATURE> buffer;
+    LocalsSignatureWriter writer(buffer, count);
+    config(writer);
+    writer.Complete();
+
+    return buffer;
 }

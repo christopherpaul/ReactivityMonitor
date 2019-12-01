@@ -15,6 +15,7 @@ class SignatureTypeWriterState;
 class SignatureParamWriterState;
 class MethodSignatureWriterState;
 class MethodSpecSignatureWriterState;
+class LocalsSignatureWriterState;
 
 class SignatureArrayShapeReader
 {
@@ -165,6 +166,9 @@ public:
     SignatureTypeWriter WriteParam();
     void Complete();
 
+    static std::vector<COR_SIGNATURE> WriteStatic(ULONG paramCount, std::function<void(MethodSignatureWriter&)> config);
+    static std::vector<COR_SIGNATURE> WriteInstance(ULONG paramCount, std::function<void(MethodSignatureWriter&)> config);
+
 private:
     const std::shared_ptr<MethodSignatureWriterState> m_state;
 };
@@ -178,4 +182,19 @@ public:
 
 private:
     const std::shared_ptr<MethodSpecSignatureWriterState> m_state;
+};
+
+class LocalsSignatureWriter
+{
+public:
+    LocalsSignatureWriter(std::vector<COR_SIGNATURE>& buffer, ULONG count);
+    LocalsSignatureWriter(const std::shared_ptr<LocalsSignatureWriterState>& state);
+
+    SignatureTypeWriter WriteLocal();
+    void Complete();
+
+    static std::vector<COR_SIGNATURE> MakeSig(ULONG count, std::function<void(LocalsSignatureWriter&)> config);
+
+private:
+    const std::shared_ptr<LocalsSignatureWriterState> m_state;
 };

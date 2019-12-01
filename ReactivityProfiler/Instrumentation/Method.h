@@ -11,6 +11,7 @@ namespace Instrumentation
 		public MethodBuffer
 	{
 	public:
+        explicit Method(); // produces a method with just a RET in (which is only valid as-is if method is void)
 		explicit Method(const IMAGE_COR_ILMETHOD* pMethod);
 		~Method();
 
@@ -52,10 +53,12 @@ namespace Instrumentation
 		void ReadMethod(const IMAGE_COR_ILMETHOD* pMethod);
 		void ReadBody();
 
-		void ConvertShortBranches();
-		void ResolveBranches();
+        static void CalculateOffsets(InstructionList::iterator begin, InstructionList::iterator end);
+		static void ConvertShortBranches(InstructionList::iterator begin, InstructionList::iterator end);
+		static void ResolveBranches(InstructionList::iterator begin, InstructionList::iterator end);
 		void DumpExceptionFilters();
 		void DumpInstructions();
+        static Instruction* GetInstructionAtOffset(long offset, InstructionList::iterator begin, InstructionList::iterator end);
 		Instruction * GetInstructionAtOffset(long offset);
 		Instruction * GetInstructionAtOffset(long offset, bool isFinally, bool isFault, bool isFilter, bool isTyped);
 		void ReadSections();

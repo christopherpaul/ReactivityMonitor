@@ -31,7 +31,8 @@
     </None>
   </ItemGroup>
   
-  <!-- For a "real" install you'd want the support assembly in the GAC but can't do that in the build without elevated privileges. -->
+  <!-- Uncomment to copy all support assemblies next to the profilee - should no longer be necessary -->
+  <!--
   <ItemGroup>
     <ProjectReference Include="..\ReactivityProfiler.Support\ReactivityProfiler.Support.csproj">
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
@@ -46,6 +47,7 @@
     <Message Importance="high" Text="Support file: %(SupportFile.Identity)" />
     <Copy SourceFiles="@(SupportFile)" DestinationFolder="$(OutDir)" />
   </Target>
+  -->
 
   <Target Name="DumpIL" AfterTargets="AfterBuild">
     <GetFrameworkSdkPath>

@@ -7,9 +7,12 @@
 #include "Signature.h"
 #include "Store.h"
 
+static bool IsExcludedAssembly(const AssemblyProps& assemblyProps);
+static bool IsMscorlib(const AssemblyProps& assemblyProps);
+
 // CRxProfiler
 
-CRxProfiler::CRxProfiler() : m_supportAssemblyPath(GetSupportAssemblyPath())
+CRxProfiler::CRxProfiler() : m_supportAssemblyFolder(GetSupportAssemblyPath())
 {
 }
 
@@ -18,7 +21,7 @@ HRESULT CRxProfiler::Initialize(
 {
     return HandleExceptions([=] {
         RELTRACE("Initialize");
-        ATLTRACE(L"Support assembly path: %s", m_supportAssemblyPath.c_str());
+        ATLTRACE(L"Support assembly path: %s", m_supportAssemblyFolder.c_str());
 
         m_profilerInfo.Set(pICorProfilerInfoUnk);
 
@@ -51,6 +54,11 @@ HRESULT CRxProfiler::ModuleLoadFinished(
 
         std::lock_guard<std::mutex> lock_pmd(pPerModuleData->m_mutex);
         pPerModuleData->m_assemblyProps = mai.GetAssemblyProps();
+
+        if (IsMscorlib(pPerModuleData->m_assemblyProps))
+        {
+            InstallAssemblyResolutionHandler(moduleId);
+        }
 
         if (!IsExcludedAssembly(pPerModuleData->m_assemblyProps) &&
             ReferencesObservableInterfaces(moduleId, pPerModuleData->m_observableTypeRefs))
@@ -105,7 +113,7 @@ HRESULT CRxProfiler::JITCompilationStarted(FunctionID functionId, BOOL fIsSafeTo
 
 bool IsExcludedAssembly(const AssemblyProps& assemblyProps)
 {
-    if (lstrcmpi(assemblyProps.name.c_str(), L"mscorlib") == 0)
+    if (IsMscorlib(assemblyProps))
     {
         return true;
     }
@@ -117,6 +125,16 @@ bool IsExcludedAssembly(const AssemblyProps& assemblyProps)
 
     std::wstring firstNsPart = assemblyProps.name.substr(0, assemblyProps.name.find_first_of(L'.'));
     if (lstrcmpi(firstNsPart.c_str(), L"System") == 0)
+    {
+        return true;
+    }
+
+    return false;
+}
+
+bool IsMscorlib(const AssemblyProps& assemblyProps)
+{
+    if (lstrcmpi(assemblyProps.name.c_str(), L"mscorlib") == 0)
     {
         return true;
     }

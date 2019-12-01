@@ -105,9 +105,19 @@ CCorEnum<IMetaDataImport2, mdModuleRef> CMetadataImport::EnumModuleRefs() const
     return e;
 }
 
+bool CMetadataImport::TryFindTypeDef(const std::wstring& name, mdToken enclosingTypeToken, mdTypeDef& typeDef)
+{
+    return SUCCEEDED(m_metadata->FindTypeDefByName(name.c_str(), enclosingTypeToken, &typeDef));
+}
+
 bool CMetadataImport::TryFindTypeRef(mdToken scope, const std::wstring& name, mdTypeRef& typeRef) const
 {
     return SUCCEEDED(m_metadata->FindTypeRef(scope, name.c_str(), &typeRef));
+}
+
+bool CMetadataImport::TryFindMethod(mdTypeDef typeToken, const std::wstring& name, const SignatureBlob& sigBlob, mdMethodDef& methodDef) const
+{
+    return SUCCEEDED(m_metadata->FindMethod(typeToken, name.c_str(), sigBlob.begin(), sigBlob.length(), &methodDef));
 }
 
 MethodProps CMetadataImport::GetMethodProps(mdMethodDef methodDefToken) const
@@ -389,6 +399,69 @@ mdSignature CMetadataEmit::GetTokenFromSig(const SignatureBlob& sigBlob)
     ));
 
     ATLTRACE(L"GetTokenFromSig: %x", token);
+
+    return token;
+}
+
+mdTypeDef CMetadataEmit::DefineTypeDef(const TypeDefProps& props, const simplespan<mdToken>& interfaces)
+{
+    mdTypeDef token;
+    std::vector<mdToken> interfacesWithTerminator;
+    if (interfaces)
+    {
+        std::copy(interfaces.begin(), interfaces.end(), std::back_inserter(interfacesWithTerminator));
+    }
+    interfacesWithTerminator.push_back(mdTokenNil);
+    
+    CHECK_SUCCESS(m_metadata->DefineTypeDef(
+        props.name.c_str(),
+        props.attrFlags,
+        props.extendsTypeToken,
+        interfacesWithTerminator.data(),
+        &token));
+
+    return token;
+}
+
+mdMethodDef CMetadataEmit::DefineMethod(const MethodProps& props)
+{
+    mdMethodDef token;
+    CHECK_SUCCESS(m_metadata->DefineMethod(
+        props.classDefToken,
+        props.name.c_str(),
+        props.attrFlags,
+        props.sigBlob.begin(),
+        props.sigBlob.length(),
+        props.codeRva,
+        props.implFlags,
+        &token));
+
+    ATLTRACE(L"DefineMethod: %s -> %x", props.name.c_str(), token);
+
+    return token;
+}
+
+mdString CMetadataEmit::DefineString(const std::wstring& s)
+{
+    mdString token;
+    CHECK_SUCCESS(m_metadata->DefineUserString(
+        s.c_str(),
+        s.length(),
+        &token
+    ));
+
+    return token;
+}
+
+mdCustomAttribute CMetadataEmit::DefineCustomAttribute(mdToken owner, mdToken attributeType, const simplespan<const byte>& attrData)
+{
+    mdCustomAttribute token;
+    CHECK_SUCCESS(m_metadata->DefineCustomAttribute(
+        owner,
+        attributeType,
+        attrData.begin(),
+        attrData.length(),
+        &token));
 
     return token;
 }

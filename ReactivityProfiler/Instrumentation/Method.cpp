@@ -5,7 +5,11 @@
 
 namespace Instrumentation
 {
-	Method::Method(const IMAGE_COR_ILMETHOD* pMethod)
+    Method::Method() : Method(nullptr)
+    {
+    }
+
+    Method::Method(const IMAGE_COR_ILMETHOD* pMethod)
 	{
 		memset(&m_header, 0, 3 * sizeof(DWORD));
 		m_header.Size = 3;
@@ -22,24 +26,33 @@ namespace Instrumentation
 	/// <summary>Read the full method from the supplied buffer.</summary>
 	void Method::ReadMethod(const IMAGE_COR_ILMETHOD* pMethod)
 	{
-		BYTE* pCode;
-		auto fatImage = static_cast<const COR_ILMETHOD_FAT*>(&pMethod->Fat);
-		if (!fatImage->IsFat())
-		{
-			ATLTRACE(_T("TINY"));
-			auto tinyImage = static_cast<const COR_ILMETHOD_TINY*>(&pMethod->Tiny);
-			m_header.CodeSize = tinyImage->GetCodeSize();
-			pCode = tinyImage->GetCode();
-            m_originalHeaderSize = sizeof(IMAGE_COR_ILMETHOD_TINY);
-			ATLTRACE(_T("TINY(%X) => (%d + 1) : %d"), m_header.CodeSize, m_header.CodeSize, m_header.MaxStack);
-		}
-		else
-		{
-            m_originalHeaderSize = fatImage->Size * sizeof(DWORD);
-			memcpy(&m_header, pMethod, m_originalHeaderSize);
-			pCode = fatImage->GetCode();
-			ATLTRACE(_T("FAT(%X) => (%d + 12) : %d"), m_header.CodeSize, m_header.CodeSize, m_header.MaxStack);
-		}
+        BYTE justRet[] = { Operations::m_mapNameOperationDetails[CEE_RET].op2 };
+        BYTE* pCode;
+        if (!pMethod)
+        {
+            m_header.CodeSize = 1;
+            pCode = justRet;
+        }
+        else
+        {
+            auto fatImage = static_cast<const COR_ILMETHOD_FAT*>(&pMethod->Fat);
+            if (!fatImage->IsFat())
+            {
+                ATLTRACE(_T("TINY"));
+                auto tinyImage = static_cast<const COR_ILMETHOD_TINY*>(&pMethod->Tiny);
+                m_header.CodeSize = tinyImage->GetCodeSize();
+                pCode = tinyImage->GetCode();
+                m_originalHeaderSize = sizeof(IMAGE_COR_ILMETHOD_TINY);
+                ATLTRACE(_T("TINY(%X) => (%d + 1) : %d"), m_header.CodeSize, m_header.CodeSize, m_header.MaxStack);
+            }
+            else
+            {
+                m_originalHeaderSize = fatImage->Size * sizeof(DWORD);
+                memcpy(&m_header, pMethod, m_originalHeaderSize);
+                pCode = fatImage->GetCode();
+                ATLTRACE(_T("FAT(%X) => (%d + 12) : %d"), m_header.CodeSize, m_header.CodeSize, m_header.MaxStack);
+            }
+        }
 		SetBuffer(pCode);
 		ReadBody();
 	}
@@ -145,6 +158,24 @@ namespace Instrumentation
 		}
 	}
 
+    static void RecordBranchInfo(Instruction& instr, const OperationDetails& details)
+    {
+        // are we a branch or a switch
+        instr.m_isBranch = (details.controlFlow == BRANCH || details.controlFlow == COND_BRANCH);
+
+        if (instr.m_isBranch && instr.m_operation != CEE_SWITCH)
+        {
+            if (details.operandSize == 1)
+            {
+                instr.m_branchOffsets.push_back(static_cast<char>(static_cast<BYTE>(instr.m_operand)));
+            }
+            else
+            {
+                instr.m_branchOffsets.push_back(static_cast<ULONG>(instr.m_operand));
+            }
+        }
+    }
+
 	/// <summary>Read in a method body and any section handlers.</summary>
 	/// <remarks>Also converts all short branches to long branches and calls <c>RecalculateOffsets</c></remarks>
 	void Method::ReadBody()
@@ -189,19 +220,7 @@ namespace Instrumentation
 			}
 
 			// are we a branch or a switch
-			pInstruction->m_isBranch = (details.controlFlow == BRANCH || details.controlFlow == COND_BRANCH);
-
-			if (pInstruction->m_isBranch && pInstruction->m_operation != CEE_SWITCH)
-			{
-				if (details.operandSize == 1)
-				{
-					pInstruction->m_branchOffsets.push_back(static_cast<char>(static_cast<BYTE>(pInstruction->m_operand)));
-				}
-				else
-				{
-					pInstruction->m_branchOffsets.push_back(static_cast<ULONG>(pInstruction->m_operand));
-				}
-			}
+            RecordBranchInfo(*pInstruction, details);
 
 			if (pInstruction->m_operation == CEE_SWITCH)
 			{
@@ -216,9 +235,9 @@ namespace Instrumentation
 
 		SetBuffer(nullptr);
 
-		ResolveBranches();
+		ResolveBranches(m_instructions.begin(), m_instructions.end());
 
-		ConvertShortBranches();
+		ConvertShortBranches(m_instructions.begin(), m_instructions.end());
 
 		RecalculateOffsets();
 	}
@@ -307,15 +326,7 @@ namespace Instrumentation
 	/// beforehand</remarks>
 	Instruction * Method::GetInstructionAtOffset(long offset)
 	{
-		for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
-		{
-			if ((*it)->m_offset == offset)
-			{
-				return it->get();
-			}
-		}
-		_ASSERTE(FALSE);
-		return nullptr;
+        return GetInstructionAtOffset(offset, m_instructions.begin(), m_instructions.end());
 	}
 
 	/// <summary>Gets the <c>Instruction</c> that has (is at) the specified offset.</summary>
@@ -370,9 +381,9 @@ namespace Instrumentation
 	/// <remarks>This allows us to insert (or modify) instructions without losing the intended 'goto' 
 	/// point. <c>RecalculateOffsets</c> is used to rebuild the new required operand(s) based on the
 	/// offsets of the instructions being referenced</remarks>
-	void Method::ResolveBranches()
+	void Method::ResolveBranches(InstructionList::iterator begin, InstructionList::iterator end)
 	{
-		for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
+		for (auto it = begin; it != end; ++it)
 		{
 			(*it)->m_branches.clear();
 			auto& details = Operations::m_mapNameOperationDetails[(*it)->m_operation];
@@ -385,7 +396,7 @@ namespace Instrumentation
 			for (auto offsetIter = (*it)->m_branchOffsets.begin(); offsetIter != (*it)->m_branchOffsets.end(); ++offsetIter)
 			{
 				auto offset = baseOffset + (*offsetIter);
-				auto instruction = GetInstructionAtOffset(offset);
+				auto instruction = GetInstructionAtOffset(offset, begin, end);
 				if (instruction != nullptr)
 				{
 					(*it)->m_branches.push_back(instruction);
@@ -463,6 +474,19 @@ namespace Instrumentation
 		}
 	}
 
+    Instruction* Method::GetInstructionAtOffset(long offset, InstructionList::iterator begin, InstructionList::iterator end)
+    {
+        for (auto it = begin; it != end; ++it)
+        {
+            if ((*it)->m_offset == offset)
+            {
+                return it->get();
+            }
+        }
+        _ASSERTE(FALSE);
+        return nullptr;
+    }
+
 	void Method::DumpExceptionFilters()
 	{
 		int i = 0;
@@ -483,14 +507,14 @@ namespace Instrumentation
 		}
 	}
 
-	/// <summary>Converts all short branches to long branches.</summary>
+    /// <summary>Converts all short branches to long branches.</summary>
 	/// <remarks><para>After instrumentation most short branches will not have the capacity for
 	/// the new required offset. Save time/effort and make all branches long ones.</para> 
 	/// <para>Could add the capability to optimise long to short at a later date but consider 
 	/// the benefits dubious after all the new instrumentation has been added.</para></remarks>
-	void Method::ConvertShortBranches()
+	void Method::ConvertShortBranches(InstructionList::iterator begin, InstructionList::iterator end)
 	{
-		for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
+		for (auto it = begin; it != end; ++it)
 		{
 			OperationDetails &details = Operations::m_mapNameOperationDetails[(*it)->m_operation];
 			if ((*it)->m_isBranch && details.operandSize == 1)
@@ -551,22 +575,27 @@ namespace Instrumentation
 		}
 	}
 
+    void Method::CalculateOffsets(InstructionList::iterator begin, InstructionList::iterator end)
+    {
+        long position = 0;
+        for (auto it = begin; it != end; ++it)
+        {
+            auto& details = Operations::m_mapNameOperationDetails[(*it)->m_operation];
+            (*it)->m_offset = position;
+            position += details.length;
+            position += details.operandSize;
+            if ((*it)->m_operation == CEE_SWITCH)
+            {
+                position += 4 * static_cast<long>((*it)->m_operand);
+            }
+        }
+    }
+
 	/// <summary>Recalculate the offsets of each instruction taking into account the instruction
 	/// size, the operand size and any extra datablocks CEE_SWITCH</summary>
 	void Method::RecalculateOffsets()
 	{
-		int position = 0;
-		for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
-		{
-			auto& details = Operations::m_mapNameOperationDetails[(*it)->m_operation];
-			(*it)->m_offset = position;
-			position += details.length;
-			position += details.operandSize;
-			if ((*it)->m_operation == CEE_SWITCH)
-			{
-				position += 4 * static_cast<long>((*it)->m_operand);
-			}
-		}
+        CalculateOffsets(m_instructions.begin(), m_instructions.end());
 
 		for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
 		{
@@ -655,7 +684,9 @@ namespace Instrumentation
 		InstructionList clone;
 		for (auto it = instructions.begin(); it != instructions.end(); ++it)
 		{
-			clone.push_back(std::make_unique<Instruction>(*(*it)));
+            auto clonedInstr = std::make_unique<Instruction>(*(*it));
+            RecordBranchInfo(*clonedInstr, Operations::m_mapNameOperationDetails[clonedInstr->m_operation]);
+			clone.push_back(std::move(clonedInstr));
 		}
 
 		for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
@@ -668,10 +699,12 @@ namespace Instrumentation
 			}
 		}
 
+        InstructionList::iterator begin, end;
 		for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
 		{
 			if ((*it)->m_origOffset == offset)
 			{
+                begin = it;
 				auto orig = *(*it);
 				for (unsigned int i = 0; i < clone.size(); i++)
 				{
@@ -680,9 +713,14 @@ namespace Instrumentation
 					*(*temp) = *(*it);
 				}
 				*(*it) = orig;
+                end = it;
 				break;
 			}
 		}
+
+        CalculateOffsets(begin, end); // assign temporary offsets within the new block so ResolveBranches works
+        ResolveBranches(begin, end);
+        ConvertShortBranches(begin, end);
 
 		RecalculateOffsets();
 	}
@@ -698,7 +736,9 @@ namespace Instrumentation
 		InstructionList clone;
 		for (auto it = instructions.begin(); it != instructions.end(); ++it)
 		{
-			clone.push_back(std::make_unique<Instruction>(*(*it)));
+            auto clonedInstr = std::make_unique<Instruction>(*(*it));
+            RecordBranchInfo(*clonedInstr, Operations::m_mapNameOperationDetails[clonedInstr->m_operation]);
+			clone.push_back(std::move(clonedInstr));
 		}
 
 		long actualOffset = 0;
@@ -715,12 +755,14 @@ namespace Instrumentation
 			}
 		}
 
-		if (!DoesTryHandlerPointToOffset(actualOffset))
+        InstructionList::iterator begin, end;
+        if (!DoesTryHandlerPointToOffset(actualOffset))
 		{
 			for (auto it = m_instructions.begin(); it != m_instructions.end(); ++it)
 			{
 				if (it->get() == actualInstruction)
 				{
+                    begin = it;
 					Instruction orig = *(*it);
 					for (unsigned int i = 0; i < clone.size(); i++)
 					{
@@ -729,13 +771,18 @@ namespace Instrumentation
 						*(*temp) = *(*it);
 					}
 					*(*it) = orig;
+                    end = it;
 					break;
 				}
 			}
 		}
 
-		RecalculateOffsets();
-	}
+        CalculateOffsets(begin, end); // temporary offsets
+        ResolveBranches(begin, end);
+        ConvertShortBranches(begin, end);
+
+        RecalculateOffsets();
+    }
 
 	/// <summary>Test if we have an exception where the handler start points to the 
 	/// instruction at the supplied offset</summary>

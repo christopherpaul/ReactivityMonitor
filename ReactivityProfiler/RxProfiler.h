@@ -78,9 +78,10 @@ public:
 
 private:
     CProfilerInfo m_profilerInfo;
-    const std::wstring m_supportAssemblyPath;
+    const std::wstring m_supportAssemblyFolder;
     concurrent_map<ModuleID, std::shared_ptr<PerModuleData>> m_moduleInfoMap;
 
+    void InstallAssemblyResolutionHandler(ModuleID mscorlibId);
     bool ReferencesObservableInterfaces(ModuleID moduleId, ObservableTypeReferences& typeRefs);
     void AddSupportAssemblyReference(ModuleID moduleId, const ObservableTypeReferences& observableRefs, SupportAssemblyReferences& refs);
     void InstrumentMethodBody(const MethodProps& name, const FunctionInfo& info, CMetadataImport& metadata, std::shared_ptr<PerModuleData>& pPerModuleData);

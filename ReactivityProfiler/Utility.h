@@ -14,6 +14,11 @@ inline HRESULT HandleExceptions(const std::function<void()>& f)
     {
         return hr;
     }
+    catch (std::exception ex)
+    {
+        RELTRACE("%s", ex.what());
+        return E_FAIL;
+    }
     catch (...)
     {
         return E_FAIL;
