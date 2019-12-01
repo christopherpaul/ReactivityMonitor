@@ -75,7 +75,7 @@ namespace ReactivityMonitor.Screens.ConnectionScreen
             }
             catch (ConnectionException ex)
             {
-                await mDialogService.ShowErrorDialog(ex.Message, "Start process").ConfigureAwait(false);
+                await mDialogService.ShowErrorDialog("Start process", ex.Message).ConfigureAwait(false);
             }
         }
     }
