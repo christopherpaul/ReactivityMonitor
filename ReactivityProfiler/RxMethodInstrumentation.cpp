@@ -342,14 +342,8 @@ void MethodBodyInstrumenter::InstrumentCall(ObservableCallInfo& call, CMetadataE
 
             if (call.m_argIsObservable[arg])
             {
-                ATLTRACE("DBG: Argument instrs for arg %d: A: %s", arg, FormatBytes(getSpan(call.m_argTypeSpan[arg])).c_str());
-                SignatureTypeReader argTypeReader(getSpan(call.m_argTypeSpan[arg]));
-                ATLTRACE("DBG: Argument instrs for arg %d: B", arg);
-                argTypeReader.MoveNextTypeArg(); // we know it's an IObservable<T> and we want the T
-                ATLTRACE("DBG: Argument instrs for arg %d: C", arg);
                 std::vector<COR_SIGNATURE> argumentCallSig;
-                MethodSpecSignatureWriter(argumentCallSig, 1).AddTypeArg(argTypeReader.GetTypeReader().GetSigSpan());
-                ATLTRACE("DBG: Argument instrs for arg %d: D", arg);
+                MethodSpecSignatureWriter(argumentCallSig, 1).AddTypeArg(getSpan(call.m_argTypeSpan[arg]));
 
                 mdMethodSpec argumentMethodSpecToken = emit.DefineMethodSpec({ supportRefs.m_Argument, argumentCallSig });
 

@@ -35,6 +35,30 @@ static std::vector<COR_SIGNATURE> CreateInstrumentCallingSig()
     return callingMethodSig;
 }
 
+static std::vector<COR_SIGNATURE> CreateInstrumentArgumentSig(const ObservableTypeReferences& observableRefs)
+{
+    // Construct signature for the reference to Instrument.Argument
+    // T Argument<T>(T, int)
+    std::vector<COR_SIGNATURE> argumentMethodSig;
+    MethodSignatureWriter sigWriter(argumentMethodSig, false, 2, 1); // <T>(,)
+    sigWriter.WriteParam().SetMethodTypeVar(0); // returns T
+    sigWriter.WriteParam().SetMethodTypeVar(0); // T
+    sigWriter.WriteParam().SetPrimitiveKind(ELEMENT_TYPE_I4);
+    sigWriter.Complete();
+
+#ifdef DEBUG
+    std::stringstream sigDump;
+    for (auto b : argumentMethodSig)
+    {
+        sigDump << std::hex << std::setfill('0') << std::setw(2) << (int)b << " ";
+    }
+    ATLTRACE("argumentMethodSig = %s", sigDump.str().c_str());
+#endif
+
+    return argumentMethodSig;
+}
+
+
 static std::vector<COR_SIGNATURE> CreateInstrumentReturnedSig(const ObservableTypeReferences& observableRefs)
 {
     // Construct signature for the reference to Instrument.Returned
@@ -86,12 +110,14 @@ void CRxProfiler::AddSupportAssemblyReference(ModuleID moduleId, const Observabl
         c_callingMethodSig
         });
 
-    auto returnedMethodSig = CreateInstrumentReturnedSig(observableRefs);
+    auto argumentMethodSig = CreateInstrumentArgumentSig(observableRefs);
     refs.m_Argument = emit.DefineMemberRef({
         refs.m_Instrument,
         L"Argument",
-        returnedMethodSig
+        argumentMethodSig
         });
+
+    auto returnedMethodSig = CreateInstrumentReturnedSig(observableRefs);
     refs.m_Returned = emit.DefineMemberRef({
         refs.m_Instrument,
         L"Returned",

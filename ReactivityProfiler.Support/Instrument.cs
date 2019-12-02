@@ -1,5 +1,6 @@
 ﻿using ReactivityProfiler.Support.Store;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -73,21 +74,56 @@ namespace ReactivityProfiler.Support
 
         private static ThreadLocal<CallTracker> sTracker = new ThreadLocal<CallTracker>(() => new CallTracker());
 
+        private static class ArgumentTypeSpecialisation<T>
+        {
+            public static readonly Func<T, int, T> ArgHandler;
+
+            static ArgumentTypeSpecialisation()
+            {
+                var argType = typeof(T);
+
+                // Check for T = IObservable<U>
+                if (argType.IsGenericType && argType.GetGenericTypeDefinition() == typeof(IObservable<>))
+                {
+                    var handlerType = typeof(ObservableArgHandler<>).MakeGenericType(argType.GenericTypeArguments[0]);
+                    ArgHandler = (Func<T, int, T>)((IObservableArgHandler)Activator.CreateInstance(handlerType)).GetHandler();
+                }
+            }
+        }
+
+        private interface IObservableArgHandler
+        {
+            object GetHandler();
+        }
+
+        private sealed class ObservableArgHandler<T> : IObservableArgHandler
+        {
+            public object GetHandler() => new Func<IObservable<T>, int, IObservable<T>>(HandleArg);
+
+            public IObservable<T> HandleArg(IObservable<T> observable, int instrumentationPoint)
+            {
+                if (observable is InstrumentedObservable<T> instrumented)
+                {
+                    Trace.WriteLine($"{instrumentationPoint}: Argument({instrumented.Info.ObservableId})");
+                    sTracker.Value.AddInfo(instrumentationPoint, instrumented.Info);
+                }
+                return observable;
+            }
+        }
+
+
         /// <summary>
         /// Called for each IObservable argument of an instrumented method call.
         /// </summary>
-        public static IObservable<T> Argument<T>(IObservable<T> observable, int instrumentationPoint)
+        public static T Argument<T>(T argValue, int instrumentationPoint)
         {
-            if (observable is InstrumentedObservable<T> instrumented)
+            var handler = ArgumentTypeSpecialisation<T>.ArgHandler;
+            if (handler == null)
             {
-                Trace.WriteLine($"{instrumentationPoint}: Argument({instrumented.Info.ObservableId})");
-                sTracker.Value.AddInfo(instrumentationPoint, instrumented.Info);
+                return argValue;
             }
-            else
-            {
-                Trace.WriteLine($"{instrumentationPoint}: Argument(?)");
-            }
-            return observable;
+
+            return handler(argValue, instrumentationPoint);
         }
 
         /// <summary>
