@@ -254,12 +254,12 @@ bool MethodBodyInstrumenter::TryFindObservableCalls()
                 callInfo.m_argIsObservable.clear();
                 callInfo.m_argTypeSpan.clear();
                 continue;
-            }
-
+            } 
+             
             auto paramTypeReader = paramReader.GetTypeReader();
-            bool isObservable = 
-                paramTypeReader.GetTypeKind() == ELEMENT_TYPE_GENERICINST &&
-                paramTypeReader.GetToken() == observableTypeRefs.m_IObservable;
+            bool isObservable = true; // For now let's treat all arg types as potentially interesting
+                //paramTypeReader.GetTypeKind() == ELEMENT_TYPE_GENERICINST &&
+                //paramTypeReader.GetToken() == observableTypeRefs.m_IObservable;
 
             // No need to start recording arg info until the first observable arg
             if (isObservable || !callInfo.m_argIsObservable.empty())

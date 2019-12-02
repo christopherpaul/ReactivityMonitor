@@ -4,6 +4,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading;
 
@@ -30,11 +31,11 @@ namespace ReactivityProfiler.Support
         /// </summary>
         private sealed class CallTracker
         {
-            private readonly List<ObservableInfo> mInfoList = new List<ObservableInfo>();
-            private readonly Stack<(int InstrPoint, IReadOnlyList<ObservableInfo> Inputs)> mCallStack = new Stack<(int InstrPoint, IReadOnlyList<ObservableInfo> Inputs)>();
+            private readonly List<IObservableInput> mInfoList = new List<IObservableInput>();
+            private readonly Stack<(int InstrPoint, IReadOnlyList<IObservableInput> Inputs)> mCallStack = new Stack<(int InstrPoint, IReadOnlyList<IObservableInput> Inputs)>();
             private int mCurrentInstrPoint;
 
-            public void AddInfo(int instrumentationPoint, ObservableInfo obsInfo)
+            public void AddInput(int instrumentationPoint, IObservableInput obsInfo)
             {
                 if (instrumentationPoint != mCurrentInstrPoint)
                 {
@@ -54,9 +55,9 @@ namespace ReactivityProfiler.Support
                 mInfoList.Clear();
             }
 
-            public IReadOnlyList<ObservableInfo> Returned(int instrumentationPoint)
+            public IReadOnlyList<IObservableInput> Returned(int instrumentationPoint)
             {
-                (int InstrPoint, IReadOnlyList<ObservableInfo> Inputs) entry;
+                (int InstrPoint, IReadOnlyList<IObservableInput> Inputs) entry;
                 do
                 {
                     if (mCallStack.Count == 0)
@@ -83,11 +84,58 @@ namespace ReactivityProfiler.Support
                 var argType = typeof(T);
 
                 // Check for T = IObservable<U>
-                if (argType.IsGenericType && argType.GetGenericTypeDefinition() == typeof(IObservable<>))
+                if (IsObservable(argType, out Type observableItemType))
                 {
-                    var handlerType = typeof(ObservableArgHandler<>).MakeGenericType(argType.GenericTypeArguments[0]);
+                    var handlerType = typeof(ObservableArgHandler<>).MakeGenericType(observableItemType);
                     ArgHandler = (Func<T, int, T>)((IObservableArgHandler)Activator.CreateInstance(handlerType)).GetHandler();
                 }
+
+                // Check for T = delegate returning IObservable<U>
+                if (typeof(Delegate).IsAssignableFrom(argType))
+                {
+                    var invokeMethod = argType.GetMethod("Invoke");
+                    var returnType = invokeMethod.ReturnType;
+                    if (IsObservable(returnType, out observableItemType))
+                    {
+                        Trace.WriteLine($"Arg type is delegate returning {returnType}");
+                        var attacherType = typeof(DynamicObservableAttacher<>).MakeGenericType(observableItemType);
+                        var delegateArgParams = invokeMethod.GetParameters().Select(p => Expression.Parameter(p.ParameterType)).ToArray();
+                        var handlerArgParam = Expression.Parameter(argType);
+                        var handlerIpParam = Expression.Parameter(typeof(int));
+                        var attacherVar = Expression.Parameter(attacherType);
+                        var observableVar = Expression.Parameter(returnType);
+                        var handlerExpression =
+                            Expression.Lambda<Func<T, int, T>>(
+                                Expression.Block(new[] {attacherVar},
+                                    Expression.Assign(attacherVar, Expression.New(attacherType)),
+                                    Expression.Call(
+                                        Expression.Property(Expression.Constant(sTracker), "Value"),
+                                        typeof(CallTracker).GetMethod("AddInput"),
+                                        handlerIpParam, attacherVar),
+                                    Expression.Lambda(argType,
+                                        Expression.Block(new[] {observableVar},
+                                            Expression.Assign(observableVar,
+                                                Expression.Invoke(handlerArgParam, delegateArgParams)),
+                                            Expression.Call(
+                                                attacherVar,
+                                                attacherType.GetMethod("Attach"),
+                                                observableVar)),
+                                        delegateArgParams)),
+                                handlerArgParam, handlerIpParam);
+                        ArgHandler = handlerExpression.Compile();
+                    }
+                }
+            }
+
+            private static bool IsObservable(Type argType, out Type observableItemType)
+            {
+                if (argType.IsGenericType && argType.GetGenericTypeDefinition() == typeof(IObservable<>))
+                {
+                    observableItemType = argType.GenericTypeArguments[0];
+                    return true;
+                }
+                observableItemType = null;
+                return false;
             }
         }
 
@@ -105,7 +153,7 @@ namespace ReactivityProfiler.Support
                 if (observable is InstrumentedObservable<T> instrumented)
                 {
                     Trace.WriteLine($"{instrumentationPoint}: Argument({instrumented.Info.ObservableId})");
-                    sTracker.Value.AddInfo(instrumentationPoint, instrumented.Info);
+                    sTracker.Value.AddInput(instrumentationPoint, instrumented.Info);
                 }
                 return observable;
             }
@@ -140,6 +188,8 @@ namespace ReactivityProfiler.Support
         /// </summary>
         public static IObservable<T> Returned<T>(IObservable<T> observable, int instrumentationPoint)
         {
+            var inputs = sTracker.Value.Returned(instrumentationPoint);
+
             if (observable == null)
             {
                 return observable;
@@ -152,9 +202,11 @@ namespace ReactivityProfiler.Support
                 return observable;
             }
 
-            var inputs = sTracker.Value.Returned(instrumentationPoint);
-            var obsInfo = new ObservableInfo(instrumentationPoint, inputs);
-            Trace.WriteLine($"{instrumentationPoint}: Returned({obsInfo.ObservableId} <- {string.Join(", ", inputs.Select(x => x.ObservableId))})");
+            var obsInfo = new ObservableInfo(instrumentationPoint);
+            foreach (var input in inputs)
+            {
+                input.AssociateWith(obsInfo);
+            }
 
             Services.Store.NotifyObservableCreated(obsInfo);
             return new InstrumentedObservable<T>(observable, obsInfo);

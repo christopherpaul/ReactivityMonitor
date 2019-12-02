@@ -33,6 +33,8 @@ namespace TestProfilee
             Console.WriteLine("Spinning up an observable...");
             IObservable<string> observable = new[] { "One", "two", "three" }.ToObservable()
                 .Zip(Observable.Interval(TimeSpan.FromSeconds(1)), (x, _) => x)
+                .SelectMany(x => x.ToObservable().Select(c => Observable.Return(c).Delay(TimeSpan.FromMilliseconds(100))).Concat())
+                .Select(x => $"{x}")
                 .Repeat();
 
             var sub = observable.Subscribe(Console.WriteLine);

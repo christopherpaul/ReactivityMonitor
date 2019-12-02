@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
@@ -8,22 +9,32 @@ namespace ReactivityProfiler.Support.Store
     /// <summary>
     /// Holds information about an IObservable instance.
     /// </summary>
-    internal sealed class ObservableInfo
+    internal sealed class ObservableInfo : IObservableInput
     {
         private static int sCurrentMonitoringRevision;
         private int mMonitoringRevision = -1;
+        private readonly ConcurrentDictionary<ObservableInfo, bool> mInputs = new ConcurrentDictionary<ObservableInfo, bool>();
 
-        public ObservableInfo(int instrumentationPoint, IReadOnlyList<ObservableInfo> inputs)
+        public ObservableInfo(int instrumentationPoint)
         {
             Details = CommonEventDetails.Capture();
             InstrumentationPoint = instrumentationPoint;
-            Inputs = inputs;
         }
 
         public long ObservableId => Details.EventSequenceId;
         public int InstrumentationPoint { get; }
-        public IReadOnlyList<ObservableInfo> Inputs { get; }
+        public IEnumerable<ObservableInfo> Inputs => mInputs.Keys;
         public CommonEventDetails Details { get; }
+
+        public void AddInput(ObservableInfo info)
+        {
+            mInputs.TryAdd(info, true);
+        }
+
+        public void RemoveInput(ObservableInfo info)
+        {
+            mInputs.TryRemove(info, out _);
+        }
 
         public bool Monitoring
         {
@@ -44,6 +55,11 @@ namespace ReactivityProfiler.Support.Store
         public static void StopMonitoringAll()
         {
             sCurrentMonitoringRevision++;
+        }
+
+        public void AssociateWith(ObservableInfo info)
+        {
+            info.AddInput(this);
         }
     }
 }
