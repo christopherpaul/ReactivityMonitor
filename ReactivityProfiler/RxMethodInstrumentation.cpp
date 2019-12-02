@@ -292,18 +292,34 @@ void MethodBodyInstrumenter::InstrumentCall(ObservableCallInfo& call, CMetadataE
         // locals.
         // (Currently not taking account of the possibility of sharing these locals between
         // multiple instrumentations.)
-        mdSignature localsSigTok = m_method->GetLocalsSignature();
-        SignatureBlob localsSigBlob = m_metadataImport.GetSigFromToken(localsSigTok);
-        ATLTRACE("Got locals sig: %s", FormatBytes(localsSigBlob).c_str());
-        LocalsSignatureReader localsSigReader(localsSigBlob);
-        int existingLocalsCount = localsSigReader.GetCount();
-        int argCount = static_cast<int>(call.m_argIsObservable.size()); // not necessarily all args, but the ones we're dealing with
         std::vector<SignatureBlob> argTypeSpans;
         std::transform(
-            call.m_argTypeSpan.begin(), call.m_argTypeSpan.end(), 
+            call.m_argTypeSpan.begin(), call.m_argTypeSpan.end(),
             std::back_inserter(argTypeSpans),
             getSpan);
-        std::vector<COR_SIGNATURE> extendedLocalsSig = localsSigReader.AppendLocals(argTypeSpans);
+        int argCount = static_cast<int>(call.m_argIsObservable.size()); // not necessarily all args, but the ones we're dealing with
+
+        mdSignature localsSigTok = m_method->GetLocalsSignature();
+        std::vector<COR_SIGNATURE> extendedLocalsSig;
+        int existingLocalsCount;
+        if (IsNilToken(localsSigTok))
+        {
+            existingLocalsCount = 0;
+            extendedLocalsSig = LocalsSignatureWriter::MakeSig(argCount, [&](LocalsSignatureWriter& w) {
+                std::for_each(argTypeSpans.begin(), argTypeSpans.end(), 
+                    [&](SignatureBlob b) { w.WriteLocal().Write(b); });
+            });
+        }
+        else
+        {
+            SignatureBlob localsSigBlob;
+            localsSigBlob = m_metadataImport.GetSigFromToken(localsSigTok);
+            ATLTRACE("Got locals sig: %s", FormatBytes(localsSigBlob).c_str());
+            LocalsSignatureReader localsSigReader(localsSigBlob);
+            existingLocalsCount = localsSigReader.GetCount();
+            extendedLocalsSig = localsSigReader.AppendLocals(argTypeSpans);
+        }
+
         mdSignature extendedLocalsTok = emit.GetTokenFromSig(extendedLocalsSig);
         ATLTRACE("Got extended locals token: %x for %s", extendedLocalsTok, FormatBytes(extendedLocalsSig).c_str());
         m_method->SetLocalsSignature(extendedLocalsTok);

@@ -35,7 +35,6 @@ public:
     void Write(const std::wstring& s)
     {
         int length = static_cast<int>(s.length());
-        ATLTRACE(L"Write: s=%s, length=%d", s.c_str(), length);
         Write32(length);
         m_buffer.write(reinterpret_cast<const byte*>(s.data()), length * sizeof(wchar_t));
     }
