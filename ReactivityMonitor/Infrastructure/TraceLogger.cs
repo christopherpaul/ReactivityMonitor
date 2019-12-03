@@ -17,7 +17,7 @@ namespace ReactivityMonitor.Infrastructure
 
         public void Info(string format, params object[] args)
         {
-            Trace.TraceInformation(format, args);
+            //Trace.TraceInformation(format, args);
         }
 
         public void Warn(string format, params object[] args)
