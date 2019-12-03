@@ -24,7 +24,7 @@ namespace ReactivityProfiler.Protocol {
     static ReactivityProfilerProtocolReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "CiBSZWFjdGl2aXR5UHJvZmlsZXJQcm90b2NvbC5wcm90byL1AgoMRXZlbnRN",
+            "CiBSZWFjdGl2aXR5UHJvZmlsZXJQcm90b2NvbC5wcm90byKrAwoMRXZlbnRN",
             "ZXNzYWdlEioKDE1vZHVsZUxvYWRlZBgBIAEoCzISLk1vZHVsZUxvYWRlZEV2",
             "ZW50SAASPgoWTWV0aG9kQ2FsbEluc3RydW1lbnRlZBgCIAEoCzIcLk1ldGhv",
             "ZENhbGxJbnN0cnVtZW50ZWRFdmVudEgAEjQKEU9ic2VydmFibGVDcmVhdGVk",
@@ -32,16 +32,19 @@ namespace ReactivityProfiler.Protocol {
             "ZRgEIAEoCzIPLlN1YnNjcmliZUV2ZW50SAASKAoLVW5zdWJzY3JpYmUYBSAB",
             "KAsyES5VbnN1YnNjcmliZUV2ZW50SAASHgoGT25OZXh0GAYgASgLMgwuT25O",
             "ZXh0RXZlbnRIABIoCgtPbkNvbXBsZXRlZBgHIAEoCzIRLk9uQ29tcGxldGVk",
-            "RXZlbnRIABIgCgdPbkVycm9yGAggASgLMg0uT25FcnJvckV2ZW50SABCBwoF",
-            "RXZlbnQiMwoRTW9kdWxlTG9hZGVkRXZlbnQSEAoITW9kdWxlSUQYASABKAQS",
-            "DAoEUGF0aBgCIAEoCSLOAQobTWV0aG9kQ2FsbEluc3RydW1lbnRlZEV2ZW50",
-            "Eh4KFkluc3RydW1lbnRhdGlvblBvaW50SWQYASABKAUSEAoITW9kdWxlSWQY",
-            "AiABKAQSFQoNRnVuY3Rpb25Ub2tlbhgDIAEoDRIZChFJbnN0cnVjdGlvbk9m",
-            "ZnNldBgEIAEoBRIYChBDYWxsZWRNZXRob2ROYW1lGAUgASgJEhYKDk93bmlu",
-            "Z1R5cGVOYW1lGAYgASgJEhkKEUNhbGxpbmdNZXRob2ROYW1lGAcgASgJInUK",
-            "Fk9ic2VydmFibGVDcmVhdGVkRXZlbnQSIAoMQ3JlYXRlZEV2ZW50GAEgASgL",
-            "MgouRXZlbnRJbmZvEh4KFkluc3RydW1lbnRhdGlvblBvaW50SWQYAiABKAUS",
-            "GQoRSW5wdXRPYnNlcnZhYmxlSWQYBCADKAMiQQoOU3Vic2NyaWJlRXZlbnQS",
+            "RXZlbnRIABIgCgdPbkVycm9yGAggASgLMg0uT25FcnJvckV2ZW50SAASNAoR",
+            "T2JzZXJ2YWJsZXNMaW5rZWQYCSABKAsyFy5PYnNlcnZhYmxlc0xpbmtlZEV2",
+            "ZW50SABCBwoFRXZlbnQiMwoRTW9kdWxlTG9hZGVkRXZlbnQSEAoITW9kdWxl",
+            "SUQYASABKAQSDAoEUGF0aBgCIAEoCSLOAQobTWV0aG9kQ2FsbEluc3RydW1l",
+            "bnRlZEV2ZW50Eh4KFkluc3RydW1lbnRhdGlvblBvaW50SWQYASABKAUSEAoI",
+            "TW9kdWxlSWQYAiABKAQSFQoNRnVuY3Rpb25Ub2tlbhgDIAEoDRIZChFJbnN0",
+            "cnVjdGlvbk9mZnNldBgEIAEoBRIYChBDYWxsZWRNZXRob2ROYW1lGAUgASgJ",
+            "EhYKDk93bmluZ1R5cGVOYW1lGAYgASgJEhkKEUNhbGxpbmdNZXRob2ROYW1l",
+            "GAcgASgJInUKFk9ic2VydmFibGVDcmVhdGVkRXZlbnQSIAoMQ3JlYXRlZEV2",
+            "ZW50GAEgASgLMgouRXZlbnRJbmZvEh4KFkluc3RydW1lbnRhdGlvblBvaW50",
+            "SWQYAiABKAUSGQoRSW5wdXRPYnNlcnZhYmxlSWQYBCADKAMiTwoWT2JzZXJ2",
+            "YWJsZXNMaW5rZWRFdmVudBIaChJPdXRwdXRPYnNlcnZhYmxlSWQYASABKAMS",
+            "GQoRSW5wdXRPYnNlcnZhYmxlSWQYAiABKAMiQQoOU3Vic2NyaWJlRXZlbnQS",
             "GQoFRXZlbnQYASABKAsyCi5FdmVudEluZm8SFAoMT2JzZXJ2YWJsZUlkGAIg",
             "ASgDIkUKEFVuc3Vic2NyaWJlRXZlbnQSGQoFRXZlbnQYASABKAsyCi5FdmVu",
             "dEluZm8SFgoOU3Vic2NyaXB0aW9uSWQYAiABKAMiVQoLT25OZXh0RXZlbnQS",
@@ -64,10 +67,11 @@ namespace ReactivityProfiler.Protocol {
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.EventMessage), global::ReactivityProfiler.Protocol.EventMessage.Parser, new[]{ "ModuleLoaded", "MethodCallInstrumented", "ObservableCreated", "Subscribe", "Unsubscribe", "OnNext", "OnCompleted", "OnError" }, new[]{ "Event" }, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.EventMessage), global::ReactivityProfiler.Protocol.EventMessage.Parser, new[]{ "ModuleLoaded", "MethodCallInstrumented", "ObservableCreated", "Subscribe", "Unsubscribe", "OnNext", "OnCompleted", "OnError", "ObservablesLinked" }, new[]{ "Event" }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.ModuleLoadedEvent), global::ReactivityProfiler.Protocol.ModuleLoadedEvent.Parser, new[]{ "ModuleID", "Path" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.MethodCallInstrumentedEvent), global::ReactivityProfiler.Protocol.MethodCallInstrumentedEvent.Parser, new[]{ "InstrumentationPointId", "ModuleId", "FunctionToken", "InstructionOffset", "CalledMethodName", "OwningTypeName", "CallingMethodName" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.ObservableCreatedEvent), global::ReactivityProfiler.Protocol.ObservableCreatedEvent.Parser, new[]{ "CreatedEvent", "InstrumentationPointId", "InputObservableId" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.ObservablesLinkedEvent), global::ReactivityProfiler.Protocol.ObservablesLinkedEvent.Parser, new[]{ "OutputObservableId", "InputObservableId" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.SubscribeEvent), global::ReactivityProfiler.Protocol.SubscribeEvent.Parser, new[]{ "Event", "ObservableId" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.UnsubscribeEvent), global::ReactivityProfiler.Protocol.UnsubscribeEvent.Parser, new[]{ "Event", "SubscriptionId" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.OnNextEvent), global::ReactivityProfiler.Protocol.OnNextEvent.Parser, new[]{ "Event", "SubscriptionId", "ValueString" }, null, null, null),
@@ -133,6 +137,9 @@ namespace ReactivityProfiler.Protocol {
           break;
         case EventOneofCase.OnError:
           OnError = other.OnError.Clone();
+          break;
+        case EventOneofCase.ObservablesLinked:
+          ObservablesLinked = other.ObservablesLinked.Clone();
           break;
       }
 
@@ -232,6 +239,17 @@ namespace ReactivityProfiler.Protocol {
       }
     }
 
+    /// <summary>Field number for the "ObservablesLinked" field.</summary>
+    public const int ObservablesLinkedFieldNumber = 9;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::ReactivityProfiler.Protocol.ObservablesLinkedEvent ObservablesLinked {
+      get { return eventCase_ == EventOneofCase.ObservablesLinked ? (global::ReactivityProfiler.Protocol.ObservablesLinkedEvent) event_ : null; }
+      set {
+        event_ = value;
+        eventCase_ = value == null ? EventOneofCase.None : EventOneofCase.ObservablesLinked;
+      }
+    }
+
     private object event_;
     /// <summary>Enum of possible cases for the "Event" oneof.</summary>
     public enum EventOneofCase {
@@ -244,6 +262,7 @@ namespace ReactivityProfiler.Protocol {
       OnNext = 6,
       OnCompleted = 7,
       OnError = 8,
+      ObservablesLinked = 9,
     }
     private EventOneofCase eventCase_ = EventOneofCase.None;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -278,6 +297,7 @@ namespace ReactivityProfiler.Protocol {
       if (!object.Equals(OnNext, other.OnNext)) return false;
       if (!object.Equals(OnCompleted, other.OnCompleted)) return false;
       if (!object.Equals(OnError, other.OnError)) return false;
+      if (!object.Equals(ObservablesLinked, other.ObservablesLinked)) return false;
       if (EventCase != other.EventCase) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -293,6 +313,7 @@ namespace ReactivityProfiler.Protocol {
       if (eventCase_ == EventOneofCase.OnNext) hash ^= OnNext.GetHashCode();
       if (eventCase_ == EventOneofCase.OnCompleted) hash ^= OnCompleted.GetHashCode();
       if (eventCase_ == EventOneofCase.OnError) hash ^= OnError.GetHashCode();
+      if (eventCase_ == EventOneofCase.ObservablesLinked) hash ^= ObservablesLinked.GetHashCode();
       hash ^= (int) eventCase_;
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -339,6 +360,10 @@ namespace ReactivityProfiler.Protocol {
         output.WriteRawTag(66);
         output.WriteMessage(OnError);
       }
+      if (eventCase_ == EventOneofCase.ObservablesLinked) {
+        output.WriteRawTag(74);
+        output.WriteMessage(ObservablesLinked);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -370,6 +395,9 @@ namespace ReactivityProfiler.Protocol {
       }
       if (eventCase_ == EventOneofCase.OnError) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(OnError);
+      }
+      if (eventCase_ == EventOneofCase.ObservablesLinked) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(ObservablesLinked);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -430,6 +458,12 @@ namespace ReactivityProfiler.Protocol {
             OnError = new global::ReactivityProfiler.Protocol.OnErrorEvent();
           }
           OnError.MergeFrom(other.OnError);
+          break;
+        case EventOneofCase.ObservablesLinked:
+          if (ObservablesLinked == null) {
+            ObservablesLinked = new global::ReactivityProfiler.Protocol.ObservablesLinkedEvent();
+          }
+          ObservablesLinked.MergeFrom(other.ObservablesLinked);
           break;
       }
 
@@ -514,6 +548,15 @@ namespace ReactivityProfiler.Protocol {
             }
             input.ReadMessage(subBuilder);
             OnError = subBuilder;
+            break;
+          }
+          case 74: {
+            global::ReactivityProfiler.Protocol.ObservablesLinkedEvent subBuilder = new global::ReactivityProfiler.Protocol.ObservablesLinkedEvent();
+            if (eventCase_ == EventOneofCase.ObservablesLinked) {
+              subBuilder.MergeFrom(ObservablesLinked);
+            }
+            input.ReadMessage(subBuilder);
+            ObservablesLinked = subBuilder;
             break;
           }
         }
@@ -1163,6 +1206,163 @@ namespace ReactivityProfiler.Protocol {
 
   }
 
+  public sealed partial class ObservablesLinkedEvent : pb::IMessage<ObservablesLinkedEvent> {
+    private static readonly pb::MessageParser<ObservablesLinkedEvent> _parser = new pb::MessageParser<ObservablesLinkedEvent>(() => new ObservablesLinkedEvent());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<ObservablesLinkedEvent> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[4]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public ObservablesLinkedEvent() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public ObservablesLinkedEvent(ObservablesLinkedEvent other) : this() {
+      outputObservableId_ = other.outputObservableId_;
+      inputObservableId_ = other.inputObservableId_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public ObservablesLinkedEvent Clone() {
+      return new ObservablesLinkedEvent(this);
+    }
+
+    /// <summary>Field number for the "OutputObservableId" field.</summary>
+    public const int OutputObservableIdFieldNumber = 1;
+    private long outputObservableId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public long OutputObservableId {
+      get { return outputObservableId_; }
+      set {
+        outputObservableId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "InputObservableId" field.</summary>
+    public const int InputObservableIdFieldNumber = 2;
+    private long inputObservableId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public long InputObservableId {
+      get { return inputObservableId_; }
+      set {
+        inputObservableId_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as ObservablesLinkedEvent);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(ObservablesLinkedEvent other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (OutputObservableId != other.OutputObservableId) return false;
+      if (InputObservableId != other.InputObservableId) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (OutputObservableId != 0L) hash ^= OutputObservableId.GetHashCode();
+      if (InputObservableId != 0L) hash ^= InputObservableId.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      if (OutputObservableId != 0L) {
+        output.WriteRawTag(8);
+        output.WriteInt64(OutputObservableId);
+      }
+      if (InputObservableId != 0L) {
+        output.WriteRawTag(16);
+        output.WriteInt64(InputObservableId);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (OutputObservableId != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(OutputObservableId);
+      }
+      if (InputObservableId != 0L) {
+        size += 1 + pb::CodedOutputStream.ComputeInt64Size(InputObservableId);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(ObservablesLinkedEvent other) {
+      if (other == null) {
+        return;
+      }
+      if (other.OutputObservableId != 0L) {
+        OutputObservableId = other.OutputObservableId;
+      }
+      if (other.InputObservableId != 0L) {
+        InputObservableId = other.InputObservableId;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            OutputObservableId = input.ReadInt64();
+            break;
+          }
+          case 16: {
+            InputObservableId = input.ReadInt64();
+            break;
+          }
+        }
+      }
+    }
+
+  }
+
   /// <summary>
   /// Subscription's ID is Event.SequenceId from this event
   /// </summary>
@@ -1174,7 +1374,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[4]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[5]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1337,7 +1537,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[5]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[6]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1503,7 +1703,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[6]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[7]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1697,7 +1897,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[7]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[8]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1863,7 +2063,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[8]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[9]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2057,7 +2257,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[9]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[10]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2242,7 +2442,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[10]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[11]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2485,7 +2685,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[11]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[12]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2586,7 +2786,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[12]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[13]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2708,7 +2908,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[13]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[14]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]

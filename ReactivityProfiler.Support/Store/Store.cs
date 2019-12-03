@@ -23,9 +23,21 @@ namespace ReactivityProfiler.Support.Store
         public ISubscriptionStore Subscriptions { get; }
         public IRxEventStore RxEvents { get; }
 
-        public void NotifyObservableCreated(ObservableInfo obs)
+        public ObservableInfo CreateObservable(int instrumentationPoint)
         {
+            var obs = new ObservableInfo(instrumentationPoint);
             mEventMediator.ObservableCreated(obs);
+            return obs;
+        }
+
+        public void NotifyObservablesLinked(ObservableInfo output, ObservableInfo input)
+        {
+            mEventMediator.ObservablesLinked(output, input);
+        }
+
+        public void NotifyObservablesUnlinked(ObservableInfo output, ObservableInfo input)
+        {
+            // No need to do anything?
         }
 
         public void SinkEvents(IStoreEventSink sink) => mEventMediator.SinkEvents(sink);
@@ -91,22 +103,15 @@ namespace ReactivityProfiler.Support.Store
                 if (mMonitoredInstrumentationPoints.ContainsKey(rootObs.InstrumentationPoint))
                 {
                     MonitorChain(rootObs);
+                }
+            }
 
-                    void MonitorChain(ObservableInfo obs)
-                    {
-                        if (obs.Monitoring)
-                        {
-                            return;
-                        }
-
-                        mEventSink?.ObservableCreated(obs);
-
-                        obs.Monitoring = true;
-                        foreach (var input in obs.Inputs)
-                        {
-                            MonitorChain(input);
-                        }
-                    }
+            public void ObservablesLinked(ObservableInfo output, ObservableInfo input)
+            {
+                if (output.Monitoring)
+                {
+                    mEventSink?.ObservablesLinked(output, input);
+                    MonitorChain(input);
                 }
             }
 
@@ -147,6 +152,22 @@ namespace ReactivityProfiler.Support.Store
                 if (sub.Observable.Monitoring)
                 {
                     mEventSink?.Unsubscribed(ref details, sub);
+                }
+            }
+
+            private void MonitorChain(ObservableInfo obs)
+            {
+                if (obs.Monitoring)
+                {
+                    return;
+                }
+
+                mEventSink?.ObservableCreated(obs);
+
+                obs.Monitoring = true;
+                foreach (var input in obs.Inputs)
+                {
+                    MonitorChain(input);
                 }
             }
 

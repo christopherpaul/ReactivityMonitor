@@ -28,12 +28,18 @@ namespace ReactivityProfiler.Support.Store
 
         public void AddInput(ObservableInfo info)
         {
-            mInputs.TryAdd(info, true);
+            if (mInputs.TryAdd(info, true))
+            {
+                Services.Store.NotifyObservablesLinked(this, info);
+            }
         }
 
         public void RemoveInput(ObservableInfo info)
         {
-            mInputs.TryRemove(info, out _);
+            if (mInputs.TryRemove(info, out _))
+            {
+                Services.Store.NotifyObservablesUnlinked(this, info);
+            }
         }
 
         public bool Monitoring

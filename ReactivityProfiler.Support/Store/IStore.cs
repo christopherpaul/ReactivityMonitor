@@ -6,7 +6,9 @@
         ISubscriptionStore Subscriptions { get; }
         IRxEventStore RxEvents { get; }
 
-        void NotifyObservableCreated(ObservableInfo obs);
+        ObservableInfo CreateObservable(int instrumentationPoint);
+        void NotifyObservablesLinked(ObservableInfo output, ObservableInfo input);
+        void NotifyObservablesUnlinked(ObservableInfo output, ObservableInfo input);
 
         void SinkEvents(IStoreEventSink sink);
         void StartMonitoring(int instrumentationPoint);

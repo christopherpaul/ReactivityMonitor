@@ -93,6 +93,10 @@ namespace ReactivityMonitor.ProfilerClient
                     OnObservableChain(msg.ObservableCreated);
                     break;
 
+                case ObservablesLinked:
+                    OnObservablesLinked(msg.ObservablesLinked);
+                    break;
+
                 case Subscribe:
                     OnSubscribe(msg.Subscribe);
                     break;
@@ -113,6 +117,11 @@ namespace ReactivityMonitor.ProfilerClient
                     OnOnError(msg.OnError);
                     break;
             }
+        }
+
+        private void OnObservablesLinked(Protocol.ObservablesLinkedEvent observablesLinked)
+        {
+            mModelUpdater.RelateObservableInstances(observablesLinked.InputObservableId, observablesLinked.OutputObservableId);
         }
 
         private void OnOnError(Protocol.OnErrorEvent onError)

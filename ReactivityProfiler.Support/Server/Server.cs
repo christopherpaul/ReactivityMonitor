@@ -171,6 +171,17 @@ namespace ReactivityProfiler.Support.Server
                 SendEvent(new EventMessage { ObservableCreated = ev });
             }
 
+            void IStoreEventSink.ObservablesLinked(ObservableInfo output, ObservableInfo input)
+            {
+                var ev = new ObservablesLinkedEvent
+                {
+                    OutputObservableId = output.ObservableId,
+                    InputObservableId = input.ObservableId
+                };
+
+                SendEvent(new EventMessage { ObservablesLinked = ev });
+            }
+
             void IStoreEventSink.Subscribed(SubscriptionInfo sub)
             {
                 SendEvent(new EventMessage

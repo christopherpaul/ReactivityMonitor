@@ -202,13 +202,12 @@ namespace ReactivityProfiler.Support
                 return observable;
             }
 
-            var obsInfo = new ObservableInfo(instrumentationPoint);
+            var obsInfo = Services.Store.CreateObservable(instrumentationPoint);
             foreach (var input in inputs)
             {
                 input.AssociateWith(obsInfo);
             }
 
-            Services.Store.NotifyObservableCreated(obsInfo);
             return new InstrumentedObservable<T>(observable, obsInfo);
         }
     }

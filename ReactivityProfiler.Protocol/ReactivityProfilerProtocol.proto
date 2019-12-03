@@ -11,6 +11,7 @@ message EventMessage {
 		OnNextEvent OnNext = 6;
 		OnCompletedEvent OnCompleted = 7;
 		OnErrorEvent OnError = 8;
+		ObservablesLinkedEvent ObservablesLinked = 9;
 	}
 }
 
@@ -34,6 +35,11 @@ message ObservableCreatedEvent {
 	EventInfo CreatedEvent = 1;
 	int32 InstrumentationPointId = 2;
 	repeated int64 InputObservableId = 4;
+}
+
+message ObservablesLinkedEvent {
+	int64 OutputObservableId = 1;
+	int64 InputObservableId = 2;
 }
 
 // Subscription's ID is Event.SequenceId from this event
