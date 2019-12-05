@@ -21,7 +21,7 @@ namespace ReactivityMonitor.ProfilerClient
             mConnectedCallback = connectedCallback;
             mMessageReceivedCallback = messageReceivedCallback;
 
-            Trace.WriteLine($"Creating pipe: {pipeName}");
+            Trace.TraceInformation($"Creating pipe: {pipeName}");
             mPipeStream = new NamedPipeClientStream(
                 ".",
                 pipeName,
@@ -62,10 +62,10 @@ namespace ReactivityMonitor.ProfilerClient
                 {
                     if (!mPipeStream.IsConnected)
                     {
-                        Trace.WriteLine("Connecting to the server");
+                        Trace.TraceInformation("Connecting to the server");
                         mPipeStream.Connect();
                         mPipeStream.ReadMode = PipeTransmissionMode.Message;
-                        Trace.WriteLine("Connected to the server");
+                        Trace.TraceInformation("Connected to the server");
                         OnConnected();
                     }
 
@@ -79,12 +79,10 @@ namespace ReactivityMonitor.ProfilerClient
                             remainingBufferSize = buffer.Length - bufferOffset;
                         }
 
-                        Trace.WriteLine("Waiting for data from pipe");
                         int bytesRead = mPipeStream.Read(buffer, bufferOffset, remainingBufferSize);
                         bufferOffset += bytesRead;
                     }
                     while (!mPipeStream.IsMessageComplete);
-                    Trace.WriteLine("Message received from pipe");
 
                     OnMessageReceived(buffer, bufferOffset);
                 }

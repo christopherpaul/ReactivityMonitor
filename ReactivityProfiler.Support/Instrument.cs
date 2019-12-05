@@ -97,7 +97,6 @@ namespace ReactivityProfiler.Support
                     var returnType = invokeMethod.ReturnType;
                     if (IsObservable(returnType, out observableItemType))
                     {
-                        Trace.WriteLine($"Arg type is delegate returning {returnType}");
                         var attacherType = typeof(DynamicObservableAttacher<>).MakeGenericType(observableItemType);
                         var delegateArgParams = invokeMethod.GetParameters().Select(p => Expression.Parameter(p.ParameterType)).ToArray();
                         var handlerArgParam = Expression.Parameter(argType);
@@ -152,7 +151,6 @@ namespace ReactivityProfiler.Support
             {
                 if (observable is InstrumentedObservable<T> instrumented)
                 {
-                    Trace.WriteLine($"{instrumentationPoint}: Argument({instrumented.Info.ObservableId})");
                     sTracker.Value.AddInput(instrumentationPoint, instrumented.Info);
                 }
                 return observable;
@@ -179,7 +177,6 @@ namespace ReactivityProfiler.Support
         /// </summary>
         public static void Calling(int instrumentationPoint)
         {
-            Trace.WriteLine($"{instrumentationPoint}: Calling");
             sTracker.Value.Calling(instrumentationPoint);
         }
 

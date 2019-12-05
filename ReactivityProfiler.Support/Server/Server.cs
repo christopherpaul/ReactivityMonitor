@@ -72,14 +72,12 @@ namespace ReactivityProfiler.Support.Server
 
         private void StartSendingInstrumentationEvents()
         {
-            Trace.WriteLine("StartSendingInstrumentationEvents");
             var task = new Task(() => SendInstrumentationEvents(mChannel), TaskCreationOptions.LongRunning);
             task.Start();
         }
 
         private void SendInstrumentationEvents(Channel channel)
         {
-            Trace.WriteLine("SendInstrumentationEvents");
             try
             {
                 int index = 0;
@@ -145,7 +143,6 @@ namespace ReactivityProfiler.Support.Server
         {
             if (channel != null)
             {
-                Trace.WriteLine($"Sending message to client: {msg}");
                 channel.SendMessage(msg.ToByteArray());
             }
         }

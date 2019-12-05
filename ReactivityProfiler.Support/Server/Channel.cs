@@ -24,7 +24,7 @@ namespace ReactivityProfiler.Support.Server
             mMessageReceivedCallback = messageReceivedCallback;
             mDisconnectedCallback = disconnectedCallback;
             mPipeName = $"{nameof(ReactivityProfiler)}.{Process.GetCurrentProcess().Id}.{Guid.NewGuid():N}";
-            Trace.WriteLine($"Opening pipe: {mPipeName}");
+            Trace.TraceInformation($"Opening pipe: {mPipeName}");
             mPipeStream = new NamedPipeServerStream(
                 mPipeName,
                 PipeDirection.InOut,
@@ -66,7 +66,7 @@ namespace ReactivityProfiler.Support.Server
 
         private void SendMessages()
         {
-            Trace.WriteLine("SendMessages thread started");
+            Trace.TraceInformation("SendMessages thread started");
             foreach (byte[] message in mWriteQueue.GetConsumingEnumerable())
             {
                 try
@@ -77,7 +77,7 @@ namespace ReactivityProfiler.Support.Server
                     }
                     else
                     {
-                        Trace.WriteLine("Not connected; message dropped.");
+                        Trace.TraceWarning("Not connected; message dropped.");
                     }
                 }
                 catch (Exception ex)
@@ -93,9 +93,9 @@ namespace ReactivityProfiler.Support.Server
             {
                 Registry.SetChannelPipeName(mPipeName);
 
-                Trace.WriteLine("Waiting for client to connect");
+                Trace.TraceInformation("Waiting for client to connect");
                 mPipeStream.WaitForConnection();
-                Trace.WriteLine("Client has connected");
+                Trace.TraceInformation("Client has connected");
                 Registry.ClearChannelPipeName();
 
                 mWriterThread.Start();
@@ -114,7 +114,6 @@ namespace ReactivityProfiler.Support.Server
                         }
 
                         int bytesRead = mPipeStream.Read(buffer, bufferOffset, remainingBufferSize);
-                        Trace.WriteLine($"Pipe read returned with {bytesRead} bytes; IsMessageComplete={mPipeStream.IsMessageComplete}");
                         bufferOffset += bytesRead;
                     }
                     while (!mPipeStream.IsMessageComplete);

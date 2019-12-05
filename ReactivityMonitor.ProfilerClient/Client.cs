@@ -78,7 +78,6 @@ namespace ReactivityMonitor.ProfilerClient
         private void OnMessageReceived(Stream msgStream)
         {
             var msg = Protocol.EventMessage.Parser.ParseFrom(msgStream);
-            Trace.WriteLine($"Received message from server: {msg}");
             switch (msg.EventCase)
             {
                 case ModuleLoaded:
