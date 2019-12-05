@@ -117,7 +117,7 @@ namespace ReactivityProfiler.Support.Store
 
             public void OnCompleted(ref CommonEventDetails details, SubscriptionInfo sub)
             {
-                if (sub.Observable.Monitoring)
+                if (IsMonitoringSub(sub))
                 {
                     mEventSink?.OnCompleted(ref details, sub);
                 }
@@ -125,7 +125,7 @@ namespace ReactivityProfiler.Support.Store
 
             public void OnError(ref CommonEventDetails details, SubscriptionInfo sub, Exception error)
             {
-                if (sub.Observable.Monitoring)
+                if (IsMonitoringSub(sub))
                 {
                     mEventSink?.OnError(ref details, sub, error);
                 }
@@ -133,7 +133,7 @@ namespace ReactivityProfiler.Support.Store
 
             public void OnNext<T>(ref CommonEventDetails details, SubscriptionInfo sub, T value)
             {
-                if (sub.Observable.Monitoring)
+                if (IsMonitoringSub(sub))
                 {
                     mEventSink?.OnNext(ref details, sub, value);
                 }
@@ -141,18 +141,32 @@ namespace ReactivityProfiler.Support.Store
 
             public void Subscribed(SubscriptionInfo sub)
             {
-                if (sub.Observable.Monitoring)
-                {
-                    mEventSink?.Subscribed(sub);
-                }
+                IsMonitoringSub(sub);
             }
 
             public void Unsubscribed(ref CommonEventDetails details, SubscriptionInfo sub)
             {
-                if (sub.Observable.Monitoring)
+                if (IsMonitoringSub(sub))
                 {
                     mEventSink?.Unsubscribed(ref details, sub);
                 }
+            }
+
+            private bool IsMonitoringSub(SubscriptionInfo sub)
+            {
+                if (sub.Monitoring)
+                {
+                    return true;
+                }
+
+                if (sub.Observable.Monitoring)
+                {
+                    sub.Monitoring = true;
+                    mEventSink?.Subscribed(sub);
+                    return true;
+                }
+
+                return false;
             }
 
             private void MonitorChain(ObservableInfo obs)

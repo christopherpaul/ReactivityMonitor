@@ -58,6 +58,8 @@ namespace ReactivityProfiler.Support.Store
             }
         }
 
+        internal static int CurrentMonitoringRevision => sCurrentMonitoringRevision;
+
         public static void StopMonitoringAll()
         {
             sCurrentMonitoringRevision++;
