@@ -64,7 +64,7 @@ static std::vector<COR_SIGNATURE> CreateInstrumentReturnedSig(const ObservableTy
     // Construct signature for the reference to Instrument.Returned
     // IObservable<T> Returned<T>(IObservable<T>, int)
     std::vector<COR_SIGNATURE> returnedMethodSig;
-    MethodSignatureWriter sigWriter(returnedMethodSig, false, 2, 1); // <T>(,)
+    MethodSignatureWriter sigWriter(returnedMethodSig, false, 2, 2); // <T, TObs>(,)
     auto returnTypeWriter = sigWriter.WriteParam();
     returnTypeWriter.SetGenericClass(observableRefs.m_IObservable, 1); // IObservable<>
     returnTypeWriter.WriteTypeArg().SetMethodTypeVar(0); // of T

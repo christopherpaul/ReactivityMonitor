@@ -149,12 +149,26 @@ bool CRxProfiler::ReferencesObservableInterfaces(ModuleID moduleId, ObservableTy
     mdTypeRef observableRef;
     for (auto assemblyEnum = metadataAssemblyImport.EnumAssemblyRefs(); assemblyEnum.MoveNext(); )
     {
-        if (metadataImport.TryFindTypeRef(assemblyEnum.Current(), L"System.IObservable`1", observableRef))
+        if (!typeRefs.m_IObservable && metadataImport.TryFindTypeRef(assemblyEnum.Current(), L"System.IObservable`1", observableRef))
         {
             typeRefs.m_IObservable = observableRef;
-            return true;
+        }
+
+        if (!typeRefs.m_IConnectableObservable && metadataImport.TryFindTypeRef(assemblyEnum.Current(), L"System.Reactive.Subjects.IConnectableObservable`1", observableRef))
+        {
+            typeRefs.m_IConnectableObservable = observableRef;
+        }
+
+        if (!typeRefs.m_IGroupedObservable && metadataImport.TryFindTypeRef(assemblyEnum.Current(), L"System.Reactive.Linq.IGroupedObservable`2", observableRef))
+        {
+            typeRefs.m_IGroupedObservable = observableRef;
+        }
+
+        if (typeRefs.m_IObservable && typeRefs.m_IConnectableObservable && typeRefs.m_IGroupedObservable)
+        {
+            break;
         }
     }
 
-    return false;
+    return typeRefs.m_IObservable || typeRefs.m_IConnectableObservable || typeRefs.m_IGroupedObservable;
 }

@@ -251,6 +251,7 @@ public:
     mdMemberRef DefineMemberRef(const MemberRefProps& props);
     mdMethodSpec DefineMethodSpec(const MethodSpecProps& props);
     mdSignature GetTokenFromSig(const SignatureBlob& sigBlob);
+    mdTypeSpec DefineTypeSpec(const SignatureBlob& sigBlob);
     mdTypeDef DefineTypeDef(const TypeDefProps& props, const simplespan<mdToken>& interfaces);
     mdMethodDef DefineMethod(const MethodProps& props);
     mdString DefineString(const std::wstring& s);

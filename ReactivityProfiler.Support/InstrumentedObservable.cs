@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reactive.Subjects;
 using System.Text;
 using System.Threading;
 using ReactivityProfiler.Support.Store;
 
 namespace ReactivityProfiler.Support
 {
-    internal sealed class InstrumentedObservable<T> : IObservable<T>
+    internal sealed class InstrumentedObservable<T> : IObservable<T>, IConnectableObservable<T>
     {
         private readonly IObservable<T> mObservable;
 
@@ -17,6 +18,8 @@ namespace ReactivityProfiler.Support
         }
 
         public ObservableInfo Info { get; }
+
+        public IDisposable Connect() => ((IConnectableObservable<T>)mObservable).Connect();
 
         public IDisposable Subscribe(IObserver<T> observer)
         {

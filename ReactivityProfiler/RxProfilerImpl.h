@@ -3,6 +3,8 @@
 struct ObservableTypeReferences
 {
     mdTypeRef m_IObservable = 0;
+    mdTypeRef m_IConnectableObservable = 0;
+    mdTypeRef m_IGroupedObservable = 0;
 };
 
 struct SupportAssemblyReferences

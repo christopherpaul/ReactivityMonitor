@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reactive.Subjects;
 using System.Text;
 using System.Threading;
 
@@ -183,7 +184,7 @@ namespace ReactivityProfiler.Support
         /// <summary>
         /// Called after an instrumented method call returns.
         /// </summary>
-        public static IObservable<T> Returned<T>(IObservable<T> observable, int instrumentationPoint)
+        public static IObservable<T> Returned<T, TObs>(IObservable<T> observable, int instrumentationPoint)
         {
             var inputs = sTracker.Value.Returned(instrumentationPoint);
 
@@ -196,6 +197,11 @@ namespace ReactivityProfiler.Support
             {
                 // Already instrumented. Not sure if we'd want to associate it with any
                 // inputs to this call as well - for now assume not.
+                return observable;
+            }
+
+            if (typeof(TObs) != typeof(IObservable<T>) && typeof(TObs) != typeof(IConnectableObservable<T>))
+            {
                 return observable;
             }
 

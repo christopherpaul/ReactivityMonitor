@@ -33,6 +33,8 @@ struct ObservableCallInfo
     std::wstring m_calledMethodName;
     int m_instructionOffset = 0;
     int m_instructionLength = 0;
+    SigSpanOrVector m_returnType;
+    mdToken m_returnObservableTypeRef = 0; // IObservable, IConnectedObservable, IGroupedObservable...?
     SigSpanOrVector m_returnTypeArg; // if call returns IObservable<T>, this is T
 
     // The follows vectors hold a value for each method argument starting with the first observable one.
@@ -184,16 +186,23 @@ bool MethodBodyInstrumenter::TryFindObservableCalls()
         }
 
         auto returnTypeReader = returnReader.GetTypeReader();
-        if (returnTypeReader.GetTypeKind() != ELEMENT_TYPE_GENERICINST ||
-            returnTypeReader.GetToken() != observableTypeRefs.m_IObservable)
+        if (returnTypeReader.GetTypeKind() != ELEMENT_TYPE_GENERICINST)
         {
-            // We only care about IObservable<T>, which is a generic instantiation
-            // (Maybe in future we'll also look for types that implement this, but
-            // that would be a lot more effort and isn't very common.)
+            // All the types we care about are generic.
+            // We only look for methods that return specific interfaces, not arbitrary subinterfaces
+            // or implementations of them.
             continue;
         }
 
-        ATLTRACE(L"%s returns an IObservable!", methodCallInfo.name.c_str());
+        mdToken returnTypeRef = returnTypeReader.GetToken();
+        if (returnTypeRef != observableTypeRefs.m_IObservable &&
+            returnTypeRef != observableTypeRefs.m_IConnectableObservable &&
+            returnTypeRef != observableTypeRefs.m_IGroupedObservable)
+        {
+            continue;
+        }
+
+        ATLTRACE(L"%s returns an I[Connectable|Grouped]Observable!", methodCallInfo.name.c_str());
 
         std::vector<SignatureBlob> typeTypeArgs, methodTypeArgs;
 
@@ -235,13 +244,20 @@ bool MethodBodyInstrumenter::TryFindObservableCalls()
         }
 
         ObservableCallInfo callInfo;
+        callInfo.m_returnObservableTypeRef = returnTypeRef;
         callInfo.m_calledMethodName = methodCallInfo.name;
         callInfo.m_instructionOffset = pInstr->m_origOffset;
         callInfo.m_instructionLength = pInstr->length();
 
-        // Record the IObservable type argument for the return type
+        // Record the return type
         returnTypeReader.MoveNextTypeArg();
+        if (returnTypeRef == observableTypeRefs.m_IGroupedObservable)
+        {
+            // First type arg to IGroupedObservable is TKey, we want the second, TElement.
+            returnTypeReader.MoveNextTypeArg();
+        }
         callInfo.m_returnTypeArg = getSigSpanOrVector(returnTypeReader.GetTypeReader());
+        callInfo.m_returnType = getSigSpanOrVector(returnTypeReader);
 
         // Now look at the arguments
         while (sigReader.MoveNextParam())
@@ -257,9 +273,16 @@ bool MethodBodyInstrumenter::TryFindObservableCalls()
             } 
              
             auto paramTypeReader = paramReader.GetTypeReader();
-            bool isObservable = true; // For now let's treat all arg types as potentially interesting
-                //paramTypeReader.GetTypeKind() == ELEMENT_TYPE_GENERICINST &&
-                //paramTypeReader.GetToken() == observableTypeRefs.m_IObservable;
+            auto paramTypeKind = paramTypeReader.GetTypeKind();
+            // Interesting arguments could include observables, delegates returning observables,
+            // Tasks returning observables, arrays of observables, and probably others.
+            // Here we just filter out value types and some other less common stuff, and leave
+            // it to the Instrument methods in the support assembly to decide whether to do anything
+            // with the rest.
+            bool isObservable =
+                paramTypeKind == ELEMENT_TYPE_CLASS ||
+                paramTypeKind == ELEMENT_TYPE_GENERICINST ||
+                paramTypeKind == ELEMENT_TYPE_SZARRAY;
 
             // No need to start recording arg info until the first observable arg
             if (isObservable || !callInfo.m_argIsObservable.empty())
@@ -269,7 +292,7 @@ bool MethodBodyInstrumenter::TryFindObservableCalls()
             }
         }
 
-        ATLTRACE(L"%s has %d observable args", methodCallInfo.name.c_str(),
+        ATLTRACE(L"%s has %d interesting args", methodCallInfo.name.c_str(),
             std::count(callInfo.m_argIsObservable.begin(), callInfo.m_argIsObservable.end(), true));
 
         m_observableCalls.push_back(std::move(callInfo));
@@ -314,7 +337,6 @@ void MethodBodyInstrumenter::InstrumentCall(ObservableCallInfo& call, CMetadataE
         {
             SignatureBlob localsSigBlob;
             localsSigBlob = m_metadataImport.GetSigFromToken(localsSigTok);
-            ATLTRACE("Got locals sig: %s", FormatBytes(localsSigBlob).c_str());
             LocalsSignatureReader localsSigReader(localsSigBlob);
             existingLocalsCount = localsSigReader.GetCount();
             extendedLocalsSig = localsSigReader.AppendLocals(argTypeSpans);
@@ -328,13 +350,11 @@ void MethodBodyInstrumenter::InstrumentCall(ObservableCallInfo& call, CMetadataE
         // Don't do arg 0 as we'd just have to load it again.
         for (int arg = argCount - 1; arg > 0; arg--)
         {
-            ATLTRACE("DBG: Step 1, arg %d", arg);
             preCallInstrs.push_back(std::make_unique<Instruction>(CEE_STLOC, existingLocalsCount + arg));
         }
         // Step 2: working forwards through the args, load each arg, and call Instrument.Argument if observable.
         for (int arg = 0; arg < argCount; arg++)
         {
-            ATLTRACE("DBG: Step 2, arg %d", arg);
             if (arg > 0)
             {
                 preCallInstrs.push_back(std::make_unique<Instruction>(CEE_LDLOC, existingLocalsCount + arg));
@@ -365,9 +385,9 @@ void MethodBodyInstrumenter::InstrumentCall(ObservableCallInfo& call, CMetadataE
     // Generate a call to Instrument.Returned(retval, n) to be inserted right after
     // the call.
     std::vector<COR_SIGNATURE> sig;
-    MethodSpecSignatureWriter sigWriter(sig, 1);
-    SignatureBlob argBlob = getSpan(call.m_returnTypeArg);
-    sigWriter.AddTypeArg(argBlob);
+    MethodSpecSignatureWriter sigWriter(sig, 2);
+    sigWriter.AddTypeArg(getSpan(call.m_returnTypeArg));
+    sigWriter.AddTypeArg(getSpan(call.m_returnType));
 
     // we'll probably end up asking for the same combinations many times,
     // but (empirically) DefineMethodSpec is smart enough to return the
@@ -377,6 +397,13 @@ void MethodBodyInstrumenter::InstrumentCall(ObservableCallInfo& call, CMetadataE
     InstructionList postCallInstrs;
     postCallInstrs.push_back(std::make_unique<Instruction>(CEE_LDC_I4, instrumentationPoint));
     postCallInstrs.push_back(std::make_unique<Instruction>(CEE_CALL, methodSpecToken));
+
+    if (call.m_returnObservableTypeRef != observableTypeRefs.m_IObservable)
+    {
+        // Need to cast the return value to the expected subtype
+        mdTypeSpec castTypeSpecToken = emit.DefineTypeSpec(getSpan(call.m_returnType));
+        postCallInstrs.push_back(std::make_unique<Instruction>(CEE_CASTCLASS, castTypeSpecToken));
+    }
 
     long offsetToInsertAt = call.m_instructionOffset + call.m_instructionLength;
     ATLTRACE("Inserting %d instructions at %x", postCallInstrs.size(), offsetToInsertAt);

@@ -411,6 +411,20 @@ mdSignature CMetadataEmit::GetTokenFromSig(const SignatureBlob& sigBlob)
     return token;
 }
 
+mdTypeSpec CMetadataEmit::DefineTypeSpec(const SignatureBlob& sigBlob)
+{
+    mdTypeSpec token;
+    CHECK_SUCCESS(m_metadata->GetTokenFromTypeSpec(
+        sigBlob.begin(),
+        static_cast<ULONG>(sigBlob.length()),
+        &token
+    ));
+
+    ATLTRACE(L"GetTokenFromTypeSpec: %x", token);
+
+    return token;
+}
+
 mdTypeDef CMetadataEmit::DefineTypeDef(const TypeDefProps& props, const simplespan<mdToken>& interfaces)
 {
     mdTypeDef token;

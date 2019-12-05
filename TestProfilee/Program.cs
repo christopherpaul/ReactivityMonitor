@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -31,19 +32,20 @@ namespace TestProfilee
             Console.WriteLine();  
              
             Console.WriteLine("Spinning up an observable...");
-            IObservable<string> observable = new[] { "One", "two", "three" }.ToObservable()
+            IConnectableObservable<string> observable = new[] { "One", "two", "three" }.ToObservable()
                 .Zip(Observable.Interval(TimeSpan.FromSeconds(1)), (x, _) => x)
                 .SelectMany(x => x.ToObservable().Select(c => Observable.Return(c).Delay(TimeSpan.FromMilliseconds(100))).Concat())
                 .Select(x => $"{x}")
-                .Repeat();
+                .Repeat()
+                .Publish();
 
-            var sub = observable.Subscribe(Console.WriteLine);
+            using (observable.Subscribe(Console.WriteLine))
+            using (observable.Connect())
+            {
+                GenericExamples.CallToMethodOnGenericType();
 
-            GenericExamples.CallToMethodOnGenericType();
-
-            Pause();
-                
-            sub.Dispose();
+                Pause();
+            }  
         }
     }
 }
