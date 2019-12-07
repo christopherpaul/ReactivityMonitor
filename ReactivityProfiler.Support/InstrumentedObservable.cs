@@ -6,7 +6,33 @@ using ReactivityProfiler.Support.Store;
 
 namespace ReactivityProfiler.Support
 {
-    internal sealed class InstrumentedObservable<T> : IObservable<T>
+    /// <summary>
+    /// Needs to be public so that dynamic proxy type can access.
+    /// </summary>
+    public interface IInstrumentedObservable
+    {
+        /// <summary>
+        /// Always of type <see cref="ObservableInfo"/>, but want to keep that type internal.
+        /// </summary>
+        object Info { get; }
+    }
+
+    /// <summary>
+    /// Needs to be public so that dynamic proxy type can access.
+    /// </summary>
+    public abstract class InstrumentedObservableProxy : IInstrumentedObservable
+    {
+        private readonly IInstrumentedObservable mInstrumentedObservable;
+
+        public InstrumentedObservableProxy(object instrumentedObservable)
+        {
+            mInstrumentedObservable = (IInstrumentedObservable)instrumentedObservable;
+        }
+
+        public object Info => mInstrumentedObservable.Info;
+    }
+
+    internal sealed class InstrumentedObservable<T> : IObservable<T>, IInstrumentedObservable
     {
         private readonly IObservable<T> mObservable;
 
@@ -17,6 +43,7 @@ namespace ReactivityProfiler.Support
         }
 
         public ObservableInfo Info { get; }
+        object IInstrumentedObservable.Info => Info;
 
         public IDisposable Subscribe(IObserver<T> observer)
         {

@@ -151,9 +151,9 @@ namespace ReactivityProfiler.Support
 
             public IObservable<T> HandleArg(IObservable<T> observable, int instrumentationPoint)
             {
-                if (observable is InstrumentedObservable<T> instrumented)
+                if (observable is IInstrumentedObservable instrumented)
                 {
-                    sTracker.Value.AddInput(instrumentationPoint, instrumented.Info);
+                    sTracker.Value.AddInput(instrumentationPoint, (ObservableInfo)instrumented.Info);
                 }
                 return observable;
             }
@@ -194,7 +194,7 @@ namespace ReactivityProfiler.Support
                 return observable;
             }
 
-            if (observable is InstrumentedObservable<T>)
+            if (observable is IInstrumentedObservable)
             {
                 // Already instrumented. Not sure if we'd want to associate it with any
                 // inputs to this call as well - for now assume not.
@@ -253,7 +253,7 @@ namespace ReactivityProfiler.Support
             var typeBuilder = moduleBuilder.DefineType(
                 Guid.NewGuid().ToString(),
                 TypeAttributes.Public | TypeAttributes.Class,
-                typeof(object));
+                typeof(InstrumentedObservableProxy));
 
             Debug.WriteLine($"CreateGenericWrapperType: defining generic params");
             var genericParams = typeBuilder.DefineGenericParameters(genericTypeDef.GetGenericArguments().Select(a => a.Name).ToArray());
@@ -277,12 +277,13 @@ namespace ReactivityProfiler.Support
                 new[] { implementedInterface, observableInterface });
             var constructorIl = constructor.GetILGenerator();
             constructorIl.Emit(OpCodes.Ldarg_0); // load this
-            constructorIl.Emit(OpCodes.Call, typeof(object).GetConstructor(new Type[0])); // call base constructor
+            constructorIl.Emit(OpCodes.Ldarg_2); // load 2nd arg (instrumented observable)
+            constructorIl.Emit(OpCodes.Call, typeof(InstrumentedObservableProxy).GetConstructors().First()); // call base constructor
             constructorIl.Emit(OpCodes.Ldarg_0); // load this
-            constructorIl.Emit(OpCodes.Ldarg_1); // load 1st arg
+            constructorIl.Emit(OpCodes.Ldarg_1); // load 1st arg (original observable)
             constructorIl.Emit(OpCodes.Stfld, originalField); // store 1st arg in field
             constructorIl.Emit(OpCodes.Ldarg_0); // load this
-            constructorIl.Emit(OpCodes.Ldarg_2); // load 2st arg
+            constructorIl.Emit(OpCodes.Ldarg_2); // load 2st arg (instrumented observable)
             constructorIl.Emit(OpCodes.Stfld, instrumentedField); // store 2st arg in field
             constructorIl.Emit(OpCodes.Ret);
 

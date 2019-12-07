@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Reactive.Threading.Tasks;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
@@ -41,11 +42,25 @@ namespace TestProfilee
 
             using (observable.Subscribe(Console.WriteLine))
             using (observable.Connect())
+            using (TestGroupedObservable().Subscribe(Console.WriteLine))
             {
                 GenericExamples.CallToMethodOnGenericType();
 
                 Pause();
             }  
+        }
+
+        static IObservable<string> TestGroupedObservable()
+        {
+            return Observable.Interval(TimeSpan.FromSeconds(1))
+                .GroupBy(n => n % 2 == 0)
+                .SelectMany(g => DummyFunctionForTest(g).Select(x => $"{x}: {g.Key}"));
+        }
+
+        static IGroupedObservable<bool, long> DummyFunctionForTest(IGroupedObservable<bool, long> g)
+        {
+            Console.WriteLine($"Group: {g.Key}");
+            return g;
         }
     }
 }

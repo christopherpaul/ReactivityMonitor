@@ -21,9 +21,9 @@ namespace ReactivityProfiler.Support
     {
         public IObservable<T> Attach(IObservable<T> observable)
         {
-            if (observable is InstrumentedObservable<T> instrumentedObservable)
+            if (observable is IInstrumentedObservable instrumentedObservable)
             {
-                return new AttachingObservable(instrumentedObservable, instrumentedObservable.Info, Info);
+                return new AttachingObservable(observable, (ObservableInfo)instrumentedObservable.Info, Info);
             }
 
             return observable;
