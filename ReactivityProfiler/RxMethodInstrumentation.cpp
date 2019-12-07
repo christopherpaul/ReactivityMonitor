@@ -128,8 +128,8 @@ void MethodBodyInstrumenter::Instrument()
         InstrumentCall(call, emit);
     }
 
-    // allow for the ldc.i4 instruction
-    m_method->IncrementStackSize(1);
+    // allow for up to two additional arguments pushed in post-call instrumentation
+    m_method->IncrementStackSize(2);
 
 #ifdef DEBUG
     m_method->DumpIL(true);
@@ -382,27 +382,33 @@ void MethodBodyInstrumenter::InstrumentCall(ObservableCallInfo& call, CMetadataE
         call.m_instructionOffset,
         preCallInstrs);
 
-    // Generate a call to Instrument.Returned(retval, n) to be inserted right after
-    // the call.
+    // Generate a call to Instrument.Returned(retval, n) or ReturnedSubinterface(retval, n, type)
+    // to be inserted right after the call.
     std::vector<COR_SIGNATURE> sig;
-    MethodSpecSignatureWriter sigWriter(sig, 2);
+    MethodSpecSignatureWriter sigWriter(sig, 1);
     sigWriter.AddTypeArg(getSpan(call.m_returnTypeArg));
-    sigWriter.AddTypeArg(getSpan(call.m_returnType));
-
-    // we'll probably end up asking for the same combinations many times,
-    // but (empirically) DefineMethodSpec is smart enough to return the
-    // same token each time.
-    mdMethodSpec methodSpecToken = emit.DefineMethodSpec({ supportRefs.m_Returned, sig });
 
     InstructionList postCallInstrs;
+    // Initially on the stack is the returned value from the call, and this will be the first
+    // argument to our generated call. Push the instrumentation point ID as the second argument.
     postCallInstrs.push_back(std::make_unique<Instruction>(CEE_LDC_I4, instrumentationPoint));
-    postCallInstrs.push_back(std::make_unique<Instruction>(CEE_CALL, methodSpecToken));
 
-    if (call.m_returnObservableTypeRef != observableTypeRefs.m_IObservable)
+    if (call.m_returnObservableTypeRef == observableTypeRefs.m_IObservable)
     {
+        mdMethodSpec methodSpecToken = emit.DefineMethodSpec({ supportRefs.m_Returned, sig });
+        postCallInstrs.push_back(std::make_unique<Instruction>(CEE_CALL, methodSpecToken));
+    }
+    else
+    {
+        mdTypeSpec returnTypeSpecToken = emit.DefineTypeSpec(getSpan(call.m_returnType));
+
+        // Push the type handle of the return type as the third argument.
+        postCallInstrs.push_back(std::make_unique<Instruction>(CEE_LDTOKEN, returnTypeSpecToken));
+        mdMethodSpec methodSpecToken = emit.DefineMethodSpec({ supportRefs.m_ReturnedSubinterface, sig });
+        postCallInstrs.push_back(std::make_unique<Instruction>(CEE_CALL, methodSpecToken));
+
         // Need to cast the return value to the expected subtype
-        mdTypeSpec castTypeSpecToken = emit.DefineTypeSpec(getSpan(call.m_returnType));
-        postCallInstrs.push_back(std::make_unique<Instruction>(CEE_CASTCLASS, castTypeSpecToken));
+        postCallInstrs.push_back(std::make_unique<Instruction>(CEE_CASTCLASS, returnTypeSpecToken));
     }
 
     long offsetToInsertAt = call.m_instructionOffset + call.m_instructionLength;

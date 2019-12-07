@@ -1757,7 +1757,7 @@ public:
 
     void Write(const SignatureBlob& typeSigSpan);
     void SetPrimitive(CorElementType kind);
-    void SetSimpleClass(mdToken typeDefOrRef);
+    void SetSimpleType(mdToken typeDefOrRef, COR_SIGNATURE classOrValueType);
     void SetGenericClass(mdToken typeDefOrRef, ULONG typeArgCount);
     void SetMethodTypeVar(ULONG varNumber);
     std::shared_ptr<SignatureTypeWriterState> CreateNextTypeArgWriter();
@@ -1816,14 +1816,14 @@ void SignatureTypeWriterState::SetPrimitive(CorElementType kind)
     m_where = END;
 }
 
-void SignatureTypeWriterState::SetSimpleClass(mdToken typeDefOrRef)
+void SignatureTypeWriterState::SetSimpleType(mdToken typeDefOrRef, COR_SIGNATURE classOrValueType)
 {
     if (m_where != INIT)
     {
         throw std::logic_error("SignatureTypeWriterState::SetSimpleClass - bad call sequence");
     }
 
-    Append(ELEMENT_TYPE_CLASS);
+    Append(classOrValueType);
     AppendTypeDefOrRefEncoded(typeDefOrRef);
     m_where = END;
 }
@@ -1928,7 +1928,12 @@ void SignatureTypeWriter::SetPrimitiveKind(CorElementType kind)
 
 void SignatureTypeWriter::SetSimpleClass(mdToken typeDefOrRef)
 {
-    m_state->SetSimpleClass(typeDefOrRef);
+    m_state->SetSimpleType(typeDefOrRef, ELEMENT_TYPE_CLASS);
+}
+
+void SignatureTypeWriter::SetSimpleValueType(mdToken typeDefOrRef)
+{
+    m_state->SetSimpleType(typeDefOrRef, ELEMENT_TYPE_VALUETYPE);
 }
 
 void SignatureTypeWriter::SetGenericClass(mdToken typeDefOrRef, ULONG typeArgCount)

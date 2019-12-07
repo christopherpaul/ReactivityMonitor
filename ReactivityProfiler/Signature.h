@@ -147,6 +147,7 @@ public:
     void Write(const SignatureBlob& typeSigSpan);
     void SetPrimitiveKind(CorElementType kind);
     void SetSimpleClass(mdToken typeDefOrRef);
+    void SetSimpleValueType(mdToken typeDefOrRef);
     void SetGenericClass(mdToken typeDefOrRef, ULONG typeArgCount);
     void SetMethodTypeVar(ULONG varNumber);
     

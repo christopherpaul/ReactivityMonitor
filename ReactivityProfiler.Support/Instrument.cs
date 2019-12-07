@@ -5,7 +5,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reactive.Subjects;
+using System.Reflection;
+using System.Reflection.Emit;
 using System.Text;
 using System.Threading;
 
@@ -184,7 +185,7 @@ namespace ReactivityProfiler.Support
         /// <summary>
         /// Called after an instrumented method call returns.
         /// </summary>
-        public static IObservable<T> Returned<T, TObs>(IObservable<T> observable, int instrumentationPoint)
+        public static IObservable<T> Returned<T>(IObservable<T> observable, int instrumentationPoint)
         {
             var inputs = sTracker.Value.Returned(instrumentationPoint);
 
@@ -193,15 +194,10 @@ namespace ReactivityProfiler.Support
                 return observable;
             }
 
-            if (observable is InstrumentedObservable<T> instrObs)
+            if (observable is InstrumentedObservable<T>)
             {
                 // Already instrumented. Not sure if we'd want to associate it with any
                 // inputs to this call as well - for now assume not.
-                return observable;
-            }
-
-            if (typeof(TObs) != typeof(IObservable<T>) && typeof(TObs) != typeof(IConnectableObservable<T>))
-            {
                 return observable;
             }
 
@@ -212,6 +208,137 @@ namespace ReactivityProfiler.Support
             }
 
             return new InstrumentedObservable<T>(observable, obsInfo);
+        }
+
+        private static readonly ConcurrentDictionary<RuntimeTypeHandle, Func<object, object, object>> cDerivedInterfaceWrappers =
+            new ConcurrentDictionary<RuntimeTypeHandle, Func<object, object, object>>();
+
+        private static readonly ConcurrentDictionary<Type, Type> cGenericDerivedInterfaceWrapperTypes =
+            new ConcurrentDictionary<Type, Type>();
+
+        private static readonly Func<RuntimeTypeHandle, Func<object, object, object>> cCreateDerivedInterfaceWrapper = typeHandle =>
+        {
+            // We only have to handle a limited number of known derived interfaces. Constraints:
+            // - interface must derive from IObservable exactly once
+            // - interface must have a generic type argument that is used as the type arg for its IObservable base
+
+            var type = Type.GetTypeFromHandle(typeHandle);
+            Debug.Assert(type.IsInterface, "interface");
+            Debug.Assert(type.IsGenericType, "generic");
+
+            var genericTypeDef = type.GetGenericTypeDefinition();
+
+            var genericWrapperType = cGenericDerivedInterfaceWrapperTypes.GetOrAdd(genericTypeDef, CreateGenericWrapperType);
+
+            var wrapperType = genericWrapperType.MakeGenericType(type.GenericTypeArguments);
+
+            return (original, instrumented) => Activator.CreateInstance(wrapperType, original, instrumented);
+        };
+
+        private static Type CreateGenericWrapperType(Type genericTypeDef)
+        {
+            Debug.WriteLine($"CreateGenericWrapperType: {genericTypeDef}");
+
+            var observableBaseType = genericTypeDef.GetInterface("System.IObservable`1");
+            Debug.Assert(observableBaseType != null, "derives from IObservable");
+            Debug.Assert(observableBaseType.IsGenericType, "IObservable is generic");
+            var observableTypeArg = observableBaseType.GenericTypeArguments[0];
+            Debug.Assert(observableTypeArg.IsGenericParameter, "IObservable type arg is a type param of derived interface");
+
+            var assemblyBuilder = AssemblyBuilder.DefineDynamicAssembly(
+                new AssemblyName(Guid.NewGuid().ToString()),
+                AssemblyBuilderAccess.Run);
+            var moduleBuilder = assemblyBuilder.DefineDynamicModule(Guid.NewGuid().ToString());
+            Debug.WriteLine($"CreateGenericWrapperType: creating type builder");
+            var typeBuilder = moduleBuilder.DefineType(
+                Guid.NewGuid().ToString(),
+                TypeAttributes.Public | TypeAttributes.Class,
+                typeof(object));
+
+            Debug.WriteLine($"CreateGenericWrapperType: defining generic params");
+            var genericParams = typeBuilder.DefineGenericParameters(genericTypeDef.GetGenericArguments().Select(a => a.Name).ToArray());
+
+            Debug.WriteLine($"CreateGenericWrapperType: creating interface instantiation to be implemented");
+            var implementedInterface = genericTypeDef.MakeGenericType(genericParams);
+            Debug.WriteLine($"CreateGenericWrapperType: adding said interface");
+            typeBuilder.AddInterfaceImplementation(implementedInterface);
+
+            Debug.WriteLine($"CreateGenericWrapperType: creating instantiation of IObservable to be implemented");
+            var observableInterface = typeof(IObservable<>).MakeGenericType(genericParams[observableTypeArg.GenericParameterPosition]);
+
+            Debug.WriteLine($"CreateGenericWrapperType: creating fields");
+            var originalField = typeBuilder.DefineField("original", implementedInterface, FieldAttributes.Private | FieldAttributes.InitOnly);
+            var instrumentedField = typeBuilder.DefineField("instrumented", observableInterface, FieldAttributes.Private | FieldAttributes.InitOnly);
+
+            Debug.WriteLine($"CreateGenericWrapperType: defining constructor");
+            var constructor = typeBuilder.DefineConstructor(
+                MethodAttributes.Public,
+                CallingConventions.HasThis,
+                new[] { implementedInterface, observableInterface });
+            var constructorIl = constructor.GetILGenerator();
+            constructorIl.Emit(OpCodes.Ldarg_0); // load this
+            constructorIl.Emit(OpCodes.Call, typeof(object).GetConstructor(new Type[0])); // call base constructor
+            constructorIl.Emit(OpCodes.Ldarg_0); // load this
+            constructorIl.Emit(OpCodes.Ldarg_1); // load 1st arg
+            constructorIl.Emit(OpCodes.Stfld, originalField); // store 1st arg in field
+            constructorIl.Emit(OpCodes.Ldarg_0); // load this
+            constructorIl.Emit(OpCodes.Ldarg_2); // load 2st arg
+            constructorIl.Emit(OpCodes.Stfld, instrumentedField); // store 2st arg in field
+            constructorIl.Emit(OpCodes.Ret);
+
+            Debug.WriteLine($"CreateGenericWrapperType: generating implementations for interface");
+            foreach (var iface in genericTypeDef.GetInterfaces().Concat(new[] { genericTypeDef }))
+            {
+                foreach (var member in iface.GetMembers())
+                {
+                    Debug.WriteLine($"CreateGenericWrapperType: member {member}");
+                    if (member.MemberType == MemberTypes.Method)
+                    {
+                        var method = (MethodInfo)member;
+                        var methodBuilder = typeBuilder.DefineMethod(
+                            method.Name,
+                            MethodAttributes.Public | MethodAttributes.Virtual,
+                            method.ReturnType,
+                            method.GetParameters().Select(p => p.ParameterType).ToArray());
+
+                        var methodIl = methodBuilder.GetILGenerator();
+                        methodIl.Emit(OpCodes.Ldarg_0); // load this
+                        if (iface == observableBaseType)
+                        {
+                            methodIl.Emit(OpCodes.Ldfld, instrumentedField);
+                        }
+                        else
+                        {
+                            methodIl.Emit(OpCodes.Ldfld, originalField);
+                        }
+                        int argCount = method.GetParameters().Length;
+                        for (int arg = 0; arg < argCount; arg++)
+                        {
+                            methodIl.Emit(OpCodes.Ldarg, arg + 1); // 0 is this
+                        }
+
+                        methodIl.Emit(OpCodes.Callvirt, method);
+                        methodIl.Emit(OpCodes.Ret);
+
+                        typeBuilder.DefineMethodOverride(methodBuilder, method);
+                    }
+                }
+            }
+
+            Debug.WriteLine($"CreateGenericWrapperType: creating type");
+            return typeBuilder.CreateTypeInfo();
+        }
+
+        public static IObservable<T> ReturnedSubinterface<T>(IObservable<T> observable, int instrumentationPoint, RuntimeTypeHandle constructedTypeHandle)
+        {
+            var instrumented = Returned(observable, instrumentationPoint);
+            if (ReferenceEquals(instrumented, observable))
+            {
+                return observable;
+            }
+
+            var wrapperFunction = cDerivedInterfaceWrappers.GetOrAdd(constructedTypeHandle, cCreateDerivedInterfaceWrapper);
+            return (IObservable<T>)wrapperFunction(observable, instrumented);
         }
     }
 }

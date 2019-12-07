@@ -15,6 +15,8 @@ namespace ReactivityMonitor.Connection
         private const string cServers = "Servers";
         private const string cPipeName = "PipeName";
 
+        private readonly HashSet<int> mBadProcessIds = new HashSet<int>();
+
         public bool TryGetServer(Process process, out Server server)
         {
             using (var software = Registry.CurrentUser.OpenSubKey(cSoftware))
@@ -54,20 +56,21 @@ namespace ReactivityMonitor.Connection
                         {
                             if (server.GetValue(cPipeName) is string pipeName)
                             {
-                                string processName = "(unknown)";
                                 try
                                 {
                                     using (var process = Process.GetProcessById(processId))
                                     {
-                                        processName = process.ProcessName;
+                                        string processName = process.ProcessName;
+                                        list.Add(new Server(processId, processName, pipeName));
                                     }
                                 }
                                 catch (Exception ex)
                                 {
-                                    Trace.TraceError("Error getting process name: {0}", ex);
+                                    if (mBadProcessIds.Add(processId))
+                                    {
+                                        Trace.TraceWarning("Could not get information about process with ID={0}: {1}", processId, ex);
+                                    }
                                 }
-
-                                list.Add(new Server(processId, processName, pipeName));
                             }
                         }
                     }

@@ -64,7 +64,7 @@ static std::vector<COR_SIGNATURE> CreateInstrumentReturnedSig(const ObservableTy
     // Construct signature for the reference to Instrument.Returned
     // IObservable<T> Returned<T>(IObservable<T>, int)
     std::vector<COR_SIGNATURE> returnedMethodSig;
-    MethodSignatureWriter sigWriter(returnedMethodSig, false, 2, 2); // <T, TObs>(,)
+    MethodSignatureWriter sigWriter(returnedMethodSig, false, 2, 1); // <T>(,)
     auto returnTypeWriter = sigWriter.WriteParam();
     returnTypeWriter.SetGenericClass(observableRefs.m_IObservable, 1); // IObservable<>
     returnTypeWriter.WriteTypeArg().SetMethodTypeVar(0); // of T
@@ -87,13 +87,51 @@ static std::vector<COR_SIGNATURE> CreateInstrumentReturnedSig(const ObservableTy
     return returnedMethodSig;
 }
 
+static std::vector<COR_SIGNATURE> CreateInstrumentReturnedSubinterfaceSig(const ObservableTypeReferences& observableRefs, mdTypeRef rtTypeHandle)
+{
+    // Construct signature for the reference to Instrument.Returned
+    // IObservable<T> Returned<T>(IObservable<T>, int, RuntimeTypeHandle)
+    std::vector<COR_SIGNATURE> returnedMethodSig;
+    MethodSignatureWriter sigWriter(returnedMethodSig, false, 3, 1); // <T>(,,)
+    auto returnTypeWriter = sigWriter.WriteParam();
+    returnTypeWriter.SetGenericClass(observableRefs.m_IObservable, 1); // IObservable<>
+    returnTypeWriter.WriteTypeArg().SetMethodTypeVar(0); // of T
+    auto param1Writer = sigWriter.WriteParam();
+    param1Writer.SetGenericClass(observableRefs.m_IObservable, 1); // IObservable<>
+    param1Writer.WriteTypeArg().SetMethodTypeVar(0); // of T
+    auto param2Writer = sigWriter.WriteParam();
+    param2Writer.SetPrimitiveKind(ELEMENT_TYPE_I4);
+    auto param3Writer = sigWriter.WriteParam();
+    param3Writer.SetSimpleValueType(rtTypeHandle);
+    sigWriter.Complete();
+
+#ifdef DEBUG
+    std::stringstream sigDump;
+    for (auto b : returnedMethodSig)
+    {
+        sigDump << std::hex << std::setfill('0') << std::setw(2) << (int)b << " ";
+    }
+    ATLTRACE("returnedMethodSig = %s", sigDump.str().c_str());
+#endif
+
+    return returnedMethodSig;
+}
+
 void CRxProfiler::AddSupportAssemblyReference(ModuleID moduleId, const ObservableTypeReferences& observableRefs, SupportAssemblyReferences& refs)
 {
-    static const byte c_PublicKeyToken[] = { 0xa8, 0xb3, 0x93, 0x07, 0x28, 0x3e, 0x56, 0x3a };
-
     CMetadataAssemblyEmit assemblyEmit = m_profilerInfo.GetMetadataAssemblyEmit(moduleId, ofRead | ofWrite);
     CMetadataEmit emit = m_profilerInfo.GetMetadataEmit(moduleId, ofRead | ofWrite);
 
+    static byte c_mscorlibPublicKeyToken[] = { 0xb7, 0x7a, 0x5c, 0x56, 0x19, 0x34, 0xe0, 0x89 };
+    ASSEMBLYMETADATA mscorlibMetadata = {};
+    mscorlibMetadata.usMajorVersion = 4;
+    mscorlibMetadata.usMinorVersion = 0;
+    mscorlibMetadata.usBuildNumber = 0;
+    mscorlibMetadata.usRevisionNumber = 0;
+
+    mdAssemblyRef mscorlib = assemblyEmit.DefineAssemblyRef({ c_mscorlibPublicKeyToken, sizeof c_mscorlibPublicKeyToken }, L"mscorlib", mscorlibMetadata, {});
+
+    static const byte c_PublicKeyToken[] = { 0xa8, 0xb3, 0x93, 0x07, 0x28, 0x3e, 0x56, 0x3a };
     ASSEMBLYMETADATA metadata = {};
     metadata.usMajorVersion = 1;
     metadata.usMinorVersion = 0;
@@ -122,6 +160,14 @@ void CRxProfiler::AddSupportAssemblyReference(ModuleID moduleId, const Observabl
         refs.m_Instrument,
         L"Returned",
         returnedMethodSig
+        });
+
+    mdTypeRef rtTypeHandleToken = emit.DefineTypeRefByName(mscorlib, L"System.RuntimeTypeHandle");
+    auto returnedSubinterfaceMethodSig = CreateInstrumentReturnedSubinterfaceSig(observableRefs, rtTypeHandleToken);
+    refs.m_ReturnedSubinterface = emit.DefineMemberRef({
+        refs.m_Instrument,
+        L"ReturnedSubinterface",
+        returnedSubinterfaceMethodSig
         });
 
     // Add a module initializer that calls EnsureHandler (see InstallAssemblyResolutionHandler below).
@@ -154,14 +200,6 @@ void CRxProfiler::AddSupportAssemblyReference(ModuleID moduleId, const Observabl
     };
 
     auto voidVoidSig = MethodSignatureWriter::WriteStatic(0, [](MethodSignatureWriter w) { w.SetVoidReturn(); });
-
-    static byte c_mscorlibPublicKeyToken[] = { 0xb7, 0x7a, 0x5c, 0x56, 0x19, 0x34, 0xe0, 0x89 };
-    ASSEMBLYMETADATA mscorlibMetadata = {};
-    mscorlibMetadata.usMajorVersion = 4;
-    mscorlibMetadata.usMinorVersion = 0;
-    mscorlibMetadata.usBuildNumber = 0;
-    mscorlibMetadata.usRevisionNumber = 0;
-    mdAssemblyRef mscorlib = assemblyEmit.DefineAssemblyRef({ c_mscorlibPublicKeyToken, sizeof c_mscorlibPublicKeyToken }, L"mscorlib", mscorlibMetadata, {});
 
     mdTypeRef supportAssemblyResolution = emit.DefineTypeRefByName(mscorlib, L"RxProfiler.SupportAssemblyResolution");
 

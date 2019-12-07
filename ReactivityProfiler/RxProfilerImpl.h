@@ -14,6 +14,7 @@ struct SupportAssemblyReferences
     mdMemberRef m_Argument = 0;
     mdMemberRef m_Calling = 0;
     mdMemberRef m_Returned = 0;
+    mdMemberRef m_ReturnedSubinterface = 0;
 };
 
 struct PerModuleData
