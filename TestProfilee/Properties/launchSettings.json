@@ -1,8 +1,11 @@
 {
   "profiles": {
     "TestProfilee": {
-      "commandName": "Executable",
-      "executablePath": ".\\launch.cmd"
+      "commandName": "Project",
+      "environmentVariables": {
+        "COR_ENABLE_PROFILING": "1",
+        "COR_PROFILER": "ReactivityMonitor.RxProfiler.1"
+      }
     }
   }
 }
