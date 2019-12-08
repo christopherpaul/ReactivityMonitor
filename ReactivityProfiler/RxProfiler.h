@@ -84,7 +84,7 @@ private:
     void InstallAssemblyResolutionHandler(ModuleID mscorlibId);
     bool ReferencesObservableInterfaces(ModuleID moduleId, ObservableTypeReferences& typeRefs);
     void AddSupportAssemblyReference(ModuleID moduleId, const ObservableTypeReferences& observableRefs, SupportAssemblyReferences& refs);
-    void InstrumentMethodBody(const MethodProps& name, const FunctionInfo& info, CMetadataImport& metadata, std::shared_ptr<PerModuleData>& pPerModuleData);
+    void InstrumentMethodBody(FunctionID functionId, const MethodProps& name, const FunctionInfo& info, CMetadataImport& metadata, std::shared_ptr<PerModuleData>& pPerModuleData);
 };
 
 OBJECT_ENTRY_AUTO(__uuidof(RxProfiler), CRxProfiler)

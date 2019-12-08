@@ -107,7 +107,7 @@ HRESULT CRxProfiler::JITCompilationStarted(FunctionID functionId, BOOL fIsSafeTo
 
         ATLTRACE(L"JITCompilationStarted for %s", props.name.c_str());
 
-        InstrumentMethodBody(props, info, metadataImport, pPerModuleData);
+        InstrumentMethodBody(functionId, props, info, metadataImport, pPerModuleData);
     });
 }
 

@@ -276,6 +276,7 @@ public:
     simplespan<const byte> GetILFunctionBody(ModuleID moduleId, mdMethodDef methodToken);
     simplespan<byte> AllocateFunctionBody(ModuleID moduleId, size_t size);
     void SetILFunctionBody(ModuleID moduleId, mdMethodDef methodToken, const simplespan<byte>& body);
+    void SetILInstrumentedCodeMap(FunctionID functionId, bool isFirstCallForFunc, const simplespan<COR_IL_MAP>& map);
 
     CMetadataImport GetMetadataImport(ModuleID moduleId, DWORD openFlags);
     CMetadataAssemblyImport GetMetadataAssemblyImport(ModuleID moduleId, DWORD openFlags);

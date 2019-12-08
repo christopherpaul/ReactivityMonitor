@@ -67,6 +67,16 @@ void CProfilerInfo::SetILFunctionBody(ModuleID moduleId, mdMethodDef methodToken
     ));
 }
 
+void CProfilerInfo::SetILInstrumentedCodeMap(FunctionID functionId, bool isFirstCallForFunc, const simplespan<COR_IL_MAP>& map)
+{
+    CHECK_SUCCESS(m_profilerInfo->SetILInstrumentedCodeMap(
+        functionId,
+        isFirstCallForFunc,
+        static_cast<ULONG>(map.length()),
+        map.begin()
+    ));
+}
+
 CMetadataImport CProfilerInfo::GetMetadataImport(ModuleID moduleId, DWORD openFlags)
 {
     IUnknown* metadataImport;
@@ -117,7 +127,7 @@ bool CMetadataImport::TryFindTypeRef(mdToken scope, const std::wstring& name, md
 
 bool CMetadataImport::TryFindMethod(mdTypeDef typeToken, const std::wstring& name, const SignatureBlob& sigBlob, mdMethodDef& methodDef) const
 {
-    return SUCCEEDED(m_metadata->FindMethod(typeToken, name.c_str(), sigBlob.begin(), sigBlob.length(), &methodDef));
+    return SUCCEEDED(m_metadata->FindMethod(typeToken, name.c_str(), sigBlob.begin(), static_cast<ULONG>(sigBlob.length()), &methodDef));
 }
 
 MethodProps CMetadataImport::GetMethodProps(mdMethodDef methodDefToken) const
@@ -453,7 +463,7 @@ mdMethodDef CMetadataEmit::DefineMethod(const MethodProps& props)
         props.name.c_str(),
         props.attrFlags,
         props.sigBlob.begin(),
-        props.sigBlob.length(),
+        static_cast<ULONG>(props.sigBlob.length()),
         props.codeRva,
         props.implFlags,
         &token));
@@ -468,7 +478,7 @@ mdString CMetadataEmit::DefineString(const std::wstring& s)
     mdString token;
     CHECK_SUCCESS(m_metadata->DefineUserString(
         s.c_str(),
-        s.length(),
+        static_cast<ULONG>(s.length()),
         &token
     ));
 
@@ -482,7 +492,7 @@ mdCustomAttribute CMetadataEmit::DefineCustomAttribute(mdToken owner, mdToken at
         owner,
         attributeType,
         attrData.begin(),
-        attrData.length(),
+        static_cast<ULONG>(attrData.length()),
         &token));
 
     return token;

@@ -46,8 +46,9 @@ struct ObservableCallInfo
 class MethodBodyInstrumenter
 {
 public:
-    MethodBodyInstrumenter(CProfilerInfo& profilerInfo, const MethodProps& props, const FunctionInfo& info, CMetadataImport& metadata, std::shared_ptr<PerModuleData>& pPerModuleData) :
+    MethodBodyInstrumenter(CProfilerInfo& profilerInfo, FunctionID functionId, const MethodProps& props, const FunctionInfo& info, CMetadataImport& metadata, std::shared_ptr<PerModuleData>& pPerModuleData) :
         m_profilerInfo(profilerInfo),
+        m_functionId(functionId),
         m_methodProps(props),
         m_functionInfo(info),
         m_metadataImport(metadata),
@@ -65,6 +66,7 @@ private:
     MethodCallInfo GetMethodCallInfo(mdToken method);
 
     CProfilerInfo& m_profilerInfo;
+    FunctionID m_functionId;
     const MethodProps& m_methodProps;
     const FunctionInfo& m_functionInfo;
     CMetadataImport& m_metadataImport;
@@ -78,11 +80,11 @@ private:
     std::vector<ObservableCallInfo> m_observableCalls;
 };
 
-void CRxProfiler::InstrumentMethodBody(const MethodProps& props, const FunctionInfo& info, CMetadataImport& metadata, std::shared_ptr<PerModuleData>& pPerModuleData)
+void CRxProfiler::InstrumentMethodBody(FunctionID functionId, const MethodProps& props, const FunctionInfo& info, CMetadataImport& metadata, std::shared_ptr<PerModuleData>& pPerModuleData)
 {
     try
     {
-        MethodBodyInstrumenter instrumenter(m_profilerInfo, props, info, metadata, pPerModuleData);
+        MethodBodyInstrumenter instrumenter(m_profilerInfo, functionId, props, info, metadata, pPerModuleData);
         instrumenter.Instrument();
     }
     catch (std::exception ex)
@@ -143,7 +145,11 @@ void MethodBodyInstrumenter::Instrument()
 
     m_profilerInfo.SetILFunctionBody(m_functionInfo.moduleId, m_functionInfo.functionToken, rewrittenILBuffer);
 
-    //should probably set the code map as well
+    ULONG mapSize = m_method->GetILMapSize();
+    COR_IL_MAP* ilMapEntries = static_cast<COR_IL_MAP*>(CoTaskMemAlloc(mapSize * sizeof(COR_IL_MAP)));
+    m_method->PopulateILMap(mapSize, ilMapEntries);
+
+    m_profilerInfo.SetILInstrumentedCodeMap(m_functionId, true, { ilMapEntries, mapSize });
 }
 
 void MethodBodyInstrumenter::FetchPerModuleDataAtomic()
