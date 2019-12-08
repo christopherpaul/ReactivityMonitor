@@ -4,6 +4,7 @@ using DynamicData.Binding;
 using ReactiveUI;
 using ReactivityMonitor.Infrastructure;
 using ReactivityMonitor.Model;
+using ReactivityMonitor.Utility.Extensions;
 using ReactivityMonitor.Services;
 using ReactivityMonitor.Workspace;
 using System;
@@ -25,18 +26,19 @@ namespace ReactivityMonitor.Screens.MonitoringScreen
         {
             WhenActivated(disposables =>
             {
-                Model.ObservableInstances.Connect()
-                    .Transform(obs => new ObservableItem(concurrencyService) { ObservableInstance = obs })
+                Model.ObservableInstances
+                    .Select(obs => new ObservableItem(concurrencyService) { ObservableInstance = obs })
+                    .AsChangeSets()
                     .Sort(SortExpressionComparer<ObservableItem>.Ascending(obs => obs.SequenceId))
                     .ObserveOn(concurrencyService.DispatcherRxScheduler)
                     .Bind(out var observableInstances)
                     .Subscribe()
                     .DisposeWith(disposables);
 
-                Model.ObservableInstances.Connect()
-                    .Minimum(obs => obs.Created.Timestamp)
+                Model.ObservableInstances
+                    .Scan(long.MaxValue, (minSoFar, obs) => Math.Min(minSoFar, obs.Created.Timestamp.Ticks))
                     .DistinctUntilChanged()
-                    .Subscribe(timestamp => StartTime = timestamp)
+                    .Subscribe(timestamp => StartTime = new DateTime(timestamp, DateTimeKind.Utc))
                     .DisposeWith(disposables);
 
                 Items = observableInstances;

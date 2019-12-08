@@ -10,6 +10,7 @@ namespace ReactivityMonitor
     using ReactivityMonitor.Infrastructure;
     using ReactivityMonitor.Screens.CallsScreen;
     using ReactivityMonitor.Screens.ConnectionScreen;
+    using ReactivityMonitor.Screens.EventListScreen;
     using ReactivityMonitor.Screens.HomeScreen;
     using ReactivityMonitor.Screens.MonitoringScreen;
     using ReactivityMonitor.Services;
@@ -69,6 +70,7 @@ namespace ReactivityMonitor
             mContainer.PerRequest<IHomeScreen, HomeScreenViewModel>();
             mContainer.PerRequest<ICallsScreen, CallsScreenViewModel>();
             mContainer.PerRequest<IMonitoringScreen, MonitoringScreenViewModel>();
+            mContainer.PerRequest<IEventListScreen, EventListScreenViewModel>();
         }
 
         protected override object GetInstance(Type service, string key)

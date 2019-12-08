@@ -85,6 +85,12 @@
     <Compile Include="Infrastructure\ReactiveConductor.cs" />
     <Compile Include="Infrastructure\ReactiveScreen.cs" />
     <Compile Include="IShell.cs" />
+    <Compile Include="Screens\EventListScreen\EventItem.cs" />
+    <Compile Include="Screens\EventListScreen\EventListScreenView.xaml.cs">
+      <DependentUpon>EventListScreenView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Screens\EventListScreen\EventListScreenViewModel.cs" />
+    <Compile Include="Screens\EventListScreen\IEventListScreen.cs" />
     <Compile Include="Screens\HomeScreen\HomeScreenView.xaml.cs">
       <DependentUpon>HomeScreenView.xaml</DependentUpon>
     </Compile>
@@ -120,6 +126,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Screens\ConnectionScreen\ConnectionScreenView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Screens\EventListScreen\EventListScreenView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -172,6 +182,7 @@
       <Project>{a71f5a1d-dd80-40e9-b3e7-51c4b22a2dcd}</Project>
       <Name>ReactivityMonitor.ProfilerClient</Name>
     </ProjectReference>
+    <ProjectReference Include="../ReactivityMonitor.Utility/ReactivityMonitor.Utility.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Caliburn.Micro.Start" Version="3.2.0" />

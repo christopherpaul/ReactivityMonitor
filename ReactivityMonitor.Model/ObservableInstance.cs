@@ -8,7 +8,6 @@ namespace ReactivityMonitor.Model
     internal sealed class ObservableInstance : IObservableInstance
     {
         private static readonly Func<IObservableInstance, long> cKeyFunc = obs => obs.ObservableId;
-        private readonly ISourceCache<IObservableInstance, long> mInputs;
 
         public ObservableInstance(
             EventInfo created, 

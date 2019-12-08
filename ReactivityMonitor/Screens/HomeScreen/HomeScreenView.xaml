@@ -6,9 +6,27 @@
              xmlns:local="clr-namespace:ReactivityMonitor.Screens.HomeScreen"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-    <DockPanel>
-        <ContentControl x:Name="Calls" DockPanel.Dock="Left" />
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="1*" />
+            <ColumnDefinition Width="5" />
+            <ColumnDefinition Width="3*" />
+        </Grid.ColumnDefinitions>
+        
+        <ContentControl x:Name="Calls" Grid.Column="0" />
+        <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" />
 
-        <ContentControl x:Name="Monitoring" />
-    </DockPanel>
+        <Grid Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="1*" />
+                <RowDefinition Height="5" />
+                <RowDefinition Height="1*" />
+            </Grid.RowDefinitions>
+
+            <ContentControl x:Name="Monitoring" Grid.Row="0" />
+            <GridSplitter Grid.Row="1" VerticalAlignment="Stretch" />
+            <ContentControl x:Name="EventList" Grid.Row="2" />
+        </Grid>
+        
+    </Grid>
 </UserControl>

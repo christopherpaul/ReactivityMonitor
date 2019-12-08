@@ -1,5 +1,4 @@
 ﻿using DynamicData;
-using ReactivityMonitor.Model.Extensions;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -17,7 +16,8 @@ namespace ReactivityMonitor.Model
 
         private readonly ISourceCache<IModule, ulong> mModules;
         private readonly ISourceCache<IInstrumentedCall, int> mInstrumentedCalls;
-        private readonly ISourceCache<IObservableInstance, long> mObservableInstances;
+        private readonly ISubject<IObservableInstance> mObservableInstances;
+        private readonly ISourceCache<IObservableInstance, long> mObservableInstancesCache;
         private readonly ISourceCache<ISubscription, long> mSubscriptions;
         private readonly ConcurrentDictionary<long, ISubject<long>> mObservableInputs;
         private readonly ConcurrentDictionary<long, ISubject<long>> mObservableSubscriptions;
@@ -29,7 +29,9 @@ namespace ReactivityMonitor.Model
         {
             mModules = new SourceCache<IModule, ulong>(m => m.ModuleId);
             mInstrumentedCalls = new SourceCache<IInstrumentedCall, int>(ic => ic.InstrumentedCallId);
-            mObservableInstances = new SourceCache<IObservableInstance, long>(obs => obs.ObservableId);
+            mObservableInstances = new ReplaySubject<IObservableInstance>();
+            mObservableInstancesCache = new SourceCache<IObservableInstance, long>(obs => obs.ObservableId);
+            mObservableInstancesCache.PopulateFrom(mObservableInstances);
             mSubscriptions = new SourceCache<ISubscription, long>(sub => sub.SubscriptionId);
             mObservableInputs = new ConcurrentDictionary<long, ISubject<long>>();
             mObservableSubscriptions = new ConcurrentDictionary<long, ISubject<long>>();
@@ -63,7 +65,7 @@ namespace ReactivityMonitor.Model
             {
                 Modules = parent.mModules.AsObservableCache();
                 InstrumentedCalls = parent.mInstrumentedCalls.AsObservableCache();
-                ObservableInstances = parent.mObservableInstances.AsObservableCache();
+                ObservableInstances = parent.mObservableInstances.AsObservable();
                 mParent = parent;
             }
 
@@ -71,7 +73,7 @@ namespace ReactivityMonitor.Model
 
             public IObservableCache<IInstrumentedCall, int> InstrumentedCalls { get; }
 
-            public IObservableCache<IObservableInstance, long> ObservableInstances { get; }
+            public IObservable<IObservableInstance> ObservableInstances { get; }
 
             public void StartMonitorCall(int instrumentedCallId)
             {
@@ -132,7 +134,7 @@ namespace ReactivityMonitor.Model
                 var inputs =
                     mParent.GetInputs(created.SequenceId)
                         .Distinct()
-                        .SelectMany(inputId => mParent.mObservableInstances.WatchValue(inputId).Take(1));
+                        .SelectMany(inputId => mParent.mObservableInstancesCache.WatchValue(inputId).Take(1));
 
                 var subs =
                     mParent.GetSubscriptions(created.SequenceId)
@@ -140,7 +142,7 @@ namespace ReactivityMonitor.Model
                         .SelectMany(subId => mParent.mSubscriptions.WatchValue(subId).Take(1));
 
                 var obs = new ObservableInstance(created, instrumentedCall, inputs, subs);
-                mParent.mObservableInstances.AddOrUpdate(obs);
+                mParent.mObservableInstances.OnNext(obs);
 
                 IInstrumentedCall AddPlaceholderCall()
                 {
@@ -155,7 +157,7 @@ namespace ReactivityMonitor.Model
 
             public void AddSubscription(EventInfo subscribed, long observableId)
             {
-                var observableMaybe = mParent.mObservableInstances.Lookup(observableId);
+                var observableMaybe = mParent.mObservableInstancesCache.Lookup(observableId);
                 if (!observableMaybe.HasValue)
                 {
                     Trace.TraceWarning("Couldn't find an observable with ID {0}", observableId);

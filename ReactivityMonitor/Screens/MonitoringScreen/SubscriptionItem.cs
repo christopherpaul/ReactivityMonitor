@@ -4,6 +4,7 @@ using ReactivityMonitor.Model;
 using ReactivityMonitor.Services;
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 
@@ -22,6 +23,7 @@ namespace ReactivityMonitor.Screens.MonitoringScreen
 
                 Subscription.Events
                     .ObserveOn(concurrencyService.DispatcherRxScheduler)
+                    .Do(e => Trace.WriteLine($"{e}"))
                     .Subscribe(streamEvents.Add)
                     .DisposeWith(observables);
             });
