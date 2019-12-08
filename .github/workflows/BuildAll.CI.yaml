@@ -1,0 +1,21 @@
+name: BuildAll.CI
+
+on: [push]
+
+jobs:
+    build:
+        runs-on: windows-latest
+
+        steps:
+        - name: Checkout
+          uses: actions/checkout@v1
+        - name: Set up NuGet
+          uses: warrenbuckley/Setup-Nuget@v1
+        - name: Set up MSBuild
+          uses: warrenbuckley/Setup-MSBuild@v1
+        - name: NuGet restore (legacy)
+          run: nuget restore
+        - name: Build x64
+          run: msbuild ReactivityMonitor.sln -t:restore;build -p:Configuration=Release -p:Platform=x64
+        - name: Build x86
+          run: msbuild ReactivityMonitor.sln -t:restore;build -p:Configuration=Release -p:Platform=x86

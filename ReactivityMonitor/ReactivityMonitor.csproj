@@ -182,7 +182,10 @@
       <Project>{a71f5a1d-dd80-40e9-b3e7-51c4b22a2dcd}</Project>
       <Name>ReactivityMonitor.ProfilerClient</Name>
     </ProjectReference>
-    <ProjectReference Include="../ReactivityMonitor.Utility/ReactivityMonitor.Utility.csproj" />
+    <ProjectReference Include="..\ReactivityMonitor.Utility\ReactivityMonitor.Utility.csproj">
+      <Project>{47021846-34AB-45A0-9866-B8EB46CAF4A2}</Project>
+      <Name>ReactivityMonitor.Utility</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Caliburn.Micro.Start" Version="3.2.0" />
