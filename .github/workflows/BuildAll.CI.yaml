@@ -16,6 +16,6 @@ jobs:
         - name: NuGet restore (legacy)
           run: nuget restore
         - name: Build x64
-          run: msbuild ReactivityMonitor.sln -t:restore;build -p:Configuration=Release -p:Platform=x64
+          run: msbuild ReactivityMonitor.sln "-t:restore;build" -p:Configuration=Release -p:Platform=x64
         - name: Build x86
-          run: msbuild ReactivityMonitor.sln -t:restore;build -p:Configuration=Release -p:Platform=x86
+          run: msbuild ReactivityMonitor.sln "-t:restore;build" -p:Configuration=Release -p:Platform=x86
