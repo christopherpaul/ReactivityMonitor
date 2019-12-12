@@ -12,7 +12,5 @@ namespace ReactivityMonitor.Screens.HomeScreen
     public interface IHomeScreen : IScreen
     {
         IConnectionModel ConnectionModel { get; set; }
-
-        ICallsScreen Calls { get; }
     }
 }

@@ -10,9 +10,14 @@ namespace ReactivityMonitor.Workspace
 {
     public interface IWorkspace
     {
-        IObservableCache<IMonitoredCall, int> MonitoredCalls { get; }
+        IObservable<IChangeSet<IMonitoredCall>> MonitoredCalls { get; }
 
-        void StartMonitoringCall(IInstrumentedCall call);
+        IMonitoredCall StartMonitoringCall(IInstrumentedCall call);
         void StopMonitoringCall(IInstrumentedCall call);
+
+        IObservable<IChangeSet<IMonitoringGroup>> MonitoringGroups { get; }
+
+        IMonitoringGroup CreateMonitoringGroup(string name);
+        void DeleteMonitoringGroup(IMonitoringGroup group);
     }
 }

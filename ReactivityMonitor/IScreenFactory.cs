@@ -1,5 +1,6 @@
 ﻿using ReactivityMonitor.Screens.ConnectionScreen;
 using ReactivityMonitor.Screens.HomeScreen;
+using ReactivityMonitor.Screens.MonitoringScreen;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,5 +13,6 @@ namespace ReactivityMonitor
     {
         IConnectionScreen CreateConnectionScreen();
         IHomeScreen CreateHomeScreen();
+        IMonitoringScreen CreateMonitoringScreen();
     }
 }

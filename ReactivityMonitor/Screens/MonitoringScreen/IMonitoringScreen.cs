@@ -9,9 +9,10 @@ using System.Threading.Tasks;
 
 namespace ReactivityMonitor.Screens.MonitoringScreen
 {
-    public interface IMonitoringScreen : IScreen
+    public interface IMonitoringScreen
     {
         IReactivityModel Model { get; set; }
         IWorkspace Workspace { get; set; }
+        IMonitoringGroup MonitoringGroup { get; set; }
     }
 }

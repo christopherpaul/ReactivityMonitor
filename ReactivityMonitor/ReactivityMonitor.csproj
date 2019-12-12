@@ -118,8 +118,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Workspace\IMonitoredCall.cs" />
+    <Compile Include="Workspace\IMonitoringGroup.cs" />
     <Compile Include="Workspace\IWorkspace.cs" />
     <Compile Include="Workspace\MonitoredCall.cs" />
+    <Compile Include="Workspace\MonitoringGroup.cs" />
     <Compile Include="Workspace\Workspace.cs" />
     <Page Include="Screens\CallsScreen\CallsScreenView.xaml">
       <SubType>Designer</SubType>

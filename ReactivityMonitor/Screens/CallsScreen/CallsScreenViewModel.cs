@@ -46,7 +46,12 @@ namespace ReactivityMonitor.Screens.CallsScreen
                 CallingMethods = callingMethods;
             });
 
-            MonitorCall = ReactiveCommand.Create((Call c) => Workspace.StartMonitoringCall(c.InstrumentedCall));
+            MonitorCall = ReactiveCommand.Create((Call c) =>
+            {
+                var monitoredCall = Workspace.StartMonitoringCall(c.InstrumentedCall);
+                var monitoringGroup = Workspace.CreateMonitoringGroup(c.CalledMethodName);
+                monitoringGroup.AddCall(monitoredCall);
+            });
         }
 
         public IReactivityModel Model { get; set; }

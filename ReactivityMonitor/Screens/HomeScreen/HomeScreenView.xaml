@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ReactivityMonitor.Screens.HomeScreen"
+             xmlns:monitoringscreen="clr-namespace:ReactivityMonitor.Screens.MonitoringScreen"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
@@ -23,10 +24,20 @@
                 <RowDefinition Height="1*" />
             </Grid.RowDefinitions>
 
-            <ContentControl x:Name="Monitoring" Grid.Row="0" />
+            <TabControl ItemsSource="{Binding MonitoringScreens}" SelectedItem="{Binding ActiveMonitoringScreen}">
+                <TabControl.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding Name, Mode=OneWay}" />
+                    </DataTemplate>
+                </TabControl.ItemTemplate>
+                <TabControl.Resources>
+                    <DataTemplate DataType="{x:Type monitoringscreen:MonitoringScreenViewModel}">
+                        <monitoringscreen:MonitoringScreenView />
+                    </DataTemplate>
+                </TabControl.Resources>
+            </TabControl>
             <GridSplitter Grid.Row="1" VerticalAlignment="Stretch" />
             <ContentControl x:Name="EventList" Grid.Row="2" />
         </Grid>
-        
     </Grid>
 </UserControl>

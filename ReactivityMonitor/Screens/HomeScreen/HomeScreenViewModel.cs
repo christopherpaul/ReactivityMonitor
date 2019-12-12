@@ -1,17 +1,22 @@
 ﻿using Caliburn.Micro;
 using DynamicData;
+using ReactiveUI;
 using ReactivityMonitor.Connection;
 using ReactivityMonitor.Infrastructure;
 using ReactivityMonitor.Screens.CallsScreen;
 using ReactivityMonitor.Screens.EventListScreen;
 using ReactivityMonitor.Screens.MonitoringScreen;
+using ReactivityMonitor.Services;
 using ReactivityMonitor.Workspace;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace ReactivityMonitor.Screens.HomeScreen
 {
@@ -20,14 +25,12 @@ namespace ReactivityMonitor.Screens.HomeScreen
         public HomeScreenViewModel(
             IWorkspace workspace, 
             ICallsScreen callsScreen, 
-            IMonitoringScreen monitoringScreen,
-            IEventListScreen eventListScreen)
+            IScreenFactory screenFactory,
+            IEventListScreen eventListScreen,
+            IConcurrencyService concurrencyService)
         {
             Calls = callsScreen;
             callsScreen.ConductWith(this);
-
-            Monitoring = monitoringScreen;
-            monitoringScreen.ConductWith(this);
 
             EventList = eventListScreen;
             eventListScreen.ConductWith(this);
@@ -39,26 +42,49 @@ namespace ReactivityMonitor.Screens.HomeScreen
                 callsScreen.Model = ConnectionModel.Model;
                 callsScreen.Workspace = workspace;
 
-                monitoringScreen.Model = ConnectionModel.Model;
-                monitoringScreen.Workspace = workspace;
-
                 eventListScreen.Model = ConnectionModel.Model;
 
                 ConnectionModel.Connect().DisposeWith(disposables);
 
-                workspace.MonitoredCalls.Connect()
+                // Tell model we want to monitor the calls as dictated by the workspace
+                workspace.MonitoredCalls
                     .Transform(call => call.Call.InstrumentedCallId)
                     .OnItemAdded(ConnectionModel.Model.StartMonitorCall)
                     .OnItemRemoved(ConnectionModel.Model.StopMonitorCall)
                     .Subscribe()
                     .DisposeWith(disposables);
+
+                workspace.MonitoringGroups
+                    .Transform(grp =>
+                    {
+                        var monitoringScreen = screenFactory.CreateMonitoringScreen();
+                        monitoringScreen.Model = ConnectionModel.Model;
+                        monitoringScreen.Workspace = workspace;
+                        monitoringScreen.MonitoringGroup = grp;
+                        return monitoringScreen;
+                    })
+                    .ObserveOn(concurrencyService.DispatcherRxScheduler)
+                    .Bind(out var monitoringGroups)
+                    .OnItemAdded(newMonitoringScreen => ActiveMonitoringScreen = newMonitoringScreen)
+                    .Subscribe()
+                    .DisposeWith(disposables);
+
+                MonitoringScreens = monitoringGroups;
             });
         }
 
         public IConnectionModel ConnectionModel { get; set; }
 
-        public IMonitoringScreen Monitoring { get; }
         public ICallsScreen Calls { get; }
         public IEventListScreen EventList { get; }
+
+        public ReadOnlyObservableCollection<IMonitoringScreen> MonitoringScreens { get; private set; }
+
+        private IMonitoringScreen mActiveMonitoringScreen;
+        public IMonitoringScreen ActiveMonitoringScreen
+        {
+            get => mActiveMonitoringScreen;
+            set => Set(ref mActiveMonitoringScreen, value);
+        }
     }
 }

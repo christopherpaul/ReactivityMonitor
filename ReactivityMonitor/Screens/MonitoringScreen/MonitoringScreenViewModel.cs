@@ -20,12 +20,17 @@ using System.Windows.Data;
 
 namespace ReactivityMonitor.Screens.MonitoringScreen
 {
-    public sealed class MonitoringScreenViewModel : ReactiveScreen, IMonitoringScreen
+    public sealed class MonitoringScreenViewModel : ReactiveViewModel, IMonitoringScreen
     {
         public MonitoringScreenViewModel(IConcurrencyService concurrencyService)
         {
-            WhenActivated(disposables =>
+            this.WhenActivated(disposables =>
             {
+                MonitoringGroup.WhenNameChanges
+                    .Subscribe(n => Name = n)
+                    .DisposeWith(disposables);
+
+                //TODO pick out only the observables for the calls in the monitoring group, plus their dependencies
                 Model.ObservableInstances
                     .Select(obs => new ObservableItem(concurrencyService) { ObservableInstance = obs })
                     .AsChangeSets()
@@ -47,14 +52,27 @@ namespace ReactivityMonitor.Screens.MonitoringScreen
 
         public IReactivityModel Model { get; set; }
         public IWorkspace Workspace { get; set; }
+        public IMonitoringGroup MonitoringGroup { get; set; }
 
-        public ReadOnlyObservableCollection<ObservableItem> Items { get; private set; }
+        private string mName;
+        public string Name
+        {
+            get => mName;
+            private set => this.RaiseAndSetIfChanged(ref mName, value);
+        }
+
+        private ReadOnlyObservableCollection<ObservableItem> mItems;
+        public ReadOnlyObservableCollection<ObservableItem> Items
+        {
+            get => mItems;
+            private set => this.RaiseAndSetIfChanged(ref mItems, value);
+        }
 
         private DateTime mStartTime;
         public DateTime StartTime
         {
             get => mStartTime;
-            private set => Set(ref mStartTime, value);
+            private set => this.RaiseAndSetIfChanged(ref mStartTime, value);
         }
     }
 }

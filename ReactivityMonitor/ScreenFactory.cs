@@ -1,6 +1,7 @@
 ﻿using ReactivityMonitor.Screens;
 using ReactivityMonitor.Screens.ConnectionScreen;
 using ReactivityMonitor.Screens.HomeScreen;
+using ReactivityMonitor.Screens.MonitoringScreen;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +22,8 @@ namespace ReactivityMonitor
         public IConnectionScreen CreateConnectionScreen() => GetInstance<IConnectionScreen>();
 
         public IHomeScreen CreateHomeScreen() => GetInstance<IHomeScreen>();
+
+        public IMonitoringScreen CreateMonitoringScreen() => GetInstance<IMonitoringScreen>();
 
         private T GetInstance<T>() => (T)mServiceProvider.GetService(typeof(T));
     }
