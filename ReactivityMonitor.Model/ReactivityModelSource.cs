@@ -22,6 +22,7 @@ namespace ReactivityMonitor.Model
         private readonly ConcurrentDictionary<long, ISubject<long>> mObservableInputs;
         private readonly ConcurrentDictionary<long, ISubject<long>> mObservableSubscriptions;
         private readonly ConcurrentDictionary<long, ISubject<StreamEvent>> mSubscriptionStreamEvents;
+        private readonly IObservableCache<(int CallId, IObservable<IObservableInstance> Items), int> mObservableInstancesOfCalls;
 
         private readonly ISourceCache<int, int> mRequestedInstrumentedCalls;
 
@@ -36,6 +37,15 @@ namespace ReactivityMonitor.Model
             mObservableInputs = new ConcurrentDictionary<long, ISubject<long>>();
             mObservableSubscriptions = new ConcurrentDictionary<long, ISubject<long>>();
             mSubscriptionStreamEvents = new ConcurrentDictionary<long, ISubject<StreamEvent>>();
+
+            var observableInstancesOfCallsSource = new SourceCache<(int CallId, IObservable<IObservableInstance> Items), int>(g => g.CallId);
+            observableInstancesOfCallsSource.PopulateFrom(
+                mObservableInstances
+                    .GroupBy(obs => obs.Call.InstrumentedCallId)
+                    .Select(group => (CallId: group.Key, Items: group.Replay()))
+                    .Do(x => x.Items.Connect())
+                    .Select(x => (x.CallId, (IObservable<IObservableInstance>)x.Items)));
+            mObservableInstancesOfCalls = observableInstancesOfCallsSource.AsObservableCache();
 
             mRequestedInstrumentedCalls = new SourceCache<int, int>(id => id);
 
@@ -113,7 +123,8 @@ namespace ReactivityMonitor.Model
                 var module = mParent.mModules.Lookup(moduleId);
                 if (module.HasValue)
                 {
-                    var ic = new InstrumentedCall(id, module.Value, callingType, callingMethod, calledMethod, instructionOffset);
+                    var instances = mParent.mObservableInstancesOfCalls.WatchValue(id).Take(1).SelectMany(x => x.Items);
+                    var ic = new InstrumentedCall(id, module.Value, callingType, callingMethod, calledMethod, instructionOffset, instances);
                     mParent.mInstrumentedCalls.AddOrUpdate(ic);
                     ((Module)module.Value).AddInstrumentedCall(ic);
                 }
@@ -146,7 +157,7 @@ namespace ReactivityMonitor.Model
 
                 IInstrumentedCall AddPlaceholderCall()
                 {
-                    return new InstrumentedCall(instrumentationPoint, cUnknownModule, cUnknown, cUnknown, cUnknown, 0);
+                    return new InstrumentedCall(instrumentationPoint, cUnknownModule, cUnknown, cUnknown, cUnknown, 0, Observable.Never<IObservableInstance>());
                 }
             }
 

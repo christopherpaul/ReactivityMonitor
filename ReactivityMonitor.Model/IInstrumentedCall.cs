@@ -12,5 +12,7 @@ namespace ReactivityMonitor.Model
         string CallingMethod { get; }
         string CalledMethod { get; }
         int InstructionOffset { get; }
+
+        IObservable<IObservableInstance> ObservableInstances { get; }
     }
 }

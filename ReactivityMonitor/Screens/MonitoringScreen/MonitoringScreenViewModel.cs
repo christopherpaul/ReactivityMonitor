@@ -30,11 +30,16 @@ namespace ReactivityMonitor.Screens.MonitoringScreen
                     .Subscribe(n => Name = n)
                     .DisposeWith(disposables);
 
-                //TODO pick out only the observables for the calls in the monitoring group, plus their dependencies
-                Model.ObservableInstances
-                    .Select(obs => new ObservableItem(concurrencyService) { ObservableInstance = obs })
-                    .AsChangeSets()
+                // TODO: this doesn't deal properly with a call being removed from the group
+                MonitoringGroup.Calls
+                    .MergeMany(call => call.Call.ObservableInstances)
+                    .Expand(obs => obs.Inputs)
+                    .ToObservableChangeSet(obs => obs.ObservableId)
+                    .AsObservableCache(false) // hopefully avoids duplicates produced through multiple paths to same observable
+                    .Connect()
+                    .Transform(obs => new ObservableItem(concurrencyService) { ObservableInstance = obs })
                     .Sort(SortExpressionComparer<ObservableItem>.Ascending(obs => obs.SequenceId))
+                    .SubscribeOn(concurrencyService.TaskPoolRxScheduler)
                     .ObserveOn(concurrencyService.DispatcherRxScheduler)
                     .Bind(out var observableInstances)
                     .Subscribe()
