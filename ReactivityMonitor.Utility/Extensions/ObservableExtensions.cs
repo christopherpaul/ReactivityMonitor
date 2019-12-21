@@ -10,11 +10,6 @@ namespace ReactivityMonitor.Utility.Extensions
 {
     public static class ObservableExtensions
     {
-        public static IObservable<IChangeSet<T>> AsChangeSets<T>(this IObservable<T> source)
-        {
-            return source.Select(item => new Change<T>(ListChangeReason.Add, item).ToChangeSet());
-        }
-
         public static IObservable<T> Trace<T>(this IObservable<T> observable, string name)
         {
             int subSource = 0;

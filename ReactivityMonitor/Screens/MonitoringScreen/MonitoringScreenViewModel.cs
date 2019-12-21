@@ -35,8 +35,6 @@ namespace ReactivityMonitor.Screens.MonitoringScreen
                     .MergeMany(call => call.Call.ObservableInstances)
                     .Expand(obs => obs.Inputs)
                     .ToObservableChangeSet(obs => obs.ObservableId)
-                    .AsObservableCache(false) // hopefully avoids duplicates produced through multiple paths to same observable
-                    .Connect()
                     .Transform(obs => new ObservableItem(concurrencyService) { ObservableInstance = obs })
                     .Sort(SortExpressionComparer<ObservableItem>.Ascending(obs => obs.SequenceId))
                     .SubscribeOn(concurrencyService.TaskPoolRxScheduler)

@@ -23,7 +23,6 @@ namespace ReactivityMonitor.Screens.MonitoringScreen
 
                 Subscription.Events
                     .ObserveOn(concurrencyService.DispatcherRxScheduler)
-                    .Do(e => Trace.WriteLine($"{e}"))
                     .Subscribe(streamEvents.Add)
                     .DisposeWith(observables);
             });

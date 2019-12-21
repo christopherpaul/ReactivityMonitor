@@ -13,6 +13,9 @@
                 <Button Content="Go" Command="{Binding Go, Mode=OneTime}" />
                 <Button Content="Clear" Command="{Binding Clear, Mode=OneTime}" />
             </ToolBar>
+            <ToolBar Band="2">
+                <ToggleButton Content="Filter to tab" IsChecked="{Binding IsFilteringToActiveGroup}" />
+            </ToolBar>
         </ToolBarTray>
         
         <DataGrid ItemsSource="{Binding Events}" AutoGenerateColumns="False" IsReadOnly="True">
