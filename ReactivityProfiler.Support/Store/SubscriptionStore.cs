@@ -22,6 +22,7 @@ namespace ReactivityProfiler.Support.Store
             var sub = new SubscriptionInfo(observable);
             mActiveSubscriptions.TryAdd(sub.SubscriptionId, sub);
             GetInstrumentationPointSubscriptions(observable.InstrumentationPoint).AddSub(sub);
+            observable.ActiveSubscriptions.TryAdd(sub.SubscriptionId, sub);
 
             EventSink.Subscribed(sub);
 
@@ -49,6 +50,7 @@ namespace ReactivityProfiler.Support.Store
             if (mActiveSubscriptions.TryRemove(subId, out var sub))
             {
                 GetInstrumentationPointSubscriptions(sub.Observable.InstrumentationPoint).RemoveSub(sub);
+                sub.Observable.ActiveSubscriptions.TryRemove(subId, out _);
 
                 EventSink.Unsubscribed(ref details, sub);
 
@@ -62,6 +64,11 @@ namespace ReactivityProfiler.Support.Store
         public IEnumerable<SubscriptionInfo> GetSubs(int instrumentationPointId)
         {
             return GetInstrumentationPointSubscriptions(instrumentationPointId).ActiveSubs;
+        }
+
+        public IEnumerable<SubscriptionInfo> GetSubs(ObservableInfo obs)
+        {
+            return obs.ActiveSubscriptions.Values;
         }
 
         private InstrumentationPointSubscriptions GetInstrumentationPointSubscriptions(int instrumentationPointId)

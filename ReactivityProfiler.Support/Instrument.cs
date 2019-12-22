@@ -224,13 +224,6 @@ namespace ReactivityProfiler.Support
                 return observable;
             }
 
-            if (observable is IInstrumentedObservable)
-            {
-                // Already instrumented. Not sure if we'd want to associate it with any
-                // inputs to this call as well - for now assume not.
-                return observable;
-            }
-
             var obsInfo = Services.Store.CreateObservable(instrumentationPoint);
             foreach (var input in inputs)
             {

@@ -64,15 +64,9 @@ namespace ReactivityProfiler.Support.Store
             {
                 if (mMonitoredInstrumentationPoints.TryAdd(instrumentationPoint, true))
                 {
-                    var obses = new HashSet<long>();
                     foreach (var sub in Subscriptions.GetSubs(instrumentationPoint))
                     {
-                        if (obses.Add(sub.Observable.ObservableId))
-                        {
-                            ObservableCreated(sub.Observable);
-                        }
-
-                        Subscribed(sub);
+                        MonitorChain(sub.Observable);
                     }
                 }
             }
@@ -81,13 +75,9 @@ namespace ReactivityProfiler.Support.Store
             {
                 if (mMonitoredInstrumentationPoints.TryRemove(instrumentationPoint, out _))
                 {
-                    var obses = new HashSet<long>();
                     foreach (var sub in Subscriptions.GetSubs(instrumentationPoint))
                     {
-                        if (obses.Add(sub.Observable.ObservableId))
-                        {
-                            UnmonitorChain(sub.Observable);
-                        }
+                        UnmonitorChain(sub.Observable);
                     }
                 }
             }
@@ -166,6 +156,18 @@ namespace ReactivityProfiler.Support.Store
                     return true;
                 }
 
+                // if the observable was already created but had no subscriptions when we began monitoring
+                // the instrumentation point, it would not have been picked up then, so deal with it
+                // retroactively here.
+                if (mMonitoredInstrumentationPoints.ContainsKey(sub.Observable.InstrumentationPoint))
+                {
+                    // Note that MonitorChain will invoke this method recursively, but it will
+                    // have set sub.Observable.Monitoring = true so will not reach this point.
+                    // Because of this, we just need to return true afterwards.
+                    MonitorChain(sub.Observable);
+                    return true;
+                }
+
                 return false;
             }
 
@@ -176,9 +178,15 @@ namespace ReactivityProfiler.Support.Store
                     return;
                 }
 
+                obs.Monitoring = true;
+
                 mEventSink?.ObservableCreated(obs);
 
-                obs.Monitoring = true;
+                foreach (var sub in Subscriptions.GetSubs(obs))
+                {
+                    Subscribed(sub);
+                }
+
                 foreach (var input in obs.Inputs)
                 {
                     MonitorChain(input);

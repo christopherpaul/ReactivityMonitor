@@ -26,6 +26,8 @@ namespace ReactivityProfiler.Support.Store
         public IEnumerable<ObservableInfo> Inputs => mInputs.Keys;
         public CommonEventDetails Details { get; }
 
+        public ConcurrentDictionary<long, SubscriptionInfo> ActiveSubscriptions { get; } = new ConcurrentDictionary<long, SubscriptionInfo>();
+
         public void AddInput(ObservableInfo info)
         {
             if (mInputs.TryAdd(info, true))

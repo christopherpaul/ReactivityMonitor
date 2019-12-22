@@ -9,5 +9,6 @@ namespace ReactivityProfiler.Support.Store
         IEnumerable<SubscriptionInfo> GetAllSubs();
         SubscriptionInfo GetSub(long subId);
         IEnumerable<SubscriptionInfo> GetSubs(int instrumentationPointId);
+        IEnumerable<SubscriptionInfo> GetSubs(ObservableInfo obs);
     }
 }
