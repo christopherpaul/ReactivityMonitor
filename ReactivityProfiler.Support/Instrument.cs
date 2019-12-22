@@ -86,9 +86,9 @@ namespace ReactivityProfiler.Support
                 var argType = typeof(T);
 
                 // Check for T = IObservable<U>
-                if (IsObservable(argType, out Type observableItemType))
+                if (IsObservable(argType, out _))
                 {
-                    var handlerType = typeof(ObservableArgHandler<>).MakeGenericType(observableItemType);
+                    var handlerType = typeof(ObservableArgHandler<>).MakeGenericType(argType);
                     ArgHandler = (Func<T, int, T>)((IObservableArgHandler)Activator.CreateInstance(handlerType)).GetHandler();
                 }
 
@@ -97,7 +97,7 @@ namespace ReactivityProfiler.Support
                 {
                     var invokeMethod = argType.GetMethod("Invoke");
                     var returnType = invokeMethod.ReturnType;
-                    if (IsObservable(returnType, out observableItemType))
+                    if (IsObservable(returnType, out Type observableItemType))
                     {
                         var attacherType = typeof(DynamicObservableAttacher<>).MakeGenericType(observableItemType);
                         var delegateArgParams = invokeMethod.GetParameters().Select(p => Expression.Parameter(p.ParameterType)).ToArray();
@@ -105,6 +105,25 @@ namespace ReactivityProfiler.Support
                         var handlerIpParam = Expression.Parameter(typeof(int));
                         var attacherVar = Expression.Parameter(attacherType);
                         var observableVar = Expression.Parameter(returnType);
+
+                        Expression callAttachOnReturnedObservable = Expression.Call(
+                                                attacherVar,
+                                                attacherType.GetMethod("Attach"),
+                                                observableVar);
+
+                        if (returnType != typeof(IObservable<>).MakeGenericType(observableItemType))
+                        {
+                            // subinterface, so need to wrap the result from the call to Attach
+                            var wrapperFunction = GetDerivedInterfaceWrapper(returnType);
+                            callAttachOnReturnedObservable =
+                                Expression.Convert(
+                                    Expression.Invoke(
+                                        Expression.Constant(wrapperFunction),
+                                        observableVar,
+                                        callAttachOnReturnedObservable),
+                                    returnType);
+                        }
+
                         var handlerExpression =
                             Expression.Lambda<Func<T, int, T>>(
                                 Expression.Block(new[] {attacherVar},
@@ -117,10 +136,7 @@ namespace ReactivityProfiler.Support
                                         Expression.Block(new[] {observableVar},
                                             Expression.Assign(observableVar,
                                                 Expression.Invoke(handlerArgParam, delegateArgParams)),
-                                            Expression.Call(
-                                                attacherVar,
-                                                attacherType.GetMethod("Attach"),
-                                                observableVar)),
+                                            callAttachOnReturnedObservable),
                                         delegateArgParams)),
                                 handlerArgParam, handlerIpParam);
                         ArgHandler = handlerExpression.Compile();
@@ -130,11 +146,25 @@ namespace ReactivityProfiler.Support
 
             private static bool IsObservable(Type argType, out Type observableItemType)
             {
+                if (!argType.IsInterface)
+                {
+                    observableItemType = null;
+                    return false;
+                }
+
                 if (argType.IsGenericType && argType.GetGenericTypeDefinition() == typeof(IObservable<>))
                 {
                     observableItemType = argType.GenericTypeArguments[0];
                     return true;
                 }
+
+                var ifaces = argType.FindInterfaces((i, _) => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IObservable<>), null);
+                if (ifaces.Length == 1)
+                {
+                    observableItemType = ifaces[0].GenericTypeArguments[0];
+                    return true;
+                }
+
                 observableItemType = null;
                 return false;
             }
@@ -147,9 +177,9 @@ namespace ReactivityProfiler.Support
 
         private sealed class ObservableArgHandler<T> : IObservableArgHandler
         {
-            public object GetHandler() => new Func<IObservable<T>, int, IObservable<T>>(HandleArg);
+            public object GetHandler() => new Func<T, int, T>(HandleArg);
 
-            public IObservable<T> HandleArg(IObservable<T> observable, int instrumentationPoint)
+            public T HandleArg(T observable, int instrumentationPoint)
             {
                 if (observable is IInstrumentedObservable instrumented)
                 {
@@ -330,6 +360,13 @@ namespace ReactivityProfiler.Support
             return typeBuilder.CreateTypeInfo();
         }
 
+        private static Func<object, object, object> GetDerivedInterfaceWrapper(RuntimeTypeHandle typeHandle)
+        {
+            return cDerivedInterfaceWrappers.GetOrAdd(typeHandle, cCreateDerivedInterfaceWrapper);
+        }
+
+        private static Func<object, object, object> GetDerivedInterfaceWrapper(Type type) => GetDerivedInterfaceWrapper(type.TypeHandle);
+
         public static IObservable<T> ReturnedSubinterface<T>(IObservable<T> observable, int instrumentationPoint, RuntimeTypeHandle constructedTypeHandle)
         {
             var instrumented = Returned(observable, instrumentationPoint);
@@ -338,7 +375,7 @@ namespace ReactivityProfiler.Support
                 return observable;
             }
 
-            var wrapperFunction = cDerivedInterfaceWrappers.GetOrAdd(constructedTypeHandle, cCreateDerivedInterfaceWrapper);
+            var wrapperFunction = GetDerivedInterfaceWrapper(constructedTypeHandle);
             return (IObservable<T>)wrapperFunction(observable, instrumented);
         }
     }
