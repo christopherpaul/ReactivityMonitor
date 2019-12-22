@@ -17,6 +17,12 @@ struct SupportAssemblyReferences
     mdMemberRef m_ReturnedSubinterface = 0;
 };
 
+struct RewrittenFunctionData
+{
+    simplespan<byte> m_rewrittenILBuffer;
+    simplespan<COR_IL_MAP> m_instrumentedCodeMap;
+};
+
 struct PerModuleData
 {
     std::mutex m_mutex;
@@ -25,6 +31,7 @@ struct PerModuleData
     AssemblyProps m_assemblyProps;
     ObservableTypeReferences m_observableTypeRefs;
     SupportAssemblyReferences m_supportAssemblyRefs;
+    std::unordered_map<mdToken, std::future<RewrittenFunctionData>> m_rewrittenFunctions;
 };
 
 extern const wchar_t* GetSupportAssemblyName();

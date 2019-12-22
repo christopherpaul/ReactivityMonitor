@@ -105,7 +105,7 @@ HRESULT CRxProfiler::JITCompilationStarted(FunctionID functionId, BOOL fIsSafeTo
         CMetadataImport metadataImport = m_profilerInfo.GetMetadataImport(info.moduleId, ofRead);
         MethodProps props = metadataImport.GetMethodProps(info.functionToken);
 
-        ATLTRACE(L"JITCompilationStarted for %s", props.name.c_str());
+        ATLTRACE(L"JITCompilationStarted for %s (function ID %p, token %x)", props.name.c_str(), functionId, info.functionToken);
 
         InstrumentMethodBody(functionId, props, info, metadataImport, pPerModuleData);
     });

@@ -26,6 +26,7 @@
 #include <sstream>
 #include <iomanip>
 #include <algorithm>
+#include <future>
 
 #include "ReleaseTrace.h"
 #include "Utility.h"

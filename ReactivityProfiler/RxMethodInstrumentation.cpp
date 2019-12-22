@@ -54,13 +54,13 @@ public:
         m_metadataImport(metadata),
         m_pPerModuleData(pPerModuleData)
     {
-        FetchPerModuleDataAtomic();
     }
 
     void Instrument();
 
 private:
-    void FetchPerModuleDataAtomic();
+    RewrittenFunctionData GetOrCreateRewrittenFunctionData();
+    RewrittenFunctionData CreateInstrumentedFunction();
     bool TryFindObservableCalls();
     void InstrumentCall(ObservableCallInfo& call, CMetadataEmit& emit);
     MethodCallInfo GetMethodCallInfo(mdToken method);
@@ -93,13 +93,57 @@ void CRxProfiler::InstrumentMethodBody(FunctionID functionId, const MethodProps&
     }
 }
 
+RewrittenFunctionData MethodBodyInstrumenter::GetOrCreateRewrittenFunctionData()
+{
+    std::unique_lock<std::mutex> pmd_lock(m_pPerModuleData->m_mutex);
+
+    observableTypeRefs = m_pPerModuleData->m_observableTypeRefs;
+    supportRefs = m_pPerModuleData->m_supportAssemblyRefs;
+
+    // task to instrument the function
+    std::packaged_task<RewrittenFunctionData()> task([=] { return CreateInstrumentedFunction(); });
+
+    // try and put the future result of the task into the map
+    decltype(m_pPerModuleData->m_rewrittenFunctions)::value_type mapEntry = { m_functionInfo.functionToken, task.get_future() };
+    auto insertResult = m_pPerModuleData->m_rewrittenFunctions.insert(std::move(mapEntry));
+
+    pmd_lock.unlock();
+
+    if (insertResult.second)
+    {
+        // we inserted our task's future result, so run the task.
+        task();
+    }
+    else
+    {
+        ATLTRACE(L"%s has already been instrumented", m_methodProps.name.c_str());
+    }
+
+    // obtain the result from the task (either the one we inserted successfully, or one
+    // inserted previously)
+    auto insertedMapEntry = insertResult.first;
+    auto& insertedFuture = insertedMapEntry->second;
+    return insertedFuture.get();
+}
+
 void MethodBodyInstrumenter::Instrument()
+{
+    RewrittenFunctionData data = GetOrCreateRewrittenFunctionData();
+
+    if (data.m_rewrittenILBuffer)
+    {
+        m_profilerInfo.SetILFunctionBody(m_functionInfo.moduleId, m_functionInfo.functionToken, data.m_rewrittenILBuffer);
+        m_profilerInfo.SetILInstrumentedCodeMap(m_functionId, true, data.m_instrumentedCodeMap);
+    }
+}
+
+RewrittenFunctionData MethodBodyInstrumenter::CreateInstrumentedFunction()
 {
     simplespan<const byte> ilCode = m_profilerInfo.GetILFunctionBody(m_functionInfo.moduleId, m_functionInfo.functionToken);
     if (!ilCode)
     {
         ATLTRACE(L"%s is not an IL function", m_methodProps.name.c_str());
-        return;
+        return {};
     }
 
     ATLTRACE(L"%s (%x) has %d bytes of IL starting at RVA 0x%x", m_methodProps.name.c_str(), m_functionInfo.functionToken, ilCode.length(), m_methodProps.codeRva);
@@ -110,7 +154,7 @@ void MethodBodyInstrumenter::Instrument()
 
     if (!TryFindObservableCalls())
     {
-        return;
+        return {};
     }
 
     auto owningTypeProps = m_metadataImport.GetTypeDefProps(m_methodProps.classDefToken);
@@ -143,20 +187,11 @@ void MethodBodyInstrumenter::Instrument()
     auto rewrittenILBuffer = m_profilerInfo.AllocateFunctionBody(m_functionInfo.moduleId, size);
     m_method->WriteMethod(reinterpret_cast<IMAGE_COR_ILMETHOD*>(rewrittenILBuffer.begin()));
 
-    m_profilerInfo.SetILFunctionBody(m_functionInfo.moduleId, m_functionInfo.functionToken, rewrittenILBuffer);
-
     ULONG mapSize = m_method->GetILMapSize();
     COR_IL_MAP* ilMapEntries = static_cast<COR_IL_MAP*>(CoTaskMemAlloc(mapSize * sizeof(COR_IL_MAP)));
     m_method->PopulateILMap(mapSize, ilMapEntries);
 
-    m_profilerInfo.SetILInstrumentedCodeMap(m_functionId, true, { ilMapEntries, mapSize });
-}
-
-void MethodBodyInstrumenter::FetchPerModuleDataAtomic()
-{
-    std::lock_guard<std::mutex> pmd_lock(m_pPerModuleData->m_mutex);
-    observableTypeRefs = m_pPerModuleData->m_observableTypeRefs;
-    supportRefs = m_pPerModuleData->m_supportAssemblyRefs;
+    return { rewrittenILBuffer, { ilMapEntries, mapSize } };
 }
 
 bool MethodBodyInstrumenter::TryFindObservableCalls()
