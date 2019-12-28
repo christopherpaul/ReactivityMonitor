@@ -119,7 +119,6 @@ namespace ReactivityMonitor.Screens.MonitoringScreen
                 return arrangeSize;
             }
 
-            var desired = Child.DesiredSize;
             var offset = ScrollOffset;
             var size = ViewportSize;
             if (Orientation == Orientation.Horizontal)
