@@ -1,4 +1,5 @@
 ﻿using DynamicData;
+using ReactivityMonitor.Utility.Flyweights;
 using System;
 using System.Collections.Generic;
 using System.Reactive;
@@ -40,5 +41,7 @@ namespace ReactivityMonitor.Utility.Extensions
             disposables.Add(Disposable.Create(whenDisposed, cPushValueToSubject));
             return source.TakeUntil(whenDisposed);
         }
+
+        public static IObservable<Unit> WhenTerminated<T>(this IObservable<T> source) => source.IgnoreElements().Select(Funcs<Unit>.Default<T>()).Append(default);
     }
 }

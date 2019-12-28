@@ -26,6 +26,7 @@ namespace ReactivityMonitor.Screens.ObservablesScreen
             {
                 Observables
                     .Transform(obs => factory.CreateItem(obs))
+                    .Sort(Utility.Comparer<ObservablesListItem>.ByKey(x => -x.ObservableInstance.ObservableId))
                     .SubscribeOn(concurrencyService.TaskPoolRxScheduler)
                     .ObserveOn(concurrencyService.DispatcherRxScheduler)
                     .Bind(items)
