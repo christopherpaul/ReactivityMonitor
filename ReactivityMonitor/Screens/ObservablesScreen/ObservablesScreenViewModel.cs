@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Text;
 using System.Threading.Tasks;
 using DynamicData;
@@ -11,16 +12,21 @@ using DynamicData.Binding;
 using ReactiveUI;
 using ReactivityMonitor.Infrastructure;
 using ReactivityMonitor.Model;
+using ReactivityMonitor.Screens.MarbleDiagramScreen;
 using ReactivityMonitor.Services;
 
 namespace ReactivityMonitor.Screens.ObservablesScreen
 {
     public sealed class ObservablesScreenViewModel : ReactiveViewModel, IObservablesScreen
     {
-        public ObservablesScreenViewModel(IConcurrencyService concurrencyService, IObservablesScreenItemFactory factory)
+        private readonly ISubject<IChangeSet<ObservablesListItem>> mWhenSelectionChanges = new Subject<IChangeSet<ObservablesListItem>>();
+
+        public ObservablesScreenViewModel(IConcurrencyService concurrencyService, IObservablesScreenItemFactory factory, IMarbleDiagramScreen marbleDiagram)
         {
             var items = new ObservableCollectionExtended<ObservablesListItem>();
             Items = new ReadOnlyObservableCollection<ObservablesListItem>(items);
+
+            DetailContent = marbleDiagram;
 
             this.WhenActivated((CompositeDisposable disposables) =>
             {
@@ -34,11 +40,25 @@ namespace ReactivityMonitor.Screens.ObservablesScreen
                     .DisposeMany()
                     .Subscribe()
                     .DisposeWith(disposables);
+
+                marbleDiagram.ObservableInstances = mWhenSelectionChanges
+                    .ObserveOn(concurrencyService.TaskPoolRxScheduler)
+                    .AddKey(item => item.ObservableInstance.ObservableId)
+                    .Transform(item => item.ObservableInstance);
+
+                marbleDiagram.Activator.Activate().DisposeWith(disposables);
             });
+        }
+
+        public void OnSelectedItemsChanged(IChangeSet<ObservablesListItem> changes)
+        {
+            mWhenSelectionChanges.OnNext(changes);
         }
 
         public IObservable<IChangeSet<IObservableInstance, long>> Observables { get; set; }
 
         public ReadOnlyObservableCollection<ObservablesListItem> Items { get; }
+
+        public object DetailContent { get; private set; }
     }
 }

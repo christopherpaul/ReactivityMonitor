@@ -7,7 +7,14 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
-        <DataGrid ItemsSource="{Binding Items}" AutoGenerateColumns="False" IsReadOnly="True">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="5" />
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        
+        <DataGrid Grid.Column="0" ItemsSource="{Binding Items}" AutoGenerateColumns="False" IsReadOnly="True"
+                  SelectionChanged="DataGrid_SelectionChanged">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Sequence" Binding="{Binding SequenceId, Mode=OneTime}" />
                 <DataGridTextColumn Header="Created" Binding="{Binding Timestamp, Mode=OneTime}" />
@@ -25,5 +32,9 @@
                 </Style>
             </DataGrid.RowStyle>
         </DataGrid>
+
+        <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" />
+
+        <ContentControl Grid.Column="2" Content="{Binding DetailContent}" />
     </Grid>
 </UserControl>

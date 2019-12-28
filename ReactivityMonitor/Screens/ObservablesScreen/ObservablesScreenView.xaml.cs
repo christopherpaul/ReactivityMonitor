@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DynamicData;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +24,14 @@ namespace ReactivityMonitor.Screens.ObservablesScreen
         public ObservablesScreenView()
         {
             InitializeComponent();
+        }
+
+        private void DataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var changeSet = new ChangeSet<ObservablesListItem>();
+            changeSet.Add(new Change<ObservablesListItem>(ListChangeReason.RemoveRange, e.RemovedItems.Cast<ObservablesListItem>()));
+            changeSet.Add(new Change<ObservablesListItem>(ListChangeReason.AddRange, e.AddedItems.Cast<ObservablesListItem>()));
+            (DataContext as ObservablesScreenViewModel)?.OnSelectedItemsChanged(changeSet);
         }
     }
 }

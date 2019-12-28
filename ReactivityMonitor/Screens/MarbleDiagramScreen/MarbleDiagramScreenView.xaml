@@ -50,8 +50,8 @@
                                             <ItemsControl.ItemsPanel>
                                                 <ItemsPanelTemplate>
                                                     <local:StreamEventPanel 
-                                                    StartTime="{Binding ElementName=MarbleDiagram, Path=DataContext.StartTime}"
-                                                    TimeScale="10"/>
+                                                        StartTime="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:MarbleDiagramScreenView}}, Path=DataContext.StartTime}"
+                                                        TimeScale="10"/>
                                                 </ItemsPanelTemplate>
                                             </ItemsControl.ItemsPanel>
 
