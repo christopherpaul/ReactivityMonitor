@@ -39,8 +39,9 @@ namespace ReactivityMonitor.Screens.EventListScreen
                         .Merge(OnTaskPool(goCommand).Select(_ => true))
                         .StartWith(true));
 
-                var activeGroupObservableInstances =
-                    WhenActiveMonitoringGroupChanges.Select(group =>
+                var activeGroupObservableInstances = WhenActiveMonitoringGroupChanges
+                    .ObserveOn(concurrencyService.TaskPoolRxScheduler)
+                    .Select(group =>
                         group.Calls
                             .MergeMany(call => call.Call.ObservableInstances)
                             .Expand(obs => obs.Inputs)
@@ -50,6 +51,7 @@ namespace ReactivityMonitor.Screens.EventListScreen
                 var allObservableInstances = Model.ObservableInstances.ToObservableChangeSet(obs => obs.ObservableId);
 
                 var filterObservableInstances = whenIsFilteringToActiveGroupChanges
+                    .ObserveOn(concurrencyService.TaskPoolRxScheduler)
                     .Select(isFilteringToActiveGroup => isFilteringToActiveGroup ? activeGroupObservableInstances : allObservableInstances)
                     .Switch();
 
@@ -72,13 +74,13 @@ namespace ReactivityMonitor.Screens.EventListScreen
                                             : window.Buffer(Observable.Never<Unit>()).SelectMany(buf => buf))
                                     .Concat())
                         .ToObservableChangeSet(e => e.SequenceId)
-                        .SemiJoinOnRightKey(filterObservableInstances, e => e.ObservableId)
-                        .Sort(Utility.Comparer<EventItem>.ByKey(e => e.SequenceId)))
+                        .SemiJoinOnRightKey(filterObservableInstances, e => e.ObservableId))
                     .Switch()
-                    .Batch(TimeSpan.FromSeconds(1))
+                    .Batch(TimeSpan.FromMilliseconds(100))
+                    .Sort(Utility.Comparer<EventItem>.ByKey(e => e.SequenceId))
                     .SubscribeOn(concurrencyService.TaskPoolRxScheduler)
                     .ObserveOn(concurrencyService.DispatcherRxScheduler)
-                    .Bind(out var eventsCollection)
+                    .Bind(out var eventsCollection, resetThreshold: int.MaxValue)
                     .Subscribe()
                     .DisposeWith(disposables);
 
