@@ -8,12 +8,11 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <DockPanel>
         <ToolBarTray DockPanel.Dock="Top">
-            <ToolBar Band="1">
+            <ToolBar>
                 <Button Content="Pause" Command="{Binding Pause, Mode=OneTime}" />
                 <Button Content="Go" Command="{Binding Go, Mode=OneTime}" />
                 <Button Content="Clear" Command="{Binding Clear, Mode=OneTime}" />
-            </ToolBar>
-            <ToolBar Band="2">
+                <Separator/>
                 <ToggleButton Content="Filter to tab" IsChecked="{Binding IsFilteringToActiveGroup}" />
             </ToolBar>
         </ToolBarTray>
