@@ -3,6 +3,9 @@ namespace ReactivityMonitor
     using System;
     using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
+    using System.Reflection;
+    using System.Windows;
     using System.Windows.Controls;
     using System.Windows.Markup;
     using System.Xml;
@@ -43,6 +46,8 @@ namespace ReactivityMonitor
             //}
 
             //string s = sw.ToString();
+
+            GenerateViewModelDataTemplates();
 
             DisplayRootViewFor<IShell>();
         }
@@ -88,6 +93,27 @@ namespace ReactivityMonitor
         protected override void BuildUp(object instance)
         {
             mContainer.BuildUp(instance);
+        }
+
+        private void GenerateViewModelDataTemplates()
+        {
+            var assembly = Assembly.GetExecutingAssembly();
+            var viewModelAndViews = assembly.ExportedTypes
+                .Where(type => type.Name.EndsWith("ViewModel", StringComparison.Ordinal))
+                .Where(type => type.IsClass)
+                .Select(type => new { ViewModelType = type, ViewType = assembly.GetType(type.FullName.Remove(type.FullName.Length - 5)) })
+                .Where(x => x.ViewType != null && x.ViewType.IsSubclassOf(typeof(FrameworkElement)));
+
+            foreach (var x in viewModelAndViews)
+            {
+                var dataTemplate = new DataTemplate
+                {
+                    DataType = x.ViewModelType,
+                    VisualTree = new FrameworkElementFactory(x.ViewType)
+                };
+
+                Application.Resources.Add(dataTemplate.DataTemplateKey, dataTemplate);
+            }
         }
 
         private sealed class ServiceProvider : IServiceProvider
