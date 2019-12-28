@@ -8,7 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Media;
 
-namespace ReactivityMonitor.Screens.MonitoringScreen
+namespace ReactivityMonitor.Screens.MarbleDiagramScreen
 {
     public class NonScrolling : Decorator
     {

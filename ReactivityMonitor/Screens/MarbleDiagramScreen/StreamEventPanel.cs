@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace ReactivityMonitor.Screens.MonitoringScreen
+namespace ReactivityMonitor.Screens.MarbleDiagramScreen
 {
     public class StreamEventPanel : Panel
     {

@@ -12,6 +12,7 @@ namespace ReactivityMonitor
     using ReactivityMonitor.Screens.ConnectionScreen;
     using ReactivityMonitor.Screens.EventListScreen;
     using ReactivityMonitor.Screens.HomeScreen;
+    using ReactivityMonitor.Screens.MarbleDiagramScreen;
     using ReactivityMonitor.Screens.MonitoringScreen;
     using ReactivityMonitor.Services;
     using ReactivityMonitor.Workspace;
@@ -71,6 +72,7 @@ namespace ReactivityMonitor
             mContainer.PerRequest<ICallsScreen, CallsScreenViewModel>();
             mContainer.PerRequest<IMonitoringScreen, MonitoringScreenViewModel>();
             mContainer.PerRequest<IEventListScreen, EventListScreenViewModel>();
+            mContainer.PerRequest<IMarbleDiagramScreen, MarbleDiagramScreenViewModel>();
         }
 
         protected override object GetInstance(Type service, string key)

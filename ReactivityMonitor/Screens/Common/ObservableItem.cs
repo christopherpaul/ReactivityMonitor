@@ -8,7 +8,7 @@ using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 
-namespace ReactivityMonitor.Screens.MonitoringScreen
+namespace ReactivityMonitor.Screens.Common
 {
     public sealed class ObservableItem : ReactiveViewModel
     {

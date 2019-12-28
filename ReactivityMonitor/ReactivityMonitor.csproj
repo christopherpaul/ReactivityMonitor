@@ -97,15 +97,20 @@
     <Compile Include="Screens\HomeScreen\HomeScreenViewModel.cs" />
     <Compile Include="Screens\HomeScreen\IHomeScreen.cs" />
     <Compile Include="IScreenFactory.cs" />
-    <Compile Include="Screens\MonitoringScreen\NonScrolling.cs" />
+    <Compile Include="Screens\MarbleDiagramScreen\IMarbleDiagramScreen.cs" />
+    <Compile Include="Screens\MarbleDiagramScreen\MarbleDiagramScreenView.xaml.cs">
+      <DependentUpon>MarbleDiagramScreenView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Screens\MarbleDiagramScreen\MarbleDiagramScreenViewModel.cs" />
+    <Compile Include="Screens\MarbleDiagramScreen\NonScrolling.cs" />
     <Compile Include="Screens\MonitoringScreen\IMonitoringScreen.cs" />
     <Compile Include="Screens\MonitoringScreen\MonitoringScreenView.xaml.cs">
       <DependentUpon>MonitoringScreenView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Screens\MonitoringScreen\MonitoringScreenViewModel.cs" />
-    <Compile Include="Screens\MonitoringScreen\ObservableItem.cs" />
-    <Compile Include="Screens\MonitoringScreen\StreamEventPanel.cs" />
-    <Compile Include="Screens\MonitoringScreen\SubscriptionItem.cs" />
+    <Compile Include="Screens\Common\ObservableItem.cs" />
+    <Compile Include="Screens\MarbleDiagramScreen\StreamEventPanel.cs" />
+    <Compile Include="Screens\Common\SubscriptionItem.cs" />
     <Compile Include="Services\ConcurrencyService.cs" />
     <Compile Include="Services\ConnectionService.cs" />
     <Compile Include="Services\DialogService.cs" />
@@ -136,6 +141,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Screens\HomeScreen\HomeScreenView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Screens\MarbleDiagramScreen\MarbleDiagramScreenView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

@@ -2,7 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.Reactive;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Text;
 using System.Threading;
 
@@ -28,6 +30,15 @@ namespace ReactivityMonitor.Utility.Extensions
                 void WriteEvent(Notification<T> e) => Write($"{e.Kind}({(e.HasValue ? (object)e.Value : e.Exception?.Message)})");
                 void Write(string s) => System.Diagnostics.Trace.WriteLine($"{name}({sub}): {s}");
             });
+        }
+
+        private static readonly Action<Subject<Unit>> cPushValueToSubject = s => s.OnNext(default);
+
+        public static IObservable<T> TakeUntilDisposed<T>(this IObservable<T> source, CompositeDisposable disposables)
+        {
+            var whenDisposed = new Subject<Unit>();
+            disposables.Add(Disposable.Create(whenDisposed, cPushValueToSubject));
+            return source.TakeUntil(whenDisposed);
         }
     }
 }

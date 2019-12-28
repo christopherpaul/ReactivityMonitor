@@ -3,90 +3,14 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:ReactivityMonitor.Screens.MonitoringScreen"
              xmlns:infra="clr-namespace:ReactivityMonitor.Infrastructure"
-             xmlns:mod="clr-namespace:ReactivityMonitor.Model;assembly=ReactivityMonitor.Model"
+             xmlns:marbles="clr-namespace:ReactivityMonitor.Screens.MarbleDiagramScreen"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              x:Name="MonitoringScreen">
     <Grid>
         <infra:Activation ViewModel="{Binding}" />
-        
-        <ItemsControl ItemsSource="{Binding Items}">
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel>
-                        <infra:Activation ViewModel="{Binding}" />
 
-                        <local:NonScrolling Orientation="Horizontal">
-                            <TextBlock FontWeight="Bold" TextWrapping="Wrap">
-                            <Run Text="{Binding SequenceId, Mode=OneTime}" />: <Run Text="{Binding MethodName, Mode=OneTime}" /> [created <Run Text="{Binding Timestamp, Mode=OneTime}" /> on thread <Run Text="{Binding ThreadId, Mode=OneTime}" />]
-                            </TextBlock>
-                        </local:NonScrolling>
-
-                        <ItemsControl ItemsSource="{Binding SubItems}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel>
-                                        <infra:Activation ViewModel="{Binding}" />
-
-                                        <ItemsControl ItemsSource="{Binding StreamEvents}">
-                                            <ItemsControl.Resources>
-                                                <DataTemplate DataType="{x:Type mod:SubscribeEvent}">
-                                                    <Rectangle Width="2" Height="10" Fill="Gray" ToolTip="Subscribed" />
-                                                </DataTemplate>
-                                                <DataTemplate DataType="{x:Type mod:UnsubscribeEvent}">
-                                                    <Rectangle Width="2" Height="10" Fill="Black" ToolTip="Unsubscribed" />
-                                                </DataTemplate>
-                                                <DataTemplate DataType="{x:Type mod:OnNextEvent}">
-                                                    <Ellipse Width="6" Height="6" Fill="Blue" ToolTip="{Binding ValueString}" />
-                                                </DataTemplate>
-                                                <DataTemplate DataType="{x:Type mod:OnCompletedEvent}">
-                                                    <Rectangle Width="4" Height="10" Fill="Green" ToolTip="Completed" />
-                                                </DataTemplate>
-                                                <DataTemplate DataType="{x:Type mod:OnErrorEvent}">
-                                                    <Rectangle Width="4" Height="10" Fill="Red" ToolTip="{Binding Message}" />
-                                                </DataTemplate>
-                                            </ItemsControl.Resources>
-
-                                            <ItemsControl.ItemsPanel>
-                                                <ItemsPanelTemplate>
-                                                    <local:StreamEventPanel 
-                                                    StartTime="{Binding ElementName=MonitoringScreen, Path=DataContext.StartTime}"
-                                                    TimeScale="10"/>
-                                                </ItemsPanelTemplate>
-                                            </ItemsControl.ItemsPanel>
-
-                                            <ItemsControl.Template>
-                                                <ControlTemplate TargetType="ItemsControl">
-                                                    <Border BorderThickness="{TemplateBinding Border.BorderThickness}" Padding="{TemplateBinding Control.Padding}" BorderBrush="{TemplateBinding Border.BorderBrush}" Background="{TemplateBinding Panel.Background}" SnapsToDevicePixels="True">
-                                                        <Grid>
-                                                            <Rectangle Height="1"
-                                                              HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                                                              Fill="LightGray" />
-                                                            <ItemsPresenter SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}" />
-                                                        </Grid>
-                                                    </Border>
-                                                </ControlTemplate>
-                                            </ItemsControl.Template>
-                                        </ItemsControl>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </StackPanel>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
-
-            <ItemsControl.Template>
-                <ControlTemplate TargetType="ItemsControl">
-                    <Border BorderThickness="{TemplateBinding Border.BorderThickness}" Padding="{TemplateBinding Control.Padding}" BorderBrush="{TemplateBinding Border.BorderBrush}" Background="{TemplateBinding Panel.Background}" SnapsToDevicePixels="True">
-                        <ScrollViewer VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Visible">
-                            <ItemsPresenter SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}" />
-                        </ScrollViewer>
-                    </Border>
-                </ControlTemplate>
-            </ItemsControl.Template>
-        </ItemsControl>
+        <marbles:MarbleDiagramScreenView DataContext="{Binding MarbleDiagram}" />
     </Grid>
 </UserControl>

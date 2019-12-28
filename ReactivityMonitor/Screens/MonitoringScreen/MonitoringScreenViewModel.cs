@@ -17,39 +17,28 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Data;
+using ReactivityMonitor.Screens.Common;
+using ReactivityMonitor.Screens.MarbleDiagramScreen;
 
 namespace ReactivityMonitor.Screens.MonitoringScreen
 {
     public sealed class MonitoringScreenViewModel : ReactiveViewModel, IMonitoringScreen
     {
-        public MonitoringScreenViewModel(IConcurrencyService concurrencyService)
+        public MonitoringScreenViewModel(IConcurrencyService concurrencyService, IMarbleDiagramScreen marbleDiagram)
         {
+            MarbleDiagram = marbleDiagram;
+
             this.WhenActivated(disposables =>
             {
-                MonitoringGroup.WhenNameChanges
-                    .Subscribe(n => Name = n)
-                    .DisposeWith(disposables);
-
-                // TODO: this doesn't deal properly with a call being removed from the group
-                MonitoringGroup.Calls
+                marbleDiagram.ObservableInstances = MonitoringGroup.Calls
                     .MergeMany(call => call.Call.ObservableInstances)
-                    .Expand(obs => obs.Inputs)
-                    .ToObservableChangeSet(obs => obs.ObservableId)
-                    .Transform(obs => new ObservableItem(concurrencyService) { ObservableInstance = obs })
-                    .Sort(SortExpressionComparer<ObservableItem>.Ascending(obs => obs.SequenceId))
-                    .SubscribeOn(concurrencyService.TaskPoolRxScheduler)
-                    .ObserveOn(concurrencyService.DispatcherRxScheduler)
-                    .Bind(out var observableInstances)
-                    .Subscribe()
-                    .DisposeWith(disposables);
+                    .ToObservableChangeSet(obs => obs.ObservableId);
 
-                Model.ObservableInstances
-                    .Scan(long.MaxValue, (minSoFar, obs) => Math.Min(minSoFar, obs.Created.Timestamp.Ticks))
-                    .DistinctUntilChanged()
-                    .Subscribe(timestamp => StartTime = new DateTime(timestamp, DateTimeKind.Utc))
-                    .DisposeWith(disposables);
+                marbleDiagram.Activator.Activate().DisposeWith(disposables);
 
-                Items = observableInstances;
+                MonitoringGroup.WhenNameChanges
+                    .ToProperty(this, x => x.Name, out mName)
+                    .DisposeWith(disposables);
             });
         }
 
@@ -57,25 +46,9 @@ namespace ReactivityMonitor.Screens.MonitoringScreen
         public IWorkspace Workspace { get; set; }
         public IMonitoringGroup MonitoringGroup { get; set; }
 
-        private string mName;
-        public string Name
-        {
-            get => mName;
-            private set => this.RaiseAndSetIfChanged(ref mName, value);
-        }
+        private ObservableAsPropertyHelper<string> mName;
+        public string Name => mName?.Value;
 
-        private ReadOnlyObservableCollection<ObservableItem> mItems;
-        public ReadOnlyObservableCollection<ObservableItem> Items
-        {
-            get => mItems;
-            private set => this.RaiseAndSetIfChanged(ref mItems, value);
-        }
-
-        private DateTime mStartTime;
-        public DateTime StartTime
-        {
-            get => mStartTime;
-            private set => this.RaiseAndSetIfChanged(ref mStartTime, value);
-        }
+        public IMarbleDiagramScreen MarbleDiagram { get; }
     }
 }
