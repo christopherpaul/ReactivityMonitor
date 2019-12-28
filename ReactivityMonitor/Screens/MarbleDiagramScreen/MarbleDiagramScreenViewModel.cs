@@ -12,7 +12,6 @@ using DynamicData.Binding;
 using ReactiveUI;
 using ReactivityMonitor.Infrastructure;
 using ReactivityMonitor.Model;
-using ReactivityMonitor.Screens.Common;
 using ReactivityMonitor.Services;
 using ReactivityMonitor.Utility.Extensions;
 

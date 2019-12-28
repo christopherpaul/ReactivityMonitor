@@ -64,6 +64,7 @@
     <Compile Include="Connection\ConnectionModel.cs" />
     <Compile Include="Connection\IConnectionModel.cs" />
     <Compile Include="Connection\LaunchInfo.cs" />
+    <Compile Include="Factory.cs" />
     <Compile Include="Infrastructure\Activation.cs" />
     <Compile Include="Infrastructure\ReactiveViewModel.cs" />
     <Compile Include="Infrastructure\TraceLogger.cs" />
@@ -108,9 +109,17 @@
       <DependentUpon>MonitoringScreenView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Screens\MonitoringScreen\MonitoringScreenViewModel.cs" />
-    <Compile Include="Screens\Common\ObservableItem.cs" />
+    <Compile Include="Screens\MarbleDiagramScreen\ObservableItem.cs" />
     <Compile Include="Screens\MarbleDiagramScreen\StreamEventPanel.cs" />
-    <Compile Include="Screens\Common\SubscriptionItem.cs" />
+    <Compile Include="Screens\MarbleDiagramScreen\SubscriptionItem.cs" />
+    <Compile Include="Screens\ObservablesScreen\IObservablesScreen.cs" />
+    <Compile Include="Screens\ObservablesScreen\IObservablesScreenItemFactory.cs" />
+    <Compile Include="Screens\ObservablesScreen\ObservablesListItem.cs" />
+    <Compile Include="Screens\ObservablesScreen\ObservablesScreenItemFactory.cs" />
+    <Compile Include="Screens\ObservablesScreen\ObservablesScreenView.xaml.cs">
+      <DependentUpon>ObservablesScreenView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Screens\ObservablesScreen\ObservablesScreenViewModel.cs" />
     <Compile Include="Services\ConcurrencyService.cs" />
     <Compile Include="Services\ConnectionService.cs" />
     <Compile Include="Services\DialogService.cs" />
@@ -149,6 +158,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Screens\MonitoringScreen\MonitoringScreenView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Screens\ObservablesScreen\ObservablesScreenView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

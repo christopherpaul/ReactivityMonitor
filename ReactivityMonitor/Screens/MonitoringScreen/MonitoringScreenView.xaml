@@ -10,6 +10,6 @@
     <Grid>
         <infra:Activation ViewModel="{Binding}" />
 
-        <ContentControl Content="{Binding MarbleDiagram}" />
+        <ContentControl Content="{Binding MainContent}" />
     </Grid>
 </UserControl>

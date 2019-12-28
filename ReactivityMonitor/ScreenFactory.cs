@@ -10,13 +10,10 @@ using System.Threading.Tasks;
 
 namespace ReactivityMonitor
 {
-    internal sealed class ScreenFactory : IScreenFactory
+    internal sealed class ScreenFactory : Factory, IScreenFactory
     {
-        private readonly IServiceProvider mServiceProvider;
-
-        public ScreenFactory(IServiceProvider serviceProvider)
+        public ScreenFactory(IServiceProvider serviceProvider) : base(serviceProvider)
         {
-            mServiceProvider = serviceProvider;
         }
 
         public IConnectionScreen CreateConnectionScreen() => GetInstance<IConnectionScreen>();
@@ -24,7 +21,5 @@ namespace ReactivityMonitor
         public IHomeScreen CreateHomeScreen() => GetInstance<IHomeScreen>();
 
         public IMonitoringScreen CreateMonitoringScreen() => GetInstance<IMonitoringScreen>();
-
-        private T GetInstance<T>() => (T)mServiceProvider.GetService(typeof(T));
     }
 }
