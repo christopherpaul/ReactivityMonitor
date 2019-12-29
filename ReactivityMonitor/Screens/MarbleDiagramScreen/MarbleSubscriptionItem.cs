@@ -10,9 +10,9 @@ using System.Reactive.Linq;
 
 namespace ReactivityMonitor.Screens.MarbleDiagramScreen
 {
-    public sealed class SubscriptionItem : ReactiveViewModel
+    public sealed class MarbleSubscriptionItem : ReactiveViewModel
     {
-        public SubscriptionItem(IConcurrencyService concurrencyService)
+        public MarbleSubscriptionItem(IConcurrencyService concurrencyService)
         {
             var streamEvents = new ObservableCollection<StreamEvent>();
             StreamEvents = new ReadOnlyObservableCollection<StreamEvent>(streamEvents);
