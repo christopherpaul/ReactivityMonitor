@@ -12,5 +12,6 @@ namespace ReactivityMonitor.Screens.MarbleDiagramScreen
     public interface IMarbleDiagramScreen : IActivatableViewModel
     {
         IObservable<IChangeSet<IObservableInstance, long>> ObservableInstances { get; set; }
+        IObservable<bool> WhenIsUpdatingChanges { get; set; }
     }
 }

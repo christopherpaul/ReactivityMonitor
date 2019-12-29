@@ -53,17 +53,8 @@ namespace ReactivityMonitor.Screens.EventListScreen
 
                 allEvents
                     .Window(OnTaskPool(clearCommand))
-                    .Select(eventsSinceClear => 
-                        WhenIsUpdatingChanges
-                            .DistinctUntilChanged()
-                            .Publish(isUpdatingSafe =>
-                                eventsSinceClear
-                                    .Window(isUpdatingSafe)
-                                    .Zip(isUpdatingSafe.StartWith(false), (window, isUpdating) =>
-                                        isUpdating
-                                            ? window
-                                            : window.Buffer(Observable.Never<Unit>()).SelectMany(buf => buf))
-                                    .Concat())
+                    .Select(eventsSinceClear => eventsSinceClear
+                        .Gate(WhenIsUpdatingChanges)
                         .ToObservableChangeSet(e => e.SequenceId)
                         .SemiJoinOnRightKey(filterObservableInstances, e => e.ObservableId))
                     .Switch()

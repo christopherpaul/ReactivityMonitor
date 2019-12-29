@@ -12,5 +12,6 @@ namespace ReactivityMonitor.Screens.ObservablesScreen
     public interface IObservablesScreen : IActivatableViewModel
     {
         IObservable<IChangeSet<IObservableInstance, long>> Observables { get; set; }
+        IObservable<bool> WhenIsUpdatingChanges { get; set; }
     }
 }

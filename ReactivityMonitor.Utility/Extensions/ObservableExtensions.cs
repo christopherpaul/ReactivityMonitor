@@ -63,5 +63,33 @@ namespace ReactivityMonitor.Utility.Extensions
                     Disposable.Create(() => subCountChangeSubject.OnNext(-1)));
             });
         }
+
+        /// <summary>
+        /// Only emits values from <paramref name="source"/> when the latest value from <paramref name="gate"/>
+        /// is true. <paramref name="source"/> values that arrive at other times are held and emitted when
+        /// <paramref name="gate"/> next turns true.
+        /// </summary>
+        /// <remarks>
+        /// <para>Before <paramref name="gate"/> emits its first value, <paramref name="source"/> values are
+        /// held.</para>
+        /// <para>Completes when <paramref name="source"/> completes and its values have all 
+        /// passed through the gate. If <paramref name="gate"/> completes, all remaining values
+        /// are allowed to pass through.</para>
+        /// </remarks>
+        public static IObservable<T> Gate<T>(this IObservable<T> source, IObservable<bool> gate)
+        {
+            //TODO not totally sure about this implementation; could use some tests.
+            return gate
+                .DistinctUntilChanged()
+                .Publish(isUpdatingSafe =>
+                    source.Publish(sourceSafe =>
+                        sourceSafe
+                            .Window(isUpdatingSafe)
+                            .Zip(isUpdatingSafe.StartWith(false).Append(true), (window, isUpdating) =>
+                                isUpdating
+                                    ? window
+                                    : window.Buffer(Observable.Never<Unit>()).SelectMany(buf => buf))
+                            .Concat()));
+        }
     }
 }

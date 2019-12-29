@@ -14,6 +14,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -30,7 +31,9 @@ namespace ReactivityMonitor.Screens.HomeScreen
             IConcurrencyService concurrencyService)
         {
             CommandBindings = new CommandBindingCollection();
-            IObservable<bool> isUpdating = GoPauseControl.SetupGoPause(CommandBindings).ObserveOn(concurrencyService.TaskPoolRxScheduler);
+            IConnectableObservable<bool> isUpdating = GoPauseControl.SetupGoPause(CommandBindings)
+                .ObserveOn(concurrencyService.TaskPoolRxScheduler)
+                .Replay(1);
 
             Calls = callsScreen;
             callsScreen.ConductWith(this);
@@ -50,6 +53,7 @@ namespace ReactivityMonitor.Screens.HomeScreen
                 eventListScreen.Model = ConnectionModel.Model;
 
                 ConnectionModel.Connect().DisposeWith(disposables);
+                isUpdating.Connect().DisposeWith(disposables);
 
                 // Tell model we want to monitor the calls as dictated by the workspace
                 workspace.MonitoredCalls
@@ -66,6 +70,7 @@ namespace ReactivityMonitor.Screens.HomeScreen
                         monitoringScreen.Model = ConnectionModel.Model;
                         monitoringScreen.Workspace = workspace;
                         monitoringScreen.MonitoringGroup = grp;
+                        monitoringScreen.WhenIsUpdatingChanges = isUpdating;
                         return monitoringScreen;
                     })
                     .ObserveOn(concurrencyService.DispatcherRxScheduler)

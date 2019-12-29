@@ -14,6 +14,7 @@ using ReactivityMonitor.Infrastructure;
 using ReactivityMonitor.Model;
 using ReactivityMonitor.Screens.MarbleDiagramScreen;
 using ReactivityMonitor.Services;
+using ReactivityMonitor.Utility.Extensions;
 
 namespace ReactivityMonitor.Screens.ObservablesScreen
 {
@@ -32,6 +33,7 @@ namespace ReactivityMonitor.Screens.ObservablesScreen
             {
                 Observables
                     .Transform(obs => factory.CreateItem(obs))
+                    .Gate(WhenIsUpdatingChanges)
                     .Sort(Utility.Comparer<ObservablesListItem>.ByKey(x => -x.ObservableInstance.ObservableId))
                     .SubscribeOn(concurrencyService.TaskPoolRxScheduler)
                     .ObserveOn(concurrencyService.DispatcherRxScheduler)
@@ -40,6 +42,8 @@ namespace ReactivityMonitor.Screens.ObservablesScreen
                     .DisposeMany()
                     .Subscribe()
                     .DisposeWith(disposables);
+
+                marbleDiagram.WhenIsUpdatingChanges = WhenIsUpdatingChanges;
 
                 marbleDiagram.ObservableInstances = mWhenSelectionChanges
                     .ObserveOn(concurrencyService.TaskPoolRxScheduler)
@@ -60,5 +64,6 @@ namespace ReactivityMonitor.Screens.ObservablesScreen
         public ReadOnlyObservableCollection<ObservablesListItem> Items { get; }
 
         public object DetailContent { get; private set; }
+        public IObservable<bool> WhenIsUpdatingChanges { get; set; }
     }
 }

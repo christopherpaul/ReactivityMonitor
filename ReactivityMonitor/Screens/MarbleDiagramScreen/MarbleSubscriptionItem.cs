@@ -7,6 +7,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using ReactivityMonitor.Utility.Extensions;
 
 namespace ReactivityMonitor.Screens.MarbleDiagramScreen
 {
@@ -22,6 +23,7 @@ namespace ReactivityMonitor.Screens.MarbleDiagramScreen
                 streamEvents.Clear();
 
                 Subscription.Events
+                    .Gate(WhenIsUpdatingChanges)
                     .ObserveOn(concurrencyService.DispatcherRxScheduler)
                     .Subscribe(streamEvents.Add)
                     .DisposeWith(observables);
@@ -31,5 +33,7 @@ namespace ReactivityMonitor.Screens.MarbleDiagramScreen
         public ISubscription Subscription { get; set; }
 
         public ReadOnlyObservableCollection<StreamEvent> StreamEvents { get; private set; }
+
+        public IObservable<bool> WhenIsUpdatingChanges { get; set; }
     }
 }

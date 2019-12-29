@@ -34,12 +34,13 @@ namespace ReactivityMonitor.Screens.MarbleDiagramScreen
                     .Publish();
 
                 instances
-                    .Transform(obs => Observable.Return(new MarbleObservableItem(concurrencyService) { ObservableInstance = obs })
-                        .Expand(item => item.ObservableInstance.Inputs.Select(input => new MarbleObservableItem(concurrencyService) { ObservableInstance = input, PrimarySink = item }))
+                    .Transform(obs => Observable.Return(new MarbleObservableItem(concurrencyService) { ObservableInstance = obs, WhenIsUpdatingChanges = WhenIsUpdatingChanges })
+                        .Expand(item => item.ObservableInstance.Inputs.Select(input => new MarbleObservableItem(concurrencyService) { ObservableInstance = input, PrimarySink = item, WhenIsUpdatingChanges = WhenIsUpdatingChanges }))
                         .ToObservableChangeSet(obs => obs.ObservableInstance.ObservableId))
                     .RemoveKey()
                     .AsObservableList()
                     .Or()
+                    .Gate(WhenIsUpdatingChanges)
                     .Sort(Utility.Comparer<MarbleObservableItem>.ByKey(x => x.GetOrdering(), EnumerableComparer<long>.LongerBeforeShorter))
                     .SubscribeOn(concurrencyService.TaskPoolRxScheduler)
                     .ObserveOn(concurrencyService.DispatcherRxScheduler)
@@ -51,6 +52,7 @@ namespace ReactivityMonitor.Screens.MarbleDiagramScreen
                     .Minimum(obs => obs.Created.Timestamp.Ticks)
                     .DistinctUntilChanged()
                     .Select(ticks => new DateTime(ticks, DateTimeKind.Utc))
+                    .Gate(WhenIsUpdatingChanges)
                     .SubscribeOn(concurrencyService.TaskPoolRxScheduler)
                     .ObserveOn(concurrencyService.DispatcherRxScheduler)
                     .ToProperty(this, x => x.StartTime, out mStartTime)
@@ -66,5 +68,7 @@ namespace ReactivityMonitor.Screens.MarbleDiagramScreen
 
         private ObservableAsPropertyHelper<DateTime> mStartTime;
         public DateTime StartTime => mStartTime.Value;
+
+        public IObservable<bool> WhenIsUpdatingChanges { get; set; }
     }
 }
