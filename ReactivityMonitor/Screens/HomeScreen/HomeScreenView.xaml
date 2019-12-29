@@ -4,9 +4,11 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ReactivityMonitor.Screens.HomeScreen"
+             xmlns:infra="clr-namespace:ReactivityMonitor.Infrastructure"
              xmlns:monitoringscreen="clr-namespace:ReactivityMonitor.Screens.MonitoringScreen"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="450" d:DesignWidth="800"
+             infra:CommandHelper.CommandBindings="{Binding CommandBindings}">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*" />

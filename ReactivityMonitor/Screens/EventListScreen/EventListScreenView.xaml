@@ -9,8 +9,6 @@
     <DockPanel>
         <ToolBarTray DockPanel.Dock="Top">
             <ToolBar>
-                <Button Content="Pause" Command="{Binding Pause, Mode=OneTime}" />
-                <Button Content="Go" Command="{Binding Go, Mode=OneTime}" />
                 <Button Content="Clear" Command="{Binding Clear, Mode=OneTime}" />
                 <Separator/>
                 <ToggleButton Content="Filter to tab" IsChecked="{Binding IsFilteringToActiveGroup}" />

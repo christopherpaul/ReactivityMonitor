@@ -29,11 +29,15 @@ namespace ReactivityMonitor.Screens.HomeScreen
             IEventListScreen eventListScreen,
             IConcurrencyService concurrencyService)
         {
+            CommandBindings = new CommandBindingCollection();
+            IObservable<bool> isUpdating = GoPauseControl.SetupGoPause(CommandBindings).ObserveOn(concurrencyService.TaskPoolRxScheduler);
+
             Calls = callsScreen;
             callsScreen.ConductWith(this);
 
             EventList = eventListScreen;
             eventListScreen.WhenActiveMonitoringGroupChanges = this.WhenAnyValue(x => x.ActiveMonitoringScreen).Select(s => s.MonitoringGroup);
+            eventListScreen.WhenIsUpdatingChanges = isUpdating;
             eventListScreen.ConductWith(this);
 
             WhenActivated(disposables =>
@@ -87,5 +91,7 @@ namespace ReactivityMonitor.Screens.HomeScreen
             get => mActiveMonitoringScreen;
             set => Set(ref mActiveMonitoringScreen, value);
         }
+
+        public CommandBindingCollection CommandBindings { get; }
     }
 }

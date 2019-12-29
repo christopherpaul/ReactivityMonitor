@@ -64,8 +64,10 @@
     <Compile Include="Connection\ConnectionModel.cs" />
     <Compile Include="Connection\IConnectionModel.cs" />
     <Compile Include="Connection\LaunchInfo.cs" />
+    <Compile Include="Definitions\Commands.cs" />
     <Compile Include="Factory.cs" />
     <Compile Include="Infrastructure\Activation.cs" />
+    <Compile Include="Infrastructure\CommandHelper.cs" />
     <Compile Include="Infrastructure\ReactiveViewModel.cs" />
     <Compile Include="Infrastructure\TraceLogger.cs" />
     <Compile Include="ScreenFactory.cs" />
@@ -92,6 +94,7 @@
     </Compile>
     <Compile Include="Screens\EventListScreen\EventListScreenViewModel.cs" />
     <Compile Include="Screens\EventListScreen\IEventListScreen.cs" />
+    <Compile Include="Screens\HomeScreen\GoPauseControl.cs" />
     <Compile Include="Screens\HomeScreen\HomeScreenView.xaml.cs">
       <DependentUpon>HomeScreenView.xaml</DependentUpon>
     </Compile>

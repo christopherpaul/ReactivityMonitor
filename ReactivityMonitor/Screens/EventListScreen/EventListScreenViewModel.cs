@@ -28,16 +28,7 @@ namespace ReactivityMonitor.Screens.EventListScreen
 
             WhenActivated(disposables =>
             {
-                var isUpdating = new ObservablePromise<bool>();
-
-                var pauseCommand = CreateCommand(isUpdating);
-                var goCommand = CreateCommand(isUpdating.Select(x => !x));
                 var clearCommand = CreateCommand();
-
-                isUpdating.Resolve(
-                    OnTaskPool(pauseCommand).Select(_ => false)
-                        .Merge(OnTaskPool(goCommand).Select(_ => true))
-                        .StartWith(true));
 
                 var activeGroupObservableInstances = WhenActiveMonitoringGroupChanges
                     .ObserveOn(concurrencyService.TaskPoolRxScheduler)
@@ -63,7 +54,7 @@ namespace ReactivityMonitor.Screens.EventListScreen
                 allEvents
                     .Window(OnTaskPool(clearCommand))
                     .Select(eventsSinceClear => 
-                        isUpdating
+                        WhenIsUpdatingChanges
                             .DistinctUntilChanged()
                             .Publish(isUpdatingSafe =>
                                 eventsSinceClear
@@ -86,8 +77,6 @@ namespace ReactivityMonitor.Screens.EventListScreen
 
                 Events = eventsCollection;
 
-                Pause = pauseCommand;
-                Go = goCommand;
                 Clear = clearCommand;
             });
 
@@ -102,8 +91,6 @@ namespace ReactivityMonitor.Screens.EventListScreen
 
         public ReadOnlyObservableCollection<EventItem> Events { get; private set; }
 
-        public ICommand Pause { get; private set; }
-        public ICommand Go { get; private set; }
         public ICommand Clear { get; private set; }
 
         private bool mIsFilteringToActiveGroup;
@@ -112,5 +99,6 @@ namespace ReactivityMonitor.Screens.EventListScreen
             get => mIsFilteringToActiveGroup;
             set => Set(ref mIsFilteringToActiveGroup, value);
         }
+        public IObservable<bool> WhenIsUpdatingChanges { get; set; }
     }
 }

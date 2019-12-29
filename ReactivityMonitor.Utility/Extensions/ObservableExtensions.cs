@@ -42,6 +42,26 @@ namespace ReactivityMonitor.Utility.Extensions
             return source.TakeUntil(whenDisposed);
         }
 
-        public static IObservable<Unit> WhenTerminated<T>(this IObservable<T> source) => source.IgnoreElements().Select(Funcs<Unit>.Default<T>()).Append(default);
+        public static IObservable<Unit> WhenTerminated<T>(this IObservable<T> source) => source.IgnoreElements().Select(Funcs<T>.DefaultOf<Unit>()).Append(default);
+
+        /// <summary>
+        /// Provides an observable (via <paramref name="whenSubscriptionCountChanges"/>) whose value is the number of active
+        /// subscriptions made to <paramref name="source"/> via this operator.
+        /// </summary>
+        /// <returns>An observable equivalent to <paramref name="source"/>.</returns>
+        public static IObservable<T> MonitorSubscriptionCount<T>(this IObservable<T> source, out IObservable<int> whenSubscriptionCountChanges)
+        {
+            var subCountChangeSubject = Subject.Synchronize(new Subject<int>());
+            whenSubscriptionCountChanges = subCountChangeSubject.Scan(0, (count, delta) => count + delta).StartWith(0);
+
+            return Observable.Create<T>(observer =>
+            {
+                subCountChangeSubject.OnNext(1);
+
+                return StableCompositeDisposable.Create(
+                    source.Subscribe(observer),
+                    Disposable.Create(() => subCountChangeSubject.OnNext(-1)));
+            });
+        }
     }
 }
