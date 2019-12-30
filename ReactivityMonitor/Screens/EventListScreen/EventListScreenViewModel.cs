@@ -17,19 +17,23 @@ using ReactiveUI;
 using System.Reactive.Subjects;
 using System.Reactive;
 using ReactivityMonitor.Workspace;
+using ReactivityMonitor.Definitions;
 
 namespace ReactivityMonitor.Screens.EventListScreen
 {
     public sealed class EventListScreenViewModel : ReactiveScreen, IEventListScreen
     {
-        public EventListScreenViewModel(IConcurrencyService concurrencyService)
+        public EventListScreenViewModel(IConcurrencyService concurrencyService, ICommandHandlerService commandHandlerService)
         {
-            var whenIsFilteringToActiveGroupChanges = this.WhenAnyValue(x => x.IsFilteringToActiveGroup).ObserveOn(concurrencyService.TaskPoolRxScheduler);
+            var filterCommand = ReactiveCommand.Create<bool, bool>(filter => filter);
+            var whenIsFilteringToActiveGroupChanges = filterCommand.ObserveOn(concurrencyService.TaskPoolRxScheduler)
+                .StartWith(false)
+                .Replay(1);
+
+            var whenClearCommandExecuted = CommandHelper.CreateTriggerCommand(out var clearCommand);
 
             WhenActivated(disposables =>
             {
-                var clearCommand = CreateCommand();
-
                 var activeGroupObservableInstances = WhenActiveMonitoringGroupChanges
                     .ObserveOn(concurrencyService.TaskPoolRxScheduler)
                     .Select(group =>
@@ -52,7 +56,7 @@ namespace ReactivityMonitor.Screens.EventListScreen
                             .Concat(obs.Subscriptions.SelectMany(sub => sub.Events.Select(e => EventItem.FromStreamEvent(sub, e)))));
 
                 allEvents
-                    .Window(OnTaskPool(clearCommand))
+                    .Window(OnTaskPool(whenClearCommandExecuted))
                     .Select(eventsSinceClear => eventsSinceClear
                         .Gate(WhenIsUpdatingChanges)
                         .ToObservableChangeSet(e => e.SequenceId)
@@ -68,11 +72,11 @@ namespace ReactivityMonitor.Screens.EventListScreen
 
                 Events = eventsCollection;
 
-                Clear = clearCommand;
-            });
+                commandHandlerService.RegisterHandler(Commands.ClearEventList, clearCommand).DisposeWith(disposables);
+                commandHandlerService.RegisterHandler(Commands.FilterEventList, filterCommand).DisposeWith(disposables);
 
-            ReactiveCommand<Unit, Unit> CreateCommand(IObservable<bool> canExecute = null) => 
-                ReactiveCommand.Create(() => { }, canExecute?.ObserveOn(concurrencyService.DispatcherRxScheduler));
+                whenIsFilteringToActiveGroupChanges.Connect().DisposeWith(disposables);
+            });
 
             IObservable<Unit> OnTaskPool(IObservable<Unit> obs) => obs.ObserveOn(concurrencyService.TaskPoolRxScheduler);
         }
@@ -82,14 +86,6 @@ namespace ReactivityMonitor.Screens.EventListScreen
 
         public ReadOnlyObservableCollection<EventItem> Events { get; private set; }
 
-        public ICommand Clear { get; private set; }
-
-        private bool mIsFilteringToActiveGroup;
-        public bool IsFilteringToActiveGroup
-        {
-            get => mIsFilteringToActiveGroup;
-            set => Set(ref mIsFilteringToActiveGroup, value);
-        }
         public IObservable<bool> WhenIsUpdatingChanges { get; set; }
     }
 }

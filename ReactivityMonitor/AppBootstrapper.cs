@@ -59,13 +59,14 @@ namespace ReactivityMonitor
             mContainer.Instance<IServiceProvider>(new ServiceProvider(mContainer));
 
             // Framework services
-            mContainer.Singleton<IWindowManager, WindowManager>();
+            mContainer.Singleton<IWindowManager, WindowManagerEx>();
             mContainer.Singleton<IEventAggregator, EventAggregator>();
 
             // Application services
             mContainer.Singleton<IConnectionService, ConnectionService>();
             mContainer.Singleton<IConcurrencyService, ConcurrencyService>();
             mContainer.Singleton<IDialogService, DialogService>();
+            mContainer.Singleton<ICommandHandlerService, CommandHandlerService>();
 
             // Units of work
             mContainer.PerRequest<IWorkspace, Workspace.Workspace>();

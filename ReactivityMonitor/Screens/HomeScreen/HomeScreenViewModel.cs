@@ -28,10 +28,10 @@ namespace ReactivityMonitor.Screens.HomeScreen
             ICallsScreen callsScreen, 
             IScreenFactory screenFactory,
             IEventListScreen eventListScreen,
-            IConcurrencyService concurrencyService)
+            IConcurrencyService concurrencyService,
+            ICommandHandlerService commandHandlerService)
         {
-            CommandBindings = new CommandBindingCollection();
-            IConnectableObservable<bool> isUpdating = GoPauseControl.SetupGoPause(CommandBindings)
+            IConnectableObservable<bool> isUpdating = GoPauseControl.SetupGoPause(out var attachGoPauseHandlers)
                 .ObserveOn(concurrencyService.TaskPoolRxScheduler)
                 .Replay(1);
 
@@ -80,6 +80,8 @@ namespace ReactivityMonitor.Screens.HomeScreen
                     .DisposeWith(disposables);
 
                 MonitoringScreens = monitoringGroups;
+
+                attachGoPauseHandlers(commandHandlerService).DisposeWith(disposables);
             });
         }
 
@@ -96,7 +98,5 @@ namespace ReactivityMonitor.Screens.HomeScreen
             get => mActiveMonitoringScreen;
             set => Set(ref mActiveMonitoringScreen, value);
         }
-
-        public CommandBindingCollection CommandBindings { get; }
     }
 }

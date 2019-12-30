@@ -70,6 +70,7 @@
     <Compile Include="Infrastructure\CommandHelper.cs" />
     <Compile Include="Infrastructure\ReactiveViewModel.cs" />
     <Compile Include="Infrastructure\TraceLogger.cs" />
+    <Compile Include="Infrastructure\WindowManagerEx.cs" />
     <Compile Include="ScreenFactory.cs" />
     <Compile Include="Screens\CallsScreen\CallsScreenView.xaml.cs">
       <DependentUpon>CallsScreenView.xaml</DependentUpon>
@@ -123,9 +124,11 @@
       <DependentUpon>ObservablesScreenView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Screens\ObservablesScreen\ObservablesScreenViewModel.cs" />
+    <Compile Include="Services\CommandHandlerService.cs" />
     <Compile Include="Services\ConcurrencyService.cs" />
     <Compile Include="Services\ConnectionService.cs" />
     <Compile Include="Services\DialogService.cs" />
+    <Compile Include="Services\ICommandHandlerService.cs" />
     <Compile Include="Services\IConcurrencyService.cs" />
     <Compile Include="Services\IConnectionService.cs" />
     <Compile Include="Services\IDialogService.cs" />

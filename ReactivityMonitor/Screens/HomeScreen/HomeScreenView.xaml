@@ -8,7 +8,7 @@
              xmlns:monitoringscreen="clr-namespace:ReactivityMonitor.Screens.MonitoringScreen"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
-             infra:CommandHelper.CommandBindings="{Binding CommandBindings}">
+             >
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="1*" />
