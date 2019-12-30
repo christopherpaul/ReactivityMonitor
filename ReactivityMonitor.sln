@@ -33,6 +33,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{830A
 		.github\workflows\BuildAll.CI.yaml = .github\workflows\BuildAll.CI.yaml
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactivityMonitor.Utility.Tests", "ReactivityMonitor.Utility.Tests\ReactivityMonitor.Utility.Tests.csproj", "{04679D98-E305-4E05-863E-1920410A6BA3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -127,6 +129,14 @@ Global
 		{47021846-34AB-45A0-9866-B8EB46CAF4A2}.Release|x64.Build.0 = Release|Any CPU
 		{47021846-34AB-45A0-9866-B8EB46CAF4A2}.Release|x86.ActiveCfg = Release|Any CPU
 		{47021846-34AB-45A0-9866-B8EB46CAF4A2}.Release|x86.Build.0 = Release|Any CPU
+		{04679D98-E305-4E05-863E-1920410A6BA3}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{04679D98-E305-4E05-863E-1920410A6BA3}.Debug|x64.Build.0 = Debug|Any CPU
+		{04679D98-E305-4E05-863E-1920410A6BA3}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{04679D98-E305-4E05-863E-1920410A6BA3}.Debug|x86.Build.0 = Debug|Any CPU
+		{04679D98-E305-4E05-863E-1920410A6BA3}.Release|x64.ActiveCfg = Release|Any CPU
+		{04679D98-E305-4E05-863E-1920410A6BA3}.Release|x64.Build.0 = Release|Any CPU
+		{04679D98-E305-4E05-863E-1920410A6BA3}.Release|x86.ActiveCfg = Release|Any CPU
+		{04679D98-E305-4E05-863E-1920410A6BA3}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

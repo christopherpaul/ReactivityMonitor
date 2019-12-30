@@ -78,18 +78,22 @@ namespace ReactivityMonitor.Utility.Extensions
         /// </remarks>
         public static IObservable<T> Gate<T>(this IObservable<T> source, IObservable<bool> gate)
         {
-            //TODO not totally sure about this implementation; could use some tests.
-            return gate
-                .DistinctUntilChanged()
-                .Publish(isUpdatingSafe =>
-                    source.Publish(sourceSafe =>
-                        sourceSafe
-                            .Window(isUpdatingSafe)
-                            .Zip(isUpdatingSafe.StartWith(false).Append(true), (window, isUpdating) =>
-                                isUpdating
-                                    ? window
-                                    : window.Buffer(Observable.Never<Unit>()).SelectMany(buf => buf))
-                            .Concat()));
+            // DistinctUntilChanged is important, otherwise a false following a false would
+            // release the values held by the first false.
+            var whenIsUpdatingChanges = gate
+                .StartWith(false)
+                .Append(true)
+                .DistinctUntilChanged();
+
+            return source.Publish(sourceSafe =>
+                whenIsUpdatingChanges.Publish(isUpdatingSafe =>
+                    isUpdatingSafe
+                        .Select(isUpdating =>
+                            isUpdating
+                                ? sourceSafe.TakeUntil(isUpdatingSafe)
+                                : sourceSafe.Concat(Observable.Never<T>()).Buffer(isUpdatingSafe).Take(1).SelectMany(buf => buf))
+                        .TakeUntil(sourceSafe.WhenTerminated())
+                        .Concat()));
         }
     }
 }

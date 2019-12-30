@@ -24,5 +24,7 @@ namespace ReactivityMonitor.Utility.Flyweights
         public static Func<bool> False { get; } = () => false;
         public static Func<T> DefaultOf<T>() => Funcs<T>.Default;
         public static Func<T, T> Identity<T>() => Funcs<T>.Identity;
+        public static Func<bool, bool> IsTrue => Funcs<bool>.Identity;
+        public static Func<bool, bool> IsFalse { get; } = x => !x;
     }
 }
