@@ -28,6 +28,7 @@ namespace ReactivityMonitor.Utility.Extensions
 
                     var cacheWithRemovals =
                         group.Cache.Connect()
+                            .Concat(Observable.Never<IChangeSet<TLeft, TLeftKey>>()) // avoid removing group items when left source terminates
                             .TakeUntil(whenGroupRemoved)
                             .Concat(removeGroupItemsChangeSet);
 
