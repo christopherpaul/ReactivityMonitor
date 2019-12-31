@@ -24,8 +24,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactivityMonitor.Model", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactivityMonitor.ProfilerClient", "ReactivityMonitor.ProfilerClient\ReactivityMonitor.ProfilerClient.csproj", "{A71F5A1D-DD80-40E9-B3E7-51C4B22A2DCD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactivityMonitor.ConsoleApp", "ReactivityMonitor.Console\ReactivityMonitor.ConsoleApp.csproj", "{43771AEE-5D2B-4D68-8C98-C7D91CE6062C}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactivityMonitor.Utility", "ReactivityMonitor.Utility\ReactivityMonitor.Utility.csproj", "{47021846-34AB-45A0-9866-B8EB46CAF4A2}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{830A7802-7B8B-4D39-AC15-DA14CC4AF9F4}"
@@ -114,13 +112,6 @@ Global
 		{A71F5A1D-DD80-40E9-B3E7-51C4B22A2DCD}.Release|x64.Build.0 = Release|Any CPU
 		{A71F5A1D-DD80-40E9-B3E7-51C4B22A2DCD}.Release|x86.ActiveCfg = Release|Any CPU
 		{A71F5A1D-DD80-40E9-B3E7-51C4B22A2DCD}.Release|x86.Build.0 = Release|Any CPU
-		{43771AEE-5D2B-4D68-8C98-C7D91CE6062C}.Debug|x64.ActiveCfg = Debug|Any CPU
-		{43771AEE-5D2B-4D68-8C98-C7D91CE6062C}.Debug|x64.Build.0 = Debug|Any CPU
-		{43771AEE-5D2B-4D68-8C98-C7D91CE6062C}.Debug|x86.ActiveCfg = Debug|Any CPU
-		{43771AEE-5D2B-4D68-8C98-C7D91CE6062C}.Debug|x86.Build.0 = Debug|Any CPU
-		{43771AEE-5D2B-4D68-8C98-C7D91CE6062C}.Release|x64.ActiveCfg = Release|Any CPU
-		{43771AEE-5D2B-4D68-8C98-C7D91CE6062C}.Release|x86.ActiveCfg = Release|Any CPU
-		{43771AEE-5D2B-4D68-8C98-C7D91CE6062C}.Release|x86.Build.0 = Release|Any CPU
 		{47021846-34AB-45A0-9866-B8EB46CAF4A2}.Debug|x64.ActiveCfg = Debug|Any CPU
 		{47021846-34AB-45A0-9866-B8EB46CAF4A2}.Debug|x64.Build.0 = Debug|Any CPU
 		{47021846-34AB-45A0-9866-B8EB46CAF4A2}.Debug|x86.ActiveCfg = Debug|Any CPU
