@@ -95,5 +95,11 @@ namespace ReactivityMonitor.Utility.Extensions
                         .TakeUntil(sourceSafe.WhenTerminated())
                         .Concat()));
         }
+
+        public static IObservable<T> ConnectForEver<T>(this IConnectableObservable<T> source)
+        {
+            source.Connect();
+            return source;
+        }
     }
 }

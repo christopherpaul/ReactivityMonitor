@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Reactive.Linq;
 using System.Text;
 using DynamicData;
 
@@ -7,22 +8,20 @@ namespace ReactivityMonitor.Model
 {
     internal sealed class ObservableInstance : IObservableInstance
     {
-        private static readonly Func<IObservableInstance, long> cKeyFunc = obs => obs.ObservableId;
-
         public ObservableInstance(
             EventInfo created, 
-            IInstrumentedCall call, 
+            IObservable<IInstrumentedCall> call, 
             IObservable<IObservableInstance> inputs,
             IObservable<ISubscription> subscriptions)
         {
             Created = created;
-            Call = call;
+            call.Subscribe(c => Call = c);
             Inputs = inputs;
             Subscriptions = subscriptions;
         }
 
         public EventInfo Created { get; }
-        public IInstrumentedCall Call { get; }
+        public IInstrumentedCall Call { get; private set; }
         public long ObservableId => Created.SequenceId;
 
         public IObservable<IObservableInstance> Inputs { get; }

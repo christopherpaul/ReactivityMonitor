@@ -7,13 +7,10 @@ namespace ReactivityMonitor.Model
 {
     public interface IReactivityModel
     {
-        IObservableCache<IModule, ulong> Modules { get; }
+        IObservable<IModule> Modules { get; }
 
-        IObservableCache<IInstrumentedCall, int> InstrumentedCalls { get; }
+        IObservable<IInstrumentedCall> InstrumentedCalls { get; }
 
         IObservable<IObservableInstance> ObservableInstances { get; }
-
-        void StartMonitorCall(int instrumentedCallId);
-        void StopMonitorCall(int instrumentedCallId);
     }
 }

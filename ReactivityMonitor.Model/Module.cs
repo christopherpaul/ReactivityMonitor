@@ -7,21 +7,15 @@ namespace ReactivityMonitor.Model
 {
     internal sealed class Module : IModule
     {
-        private readonly ISourceCache<IInstrumentedCall, int> mInstrumentedCalls;
-
-        public Module(ulong id, string path)
+        public Module(ulong id, string path, IObservable<IInstrumentedCall> instrumentedCalls)
         {
             ModuleId = id;
             Path = path;
-            mInstrumentedCalls = new SourceCache<IInstrumentedCall, int>(ic => ic.InstrumentedCallId);
-            InstrumentedCalls = mInstrumentedCalls.AsObservableCache();
+            InstrumentedCalls = instrumentedCalls;
         }
 
         public ulong ModuleId { get; }
         public string Path { get; }
-
-        public IObservableCache<IInstrumentedCall, int> InstrumentedCalls { get; }
-
-        internal void AddInstrumentedCall(IInstrumentedCall ic) => mInstrumentedCalls.AddOrUpdate(ic);
+        public IObservable<IInstrumentedCall> InstrumentedCalls { get; }
     }
 }

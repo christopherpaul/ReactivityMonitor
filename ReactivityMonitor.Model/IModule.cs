@@ -10,6 +10,6 @@ namespace ReactivityMonitor.Model
         ulong ModuleId { get; }
         string Path { get; }
 
-        IObservableCache<IInstrumentedCall, int> InstrumentedCalls { get; }
+        IObservable<IInstrumentedCall> InstrumentedCalls { get; }
     }
 }

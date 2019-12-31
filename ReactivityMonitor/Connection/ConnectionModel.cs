@@ -3,25 +3,29 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DynamicData;
 using ReactivityMonitor.Model;
+using ReactivityMonitor.ProfilerClient;
 
 namespace ReactivityMonitor.Connection
 {
     public sealed class ConnectionModel : IConnectionModel
     {
-        private readonly ProfilerClient.Client mProfilerClient;
+        private readonly ISourceCache<int, int> mMonitoredCalls;
+        private readonly IModelUpdateSource mModelUpdates;
 
         public ConnectionModel(Server server)
         {
             Server = server;
 
-            var modelSource = new ReactivityModelSource();
-            Model = modelSource.Model;
+            mMonitoredCalls = new SourceCache<int, int>(c => c);
+            var profilerControl = new ProfilerControl(mMonitoredCalls.Connect());
 
-            mProfilerClient = new ProfilerClient.Client(
+            mModelUpdates = Client.CreateModelUpdateSource(
                 server.PipeName,
-                modelSource.Updater,
-                modelSource.ProfilerControl);
+                profilerControl);
+
+            Model = ReactivityModel.Create(mModelUpdates);
         }
 
         public Server Server { get; }
@@ -30,7 +34,27 @@ namespace ReactivityMonitor.Connection
 
         public IDisposable Connect()
         {
-            return mProfilerClient.Connect();
+            return mModelUpdates.Connect();
+        }
+
+        public void StartMonitoringCall(int callId)
+        {
+            mMonitoredCalls.AddOrUpdate(callId);
+        }
+
+        public void StopMonitoringCall(int callId)
+        {
+            mMonitoredCalls.RemoveKey(callId);
+        }
+
+        private sealed class ProfilerControl : IProfilerControl
+        {
+            public ProfilerControl(IObservable<IChangeSet<int, int>> requestedInstrumentedCallIds)
+            {
+                RequestedInstrumentedCallIds = requestedInstrumentedCallIds;
+            }
+
+            public IObservable<IChangeSet<int, int>> RequestedInstrumentedCallIds { get; }
         }
     }
 }

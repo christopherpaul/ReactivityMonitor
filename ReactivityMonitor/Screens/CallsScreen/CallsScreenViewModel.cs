@@ -24,11 +24,12 @@ namespace ReactivityMonitor.Screens.CallsScreen
         {
             WhenActivated(disposables =>
             {
-                Model.InstrumentedCalls.Connect()
-                    .Group(ic => (ic.CallingType, ic.CallingMethod))
-                    .Transform(grp =>
+                Model.InstrumentedCalls
+                    .GroupBy(ic => (ic.CallingType, ic.CallingMethod))
+                    .Select(grp =>
                     {
-                        var callsChanges = grp.Cache.Connect()
+                        var callsChanges = grp
+                            .ToObservableChangeSet(ic => ic.InstrumentedCallId)
                             .Transform(ic => (ICall)new Call(ic))
                             .Sort(SortExpressionComparer<ICall>.Ascending(ic => ic.InstructionOffset))
                             .ObserveOn(concurrencyService.DispatcherRxScheduler);
@@ -36,6 +37,7 @@ namespace ReactivityMonitor.Screens.CallsScreen
                         var callingMethod = new CallingMethod(grp.Key.Item1, grp.Key.Item2, callsChanges);
                         return (ICallingMethod)callingMethod;
                     })
+                    .ToObservableChangeSet()
                     .Sort(SortExpressionComparer<ICallingMethod>.Ascending(x => (x.TypeName, x.Name)))
                     .ObserveOn(concurrencyService.DispatcherRxScheduler)
                     .Bind(out var callingMethods)

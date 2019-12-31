@@ -58,8 +58,8 @@ namespace ReactivityMonitor.Screens.HomeScreen
                 // Tell model we want to monitor the calls as dictated by the workspace
                 workspace.MonitoredCalls
                     .Transform(call => call.Call.InstrumentedCallId)
-                    .OnItemAdded(ConnectionModel.Model.StartMonitorCall)
-                    .OnItemRemoved(ConnectionModel.Model.StopMonitorCall)
+                    .OnItemAdded(ConnectionModel.StartMonitoringCall)
+                    .OnItemRemoved(ConnectionModel.StopMonitoringCall)
                     .Subscribe()
                     .DisposeWith(disposables);
 

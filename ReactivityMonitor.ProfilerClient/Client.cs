@@ -7,7 +7,7 @@ using Google.Protobuf;
 
 namespace ReactivityMonitor.ProfilerClient
 {
-    public static class ProfilerClient
+    public static class Client
     {
         private static readonly Protocol.RequestMessage cStartSendingInstrumentationEvents = new Protocol.RequestMessage
         {
