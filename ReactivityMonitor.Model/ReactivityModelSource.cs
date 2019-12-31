@@ -102,11 +102,10 @@ namespace ReactivityMonitor.Model
             {
                 RequestedInstrumentedCallIds = parent.mRequestedInstrumentedCalls
                     .AsObservableCache()
-                    .Connect()
-                    .RemoveKey();
+                    .Connect();
             }
 
-            public IObservable<IChangeSet<int>> RequestedInstrumentedCallIds { get; }
+            public IObservable<IChangeSet<int, int>> RequestedInstrumentedCallIds { get; }
         }
 
         private sealed class UpdaterImpl : IModelUpdater

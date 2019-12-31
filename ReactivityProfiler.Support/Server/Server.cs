@@ -163,12 +163,21 @@ namespace ReactivityProfiler.Support.Server
                     CreatedEvent = GetEventInfo(obs.Details),
                     InstrumentationPointId = obs.InstrumentationPoint
                 };
-                ev.InputObservableId.Add(obs.Inputs.Select(i => i.ObservableId));
 
                 SendEvent(new EventMessage { ObservableCreated = ev });
+
+                foreach (var input in obs.Inputs)
+                {
+                    SendObservablesLinkedEvent(obs, input);
+                }
             }
 
             void IStoreEventSink.ObservablesLinked(ObservableInfo output, ObservableInfo input)
+            {
+                SendObservablesLinkedEvent(output, input);
+            }
+
+            private void SendObservablesLinkedEvent(ObservableInfo output, ObservableInfo input)
             {
                 var ev = new ObservablesLinkedEvent
                 {

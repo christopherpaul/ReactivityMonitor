@@ -34,7 +34,8 @@ message MethodCallInstrumentedEvent {
 message ObservableCreatedEvent {
 	EventInfo CreatedEvent = 1;
 	int32 InstrumentationPointId = 2;
-	repeated int64 InputObservableId = 4;
+
+	//next ID is 5
 }
 
 message ObservablesLinkedEvent {
