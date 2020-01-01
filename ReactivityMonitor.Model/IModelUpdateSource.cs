@@ -8,6 +8,8 @@ namespace ReactivityMonitor.Model
     public interface IModelUpdateSource
     {
         IDisposable Connect();
+        void Pause();
+        void Resume();
 
         IObservable<NewModuleUpdate> Modules { get; }
         IObservable<NewInstrumentedCall> InstrumentedCalls { get; }

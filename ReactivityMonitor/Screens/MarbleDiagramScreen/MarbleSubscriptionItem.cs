@@ -23,7 +23,6 @@ namespace ReactivityMonitor.Screens.MarbleDiagramScreen
                 streamEvents.Clear();
 
                 Subscription.Events
-                    .Gate(WhenIsUpdatingChanges)
                     .ObserveOn(concurrencyService.DispatcherRxScheduler)
                     .Subscribe(streamEvents.Add)
                     .DisposeWith(observables);
@@ -33,7 +32,5 @@ namespace ReactivityMonitor.Screens.MarbleDiagramScreen
         public ISubscription Subscription { get; set; }
 
         public ReadOnlyObservableCollection<StreamEvent> StreamEvents { get; private set; }
-
-        public IObservable<bool> WhenIsUpdatingChanges { get; set; }
     }
 }

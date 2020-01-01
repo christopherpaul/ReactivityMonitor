@@ -101,5 +101,36 @@ namespace ReactivityMonitor.Utility.Extensions
             source.Connect();
             return source;
         }
+
+        /// <summary>
+        /// Similar to <see cref="Gate"/>, but when <paramref name="gate"/> is false, it allows through
+        /// values whose sequence numbers (obtained via <paramref name="sequenceNumberSelector"/>) are no
+        /// greater than the maximum that has already passed through.
+        /// </summary>
+        public static IObservable<TValue> GateBySequenceNumber<TValue, TSeq>(this IObservable<TValue> source, IObservable<bool> gate, Func<TValue, TSeq> sequenceNumberSelector)
+            where TSeq : IComparable<TSeq>
+        {
+            // DistinctUntilChanged is important, otherwise a false following a false would
+            // release the values held by the first false.
+            var whenIsUpdatingChanges = gate
+                .StartWith(false)
+                .Append(true)
+                .DistinctUntilChanged();
+
+            return source.Publish(sourceSafe =>
+                sourceSafe
+                    .Select(sequenceNumberSelector)
+                    .Scan(default(TSeq), (s1, s2) => s1.CompareTo(s2) > 0 ? s1 : s2)
+                    .Publish(maxSequenceNumber =>
+                        whenIsUpdatingChanges.Publish(isUpdatingSafe =>
+                            isUpdatingSafe
+                                .WithLatestFrom(maxSequenceNumber.StartWith(default(TSeq)), (isUpdating, seqNumCutoff) =>
+                                    isUpdating
+                                        ? sourceSafe.TakeUntil(isUpdatingSafe)
+                                        : sourceSafe.Where(x => sequenceNumberSelector(x).CompareTo(seqNumCutoff) <= 0).TakeUntil(isUpdatingSafe)
+                                            .Merge(sourceSafe.Where(x => sequenceNumberSelector(x).CompareTo(seqNumCutoff) > 0).Concat(Observable.Never<TValue>()).Buffer(isUpdatingSafe).Take(1).SelectMany(buf => buf)))
+                                .TakeUntil(sourceSafe.WhenTerminated())
+                                .Concat())));
+        }
     }
 }

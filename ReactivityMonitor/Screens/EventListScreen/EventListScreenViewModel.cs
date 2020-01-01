@@ -58,7 +58,6 @@ namespace ReactivityMonitor.Screens.EventListScreen
                 allEvents
                     .Window(OnTaskPool(whenClearCommandExecuted))
                     .Select(eventsSinceClear => eventsSinceClear
-                        .Gate(WhenIsUpdatingChanges)
                         .ToObservableChangeSet(e => e.SequenceId)
                         .SemiJoinOnRightKey(filterObservableInstances, e => e.ObservableId))
                     .Switch()
@@ -85,7 +84,5 @@ namespace ReactivityMonitor.Screens.EventListScreen
         public IObservable<IMonitoringGroup> WhenActiveMonitoringGroupChanges { get; set; }
 
         public ReadOnlyObservableCollection<EventItem> Events { get; private set; }
-
-        public IObservable<bool> WhenIsUpdatingChanges { get; set; }
     }
 }

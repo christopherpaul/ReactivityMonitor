@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Subjects;
 using System.Text;
 using System.Threading.Tasks;
 using DynamicData;
 using ReactivityMonitor.Model;
 using ReactivityMonitor.ProfilerClient;
+using ReactivityMonitor.Utility.Extensions;
 
 namespace ReactivityMonitor.Connection
 {
@@ -35,6 +37,16 @@ namespace ReactivityMonitor.Connection
         public IDisposable Connect()
         {
             return mModelUpdates.Connect();
+        }
+
+        public void PauseUpdates()
+        {
+            mModelUpdates.Pause();
+        }
+
+        public void ResumeUpdates()
+        {
+            mModelUpdates.Resume();
         }
 
         public void StartMonitoringCall(int callId)

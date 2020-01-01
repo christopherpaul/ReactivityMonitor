@@ -25,8 +25,6 @@ namespace ReactivityMonitor.Screens.MonitoringScreen
 
             this.WhenActivated(disposables =>
             {
-                observablesScreen.WhenIsUpdatingChanges = WhenIsUpdatingChanges;
-
                 observablesScreen.Observables = MonitoringGroup.Calls
                     .MergeMany(call => call.Call.ObservableInstances)
                     .ToObservableChangeSet(obs => obs.ObservableId);
@@ -47,6 +45,5 @@ namespace ReactivityMonitor.Screens.MonitoringScreen
         public string Name => mName?.Value;
 
         public object MainContent { get; }
-        public IObservable<bool> WhenIsUpdatingChanges { get; set; }
     }
 }

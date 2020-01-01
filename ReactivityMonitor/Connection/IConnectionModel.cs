@@ -15,5 +15,8 @@ namespace ReactivityMonitor.Connection
         IDisposable Connect();
         void StartMonitoringCall(int callId);
         void StopMonitoringCall(int callId);
+
+        void PauseUpdates();
+        void ResumeUpdates();
     }
 }

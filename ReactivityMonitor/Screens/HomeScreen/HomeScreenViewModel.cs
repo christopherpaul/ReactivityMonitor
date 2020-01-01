@@ -31,16 +31,14 @@ namespace ReactivityMonitor.Screens.HomeScreen
             IConcurrencyService concurrencyService,
             ICommandHandlerService commandHandlerService)
         {
-            IConnectableObservable<bool> isUpdating = GoPauseControl.SetupGoPause(out var attachGoPauseHandlers)
-                .ObserveOn(concurrencyService.TaskPoolRxScheduler)
-                .Replay(1);
+            var isUpdating = GoPauseControl.SetupGoPause(out var attachGoPauseHandlers)
+                .ObserveOn(concurrencyService.TaskPoolRxScheduler);
 
             Calls = callsScreen;
             callsScreen.ConductWith(this);
 
             EventList = eventListScreen;
             eventListScreen.WhenActiveMonitoringGroupChanges = this.WhenAnyValue(x => x.ActiveMonitoringScreen).Select(s => s.MonitoringGroup);
-            eventListScreen.WhenIsUpdatingChanges = isUpdating;
             eventListScreen.ConductWith(this);
 
             WhenActivated(disposables =>
@@ -53,7 +51,17 @@ namespace ReactivityMonitor.Screens.HomeScreen
                 eventListScreen.Model = ConnectionModel.Model;
 
                 ConnectionModel.Connect().DisposeWith(disposables);
-                isUpdating.Connect().DisposeWith(disposables);
+                isUpdating.Subscribe(x =>
+                {
+                    if (x)
+                    {
+                        ConnectionModel.ResumeUpdates();
+                    }
+                    else
+                    {
+                        ConnectionModel.PauseUpdates();
+                    }
+                }).DisposeWith(disposables);
 
                 // Tell model we want to monitor the calls as dictated by the workspace
                 workspace.MonitoredCalls
@@ -70,7 +78,6 @@ namespace ReactivityMonitor.Screens.HomeScreen
                         monitoringScreen.Model = ConnectionModel.Model;
                         monitoringScreen.Workspace = workspace;
                         monitoringScreen.MonitoringGroup = grp;
-                        monitoringScreen.WhenIsUpdatingChanges = isUpdating;
                         return monitoringScreen;
                     })
                     .ObserveOn(concurrencyService.DispatcherRxScheduler)

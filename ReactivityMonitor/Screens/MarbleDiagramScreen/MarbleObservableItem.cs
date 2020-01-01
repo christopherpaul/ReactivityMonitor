@@ -26,8 +26,7 @@ namespace ReactivityMonitor.Screens.MarbleDiagramScreen
                 subItems.Clear();
 
                 ObservableInstance.Subscriptions
-                    .Select(sub => new MarbleSubscriptionItem(concurrencyService) { Subscription = sub, WhenIsUpdatingChanges = WhenIsUpdatingChanges })
-                    .Gate(WhenIsUpdatingChanges)
+                    .Select(sub => new MarbleSubscriptionItem(concurrencyService) { Subscription = sub })
                     .ObserveOn(concurrencyService.DispatcherRxScheduler)
                     .Subscribe(subItems.Add)
                     .DisposeWith(disposables);
@@ -36,7 +35,6 @@ namespace ReactivityMonitor.Screens.MarbleDiagramScreen
 
         public IObservableInstance ObservableInstance { get; set; }
         public MarbleObservableItem PrimarySink { get; set; }
-        public IObservable<bool> WhenIsUpdatingChanges { get; set; }
 
         private IImmutableList<long> mOrdering;
         public IImmutableList<long> GetOrdering() => LazyInitializer.EnsureInitialized(ref mOrdering, 

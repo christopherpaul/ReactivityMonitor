@@ -13,6 +13,5 @@ namespace ReactivityMonitor.Screens.EventListScreen
     {
         IReactivityModel Model { get; set; }
         IObservable<IMonitoringGroup> WhenActiveMonitoringGroupChanges { get; set; }
-        IObservable<bool> WhenIsUpdatingChanges { get; set; }
     }
 }

@@ -14,6 +14,5 @@ namespace ReactivityMonitor.Screens.MonitoringScreen
         IReactivityModel Model { get; set; }
         IWorkspace Workspace { get; set; }
         IMonitoringGroup MonitoringGroup { get; set; }
-        IObservable<bool> WhenIsUpdatingChanges { get; set; }
     }
 }
