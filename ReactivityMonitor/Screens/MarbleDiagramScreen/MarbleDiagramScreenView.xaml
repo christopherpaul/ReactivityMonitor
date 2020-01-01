@@ -9,83 +9,76 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              x:Name="MarbleDiagram">
-    <Grid>
-        <ItemsControl ItemsSource="{Binding Items}">
-            <ItemsControl.ItemTemplate>
-                <DataTemplate>
-                    <StackPanel>
-                        <infra:Activation ViewModel="{Binding}" />
+    <UserControl.Resources>
+        <HierarchicalDataTemplate DataType="{x:Type local:MarbleObservableItem}"
+                                ItemsSource="{Binding SubscriptionItems}">
 
-                        <local:NonScrolling Orientation="Horizontal">
-                            <TextBlock FontWeight="Bold" TextWrapping="Wrap">
+            <Grid>
+                <local:NonScrolling Orientation="Horizontal">
+                    <TextBlock FontWeight="Bold" TextWrapping="Wrap">
                             <Run Text="{Binding SequenceId, Mode=OneTime}" />: <Run Text="{Binding MethodName, Mode=OneTime}" /> [created <Run Text="{Binding Timestamp, Mode=OneTime}" /> on thread <Run Text="{Binding ThreadId, Mode=OneTime}" />]
-                            </TextBlock>
-                        </local:NonScrolling>
+                    </TextBlock>
+                </local:NonScrolling>
+            </Grid>
 
-                        <ItemsControl ItemsSource="{Binding SubItems}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel>
-                                        <infra:Activation ViewModel="{Binding}" />
+        </HierarchicalDataTemplate>
 
-                                        <ItemsControl ItemsSource="{Binding StreamEvents}">
-                                            <ItemsControl.Resources>
-                                                <DataTemplate DataType="{x:Type mod:SubscribeEvent}">
-                                                    <Rectangle Width="2" Height="10" Fill="Gray" ToolTip="Subscribed" />
-                                                </DataTemplate>
-                                                <DataTemplate DataType="{x:Type mod:UnsubscribeEvent}">
-                                                    <Rectangle Width="2" Height="10" Fill="Black" ToolTip="Unsubscribed" />
-                                                </DataTemplate>
-                                                <DataTemplate DataType="{x:Type mod:OnNextEvent}">
-                                                    <Ellipse Width="6" Height="6" Fill="Blue" ToolTip="{Binding ValueString}" />
-                                                </DataTemplate>
-                                                <DataTemplate DataType="{x:Type mod:OnCompletedEvent}">
-                                                    <Rectangle Width="4" Height="10" Fill="Green" ToolTip="Completed" />
-                                                </DataTemplate>
-                                                <DataTemplate DataType="{x:Type mod:OnErrorEvent}">
-                                                    <Rectangle Width="4" Height="10" Fill="Red" ToolTip="{Binding Message}" />
-                                                </DataTemplate>
-                                            </ItemsControl.Resources>
+        <DataTemplate DataType="{x:Type local:MarbleSubscriptionItem}">
+            <Grid>
+                <infra:Activation ViewModel="{Binding}" />
 
-                                            <ItemsControl.ItemsPanel>
-                                                <ItemsPanelTemplate>
-                                                    <local:StreamEventPanel 
-                                                        StartTime="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:MarbleDiagramScreenView}}, Path=DataContext.StartTime}"
-                                                        TimeScale="10"/>
-                                                </ItemsPanelTemplate>
-                                            </ItemsControl.ItemsPanel>
+                <ItemsControl ItemsSource="{Binding StreamEvents}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <local:StreamEventPanel 
+                                StartTime="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:MarbleDiagramScreenView}}, Path=DataContext.StartTime}"
+                                TimeScale="10"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
 
-                                            <ItemsControl.Template>
-                                                <ControlTemplate TargetType="ItemsControl">
-                                                    <Border BorderThickness="{TemplateBinding Border.BorderThickness}" Padding="{TemplateBinding Control.Padding}" BorderBrush="{TemplateBinding Border.BorderBrush}" Background="{TemplateBinding Panel.Background}" SnapsToDevicePixels="True">
-                                                        <Grid>
-                                                            <Rectangle Height="1"
-                                                              HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                                                              Fill="LightGray" />
-                                                            <ItemsPresenter SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}" />
-                                                        </Grid>
-                                                    </Border>
-                                                </ControlTemplate>
-                                            </ItemsControl.Template>
-                                        </ItemsControl>
-                                    </StackPanel>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-                    </StackPanel>
-                </DataTemplate>
-            </ItemsControl.ItemTemplate>
+                    <ItemsControl.Template>
+                        <ControlTemplate TargetType="ItemsControl">
+                            <Border BorderThickness="{TemplateBinding Border.BorderThickness}" Padding="{TemplateBinding Control.Padding}" BorderBrush="{TemplateBinding Border.BorderBrush}" Background="{TemplateBinding Panel.Background}" SnapsToDevicePixels="True">
+                                <Grid>
+                                    <Rectangle Height="1"
+                                        HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                                        Fill="LightGray" />
+                                    <ItemsPresenter SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}" />
+                                </Grid>
+                            </Border>
+                        </ControlTemplate>
+                    </ItemsControl.Template>
+                </ItemsControl>
+            </Grid>
+        </DataTemplate>
 
-            <ItemsControl.Template>
-                <ControlTemplate TargetType="ItemsControl">
-                    <Border BorderThickness="{TemplateBinding Border.BorderThickness}" Padding="{TemplateBinding Control.Padding}" BorderBrush="{TemplateBinding Border.BorderBrush}" Background="{TemplateBinding Panel.Background}" SnapsToDevicePixels="True">
-                        <ScrollViewer VerticalScrollBarVisibility="Visible" HorizontalScrollBarVisibility="Visible">
-                            <ItemsPresenter SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}" />
-                        </ScrollViewer>
-                    </Border>
-                </ControlTemplate>
-            </ItemsControl.Template>
-        </ItemsControl>
+        <DataTemplate DataType="{x:Type mod:SubscribeEvent}">
+            <Rectangle Width="2" Height="10" Fill="Gray" ToolTip="Subscribed" />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type mod:UnsubscribeEvent}">
+            <Rectangle Width="2" Height="10" Fill="Black" ToolTip="Unsubscribed" />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type mod:OnNextEvent}">
+            <Ellipse Width="6" Height="6" Fill="Blue" ToolTip="{Binding ValueString}" />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type mod:OnCompletedEvent}">
+            <Rectangle Width="4" Height="10" Fill="Green" ToolTip="Completed" />
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type mod:OnErrorEvent}">
+            <Rectangle Width="4" Height="10" Fill="Red" ToolTip="{Binding Message}" />
+        </DataTemplate>
 
+    </UserControl.Resources>
+    
+    <Grid>
+        <TreeView ItemsSource="{Binding ObservableItems}" 
+                  VirtualizingStackPanel.IsVirtualizing="True"
+                  VirtualizingStackPanel.VirtualizationMode="Recycling">
+            <TreeView.ItemContainerStyle>
+                <Style TargetType="TreeViewItem">
+                    <Setter Property="IsExpanded" Value="True" />
+                </Style>
+            </TreeView.ItemContainerStyle>
+        </TreeView>
     </Grid>
 </UserControl>

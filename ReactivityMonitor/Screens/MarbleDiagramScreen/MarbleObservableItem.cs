@@ -10,6 +10,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading;
 using ReactivityMonitor.Utility.Extensions;
+using System.Diagnostics;
 
 namespace ReactivityMonitor.Screens.MarbleDiagramScreen
 {
@@ -18,7 +19,7 @@ namespace ReactivityMonitor.Screens.MarbleDiagramScreen
         public MarbleObservableItem(IConcurrencyService concurrencyService)
         {
             var subItems = new ObservableCollection<MarbleSubscriptionItem>();
-            SubItems = new ReadOnlyObservableCollection<MarbleSubscriptionItem>(subItems);
+            SubscriptionItems = new ReadOnlyObservableCollection<MarbleSubscriptionItem>(subItems);
 
             this.WhenActivated(disposables =>
             {
@@ -47,6 +48,6 @@ namespace ReactivityMonitor.Screens.MarbleDiagramScreen
 
         public string MethodName => ObservableInstance.Call.CalledMethod;
 
-        public ReadOnlyObservableCollection<MarbleSubscriptionItem> SubItems { get; private set; }
+        public ReadOnlyObservableCollection<MarbleSubscriptionItem> SubscriptionItems { get; private set; }
     }
 }

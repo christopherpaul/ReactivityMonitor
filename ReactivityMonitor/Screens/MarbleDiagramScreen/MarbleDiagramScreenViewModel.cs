@@ -23,7 +23,7 @@ namespace ReactivityMonitor.Screens.MarbleDiagramScreen
         public MarbleDiagramScreenViewModel(IConcurrencyService concurrencyService)
         {
             var items = new ObservableCollectionExtended<MarbleObservableItem>();
-            Items = new ReadOnlyObservableCollection<MarbleObservableItem>(items);
+            ObservableItems = new ReadOnlyObservableCollection<MarbleObservableItem>(items);
 
             this.WhenActivated(disposables =>
             {
@@ -41,6 +41,7 @@ namespace ReactivityMonitor.Screens.MarbleDiagramScreen
                     .AsObservableList()
                     .Or()
                     .Gate(WhenIsUpdatingChanges)
+                    .OnItemAdded(obsItem => obsItem.Activator.Activate().DisposeWith(disposables))
                     .Sort(Utility.Comparer<MarbleObservableItem>.ByKey(x => x.GetOrdering(), EnumerableComparer<long>.LongerBeforeShorter))
                     .SubscribeOn(concurrencyService.TaskPoolRxScheduler)
                     .ObserveOn(concurrencyService.DispatcherRxScheduler)
@@ -64,7 +65,7 @@ namespace ReactivityMonitor.Screens.MarbleDiagramScreen
 
         public IObservable<IChangeSet<IObservableInstance, long>> ObservableInstances { get; set; }
 
-        public ReadOnlyObservableCollection<MarbleObservableItem> Items { get; }
+        public ReadOnlyObservableCollection<MarbleObservableItem> ObservableItems { get; }
 
         private ObservableAsPropertyHelper<DateTime> mStartTime;
         public DateTime StartTime => mStartTime.Value;
