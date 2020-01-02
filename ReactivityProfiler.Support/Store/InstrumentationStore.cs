@@ -41,6 +41,7 @@ namespace ReactivityProfiler.Support.Store
             var e = new ModuleLoadEvent();
             e.ModuleId = reader.ReadUInt64();
             e.ModulePath = ReadInt32LengthString(reader);
+            e.AssemblyName = ReadInt32LengthString(reader);
             return e;
         }
 

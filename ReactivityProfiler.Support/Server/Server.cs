@@ -115,7 +115,8 @@ namespace ReactivityProfiler.Support.Server
                         ModuleLoaded = new ModuleLoadedEvent
                         {
                             ModuleID = mle.ModuleId,
-                            Path = mle.ModulePath
+                            Path = mle.ModulePath,
+                            AssemblyName = mle.AssemblyName
                         }
                     };
 

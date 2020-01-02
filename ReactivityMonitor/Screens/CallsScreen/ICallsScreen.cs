@@ -15,8 +15,5 @@ namespace ReactivityMonitor.Screens.CallsScreen
     {
         IReactivityModel Model { get; set; }
         IWorkspace Workspace { get; set; }
-
-        ReadOnlyObservableCollection<ICallingMethod> CallingMethods { get; }
-        ICommand MonitorCall { get; }
     }
 }

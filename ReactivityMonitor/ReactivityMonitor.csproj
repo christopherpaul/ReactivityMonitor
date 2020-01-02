@@ -76,8 +76,6 @@
       <DependentUpon>CallsScreenView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Screens\CallsScreen\CallsScreenViewModel.cs" />
-    <Compile Include="Screens\CallsScreen\ICall.cs" />
-    <Compile Include="Screens\CallsScreen\ICallingMethod.cs" />
     <Compile Include="Screens\CallsScreen\ICallsScreen.cs" />
     <Compile Include="Screens\ConnectionScreen\ConnectionScreenView.xaml.cs">
       <DependentUpon>ConnectionScreenView.xaml</DependentUpon>

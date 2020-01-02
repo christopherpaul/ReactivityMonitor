@@ -8,5 +8,6 @@ namespace ReactivityProfiler.Support.Store
     {
         public ulong ModuleId { get; set; }
         public string ModulePath { get; set; }
+        public string AssemblyName { get; set; }
     }
 }

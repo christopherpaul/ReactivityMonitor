@@ -34,40 +34,41 @@ namespace ReactivityProfiler.Protocol {
             "ZXh0RXZlbnRIABIoCgtPbkNvbXBsZXRlZBgHIAEoCzIRLk9uQ29tcGxldGVk",
             "RXZlbnRIABIgCgdPbkVycm9yGAggASgLMg0uT25FcnJvckV2ZW50SAASNAoR",
             "T2JzZXJ2YWJsZXNMaW5rZWQYCSABKAsyFy5PYnNlcnZhYmxlc0xpbmtlZEV2",
-            "ZW50SABCBwoFRXZlbnQiMwoRTW9kdWxlTG9hZGVkRXZlbnQSEAoITW9kdWxl",
-            "SUQYASABKAQSDAoEUGF0aBgCIAEoCSLOAQobTWV0aG9kQ2FsbEluc3RydW1l",
-            "bnRlZEV2ZW50Eh4KFkluc3RydW1lbnRhdGlvblBvaW50SWQYASABKAUSEAoI",
-            "TW9kdWxlSWQYAiABKAQSFQoNRnVuY3Rpb25Ub2tlbhgDIAEoDRIZChFJbnN0",
-            "cnVjdGlvbk9mZnNldBgEIAEoBRIYChBDYWxsZWRNZXRob2ROYW1lGAUgASgJ",
-            "EhYKDk93bmluZ1R5cGVOYW1lGAYgASgJEhkKEUNhbGxpbmdNZXRob2ROYW1l",
-            "GAcgASgJIloKFk9ic2VydmFibGVDcmVhdGVkRXZlbnQSIAoMQ3JlYXRlZEV2",
-            "ZW50GAEgASgLMgouRXZlbnRJbmZvEh4KFkluc3RydW1lbnRhdGlvblBvaW50",
-            "SWQYAiABKAUiTwoWT2JzZXJ2YWJsZXNMaW5rZWRFdmVudBIaChJPdXRwdXRP",
-            "YnNlcnZhYmxlSWQYASABKAMSGQoRSW5wdXRPYnNlcnZhYmxlSWQYAiABKAMi",
-            "QQoOU3Vic2NyaWJlRXZlbnQSGQoFRXZlbnQYASABKAsyCi5FdmVudEluZm8S",
-            "FAoMT2JzZXJ2YWJsZUlkGAIgASgDIkUKEFVuc3Vic2NyaWJlRXZlbnQSGQoF",
+            "ZW50SABCBwoFRXZlbnQiSQoRTW9kdWxlTG9hZGVkRXZlbnQSEAoITW9kdWxl",
+            "SUQYASABKAQSDAoEUGF0aBgCIAEoCRIUCgxBc3NlbWJseU5hbWUYAyABKAki",
+            "zgEKG01ldGhvZENhbGxJbnN0cnVtZW50ZWRFdmVudBIeChZJbnN0cnVtZW50",
+            "YXRpb25Qb2ludElkGAEgASgFEhAKCE1vZHVsZUlkGAIgASgEEhUKDUZ1bmN0",
+            "aW9uVG9rZW4YAyABKA0SGQoRSW5zdHJ1Y3Rpb25PZmZzZXQYBCABKAUSGAoQ",
+            "Q2FsbGVkTWV0aG9kTmFtZRgFIAEoCRIWCg5Pd25pbmdUeXBlTmFtZRgGIAEo",
+            "CRIZChFDYWxsaW5nTWV0aG9kTmFtZRgHIAEoCSJaChZPYnNlcnZhYmxlQ3Jl",
+            "YXRlZEV2ZW50EiAKDENyZWF0ZWRFdmVudBgBIAEoCzIKLkV2ZW50SW5mbxIe",
+            "ChZJbnN0cnVtZW50YXRpb25Qb2ludElkGAIgASgFIk8KFk9ic2VydmFibGVz",
+            "TGlua2VkRXZlbnQSGgoST3V0cHV0T2JzZXJ2YWJsZUlkGAEgASgDEhkKEUlu",
+            "cHV0T2JzZXJ2YWJsZUlkGAIgASgDIkEKDlN1YnNjcmliZUV2ZW50EhkKBUV2",
+            "ZW50GAEgASgLMgouRXZlbnRJbmZvEhQKDE9ic2VydmFibGVJZBgCIAEoAyJF",
+            "ChBVbnN1YnNjcmliZUV2ZW50EhkKBUV2ZW50GAEgASgLMgouRXZlbnRJbmZv",
+            "EhYKDlN1YnNjcmlwdGlvbklkGAIgASgDIlUKC09uTmV4dEV2ZW50EhkKBUV2",
+            "ZW50GAEgASgLMgouRXZlbnRJbmZvEhYKDlN1YnNjcmlwdGlvbklkGAIgASgD",
+            "EhMKC1ZhbHVlU3RyaW5nGAMgASgJIkUKEE9uQ29tcGxldGVkRXZlbnQSGQoF",
             "RXZlbnQYASABKAsyCi5FdmVudEluZm8SFgoOU3Vic2NyaXB0aW9uSWQYAiAB",
-            "KAMiVQoLT25OZXh0RXZlbnQSGQoFRXZlbnQYASABKAsyCi5FdmVudEluZm8S",
-            "FgoOU3Vic2NyaXB0aW9uSWQYAiABKAMSEwoLVmFsdWVTdHJpbmcYAyABKAki",
-            "RQoQT25Db21wbGV0ZWRFdmVudBIZCgVFdmVudBgBIAEoCzIKLkV2ZW50SW5m",
-            "bxIWCg5TdWJzY3JpcHRpb25JZBgCIAEoAyJSCgxPbkVycm9yRXZlbnQSGQoF",
-            "RXZlbnQYASABKAsyCi5FdmVudEluZm8SFgoOU3Vic2NyaXB0aW9uSWQYAiAB",
-            "KAMSDwoHTWVzc2FnZRgDIAEoCSJECglFdmVudEluZm8SEgoKU2VxdWVuY2VJ",
-            "ZBgBIAEoAxIRCglUaW1lc3RhbXAYAiABKAMSEAoIVGhyZWFkSWQYAyABKAUi",
-            "yQEKDlJlcXVlc3RNZXNzYWdlEkYKGVNlbmRJbnN0cnVtZW50YXRpb25FdmVu",
-            "dHMYASABKAsyIS5TZW5kSW5zdHJ1bWVudGF0aW9uRXZlbnRzUmVxdWVzdEgA",
-            "EjIKD1N0YXJ0TW9uaXRvcmluZxgCIAEoCzIXLlN0YXJ0TW9uaXRvcmluZ1Jl",
-            "cXVlc3RIABIwCg5TdG9wTW9uaXRvcmluZxgDIAEoCzIWLlN0b3BNb25pdG9y",
-            "aW5nUmVxdWVzdEgAQgkKB1JlcXVlc3QiIgogU2VuZEluc3RydW1lbnRhdGlv",
-            "bkV2ZW50c1JlcXVlc3QiOAoWU3RhcnRNb25pdG9yaW5nUmVxdWVzdBIeChZJ",
-            "bnN0cnVtZW50YXRpb25Qb2ludElkGAEgAygFIjcKFVN0b3BNb25pdG9yaW5n",
-            "UmVxdWVzdBIeChZJbnN0cnVtZW50YXRpb25Qb2ludElkGAIgAygFQh6qAhtS",
-            "ZWFjdGl2aXR5UHJvZmlsZXIuUHJvdG9jb2xiBnByb3RvMw=="));
+            "KAMiUgoMT25FcnJvckV2ZW50EhkKBUV2ZW50GAEgASgLMgouRXZlbnRJbmZv",
+            "EhYKDlN1YnNjcmlwdGlvbklkGAIgASgDEg8KB01lc3NhZ2UYAyABKAkiRAoJ",
+            "RXZlbnRJbmZvEhIKClNlcXVlbmNlSWQYASABKAMSEQoJVGltZXN0YW1wGAIg",
+            "ASgDEhAKCFRocmVhZElkGAMgASgFIskBCg5SZXF1ZXN0TWVzc2FnZRJGChlT",
+            "ZW5kSW5zdHJ1bWVudGF0aW9uRXZlbnRzGAEgASgLMiEuU2VuZEluc3RydW1l",
+            "bnRhdGlvbkV2ZW50c1JlcXVlc3RIABIyCg9TdGFydE1vbml0b3JpbmcYAiAB",
+            "KAsyFy5TdGFydE1vbml0b3JpbmdSZXF1ZXN0SAASMAoOU3RvcE1vbml0b3Jp",
+            "bmcYAyABKAsyFi5TdG9wTW9uaXRvcmluZ1JlcXVlc3RIAEIJCgdSZXF1ZXN0",
+            "IiIKIFNlbmRJbnN0cnVtZW50YXRpb25FdmVudHNSZXF1ZXN0IjgKFlN0YXJ0",
+            "TW9uaXRvcmluZ1JlcXVlc3QSHgoWSW5zdHJ1bWVudGF0aW9uUG9pbnRJZBgB",
+            "IAMoBSI3ChVTdG9wTW9uaXRvcmluZ1JlcXVlc3QSHgoWSW5zdHJ1bWVudGF0",
+            "aW9uUG9pbnRJZBgCIAMoBUIeqgIbUmVhY3Rpdml0eVByb2ZpbGVyLlByb3Rv",
+            "Y29sYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.EventMessage), global::ReactivityProfiler.Protocol.EventMessage.Parser, new[]{ "ModuleLoaded", "MethodCallInstrumented", "ObservableCreated", "Subscribe", "Unsubscribe", "OnNext", "OnCompleted", "OnError", "ObservablesLinked" }, new[]{ "Event" }, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.ModuleLoadedEvent), global::ReactivityProfiler.Protocol.ModuleLoadedEvent.Parser, new[]{ "ModuleID", "Path" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.ModuleLoadedEvent), global::ReactivityProfiler.Protocol.ModuleLoadedEvent.Parser, new[]{ "ModuleID", "Path", "AssemblyName" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.MethodCallInstrumentedEvent), global::ReactivityProfiler.Protocol.MethodCallInstrumentedEvent.Parser, new[]{ "InstrumentationPointId", "ModuleId", "FunctionToken", "InstructionOffset", "CalledMethodName", "OwningTypeName", "CallingMethodName" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.ObservableCreatedEvent), global::ReactivityProfiler.Protocol.ObservableCreatedEvent.Parser, new[]{ "CreatedEvent", "InstrumentationPointId" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.ObservablesLinkedEvent), global::ReactivityProfiler.Protocol.ObservablesLinkedEvent.Parser, new[]{ "OutputObservableId", "InputObservableId" }, null, null, null),
@@ -591,6 +592,7 @@ namespace ReactivityProfiler.Protocol {
     public ModuleLoadedEvent(ModuleLoadedEvent other) : this() {
       moduleID_ = other.moduleID_;
       path_ = other.path_;
+      assemblyName_ = other.assemblyName_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -621,6 +623,17 @@ namespace ReactivityProfiler.Protocol {
       }
     }
 
+    /// <summary>Field number for the "AssemblyName" field.</summary>
+    public const int AssemblyNameFieldNumber = 3;
+    private string assemblyName_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public string AssemblyName {
+      get { return assemblyName_; }
+      set {
+        assemblyName_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as ModuleLoadedEvent);
@@ -636,6 +649,7 @@ namespace ReactivityProfiler.Protocol {
       }
       if (ModuleID != other.ModuleID) return false;
       if (Path != other.Path) return false;
+      if (AssemblyName != other.AssemblyName) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -644,6 +658,7 @@ namespace ReactivityProfiler.Protocol {
       int hash = 1;
       if (ModuleID != 0UL) hash ^= ModuleID.GetHashCode();
       if (Path.Length != 0) hash ^= Path.GetHashCode();
+      if (AssemblyName.Length != 0) hash ^= AssemblyName.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -665,6 +680,10 @@ namespace ReactivityProfiler.Protocol {
         output.WriteRawTag(18);
         output.WriteString(Path);
       }
+      if (AssemblyName.Length != 0) {
+        output.WriteRawTag(26);
+        output.WriteString(AssemblyName);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -678,6 +697,9 @@ namespace ReactivityProfiler.Protocol {
       }
       if (Path.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(Path);
+      }
+      if (AssemblyName.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(AssemblyName);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -696,6 +718,9 @@ namespace ReactivityProfiler.Protocol {
       if (other.Path.Length != 0) {
         Path = other.Path;
       }
+      if (other.AssemblyName.Length != 0) {
+        AssemblyName = other.AssemblyName;
+      }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
 
@@ -713,6 +738,10 @@ namespace ReactivityProfiler.Protocol {
           }
           case 18: {
             Path = input.ReadString();
+            break;
+          }
+          case 26: {
+            AssemblyName = input.ReadString();
             break;
           }
         }

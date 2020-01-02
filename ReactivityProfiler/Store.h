@@ -7,7 +7,7 @@ class Store
 public:
     Store();
 
-    void AddModuleInfo(ModuleID moduleId, const std::wstring& modulePath);
+    void AddModuleInfo(ModuleID moduleId, const std::wstring& modulePath, const std::wstring& assemblyName);
     void AddInstrumentationInfo(
         int32_t instrumentationPoint, 
         ModuleID moduleId, 

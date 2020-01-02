@@ -57,7 +57,7 @@ private:
 class StoreImpl
 {
 public:
-    void AddModuleInfo(ModuleID moduleId, const std::wstring& modulePath);
+    void AddModuleInfo(ModuleID moduleId, const std::wstring& modulePath, const std::wstring& assemblyName);
     void AddInstrumentationInfo(
         int32_t instrumentationPoint,
         ModuleID moduleId,
@@ -96,9 +96,9 @@ Store::Store() :
 {
 }
 
-void Store::AddModuleInfo(ModuleID moduleId, const std::wstring& modulePath)
+void Store::AddModuleInfo(ModuleID moduleId, const std::wstring& modulePath, const std::wstring& assemblyName)
 {
-    m_pImpl->AddModuleInfo(moduleId, modulePath);
+    m_pImpl->AddModuleInfo(moduleId, modulePath, assemblyName);
 }
 
 void Store::AddInstrumentationInfo(
@@ -131,11 +131,12 @@ simplespan<byte> Store::ReadEvent(int32_t index)
 }
 
 
-void StoreImpl::AddModuleInfo(ModuleID moduleId, const std::wstring& modulePath)
+void StoreImpl::AddModuleInfo(ModuleID moduleId, const std::wstring& modulePath, const std::wstring& assemblyName)
 {
     EventRecord r(EventId::ModuleInfo);
     r.Write64(moduleId);
     r.Write(modulePath);
+    r.Write(assemblyName);
     WriteRecord(r);
 }
 

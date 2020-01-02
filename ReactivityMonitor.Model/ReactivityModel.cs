@@ -17,7 +17,7 @@ namespace ReactivityMonitor.Model
 
         private sealed class Impl : IReactivityModel
         {
-            private static readonly IModule cUnknownModule = new Module(0, string.Empty, Observable.Empty<IInstrumentedCall>());
+            private static readonly IModule cUnknownModule = new Module(0, string.Empty, string.Empty, Observable.Empty<IInstrumentedCall>());
             private static readonly IInstrumentedCall cUnknownInstrumentedCall = new InstrumentedCall(-1, Observable.Return(cUnknownModule), string.Empty, string.Empty, string.Empty, 0, Observable.Empty<IObservableInstance>());
             private static readonly IObservableInstance cUnknownObservable = new ObservableInstance(new EventInfo(-1, DateTime.MinValue, -1), Observable.Return(cUnknownInstrumentedCall), Observable.Empty<IObservableInstance>(), Observable.Empty<ISubscription>());
 
@@ -101,7 +101,7 @@ namespace ReactivityMonitor.Model
                     .Take(1)
                     .SelectMany(calls => calls);
 
-                return new Module(m.ModuleId, m.Path, instrumentedCalls);
+                return new Module(m.ModuleId, m.Path, m.AssemblyName, instrumentedCalls);
             }
 
             private IInstrumentedCall CreateInstrumentedCall(NewInstrumentedCall c)

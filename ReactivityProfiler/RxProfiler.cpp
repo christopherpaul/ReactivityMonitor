@@ -67,7 +67,7 @@ HRESULT CRxProfiler::ModuleLoadFinished(
             AddSupportAssemblyReference(moduleId, pPerModuleData->m_observableTypeRefs, pPerModuleData->m_supportAssemblyRefs);
             pPerModuleData->m_supportAssemblyReferenced = true;
 
-            g_Store.AddModuleInfo(moduleId, moduleInfo.name);
+            g_Store.AddModuleInfo(moduleId, moduleInfo.name, pPerModuleData->m_assemblyProps.name);
         }
     });
 }

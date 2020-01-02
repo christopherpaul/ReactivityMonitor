@@ -22,30 +22,44 @@ namespace ReactivityMonitor.Screens.CallsScreen
     {
         public CallsScreenViewModel(IConcurrencyService concurrencyService)
         {
+            var modules = new ObservableCollectionExtended<ModuleItem>();
+            Modules = new ReadOnlyObservableCollection<ModuleItem>(modules);
+
             WhenActivated(disposables =>
             {
+                modules.Clear();
+
                 Model.InstrumentedCalls
-                    .GroupBy(ic => (ic.CallingType, ic.CallingMethod))
-                    .Select(grp =>
+                    .GroupBy(ic => ic.Module)
+                    .ToObservableChangeSet(m => m.Key.ModuleId)
+                    .Transform(moduleCalls =>
                     {
-                        var callsChanges = grp
-                            .ToObservableChangeSet(ic => ic.InstrumentedCallId)
-                            .Transform(ic => (ICall)new Call(ic))
-                            .Sort(SortExpressionComparer<ICall>.Ascending(ic => ic.InstructionOffset))
+                        var callingMethods = moduleCalls
+                            .GroupBy(ic => (ic.CallingType, ic.CallingMethod))
+                            .Select(grp =>
+                            {
+                                var callsChanges = grp
+                                    .ToObservableChangeSet(ic => ic.InstrumentedCallId)
+                                    .Transform(ic => new Call(ic))
+                                    .Sort(SortExpressionComparer<Call>.Ascending(ic => ic.InstructionOffset))
+                                    .ObserveOn(concurrencyService.DispatcherRxScheduler);
+
+                                var callingMethod = new CallingMethod(grp.Key.Item1, grp.Key.Item2, callsChanges);
+                                return callingMethod;
+                            })
+                            .ToObservableChangeSet()
+                            .Sort(SortExpressionComparer<CallingMethod>.Ascending(x => (x.TypeName, x.Name)))
                             .ObserveOn(concurrencyService.DispatcherRxScheduler);
 
-                        var callingMethod = new CallingMethod(grp.Key.Item1, grp.Key.Item2, callsChanges);
-                        return (ICallingMethod)callingMethod;
+                        return new ModuleItem(moduleCalls.Key.Path, moduleCalls.Key.AssemblyName, callingMethods);
                     })
-                    .ToObservableChangeSet()
-                    .Sort(SortExpressionComparer<ICallingMethod>.Ascending(x => (x.TypeName, x.Name)))
+                    .Sort(SortExpressionComparer<ModuleItem>.Ascending(x => x.AssemblyName))
+                    .SubscribeOn(concurrencyService.TaskPoolRxScheduler)
                     .ObserveOn(concurrencyService.DispatcherRxScheduler)
-                    .Bind(out var callingMethods)
+                    .Bind(modules)
                     .DisposeMany()
                     .Subscribe()
                     .DisposeWith(disposables);
-
-                CallingMethods = callingMethods;
             });
 
             MonitorCall = ReactiveCommand.Create((Call c) =>
@@ -59,15 +73,45 @@ namespace ReactivityMonitor.Screens.CallsScreen
         public IReactivityModel Model { get; set; }
         public IWorkspace Workspace { get; set; }
 
-        public ReadOnlyObservableCollection<ICallingMethod> CallingMethods { get; private set; }
+        public ReadOnlyObservableCollection<ModuleItem> Modules { get; }
+
         public ICommand MonitorCall { get; }
 
+        public sealed class ModuleItem : IDisposable
+        {
+            private readonly ObservableCollectionExtended<CallingMethod> mCallingMethods;
+            private readonly IDisposable mDisposable;
 
-        private sealed class CallingMethod : ICallingMethod, IDisposable
+            public ModuleItem(string path, string assemblyName, IObservable<IChangeSet<CallingMethod>> callingMethodsSource)
+            {
+                mCallingMethods = new ObservableCollectionExtended<CallingMethod>();
+                CallingMethods = new ReadOnlyObservableCollection<CallingMethod>(mCallingMethods);
+
+                mDisposable = callingMethodsSource
+                    .Bind(mCallingMethods)
+                    .DisposeMany()
+                    .Subscribe();
+
+                Path = path;
+                AssemblyName = string.IsNullOrEmpty(assemblyName) ? path : assemblyName;
+            }
+
+            public string Path { get; }
+            public string AssemblyName { get; }
+
+            public ReadOnlyObservableCollection<CallingMethod> CallingMethods { get; private set; }
+
+            public void Dispose()
+            {
+                mDisposable.Dispose();
+            }
+        }
+
+        public sealed class CallingMethod : IDisposable
         {
             private readonly IDisposable mDisposable;
 
-            public CallingMethod(string typeName, string methodName, IObservable<IChangeSet<ICall, int>> callsChanges)
+            public CallingMethod(string typeName, string methodName, IObservable<IChangeSet<Call, int>> callsChanges)
             {
                 TypeName = typeName;
                 Name = methodName;
@@ -83,7 +127,7 @@ namespace ReactivityMonitor.Screens.CallsScreen
 
             public string Name { get; }
 
-            public ReadOnlyObservableCollection<ICall> Calls { get; set; }
+            public ReadOnlyObservableCollection<Call> Calls { get; set; }
 
             public void Dispose()
             {
@@ -91,7 +135,7 @@ namespace ReactivityMonitor.Screens.CallsScreen
             }
         }
 
-        private sealed class Call : ICall
+        public sealed class Call
         {
             public Call(IInstrumentedCall call)
             {

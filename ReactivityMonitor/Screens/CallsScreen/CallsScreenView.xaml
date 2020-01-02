@@ -14,21 +14,29 @@
         </Style>
     </UserControl.Resources>
     <Grid>
-        <TreeView ItemsSource="{Binding CallingMethods}">
+        <TreeView ItemsSource="{Binding Modules}">
             <TreeView.ItemTemplate>
-                <HierarchicalDataTemplate ItemsSource="{Binding Calls}">
-                    <TextBlock FontWeight="Bold">
-                        <Run Text="{Binding TypeName, Mode=OneTime}" />.<Run Text="{Binding Name, Mode=OneTime}" />
+                <HierarchicalDataTemplate ItemsSource="{Binding CallingMethods}">
+                    <TextBlock ToolTip="{Binding Path, Mode=OneTime}">
+                        <Run Text="{Binding AssemblyName, Mode=OneTime}" />
                     </TextBlock>
+
                     <HierarchicalDataTemplate.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal">
-                                <Button Style="{StaticResource MonitorButtonStyle}" 
-                                        Command="{Binding ElementName=CallsScreen, Path=DataContext.MonitorCall}"
-                                        CommandParameter="{Binding}"/>
-                                <TextBlock Text="{Binding CalledMethodName, Mode=OneTime}" />
-                            </StackPanel>
-                        </DataTemplate>
+                        <HierarchicalDataTemplate ItemsSource="{Binding Calls}">
+                            <TextBlock FontWeight="Bold">
+                                <Run Text="{Binding TypeName, Mode=OneTime}" />.<Run Text="{Binding Name, Mode=OneTime}" />
+                            </TextBlock>
+                            <HierarchicalDataTemplate.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal">
+                                        <Button Style="{StaticResource MonitorButtonStyle}" 
+                                            Command="{Binding ElementName=CallsScreen, Path=DataContext.MonitorCall}"
+                                            CommandParameter="{Binding}"/>
+                                        <TextBlock Text="{Binding CalledMethodName, Mode=OneTime}" />
+                                    </StackPanel>
+                                </DataTemplate>
+                            </HierarchicalDataTemplate.ItemTemplate>
+                        </HierarchicalDataTemplate>
                     </HierarchicalDataTemplate.ItemTemplate>
                 </HierarchicalDataTemplate>
             </TreeView.ItemTemplate>

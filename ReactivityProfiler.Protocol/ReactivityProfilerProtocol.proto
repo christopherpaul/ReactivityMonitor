@@ -18,6 +18,7 @@ message EventMessage {
 message ModuleLoadedEvent {
 	uint64 ModuleID = 1;
 	string Path = 2;
+	string AssemblyName = 3;
 }
 
 message MethodCallInstrumentedEvent {

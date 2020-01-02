@@ -9,6 +9,7 @@ namespace ReactivityMonitor.Model
     {
         ulong ModuleId { get; }
         string Path { get; }
+        string AssemblyName { get; }
 
         IObservable<IInstrumentedCall> InstrumentedCalls { get; }
     }

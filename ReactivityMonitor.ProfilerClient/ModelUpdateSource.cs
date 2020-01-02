@@ -29,7 +29,7 @@ namespace ReactivityMonitor.ProfilerClient
                 .Publish();
 
             Modules = GetMessages(ModuleLoaded, msg => msg.ModuleLoaded)
-                .Select(msg => new NewModuleUpdate(msg.ModuleID, msg.Path));
+                .Select(msg => new NewModuleUpdate(msg.ModuleID, msg.Path, msg.AssemblyName));
 
             InstrumentedCalls = GetMessages(MethodCallInstrumented, msg => msg.MethodCallInstrumented)
                 .Select(msg => new NewInstrumentedCall(msg.InstrumentationPointId, msg.ModuleId, msg.OwningTypeName, msg.CallingMethodName, msg.CalledMethodName, msg.InstructionOffset));
