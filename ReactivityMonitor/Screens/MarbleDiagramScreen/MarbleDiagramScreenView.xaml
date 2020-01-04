@@ -10,31 +10,44 @@
              d:DesignHeight="450" d:DesignWidth="800"
              x:Name="MarbleDiagram">
     <UserControl.Resources>
-        <HierarchicalDataTemplate DataType="{x:Type local:MarbleObservableItemGroup}"
-                                  ItemsSource="{Binding Items}">
+
+        <HierarchicalDataTemplate x:Key="ObservableItemHeaderTemplate" DataType="{x:Type local:MarbleObservableItem}"
+                                ItemsSource="{Binding SubscriptionItems}"
+                                  >
 
             <Grid>
-                <local:NonScrolling Orientation="Horizontal">
-                    <TextBlock FontWeight="Bold" TextWrapping="Wrap" ToolTip="{Binding LongName, Mode=OneTime}">
-                            <Run Text="{Binding ShortName, Mode=OneTime}" />
-                    </TextBlock>
-                </local:NonScrolling>
+                <TextBlock FontWeight="Bold">
+                        <Run Text="{Binding SequenceId, Mode=OneTime}" />
+                </TextBlock>
+            </Grid>
+
+            <HierarchicalDataTemplate.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding HeaderText, Mode=OneTime}" />
+                </DataTemplate>
+            </HierarchicalDataTemplate.ItemTemplate>
+
+        </HierarchicalDataTemplate>
+
+        <HierarchicalDataTemplate x:Key="GroupHeaderTemplate" DataType="{x:Type local:MarbleObservableItemGroup}"
+                                  ItemsSource="{Binding Items}"
+                                  ItemTemplate="{StaticResource ObservableItemHeaderTemplate}">
+
+            <Grid>
+                <TextBlock FontWeight="Bold" ToolTip="{Binding LongName, Mode=OneTime}">
+                        <Run Text="{Binding ShortName, Mode=OneTime}" />
+                </TextBlock>
             </Grid>
 
         </HierarchicalDataTemplate>
-        
-        <HierarchicalDataTemplate DataType="{x:Type local:MarbleObservableItem}"
-                                ItemsSource="{Binding SubscriptionItems}">
 
-            <Grid>
-                <local:NonScrolling Orientation="Horizontal">
-                    <TextBlock FontWeight="Bold" TextWrapping="Wrap">
-                            <Run Text="{Binding SequenceId, Mode=OneTime}" /> [created <Run Text="{Binding Timestamp, Mode=OneTime}" /> on thread <Run Text="{Binding ThreadId, Mode=OneTime}" />]
-                    </TextBlock>
-                </local:NonScrolling>
-            </Grid>
+        <DataTemplate DataType="{x:Type local:MarbleObservableItemGroup}">
+            <Grid/>
+        </DataTemplate>
 
-        </HierarchicalDataTemplate>
+        <DataTemplate DataType="{x:Type local:MarbleObservableItem}">
+            <Grid/>
+        </DataTemplate>
 
         <DataTemplate DataType="{x:Type local:MarbleSubscriptionItem}">
             <Grid>
@@ -81,12 +94,117 @@
             <Rectangle Width="4" Height="10" Fill="Red" ToolTip="{Binding Message}" />
         </DataTemplate>
 
+        <Style TargetType="TreeViewItem">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TreeViewItem">
+                        <StackPanel>
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroup x:Name="ExpansionStates">
+                                    <VisualState x:Name="Expanded">
+                                        <Storyboard>
+                                            <ObjectAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Visibility)"
+                                                 Storyboard.TargetName="ItemsHost">
+                                                <DiscreteObjectKeyFrame KeyTime="0"
+                                            Value="{x:Static Visibility.Visible}" />
+                                            </ObjectAnimationUsingKeyFrames>
+                                        </Storyboard>
+                                    </VisualState>
+                                    <VisualState x:Name="Collapsed" />
+                                </VisualStateGroup>
+                            </VisualStateManager.VisualStateGroups>
+
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="19" />
+                                    <ColumnDefinition SharedSizeGroup="HeaderColumn" />
+                                    <ColumnDefinition Width="5" />
+                                    <ColumnDefinition Width="Auto" SharedSizeGroup="ContentColumn" />
+                                </Grid.ColumnDefinitions>
+
+                                <ToggleButton x:Name="Expander" ClickMode="Press" IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}}" />
+
+                                <Border x:Name="Bd"
+                  Grid.Column="1"
+                  Background="{TemplateBinding Background}"
+                  BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}"
+                  Padding="{TemplateBinding Padding}">
+                                    <ContentPresenter x:Name="PART_Header"
+                              ContentSource="Header"
+                              HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>
+                                </Border>
+
+                                <ContentPresenter Grid.Column="3" Content="{TemplateBinding Header}" />
+                            </Grid>
+
+                            <ItemsPresenter x:Name="ItemsHost" Visibility="Collapsed" />
+
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="HasItems" Value="False">
+                                <Setter TargetName="Expander" Property="Visibility" Value="Hidden" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style TargetType="TreeView">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TreeView">
+                        <ScrollViewer Focusable="False"
+                                    CanContentScroll="False"
+                                    HorizontalScrollBarVisibility="Disabled"
+                                    Padding="4">
+                            <Grid Grid.IsSharedSizeScope="True">
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
+
+                                <ItemsPresenter />
+
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="19" />
+                                        <ColumnDefinition Width="50" SharedSizeGroup="HeaderColumn" />
+                                        <ColumnDefinition Width="5" />
+                                        <ColumnDefinition Width="Auto" SharedSizeGroup="ContentColumn" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <GridSplitter Grid.Column="2" HorizontalAlignment="Stretch" Background="{TemplateBinding Background}" />
+                                    <Grid x:Name="ContentSizer" Grid.Column="3" Grid.ColumnSpan="2" />
+                                </Grid>
+
+                                <Grid Grid.Row="1">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="19" />
+                                        <ColumnDefinition Width="50" SharedSizeGroup="HeaderColumn" />
+                                        <ColumnDefinition Width="5" />
+                                        <ColumnDefinition Width="*" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <ScrollBar Orientation="Horizontal" Visibility="Visible" Grid.Column="3" ViewportSize="{Binding RelativeSource={RelativeSource Self}, Path=ActualWidth}" Maximum="{Binding ElementName=ContentSizer, Path=ActualWidth}" />
+                                </Grid>
+                            </Grid>
+                        </ScrollViewer>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
     </UserControl.Resources>
-    
+
     <Grid>
         <TreeView ItemsSource="{Binding ObservableItemGroups}" 
+                  ItemTemplate="{StaticResource GroupHeaderTemplate}"
                   VirtualizingStackPanel.IsVirtualizing="True"
-                  VirtualizingStackPanel.VirtualizationMode="Recycling">
+                  VirtualizingStackPanel.VirtualizationMode="Recycling"
+                  >
         </TreeView>
     </Grid>
 </UserControl>

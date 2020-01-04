@@ -31,6 +31,8 @@ namespace ReactivityMonitor.Screens.MarbleDiagramScreen
 
         public ISubscription Subscription { get; set; }
 
+        public string HeaderText => $"{Subscription.SubscriptionId}";
+
         public ReadOnlyObservableCollection<StreamEvent> StreamEvents { get; private set; }
     }
 }
