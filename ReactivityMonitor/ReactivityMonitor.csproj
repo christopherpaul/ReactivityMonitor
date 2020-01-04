@@ -101,6 +101,7 @@
     <Compile Include="Screens\HomeScreen\IHomeScreen.cs" />
     <Compile Include="IScreenFactory.cs" />
     <Compile Include="Screens\MarbleDiagramScreen\IMarbleDiagramScreen.cs" />
+    <Compile Include="Screens\MarbleDiagramScreen\MarbleObservableItemGroup.cs" />
     <Compile Include="Screens\MarbleDiagramScreen\MarbleDiagramScreenView.xaml.cs">
       <DependentUpon>MarbleDiagramScreenView.xaml</DependentUpon>
     </Compile>

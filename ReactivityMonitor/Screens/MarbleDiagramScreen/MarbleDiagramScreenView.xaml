@@ -10,13 +10,26 @@
              d:DesignHeight="450" d:DesignWidth="800"
              x:Name="MarbleDiagram">
     <UserControl.Resources>
+        <HierarchicalDataTemplate DataType="{x:Type local:MarbleObservableItemGroup}"
+                                  ItemsSource="{Binding Items}">
+
+            <Grid>
+                <local:NonScrolling Orientation="Horizontal">
+                    <TextBlock FontWeight="Bold" TextWrapping="Wrap" ToolTip="{Binding LongName, Mode=OneTime}">
+                            <Run Text="{Binding ShortName, Mode=OneTime}" />
+                    </TextBlock>
+                </local:NonScrolling>
+            </Grid>
+
+        </HierarchicalDataTemplate>
+        
         <HierarchicalDataTemplate DataType="{x:Type local:MarbleObservableItem}"
                                 ItemsSource="{Binding SubscriptionItems}">
 
             <Grid>
                 <local:NonScrolling Orientation="Horizontal">
                     <TextBlock FontWeight="Bold" TextWrapping="Wrap">
-                            <Run Text="{Binding SequenceId, Mode=OneTime}" />: <Run Text="{Binding MethodName, Mode=OneTime}" /> [created <Run Text="{Binding Timestamp, Mode=OneTime}" /> on thread <Run Text="{Binding ThreadId, Mode=OneTime}" />]
+                            <Run Text="{Binding SequenceId, Mode=OneTime}" /> [created <Run Text="{Binding Timestamp, Mode=OneTime}" /> on thread <Run Text="{Binding ThreadId, Mode=OneTime}" />]
                     </TextBlock>
                 </local:NonScrolling>
             </Grid>
@@ -71,14 +84,9 @@
     </UserControl.Resources>
     
     <Grid>
-        <TreeView ItemsSource="{Binding ObservableItems}" 
+        <TreeView ItemsSource="{Binding ObservableItemGroups}" 
                   VirtualizingStackPanel.IsVirtualizing="True"
                   VirtualizingStackPanel.VirtualizationMode="Recycling">
-            <TreeView.ItemContainerStyle>
-                <Style TargetType="TreeViewItem">
-                    <Setter Property="IsExpanded" Value="True" />
-                </Style>
-            </TreeView.ItemContainerStyle>
         </TreeView>
     </Grid>
 </UserControl>

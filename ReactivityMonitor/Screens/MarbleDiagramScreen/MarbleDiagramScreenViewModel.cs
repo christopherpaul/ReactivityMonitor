@@ -22,29 +22,48 @@ namespace ReactivityMonitor.Screens.MarbleDiagramScreen
     {
         public MarbleDiagramScreenViewModel(IConcurrencyService concurrencyService)
         {
-            var items = new ObservableCollectionExtended<MarbleObservableItem>();
-            ObservableItems = new ReadOnlyObservableCollection<MarbleObservableItem>(items);
+            var itemGroups = new ObservableCollectionExtended<MarbleObservableItemGroup>();
+            ObservableItemGroups = new ReadOnlyObservableCollection<MarbleObservableItemGroup>(itemGroups);
 
             this.WhenActivated(disposables =>
             {
-                items.Clear();
+                itemGroups.Clear();
 
                 var instances = ObservableInstances
                     .TakeUntilDisposed(disposables)
                     .Publish();
 
-                instances
+                var observableItems = instances
                     .Transform(obs => Observable.Return(new MarbleObservableItem(concurrencyService) { ObservableInstance = obs })
                         .Expand(item => item.ObservableInstance.Inputs.Select(input => new MarbleObservableItem(concurrencyService) { ObservableInstance = input, PrimarySink = item }))
                         .ToObservableChangeSet(obs => obs.ObservableInstance.ObservableId))
                     .RemoveKey()
                     .AsObservableList()
-                    .Or()
-                    .OnItemAdded(obsItem => obsItem.Activator.Activate().DisposeWith(disposables))
-                    .Sort(Utility.Comparer<MarbleObservableItem>.ByKey(x => x.GetOrdering(), EnumerableComparer<long>.LongerBeforeShorter))
+                    .Or();
+
+                var observableItemsGroupedByCall = observableItems
+                    .Group(item => item.ObservableInstance.Call.InstrumentedCallId)
+                    .Transform(group =>
+                    {
+                        var firstItem = group.Cache.Items.First();
+                        var observableItemsInGroup = new ObservableCollectionExtended<MarbleObservableItem>();
+                        group.Cache.Connect()
+                            .OnItemAdded(obsItem => obsItem.Activator.Activate().DisposeWith(disposables))
+                            .Sort(Utility.Comparer<MarbleObservableItem>.ByKey(x => x.GetOrdering(), EnumerableComparer<long>.LongerBeforeShorter))
+                            .SubscribeOn(concurrencyService.TaskPoolRxScheduler)
+                            .ObserveOn(concurrencyService.DispatcherRxScheduler)
+                            .Bind(observableItemsInGroup)
+                            .Subscribe()
+                            .DisposeWith(disposables);
+
+                        return new MarbleObservableItemGroup(firstItem.GetOrdering(), firstItem.ObservableInstance.Call, new ReadOnlyObservableCollection<MarbleObservableItem>(observableItemsInGroup));
+                    });
+
+                observableItemsGroupedByCall
+                    .Sort(Utility.Comparer<MarbleObservableItemGroup>.ByKey(x => x.Ordering, EnumerableComparer<long>.LongerBeforeShorter))
                     .SubscribeOn(concurrencyService.TaskPoolRxScheduler)
                     .ObserveOn(concurrencyService.DispatcherRxScheduler)
-                    .Bind(items)
+                    .Bind(itemGroups)
                     .Subscribe()
                     .DisposeWith(disposables);
 
@@ -63,7 +82,7 @@ namespace ReactivityMonitor.Screens.MarbleDiagramScreen
 
         public IObservable<IChangeSet<IObservableInstance, long>> ObservableInstances { get; set; }
 
-        public ReadOnlyObservableCollection<MarbleObservableItem> ObservableItems { get; }
+        public ReadOnlyObservableCollection<MarbleObservableItemGroup> ObservableItemGroups { get; }
 
         private ObservableAsPropertyHelper<DateTime> mStartTime;
         public DateTime StartTime => mStartTime.Value;
