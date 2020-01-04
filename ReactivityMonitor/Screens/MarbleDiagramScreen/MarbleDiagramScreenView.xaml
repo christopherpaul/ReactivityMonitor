@@ -119,7 +119,7 @@
                                     <ColumnDefinition Width="19" />
                                     <ColumnDefinition SharedSizeGroup="HeaderColumn" />
                                     <ColumnDefinition Width="5" />
-                                    <ColumnDefinition Width="Auto" SharedSizeGroup="ContentColumn" />
+                                    <ColumnDefinition Width="*" SharedSizeGroup="ContentViewportColumn" />
                                 </Grid.ColumnDefinitions>
 
                                 <ToggleButton x:Name="Expander" ClickMode="Press" IsChecked="{Binding IsExpanded, RelativeSource={RelativeSource TemplatedParent}}" />
@@ -135,7 +135,14 @@
                               HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>
                                 </Border>
 
-                                <ContentPresenter Grid.Column="3" Content="{TemplateBinding Header}" />
+                                <ScrollViewer Grid.Column="3" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto" SharedSizeGroup="ContentColumn" />
+                                        </Grid.ColumnDefinitions>
+                                        <ContentPresenter Content="{TemplateBinding Header}" />
+                                    </Grid>
+                                </ScrollViewer>
                             </Grid>
 
                             <ItemsPresenter x:Name="ItemsHost" Visibility="Collapsed" />
@@ -172,12 +179,19 @@
                                         <ColumnDefinition Width="19" />
                                         <ColumnDefinition Width="50" SharedSizeGroup="HeaderColumn" />
                                         <ColumnDefinition Width="5" />
-                                        <ColumnDefinition Width="Auto" SharedSizeGroup="ContentColumn" />
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
 
                                     <GridSplitter Grid.Column="2" HorizontalAlignment="Stretch" Background="{TemplateBinding Background}" />
-                                    <Grid x:Name="ContentSizer" Grid.Column="3" Grid.ColumnSpan="2" />
+
+                                    <ScrollViewer Grid.Column="3" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" SharedSizeGroup="ContentColumn" />
+                                            </Grid.ColumnDefinitions>
+                                            <Grid x:Name="ContentSizer" />
+                                        </Grid>
+                                    </ScrollViewer>
                                 </Grid>
 
                                 <Grid Grid.Row="1">
