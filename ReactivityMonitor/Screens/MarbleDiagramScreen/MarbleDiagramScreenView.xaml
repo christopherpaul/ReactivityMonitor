@@ -183,15 +183,6 @@
                                     </Grid.ColumnDefinitions>
 
                                     <GridSplitter Grid.Column="2" HorizontalAlignment="Stretch" Background="{TemplateBinding Background}" />
-
-                                    <ScrollViewer Grid.Column="3" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="Auto" SharedSizeGroup="ContentColumn" />
-                                            </Grid.ColumnDefinitions>
-                                            <Grid x:Name="ContentSizer" />
-                                        </Grid>
-                                    </ScrollViewer>
                                 </Grid>
 
                                 <Grid Grid.Row="1">
@@ -202,7 +193,14 @@
                                         <ColumnDefinition Width="*" />
                                     </Grid.ColumnDefinitions>
 
-                                    <ScrollBar Orientation="Horizontal" Visibility="Visible" Grid.Column="3" ViewportSize="{Binding RelativeSource={RelativeSource Self}, Path=ActualWidth}" Maximum="{Binding ElementName=ContentSizer, Path=ActualWidth}" />
+                                    <ScrollViewer Grid.Column="3" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto" SharedSizeGroup="ContentColumn" />
+                                            </Grid.ColumnDefinitions>
+                                            <Grid x:Name="ContentSizer" />
+                                        </Grid>
+                                    </ScrollViewer>
                                 </Grid>
                             </Grid>
                         </ScrollViewer>
