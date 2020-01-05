@@ -24,5 +24,21 @@ namespace ReactivityMonitor.Screens.MarbleDiagramScreen
         {
             InitializeComponent();
         }
+
+        private void ScrollViewer_Initialized(object sender, EventArgs e)
+        {
+            MarbleScroller = (ScrollViewer)sender;
+        }
+
+        public static readonly DependencyProperty MarbleScrollerProperty = DependencyProperty.Register(
+            nameof(MarbleScroller),
+            typeof(ScrollViewer),
+            typeof(MarbleDiagramScreenView));
+
+        public ScrollViewer MarbleScroller
+        {
+            get => (ScrollViewer)GetValue(MarbleScrollerProperty);
+            set => SetValue(MarbleScrollerProperty, value);
+        }
     }
 }
