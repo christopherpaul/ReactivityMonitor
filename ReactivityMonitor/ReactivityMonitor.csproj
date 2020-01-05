@@ -64,6 +64,7 @@
     <Compile Include="Connection\ConnectionModel.cs" />
     <Compile Include="Connection\IConnectionModel.cs" />
     <Compile Include="Connection\LaunchInfo.cs" />
+    <Compile Include="Controls\SimpleViewport.cs" />
     <Compile Include="Definitions\Commands.cs" />
     <Compile Include="Factory.cs" />
     <Compile Include="Infrastructure\Activation.cs" />

@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:ReactivityMonitor.Screens.MarbleDiagramScreen"
              xmlns:infra="clr-namespace:ReactivityMonitor.Infrastructure"
              xmlns:mod="clr-namespace:ReactivityMonitor.Model;assembly=ReactivityMonitor.Model"
+             xmlns:controls="clr-namespace:ReactivityMonitor.Controls"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              x:Name="MarbleDiagram">
@@ -135,15 +136,14 @@
                                         HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"/>
                                 </Border>
 
-                                <ScrollViewer Grid.Column="3" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled"
-                                              local:ScrollCoordinator.HorizontalOffset="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:MarbleDiagramScreenView}}, Path=MarbleScroller.HorizontalOffset}">
+                                <controls:SimpleViewport Grid.Column="3" HorizontalOffset="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:MarbleDiagramScreenView}}, Path=MarbleScroller.HorizontalOffset}">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto" SharedSizeGroup="ContentColumn" />
                                         </Grid.ColumnDefinitions>
                                         <ContentPresenter Content="{TemplateBinding Header}" />
                                     </Grid>
-                                </ScrollViewer>
+                                </controls:SimpleViewport>
                             </Grid>
 
                             <ItemsPresenter x:Name="ItemsHost" Visibility="Collapsed" />
