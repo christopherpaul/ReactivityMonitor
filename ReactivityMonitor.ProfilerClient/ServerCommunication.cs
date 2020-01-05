@@ -62,7 +62,7 @@ namespace ReactivityMonitor.ProfilerClient
                     int bytesRead = pipeStream.Read(buffer, bufferOffset, remainingBufferSize);
                     bufferOffset += bytesRead;
                 }
-                while (!pipeStream.IsMessageComplete);
+                while (pipeStream.IsConnected && !pipeStream.IsMessageComplete);
 
                 if (bufferOffset > 0)
                 {

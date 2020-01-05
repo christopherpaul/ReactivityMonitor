@@ -15,6 +15,7 @@ namespace ReactivityMonitor.ProfilerClient
 {
     internal sealed class ModelUpdateSource : IModelUpdateSource
     {
+        private readonly IConnectableObservable<EventMessage> mMessages;
         private readonly IConnectableObservable<IGroupedObservable<EventMessage.EventOneofCase, EventMessage>> mMessageGroups;
         private readonly Action<bool> mSetIsUpdating;
 
@@ -23,7 +24,9 @@ namespace ReactivityMonitor.ProfilerClient
             var updating = new BehaviorSubject<bool>(true);
             mSetIsUpdating = updating.OnNext;
 
-            mMessageGroups = messages
+            mMessages = messages.Publish();
+
+            mMessageGroups = mMessages
                 .GateBySequenceNumber(updating, GetMessageSequenceNumber)
                 .GroupBy(msg => msg.EventCase)
                 .Publish();
@@ -68,7 +71,9 @@ namespace ReactivityMonitor.ProfilerClient
 
         public IDisposable Connect()
         {
-            return mMessageGroups.Connect();
+            var groupsConnection = mMessageGroups.Connect();
+            var messagesConnection = mMessages.Connect();
+            return StableCompositeDisposable.Create(groupsConnection, messagesConnection);
         }
 
         private IObservable<T> GetMessages<T>(EventMessage.EventOneofCase messageKind, Func<EventMessage, T> messageSelector)
