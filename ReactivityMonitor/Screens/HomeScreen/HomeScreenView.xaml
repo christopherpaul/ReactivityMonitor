@@ -38,7 +38,7 @@
                     </DataTemplate>
                 </TabControl.Resources>
             </TabControl>
-            <GridSplitter Grid.Row="1" VerticalAlignment="Stretch" />
+            <GridSplitter Grid.Row="1" VerticalAlignment="Stretch" ResizeDirection="Rows" HorizontalAlignment="Stretch" />
             <ContentControl x:Name="EventList" Grid.Row="2" />
         </Grid>
     </Grid>
