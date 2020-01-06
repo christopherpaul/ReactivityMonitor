@@ -132,5 +132,22 @@ namespace ReactivityMonitor.Utility.Extensions
                                 .TakeUntil(sourceSafe.WhenTerminated())
                                 .Concat())));
         }
+
+        /// <summary>
+        /// Synchronizes subcriptions to <paramref name="source"/> using the specified <paramref name="locker"/>
+        /// (or a new object if not specified). The lock is held for the duration of the call to the 
+        /// <see cref="IObservable{}.Subscribe(IObserver{})"/> method of <paramref name="source"/>.
+        /// </summary>
+        public static IObservable<T> SynchronizeSubscribe<T>(this IObservable<T> source, object locker = null)
+        {
+            locker = locker ?? new object();
+            return Observable.Create<T>(observer =>
+            {
+                lock (locker)
+                {
+                    return source.Subscribe(observer);
+                }
+            });
+        }
     }
 }

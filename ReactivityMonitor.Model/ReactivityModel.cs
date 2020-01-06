@@ -34,20 +34,37 @@ namespace ReactivityMonitor.Model
 
             public Impl(IModelUpdateSource updateSource)
             {
+                object moduleCacheLocker = new object();
+
                 mModuleCache = updateSource.Modules
                     .ToObservableChangeSet(m => m.ModuleId)
                     .Transform(CreateModule)
+                    .Synchronize(moduleCacheLocker)
                     .AsObservableCache();
+
+                Modules = mModuleCache.Connect().SynchronizeSubscribe(moduleCacheLocker).Flatten().Select(chg => chg.Current);
+
+                object instrumentedCallsCacheLocker = new object();
 
                 mInstrumentedCallsCache = updateSource.InstrumentedCalls
                     .ToObservableChangeSet(c => c.Id)
                     .Transform(CreateInstrumentedCall)
+                    .Synchronize(instrumentedCallsCacheLocker)
                     .AsObservableCache();
+
+                InstrumentedCalls = mInstrumentedCallsCache.Connect().SynchronizeSubscribe(instrumentedCallsCacheLocker)
+                    .Flatten().Select(chg => chg.Current);
+
+                object observableInstancesCacheLocker = new object();
 
                 mObservableInstancesCache = updateSource.ObservableInstances
                     .ToObservableChangeSet(o => o.Created.SequenceId)
                     .Transform(CreateObservableInstance)
+                    .Synchronize(observableInstancesCacheLocker)
                     .AsObservableCache();
+
+                ObservableInstances = mObservableInstancesCache.Connect().SynchronizeSubscribe(observableInstancesCacheLocker)
+                    .Flatten().Select(chg => chg.Current);
 
                 mSubscriptionsCache = updateSource.CreatedSubscriptions
                     .ToObservableChangeSet(s => s.Subscribed.SequenceId)
@@ -90,9 +107,9 @@ namespace ReactivityMonitor.Model
                     .AsObservableCache();
             }
 
-            public IObservable<IModule> Modules => mModuleCache.Connect().Flatten().Select(chg => chg.Current);
-            public IObservable<IInstrumentedCall> InstrumentedCalls => mInstrumentedCallsCache.Connect().Flatten().Select(chg => chg.Current);
-            public IObservable<IObservableInstance> ObservableInstances => mObservableInstancesCache.Connect().Flatten().Select(chg => chg.Current);
+            public IObservable<IModule> Modules { get; }
+            public IObservable<IInstrumentedCall> InstrumentedCalls { get; }
+            public IObservable<IObservableInstance> ObservableInstances { get; }
 
             private IModule CreateModule(NewModuleUpdate m)
             {
