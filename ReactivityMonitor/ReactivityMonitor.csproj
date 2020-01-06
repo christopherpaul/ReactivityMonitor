@@ -109,6 +109,7 @@
     <Compile Include="Screens\MarbleDiagramScreen\MarbleDiagramScreenViewModel.cs" />
     <Compile Include="Screens\MarbleDiagramScreen\NonScrolling.cs" />
     <Compile Include="Screens\MarbleDiagramScreen\ScrollCoordinator.cs" />
+    <Compile Include="Screens\MarbleDiagramScreen\StreamEventsViewModel.cs" />
     <Compile Include="Screens\MonitoringScreen\IMonitoringScreen.cs" />
     <Compile Include="Screens\MonitoringScreen\MonitoringScreenView.xaml.cs">
       <DependentUpon>MonitoringScreenView.xaml</DependentUpon>

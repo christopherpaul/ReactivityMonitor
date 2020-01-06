@@ -56,7 +56,7 @@ namespace ReactivityMonitor.Screens.MarbleDiagramScreen
                             .Subscribe()
                             .DisposeWith(disposables);
 
-                        return new MarbleObservableItemGroup(firstItem.GetOrdering(), firstItem.ObservableInstance.Call, new ReadOnlyObservableCollection<MarbleObservableItem>(observableItemsInGroup));
+                        return new MarbleObservableItemGroup(firstItem.GetOrdering(), firstItem.ObservableInstance.Call, new ReadOnlyObservableCollection<MarbleObservableItem>(observableItemsInGroup), concurrencyService);
                     });
 
                 observableItemsGroupedByCall

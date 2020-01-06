@@ -18,6 +18,8 @@ namespace ReactivityMonitor.Screens.MarbleDiagramScreen
     {
         public MarbleObservableItem(IConcurrencyService concurrencyService)
         {
+            StreamEventsViewModel = new StreamEventsViewModel(concurrencyService);
+
             var subItems = new ObservableCollection<MarbleSubscriptionItem>();
             SubscriptionItems = new ReadOnlyObservableCollection<MarbleSubscriptionItem>(subItems);
 
@@ -30,6 +32,9 @@ namespace ReactivityMonitor.Screens.MarbleDiagramScreen
                     .ObserveOn(concurrencyService.DispatcherRxScheduler)
                     .Subscribe(subItems.Add)
                     .DisposeWith(disposables);
+
+                StreamEventsViewModel.StreamEventsSource = ObservableInstance.Subscriptions
+                    .SelectMany(sub => sub.Events);
             });
         }
 
@@ -47,5 +52,7 @@ namespace ReactivityMonitor.Screens.MarbleDiagramScreen
         public string MethodName => ObservableInstance.Call.CalledMethod;
 
         public ReadOnlyObservableCollection<MarbleSubscriptionItem> SubscriptionItems { get; private set; }
+
+        public StreamEventsViewModel StreamEventsViewModel { get; }
     }
 }

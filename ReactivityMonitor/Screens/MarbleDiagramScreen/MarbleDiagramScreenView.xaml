@@ -114,7 +114,7 @@
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto" SharedSizeGroup="ContentColumn" />
                                         </Grid.ColumnDefinitions>
-                                        <ContentPresenter Content="{TemplateBinding Header}" />
+                                        <ContentPresenter x:Name="ContentContainer" Content="{TemplateBinding Header}" />
                                     </Grid>
                                 </controls:SimpleViewport>
                             </Grid>
@@ -126,7 +126,37 @@
                             <Trigger Property="HasItems" Value="False">
                                 <Setter TargetName="Expander" Property="Visibility" Value="Hidden" />
                             </Trigger>
+                            <Trigger Property="IsExpanded" Value="True">
+                                <Setter TargetName="ContentContainer" Property="Visibility" Value="Collapsed" />
+                            </Trigger>
                         </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="EventTimelineStyle" TargetType="ItemsControl">
+            <Setter Property="ItemsPanel">
+                <Setter.Value>
+                    <ItemsPanelTemplate>
+                        <local:StreamEventPanel 
+                                StartTime="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:MarbleDiagramScreenView}}, Path=DataContext.StartTime}"
+                                TimeScale="10"/>
+                    </ItemsPanelTemplate>
+                </Setter.Value>
+            </Setter>
+
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ItemsControl">
+                        <Border BorderThickness="{TemplateBinding Border.BorderThickness}" Padding="{TemplateBinding Control.Padding}" BorderBrush="{TemplateBinding Border.BorderBrush}" Background="{TemplateBinding Panel.Background}" SnapsToDevicePixels="True">
+                            <Grid>
+                                <Rectangle Height="1"
+                                        HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                                        Fill="LightGray" />
+                                <ItemsPresenter SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}" />
+                            </Grid>
+                        </Border>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -175,39 +205,27 @@
         </HierarchicalDataTemplate>
 
         <DataTemplate DataType="{x:Type local:MarbleObservableItemGroup}">
-            <Grid/>
+            <Grid>
+                <infra:Activation ViewModel="{Binding StreamEventsViewModel}" />
+
+                <ItemsControl ItemsSource="{Binding StreamEventsViewModel.StreamEvents}" Style="{StaticResource EventTimelineStyle}" />
+            </Grid>
         </DataTemplate>
 
         <DataTemplate DataType="{x:Type local:MarbleObservableItem}">
-            <Grid/>
+            <Grid>
+                <infra:Activation ViewModel="{Binding StreamEventsViewModel}" />
+
+                <ItemsControl ItemsSource="{Binding StreamEventsViewModel.StreamEvents}" Style="{StaticResource EventTimelineStyle}" />
+            </Grid>
         </DataTemplate>
 
         <DataTemplate DataType="{x:Type local:MarbleSubscriptionItem}">
             <Grid>
                 <infra:Activation ViewModel="{Binding}" />
+                <infra:Activation ViewModel="{Binding StreamEventsViewModel}" />
 
-                <ItemsControl ItemsSource="{Binding StreamEvents}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <local:StreamEventPanel 
-                                StartTime="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:MarbleDiagramScreenView}}, Path=DataContext.StartTime}"
-                                TimeScale="10"/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-
-                    <ItemsControl.Template>
-                        <ControlTemplate TargetType="ItemsControl">
-                            <Border BorderThickness="{TemplateBinding Border.BorderThickness}" Padding="{TemplateBinding Control.Padding}" BorderBrush="{TemplateBinding Border.BorderBrush}" Background="{TemplateBinding Panel.Background}" SnapsToDevicePixels="True">
-                                <Grid>
-                                    <Rectangle Height="1"
-                                        HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                                        Fill="LightGray" />
-                                    <ItemsPresenter SnapsToDevicePixels="{TemplateBinding UIElement.SnapsToDevicePixels}" />
-                                </Grid>
-                            </Border>
-                        </ControlTemplate>
-                    </ItemsControl.Template>
-                </ItemsControl>
+                <ItemsControl ItemsSource="{Binding StreamEventsViewModel.StreamEvents}" Style="{StaticResource EventTimelineStyle}" />
             </Grid>
         </DataTemplate>
 

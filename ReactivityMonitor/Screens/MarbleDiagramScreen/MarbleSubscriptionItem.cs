@@ -15,17 +15,11 @@ namespace ReactivityMonitor.Screens.MarbleDiagramScreen
     {
         public MarbleSubscriptionItem(IConcurrencyService concurrencyService)
         {
-            var streamEvents = new ObservableCollection<StreamEvent>();
-            StreamEvents = new ReadOnlyObservableCollection<StreamEvent>(streamEvents);
+            StreamEventsViewModel = new StreamEventsViewModel(concurrencyService);
 
-            this.WhenActivated(observables =>
+            this.WhenActivated((CompositeDisposable _) =>
             {
-                streamEvents.Clear();
-
-                Subscription.Events
-                    .ObserveOn(concurrencyService.DispatcherRxScheduler)
-                    .Subscribe(streamEvents.Add)
-                    .DisposeWith(observables);
+                StreamEventsViewModel.StreamEventsSource = Subscription.Events;
             });
         }
 
@@ -33,6 +27,6 @@ namespace ReactivityMonitor.Screens.MarbleDiagramScreen
 
         public string HeaderText => $"{Subscription.SubscriptionId}";
 
-        public ReadOnlyObservableCollection<StreamEvent> StreamEvents { get; private set; }
+        public StreamEventsViewModel StreamEventsViewModel { get; }
     }
 }
