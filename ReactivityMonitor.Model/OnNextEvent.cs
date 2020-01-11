@@ -13,8 +13,6 @@ namespace ReactivityMonitor.Model
 
         public override EventKind Kind => EventKind.OnNext;
 
-        public string ValueString => Payload?.ToString();
-
         public object Payload { get; }
     }
 }

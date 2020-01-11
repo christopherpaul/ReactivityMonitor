@@ -18,5 +18,6 @@ namespace ReactivityMonitor.Model
         IObservable<NewSubscription> CreatedSubscriptions { get; }
         IObservable<DisposedSubscription> DisposedSubscriptions { get; }
         IObservable<NewStreamEvent> StreamEvents { get; }
+        IObservable<NewTypeInfo> Types { get; }
     }
 }

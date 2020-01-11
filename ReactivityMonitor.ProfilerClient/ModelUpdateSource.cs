@@ -60,6 +60,9 @@ namespace ReactivityMonitor.ProfilerClient
                 .Select(msg => new NewStreamEvent(msg.SubscriptionId, StreamEvent.EventKind.OnError, msg.Event.ToModel(), GetPayloadInfo(msg.ExceptionValue)));
 
             StreamEvents = new[] { onNextEvents, onCompletedEvents, onErrorEvents }.Merge();
+
+            Types = GetMessages(EventMessage.EventOneofCase.Type, msg => msg.Type)
+                .Select(msg => new NewTypeInfo(msg.TypeId, msg.TypeName, msg.PropertyNames));
         }
 
         public IObservable<NewModuleUpdate> Modules { get; }
@@ -69,6 +72,7 @@ namespace ReactivityMonitor.ProfilerClient
         public IObservable<NewSubscription> CreatedSubscriptions { get; }
         public IObservable<DisposedSubscription> DisposedSubscriptions { get; }
         public IObservable<NewStreamEvent> StreamEvents { get; }
+        public IObservable<NewTypeInfo> Types { get; }
 
         public IDisposable Connect()
         {

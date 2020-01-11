@@ -139,7 +139,7 @@ namespace ReactivityProfiler.Support.Server
                             {
                                 renderedValue.Object.ItemCount = -1;
                             }
-                            renderedValue.Object.StringRepresentation = value.ToString();
+                            renderedValue.Object.StringRepresentation = value is Exception ex ? ex.Message : value.ToString();
                         }
                         catch { }
                         break;

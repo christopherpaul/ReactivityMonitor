@@ -80,10 +80,22 @@ namespace ReactivityMonitor.Screens.EventListScreen
                         return string.Empty;
 
                     case StreamEvent.EventKind.OnError: return ((OnErrorEvent)e).Message;
-                    case StreamEvent.EventKind.OnNext: return ((OnNextEvent)e).ValueString;
+                    case StreamEvent.EventKind.OnNext: return GetOnNextValue(((OnNextEvent)e).Payload);
 
                     default:
                         throw new ArgumentOutOfRangeException(nameof(e));
+                }
+
+                string GetOnNextValue(object payload)
+                {
+                    if (payload is PayloadObject obj)
+                    {
+                        return $"{obj.ToString()} [{obj.TypeName}]";
+                    }
+                    else
+                    {
+                        return payload?.ToString();
+                    }
                 }
             }
 
