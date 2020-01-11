@@ -6,6 +6,7 @@ using ReactivityMonitor.Infrastructure;
 using ReactivityMonitor.Screens.CallsScreen;
 using ReactivityMonitor.Screens.EventListScreen;
 using ReactivityMonitor.Screens.MonitoringScreen;
+using ReactivityMonitor.Screens.PayloadScreen;
 using ReactivityMonitor.Services;
 using ReactivityMonitor.Workspace;
 using System;
@@ -28,6 +29,7 @@ namespace ReactivityMonitor.Screens.HomeScreen
             ICallsScreen callsScreen, 
             IScreenFactory screenFactory,
             IEventListScreen eventListScreen,
+            IPayloadScreen payloadScreen,
             IConcurrencyService concurrencyService,
             ICommandHandlerService commandHandlerService)
         {
@@ -40,6 +42,8 @@ namespace ReactivityMonitor.Screens.HomeScreen
             EventList = eventListScreen;
             eventListScreen.WhenActiveMonitoringGroupChanges = this.WhenAnyValue(x => x.ActiveMonitoringScreen).Select(s => s.MonitoringGroup);
             eventListScreen.ConductWith(this);
+
+            PayloadScreen = payloadScreen;
 
             WhenActivated(disposables =>
             {
@@ -96,6 +100,7 @@ namespace ReactivityMonitor.Screens.HomeScreen
 
         public ICallsScreen Calls { get; }
         public IEventListScreen EventList { get; }
+        public IPayloadScreen PayloadScreen { get; }
 
         public ReadOnlyObservableCollection<IMonitoringScreen> MonitoringScreens { get; private set; }
 

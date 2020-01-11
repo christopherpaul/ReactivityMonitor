@@ -9,7 +9,7 @@
              d:DesignHeight="450" d:DesignWidth="800"
              >
     <DockPanel>
-        <DataGrid ItemsSource="{Binding Events}" AutoGenerateColumns="False" IsReadOnly="True">
+        <DataGrid ItemsSource="{Binding Events}" AutoGenerateColumns="False" IsReadOnly="True" Selector.SelectionChanged="DataGrid_SelectionChanged">
             <DataGrid.Columns>
                 <DataGridTextColumn Header="Sequence" Binding="{Binding SequenceId, Mode=OneTime}" />
                 <DataGridTextColumn Header="Time" Binding="{Binding Info.Timestamp, Mode=OneTime}" />

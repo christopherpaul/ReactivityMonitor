@@ -28,6 +28,8 @@ namespace ReactivityMonitor.Screens.EventListScreen
 
         public abstract string Value { get; }
 
+        public abstract PayloadObject Payload { get; }
+
         public string CalledMethodName => ObservableInstance.Call.CalledMethod;
         public string CallingMethodName => ObservableInstance.Call.CallingMethod;
 
@@ -47,6 +49,8 @@ namespace ReactivityMonitor.Screens.EventListScreen
             public override string EventKindName => "Create observable";
 
             public override string Value => $"{mObs.Call.CallingType}::{mObs.Call.CallingMethod}: {mObs.Call.CalledMethod}";
+
+            public override PayloadObject Payload => null;
 
             protected override IObservableInstance ObservableInstance => mObs;
         }
@@ -69,6 +73,21 @@ namespace ReactivityMonitor.Screens.EventListScreen
             public override string EventKindName => GetEventKindName(mEvent.Kind);
 
             public override string Value => GetEventValue(mEvent);
+
+            public override PayloadObject Payload => GetPayload(mEvent);
+
+            private PayloadObject GetPayload(StreamEvent e)
+            {
+                switch (e.Kind)
+                {
+                    case StreamEvent.EventKind.OnNext:
+                        return ((OnNextEvent)e).Payload as PayloadObject;
+                    case StreamEvent.EventKind.OnError:
+                        return ((OnErrorEvent)e).Exception as PayloadObject;
+                    default:
+                        return null;
+                }
+            }
 
             private static string GetEventValue(StreamEvent e)
             {

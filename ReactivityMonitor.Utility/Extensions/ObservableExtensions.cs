@@ -99,7 +99,7 @@ namespace ReactivityMonitor.Utility.Extensions
         public static IObservable<T> ConnectForEver<T>(this IConnectableObservable<T> source)
         {
             source.Connect();
-            return source;
+            return source.AsObservable();
         }
 
         /// <summary>

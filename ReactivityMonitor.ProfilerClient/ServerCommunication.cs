@@ -62,13 +62,30 @@ namespace ReactivityMonitor.ProfilerClient
                     int bytesRead = pipeStream.Read(buffer, bufferOffset, remainingBufferSize);
                     bufferOffset += bytesRead;
                 }
-                while (pipeStream.IsConnected && !pipeStream.IsMessageComplete);
+                while (!IsMessageCompleteSafe());
 
                 if (bufferOffset > 0)
                 {
                     var message = new byte[bufferOffset];
                     Array.Copy(buffer, 0, message, 0, bufferOffset);
                     yield return message;
+                }
+            }
+
+            bool IsMessageCompleteSafe()
+            {
+                try
+                {
+                    if (!pipeStream.IsConnected)
+                    {
+                        return true; // not getting any more message content from a disconnected pipe
+                    }
+
+                    return pipeStream.IsMessageComplete;
+                }
+                catch (ObjectDisposedException)
+                {
+                    return true;
                 }
             }
         }

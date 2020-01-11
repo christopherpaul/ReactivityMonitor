@@ -94,6 +94,9 @@
     </Compile>
     <Compile Include="Screens\EventListScreen\EventListScreenViewModel.cs" />
     <Compile Include="Screens\EventListScreen\IEventListScreen.cs" />
+    <Compile Include="Screens\PayloadScreen\PayloadScreenView.xaml.cs">
+      <DependentUpon>PayloadScreenView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Screens\HomeScreen\GoPauseControl.cs" />
     <Compile Include="Screens\HomeScreen\HomeScreenView.xaml.cs">
       <DependentUpon>HomeScreenView.xaml</DependentUpon>
@@ -126,6 +129,8 @@
       <DependentUpon>ObservablesScreenView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Screens\ObservablesScreen\ObservablesScreenViewModel.cs" />
+    <Compile Include="Screens\PayloadScreen\IPayloadScreen.cs" />
+    <Compile Include="Screens\PayloadScreen\PayloadScreenViewModel.cs" />
     <Compile Include="Services\CommandHandlerService.cs" />
     <Compile Include="Services\ConcurrencyService.cs" />
     <Compile Include="Services\ConnectionService.cs" />
@@ -134,6 +139,9 @@
     <Compile Include="Services\IConcurrencyService.cs" />
     <Compile Include="Services\IConnectionService.cs" />
     <Compile Include="Services\IDialogService.cs" />
+    <Compile Include="Services\ISelectionService.cs" />
+    <Compile Include="Services\Selection.cs" />
+    <Compile Include="Services\SelectionService.cs" />
     <Compile Include="ShellViewModel.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
@@ -154,6 +162,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Screens\EventListScreen\EventListScreenView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Screens\PayloadScreen\PayloadScreenView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

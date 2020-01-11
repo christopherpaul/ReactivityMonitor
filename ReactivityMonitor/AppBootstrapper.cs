@@ -18,6 +18,7 @@ namespace ReactivityMonitor
     using ReactivityMonitor.Screens.MarbleDiagramScreen;
     using ReactivityMonitor.Screens.MonitoringScreen;
     using ReactivityMonitor.Screens.ObservablesScreen;
+    using ReactivityMonitor.Screens.PayloadScreen;
     using ReactivityMonitor.Services;
     using ReactivityMonitor.Workspace;
 
@@ -67,6 +68,7 @@ namespace ReactivityMonitor
             mContainer.Singleton<IConcurrencyService, ConcurrencyService>();
             mContainer.Singleton<IDialogService, DialogService>();
             mContainer.Singleton<ICommandHandlerService, CommandHandlerService>();
+            mContainer.Singleton<ISelectionService, SelectionService>();
 
             // Units of work
             mContainer.PerRequest<IWorkspace, Workspace.Workspace>();
@@ -83,6 +85,7 @@ namespace ReactivityMonitor
             mContainer.PerRequest<IObservablesScreen, ObservablesScreenViewModel>();
             mContainer.Singleton<IObservablesScreenItemFactory, ObservablesScreenItemFactory>();
             mContainer.PerRequest<ObservablesListItem>();
+            mContainer.PerRequest<IPayloadScreen, PayloadScreenViewModel>();
         }
 
         protected override object GetInstance(Type service, string key)
@@ -103,7 +106,7 @@ namespace ReactivityMonitor
         private void GenerateViewModelDataTemplates()
         {
             var assembly = Assembly.GetExecutingAssembly();
-            var viewModelAndViews = assembly.ExportedTypes
+            var viewModelAndViews = assembly.DefinedTypes
                 .Where(type => type.Name.EndsWith("ViewModel", StringComparison.Ordinal))
                 .Where(type => type.IsClass)
                 .Select(type => new { ViewModelType = type, ViewType = assembly.GetType(type.FullName.Remove(type.FullName.Length - 5)) })

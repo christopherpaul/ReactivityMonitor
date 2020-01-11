@@ -1,4 +1,6 @@
-﻿using System;
+﻿using ReactivityMonitor.Definitions;
+using ReactivityMonitor.Services;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +25,26 @@ namespace ReactivityMonitor.Screens.EventListScreen
         public EventListScreenView()
         {
             InitializeComponent();
+        }
+
+        private void DataGrid_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            Func<Selection, Selection> changer = selection =>
+            {
+                foreach (var item in e.RemovedItems.OfType<EventItem>())
+                {
+                    selection = selection.Remove(item);
+                }
+
+                foreach (var item in e.AddedItems.OfType<EventItem>())
+                {
+                    selection = selection.Add(item);
+                }
+
+                return selection;
+            };
+
+            Commands.ChangeSelectedEventItems.Execute(changer);
         }
     }
 }
