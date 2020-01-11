@@ -12,6 +12,9 @@ message EventMessage {
 		OnCompletedEvent OnCompleted = 7;
 		OnErrorEvent OnError = 8;
 		ObservablesLinkedEvent ObservablesLinked = 9;
+		ObjectPropertiesResponse ObjectProperties = 10;
+		ObjectItemsResponse ObjectItems = 11;
+		Type Type = 12;
 	}
 }
 
@@ -33,10 +36,9 @@ message MethodCallInstrumentedEvent {
 
 // Observable's ID is CreatedEvent.SequenceId
 message ObservableCreatedEvent {
+	reserved 3, 4;
 	EventInfo CreatedEvent = 1;
 	int32 InstrumentationPointId = 2;
-
-	//next ID is 5
 }
 
 message ObservablesLinkedEvent {
@@ -56,9 +58,10 @@ message UnsubscribeEvent {
 }
 
 message OnNextEvent {
+	reserved 3;
 	EventInfo Event = 1;
 	int64 SubscriptionId = 2; // refers to Event.SequenceId of the SubscribeEvent
-	string ValueString = 3;
+	Value Value = 4;
 }
 
 message OnCompletedEvent {
@@ -67,9 +70,10 @@ message OnCompletedEvent {
 }
 
 message OnErrorEvent {
+	reserved 3;
 	EventInfo Event = 1;
 	int64 SubscriptionId = 2; // refers to Event.SequenceId of the SubscribeEvent
-	string Message = 3;
+	Value ExceptionValue = 4;
 }
 
 message EventInfo {
@@ -78,11 +82,25 @@ message EventInfo {
 	int32 ThreadId = 3;
 }
 
+message ObjectPropertiesResponse {
+	int64 ObjectId = 1;
+	repeated Value PropertyValues = 2; // order matches Type.PropertyNames
+}
+
+message ObjectItemsResponse {
+	int64 ObjectId = 1;
+	int32 StartingAt = 2;
+	repeated Value ItemValues = 3;
+	bool CountReached = 4;
+}
+
 message RequestMessage {
 	oneof Request {
 		SendInstrumentationEventsRequest SendInstrumentationEvents = 1;
 		StartMonitoringRequest StartMonitoring = 2;
 		StopMonitoringRequest StopMonitoring = 3;
+		ObjectPropertiesRequest GetObjectProperties = 4;
+		ObjectItemsRequest GetObjectItems = 5;
 	}
 }
 
@@ -96,4 +114,46 @@ message StartMonitoringRequest {
 
 message StopMonitoringRequest {
 	repeated int32 InstrumentationPointId = 2;
+}
+
+message ObjectPropertiesRequest {
+	int64 ObjectId = 1;
+}
+
+message ObjectItemsRequest {
+	int64 ObjectId = 1;
+	int32 StartAt = 2;
+	int32 MaxCount = 3; // max number to enumerate
+}
+
+message Value {
+	int32 TypeId = 1;
+	oneof Value {
+		bool Null = 2;
+		int64 Int64 = 3; // byte, sbyte, int16, uint16, int32, uint32, int64, IntPtr
+		uint64 UInt64 = 4; // uint64, UIntPtr
+		double Double = 5; // double, float
+		int32 Char = 6;
+		bool Bool = 7;
+		string String = 8;
+		int64 Timespan = 9;
+		int64 DateTimeUtc = 10;
+		int64 DateTimeLocal = 11;
+		int64 DateTimeUnspecified = 12;
+		bytes ByteString = 13; // Guid, short byte arrays
+		Object Object = 14; // anything else
+	}
+}
+
+message Type {
+	int32 TypeId = 1;
+	string TypeName = 2;
+	repeated string PropertyNames = 3;
+}
+
+message Object {
+	int64 ObjectId = 1;
+	string StringRepresentation = 2; // generally ToString() result
+	bool HasItemCount = 3;
+	int32 ItemCount = 4; // -1 if count is not known
 }

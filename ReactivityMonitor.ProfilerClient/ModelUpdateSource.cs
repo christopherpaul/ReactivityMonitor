@@ -10,6 +10,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text;
 using static ReactivityProfiler.Protocol.EventMessage.EventOneofCase;
+using VC = ReactivityProfiler.Protocol.Value.ValueOneofCase;
 
 namespace ReactivityMonitor.ProfilerClient
 {
@@ -50,13 +51,13 @@ namespace ReactivityMonitor.ProfilerClient
                 .Select(msg => new DisposedSubscription(msg.Event.ToModel(), msg.SubscriptionId));
 
             var onNextEvents = GetMessages(OnNext, msg => msg.OnNext)
-                .Select(msg => new NewStreamEvent(msg.SubscriptionId, new Model.OnNextEvent(msg.Event.ToModel(), msg.ValueString)));
+                .Select(msg => new NewStreamEvent(msg.SubscriptionId, StreamEvent.EventKind.OnNext, msg.Event.ToModel(), GetPayloadInfo(msg.Value)));
 
             var onCompletedEvents = GetMessages(OnCompleted, msg => msg.OnCompleted)
-                .Select(msg => new NewStreamEvent(msg.SubscriptionId, new Model.OnCompletedEvent(msg.Event.ToModel())));
+                .Select(msg => new NewStreamEvent(msg.SubscriptionId, StreamEvent.EventKind.OnCompleted, msg.Event.ToModel(), null));
 
             var onErrorEvents = GetMessages(OnError, msg => msg.OnError)
-                .Select(msg => new NewStreamEvent(msg.SubscriptionId, new Model.OnErrorEvent(msg.Event.ToModel(), msg.Message)));
+                .Select(msg => new NewStreamEvent(msg.SubscriptionId, StreamEvent.EventKind.OnError, msg.Event.ToModel(), GetPayloadInfo(msg.ExceptionValue)));
 
             StreamEvents = new[] { onNextEvents, onCompletedEvents, onErrorEvents }.Merge();
         }
@@ -99,6 +100,42 @@ namespace ReactivityMonitor.ProfilerClient
                 case OnCompleted: return msg.OnCompleted.Event.SequenceId;
                 case OnError: return msg.OnError.Event.SequenceId;
                 default: return 0;
+            }
+        }
+
+        private PayloadInfo GetPayloadInfo(Value value)
+        {
+            int typeId = value.TypeId;
+            switch (value.ValueCase)
+            {
+                case VC.Bool:
+                    return new SimplePayloadInfo(typeId, value.Bool);
+                case VC.ByteString:
+                    return new SimplePayloadInfo(typeId, value.ByteString.ToByteArray());
+                case VC.Char:
+                    return new SimplePayloadInfo(typeId, (char)value.Char);
+                case VC.DateTimeLocal:
+                    return new SimplePayloadInfo(typeId, new DateTime(value.DateTimeLocal, DateTimeKind.Local));
+                case VC.DateTimeUtc:
+                    return new SimplePayloadInfo(typeId, new DateTime(value.DateTimeLocal, DateTimeKind.Utc));
+                case VC.DateTimeUnspecified:
+                    return new SimplePayloadInfo(typeId, new DateTime(value.DateTimeLocal, DateTimeKind.Unspecified));
+                case VC.Double:
+                    return new SimplePayloadInfo(typeId, value.Double);
+                case VC.Int64:
+                    return new SimplePayloadInfo(typeId, value.Int64);
+                case VC.Null:
+                case VC.None:
+                default:
+                    return new SimplePayloadInfo(typeId, null);
+                case VC.String:
+                    return new SimplePayloadInfo(typeId, value.String);
+                case VC.Timespan:
+                    return new SimplePayloadInfo(typeId, new TimeSpan(value.Timespan));
+                case VC.UInt64:
+                    return new SimplePayloadInfo(typeId, value.UInt64);
+                case VC.Object:
+                    return new ObjectPayloadInfo(typeId, value.Object.ObjectId, value.Object.StringRepresentation, value.Object.HasItemCount ? (int?)value.Object.ItemCount : null);
             }
         }
 

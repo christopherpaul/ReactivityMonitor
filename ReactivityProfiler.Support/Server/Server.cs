@@ -151,10 +151,12 @@ namespace ReactivityProfiler.Support.Server
         private sealed class StoreEventSink : IStoreEventSink
         {
             private readonly Channel mChannel;
+            private readonly ValueRenderer mValueRenderer;
 
             public StoreEventSink(Channel channel)
             {
                 mChannel = channel;
+                mValueRenderer = new ValueRenderer(new PayloadStore(), typeToNotify => SendEvent(new EventMessage { Type = typeToNotify }));
             }
 
             void IStoreEventSink.ObservableCreated(ObservableInfo obs)
@@ -221,21 +223,9 @@ namespace ReactivityProfiler.Support.Server
                     {
                         Event = GetEventInfo(details),
                         SubscriptionId = sub.SubscriptionId,
-                        ValueString = GetStringFor(value)
+                        Value = mValueRenderer.GetPayloadValue(value)
                     }
                 });
-            }
-
-            private string GetStringFor<T>(T value)
-            {
-                try
-                {
-                    return value.ToString();
-                }
-                catch
-                {
-                    return string.Empty;
-                }
             }
 
             void IStoreEventSink.OnCompleted(ref CommonEventDetails details, SubscriptionInfo sub)
@@ -258,7 +248,7 @@ namespace ReactivityProfiler.Support.Server
                     {
                         Event = GetEventInfo(details),
                         SubscriptionId = sub.SubscriptionId,
-                        Message = error.Message
+                        ExceptionValue = mValueRenderer.GetPayloadValue(error)
                     }
                 });
             }

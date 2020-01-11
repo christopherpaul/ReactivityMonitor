@@ -103,7 +103,7 @@ namespace ReactivityMonitor.Model
                 mStreamEventsBySubscription = updateSource.StreamEvents
                     .GroupBy(e => e.SubscriptionId)
                     .ToObservableChangeSet(grp => grp.Key)
-                    .Transform(es => es.Select(e => e.StreamEvent).Replay().ConnectForEver())
+                    .Transform(es => es.Select(CreateStreamEvent).Replay().ConnectForEver())
                     .AsObservableCache();
             }
 
@@ -177,6 +177,31 @@ namespace ReactivityMonitor.Model
                     .StartWith(new SubscribeEvent(s.Subscribed));
 
                 return new Subscription(s.Subscribed.SequenceId, obs, allEvents);
+            }
+
+            private StreamEvent CreateStreamEvent(NewStreamEvent e)
+            {
+                switch (e.Kind)
+                {
+                    case StreamEvent.EventKind.OnCompleted:
+                        return new OnCompletedEvent(e.Info);
+                    case StreamEvent.EventKind.OnNext:
+                        return new OnNextEvent(e.Info, TranslatePayload(e.Payload));
+                    case StreamEvent.EventKind.OnError:
+                        return new OnErrorEvent(e.Info, TranslatePayload(e.Payload));
+                    default:
+                        throw new ArgumentException(nameof(e));
+                }
+
+                object TranslatePayload(PayloadInfo payloadInfo)
+                {
+                    if (payloadInfo is SimplePayloadInfo s)
+                    {
+                        return s.Value;
+                    }
+
+                    return ((ObjectPayloadInfo)payloadInfo).Representation;
+                }
             }
         }
     }

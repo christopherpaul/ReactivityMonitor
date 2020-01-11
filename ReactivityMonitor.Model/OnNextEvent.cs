@@ -6,13 +6,15 @@ namespace ReactivityMonitor.Model
 {
     public sealed class OnNextEvent : StreamEvent
     {
-        public OnNextEvent(EventInfo info, string valueString) : base(info)
+        public OnNextEvent(EventInfo info, object payload) : base(info)
         {
-            ValueString = valueString;
+            Payload = payload;
         }
 
         public override EventKind Kind => EventKind.OnNext;
 
-        public string ValueString { get; }
+        public string ValueString => Payload?.ToString();
+
+        public object Payload { get; }
     }
 }

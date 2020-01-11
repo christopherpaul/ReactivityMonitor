@@ -6,13 +6,15 @@ namespace ReactivityMonitor.Model
 {
     public sealed class OnErrorEvent : StreamEvent
     {
-        public OnErrorEvent(EventInfo info, string message) : base(info)
+        public OnErrorEvent(EventInfo info, object exception) : base(info)
         {
-            Message = message;
+            Exception = exception;
         }
 
         public override EventKind Kind => EventKind.OnError;
 
-        public string Message { get; }
+        public string Message => Exception?.ToString();
+
+        public object Exception { get; }
     }
 }
