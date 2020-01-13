@@ -57,14 +57,16 @@ namespace ReactivityProfiler.Support.Server
             }
         }
 
-        public object Retrieve(long identifier)
+        public bool TryRetrieve(long identifier, out object value)
         {
             if (!mStoreByIdentifier.TryGetValue(identifier, out PerTypeStore store))
             {
-                throw new KeyNotFoundException();
+                value = null;
+                return false;
             }
 
-            return store.GetValue(identifier);
+            value = store.GetValue(identifier);
+            return true;
         }
 
         private abstract class PerTypeStore

@@ -75,18 +75,19 @@ namespace ReactivityProfiler.Protocol {
             "dW1lbnRhdGlvblBvaW50SWQYAiADKAUiKwoXT2JqZWN0UHJvcGVydGllc1Jl",
             "cXVlc3QSEAoIT2JqZWN0SWQYASABKAMiSQoST2JqZWN0SXRlbXNSZXF1ZXN0",
             "EhAKCE9iamVjdElkGAEgASgDEg8KB1N0YXJ0QXQYAiABKAUSEAoITWF4Q291",
-            "bnQYAyABKAUiqwIKBVZhbHVlEg4KBlR5cGVJZBgBIAEoBRIOCgROdWxsGAIg",
+            "bnQYAyABKAUizAIKBVZhbHVlEg4KBlR5cGVJZBgBIAEoBRIOCgROdWxsGAIg",
             "ASgISAASDwoFSW50NjQYAyABKANIABIQCgZVSW50NjQYBCABKARIABIQCgZE",
             "b3VibGUYBSABKAFIABIOCgRDaGFyGAYgASgFSAASDgoEQm9vbBgHIAEoCEgA",
             "EhAKBlN0cmluZxgIIAEoCUgAEhIKCFRpbWVzcGFuGAkgASgDSAASFQoLRGF0",
             "ZVRpbWVVdGMYCiABKANIABIXCg1EYXRlVGltZUxvY2FsGAsgASgDSAASHQoT",
             "RGF0ZVRpbWVVbnNwZWNpZmllZBgMIAEoA0gAEhQKCkJ5dGVTdHJpbmcYDSAB",
-            "KAxIABIZCgZPYmplY3QYDiABKAsyBy5PYmplY3RIAEIHCgVWYWx1ZSI/CgRU",
-            "eXBlEg4KBlR5cGVJZBgBIAEoBRIQCghUeXBlTmFtZRgCIAEoCRIVCg1Qcm9w",
-            "ZXJ0eU5hbWVzGAMgAygJImEKBk9iamVjdBIQCghPYmplY3RJZBgBIAEoAxIc",
-            "ChRTdHJpbmdSZXByZXNlbnRhdGlvbhgCIAEoCRIUCgxIYXNJdGVtQ291bnQY",
-            "AyABKAgSEQoJSXRlbUNvdW50GAQgASgFQh6qAhtSZWFjdGl2aXR5UHJvZmls",
-            "ZXIuUHJvdG9jb2xiBnByb3RvMw=="));
+            "KAxIABIZCgZPYmplY3QYDiABKAsyBy5PYmplY3RIABIfChdJc0V4Y2VwdGlv",
+            "bkdldHRpbmdWYWx1ZRgPIAEoCEIHCgVWYWx1ZSI/CgRUeXBlEg4KBlR5cGVJ",
+            "ZBgBIAEoBRIQCghUeXBlTmFtZRgCIAEoCRIVCg1Qcm9wZXJ0eU5hbWVzGAMg",
+            "AygJImEKBk9iamVjdBIQCghPYmplY3RJZBgBIAEoAxIcChRTdHJpbmdSZXBy",
+            "ZXNlbnRhdGlvbhgCIAEoCRIUCgxIYXNJdGVtQ291bnQYAyABKAgSEQoJSXRl",
+            "bUNvdW50GAQgASgFQh6qAhtSZWFjdGl2aXR5UHJvZmlsZXIuUHJvdG9jb2xi",
+            "BnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
@@ -109,7 +110,7 @@ namespace ReactivityProfiler.Protocol {
             new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.StopMonitoringRequest), global::ReactivityProfiler.Protocol.StopMonitoringRequest.Parser, new[]{ "InstrumentationPointId" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.ObjectPropertiesRequest), global::ReactivityProfiler.Protocol.ObjectPropertiesRequest.Parser, new[]{ "ObjectId" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.ObjectItemsRequest), global::ReactivityProfiler.Protocol.ObjectItemsRequest.Parser, new[]{ "ObjectId", "StartAt", "MaxCount" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.Value), global::ReactivityProfiler.Protocol.Value.Parser, new[]{ "TypeId", "Null", "Int64", "UInt64", "Double", "Char", "Bool", "String", "Timespan", "DateTimeUtc", "DateTimeLocal", "DateTimeUnspecified", "ByteString", "Object" }, new[]{ "Value" }, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.Value), global::ReactivityProfiler.Protocol.Value.Parser, new[]{ "TypeId", "Null", "Int64", "UInt64", "Double", "Char", "Bool", "String", "Timespan", "DateTimeUtc", "DateTimeLocal", "DateTimeUnspecified", "ByteString", "Object", "IsExceptionGettingValue" }, new[]{ "Value" }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.Type), global::ReactivityProfiler.Protocol.Type.Parser, new[]{ "TypeId", "TypeName", "PropertyNames" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.Object), global::ReactivityProfiler.Protocol.Object.Parser, new[]{ "ObjectId", "StringRepresentation", "HasItemCount", "ItemCount" }, null, null, null)
           }));
@@ -3966,6 +3967,7 @@ namespace ReactivityProfiler.Protocol {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Value(Value other) : this() {
       typeId_ = other.typeId_;
+      isExceptionGettingValue_ = other.isExceptionGettingValue_;
       switch (other.ValueCase) {
         case ValueOneofCase.Null:
           Null = other.Null;
@@ -4185,6 +4187,17 @@ namespace ReactivityProfiler.Protocol {
       }
     }
 
+    /// <summary>Field number for the "IsExceptionGettingValue" field.</summary>
+    public const int IsExceptionGettingValueFieldNumber = 15;
+    private bool isExceptionGettingValue_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool IsExceptionGettingValue {
+      get { return isExceptionGettingValue_; }
+      set {
+        isExceptionGettingValue_ = value;
+      }
+    }
+
     private object value_;
     /// <summary>Enum of possible cases for the "Value" oneof.</summary>
     public enum ValueOneofCase {
@@ -4242,6 +4255,7 @@ namespace ReactivityProfiler.Protocol {
       if (DateTimeUnspecified != other.DateTimeUnspecified) return false;
       if (ByteString != other.ByteString) return false;
       if (!object.Equals(Object, other.Object)) return false;
+      if (IsExceptionGettingValue != other.IsExceptionGettingValue) return false;
       if (ValueCase != other.ValueCase) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
@@ -4263,6 +4277,7 @@ namespace ReactivityProfiler.Protocol {
       if (valueCase_ == ValueOneofCase.DateTimeUnspecified) hash ^= DateTimeUnspecified.GetHashCode();
       if (valueCase_ == ValueOneofCase.ByteString) hash ^= ByteString.GetHashCode();
       if (valueCase_ == ValueOneofCase.Object) hash ^= Object.GetHashCode();
+      if (IsExceptionGettingValue != false) hash ^= IsExceptionGettingValue.GetHashCode();
       hash ^= (int) valueCase_;
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
@@ -4333,6 +4348,10 @@ namespace ReactivityProfiler.Protocol {
         output.WriteRawTag(114);
         output.WriteMessage(Object);
       }
+      if (IsExceptionGettingValue != false) {
+        output.WriteRawTag(120);
+        output.WriteBool(IsExceptionGettingValue);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -4383,6 +4402,9 @@ namespace ReactivityProfiler.Protocol {
       if (valueCase_ == ValueOneofCase.Object) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(Object);
       }
+      if (IsExceptionGettingValue != false) {
+        size += 1 + 1;
+      }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -4396,6 +4418,9 @@ namespace ReactivityProfiler.Protocol {
       }
       if (other.TypeId != 0) {
         TypeId = other.TypeId;
+      }
+      if (other.IsExceptionGettingValue != false) {
+        IsExceptionGettingValue = other.IsExceptionGettingValue;
       }
       switch (other.ValueCase) {
         case ValueOneofCase.Null:
@@ -4512,6 +4537,10 @@ namespace ReactivityProfiler.Protocol {
             }
             input.ReadMessage(subBuilder);
             Object = subBuilder;
+            break;
+          }
+          case 120: {
+            IsExceptionGettingValue = input.ReadBool();
             break;
           }
         }

@@ -12,7 +12,7 @@ namespace ReactivityMonitor.ProfilerClient
     {
         public static IObservable<Protocol.RequestMessage> GetControlMessages(this Model.IProfilerControl profilerControl)
         {
-            return profilerControl.RequestedInstrumentedCallIds
+            var callMonitoringRequests = profilerControl.RequestedInstrumentedCallIds
                 .Publish(changes =>
                 {
                     var startMonitoringMessages = changes
@@ -43,6 +43,17 @@ namespace ReactivityMonitor.ProfilerClient
 
                     return new[] { startMonitoringMessages, stopMonitoringMessages }.Merge();
                 });
+
+            var objectDataRequests = profilerControl.ObjectDataRequests
+                .Select(req => new Protocol.RequestMessage
+                {
+                    GetObjectProperties = new Protocol.ObjectPropertiesRequest
+                    {
+                        ObjectId = req.ObjectId
+                    }
+                });
+
+            return new[] { callMonitoringRequests, objectDataRequests }.Merge();
         }
     }
 }

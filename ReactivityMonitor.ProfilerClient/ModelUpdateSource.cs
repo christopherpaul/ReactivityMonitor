@@ -4,6 +4,7 @@ using ReactivityMonitor.Utility.Extensions;
 using ReactivityProfiler.Protocol;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -63,6 +64,9 @@ namespace ReactivityMonitor.ProfilerClient
 
             Types = GetMessages(EventMessage.EventOneofCase.Type, msg => msg.Type)
                 .Select(msg => new NewTypeInfo(msg.TypeId, msg.TypeName, msg.PropertyNames));
+
+            ObjectPropertiesInfos = GetMessages(ObjectProperties, msg => msg.ObjectProperties)
+                .Select(CreateObjectPropertiesInfo);
         }
 
         public IObservable<NewModuleUpdate> Modules { get; }
@@ -73,6 +77,7 @@ namespace ReactivityMonitor.ProfilerClient
         public IObservable<DisposedSubscription> DisposedSubscriptions { get; }
         public IObservable<NewStreamEvent> StreamEvents { get; }
         public IObservable<NewTypeInfo> Types { get; }
+        public IObservable<ObjectPropertiesInfo> ObjectPropertiesInfos { get; }
 
         public IDisposable Connect()
         {
@@ -142,6 +147,12 @@ namespace ReactivityMonitor.ProfilerClient
                     return new ObjectPayloadInfo(typeId, value.Object.ObjectId, value.Object.StringRepresentation, value.Object.HasItemCount ? (int?)value.Object.ItemCount : null);
             }
         }
+
+        private ObjectPropertiesInfo CreateObjectPropertiesInfo(ObjectPropertiesResponse msg)
+        {
+            return new ObjectPropertiesInfo(msg.ObjectId, msg.PropertyValues.Select(GetPayloadInfo).ToImmutableList());
+        }
+
 
         public void Pause()
         {

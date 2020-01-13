@@ -93,6 +93,9 @@ namespace ReactivityMonitor.Screens.HomeScreen
                 MonitoringScreens = monitoringGroups;
 
                 attachGoPauseHandlers(commandHandlerService).DisposeWith(disposables);
+
+                PayloadScreen.ConnectionModel = ConnectionModel;
+                PayloadScreen.Activator.Activate().DisposeWith(disposables);
             });
         }
 

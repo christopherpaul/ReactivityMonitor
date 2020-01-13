@@ -14,6 +14,7 @@ namespace ReactivityMonitor.Connection
     public sealed class ConnectionModel : IConnectionModel
     {
         private readonly ISourceCache<int, int> mMonitoredCalls;
+        private readonly Action<ObjectDataRequest> mMakeObjectDataRequest;
         private readonly IModelUpdateSource mModelUpdates;
 
         public ConnectionModel(Server server)
@@ -21,7 +22,11 @@ namespace ReactivityMonitor.Connection
             Server = server;
 
             mMonitoredCalls = new SourceCache<int, int>(c => c);
-            var profilerControl = new ProfilerControl(mMonitoredCalls.Connect());
+
+            var objectDataRequestSubject = Subject.Synchronize(new Subject<ObjectDataRequest>());
+            mMakeObjectDataRequest = objectDataRequestSubject.OnNext;
+
+            var profilerControl = new ProfilerControl(mMonitoredCalls.Connect(), objectDataRequestSubject);
 
             mModelUpdates = Client.CreateModelUpdateSource(
                 server.PipeName,
@@ -59,14 +64,22 @@ namespace ReactivityMonitor.Connection
             mMonitoredCalls.RemoveKey(callId);
         }
 
+        public void RequestObjectProperties(long objectId)
+        {
+            mMakeObjectDataRequest(new ObjectDataRequest(objectId));
+        }
+
         private sealed class ProfilerControl : IProfilerControl
         {
-            public ProfilerControl(IObservable<IChangeSet<int, int>> requestedInstrumentedCallIds)
+            public ProfilerControl(IObservable<IChangeSet<int, int>> requestedInstrumentedCallIds,
+                IObservable<ObjectDataRequest> objectDataRequests)
             {
                 RequestedInstrumentedCallIds = requestedInstrumentedCallIds;
+                ObjectDataRequests = objectDataRequests;
             }
 
             public IObservable<IChangeSet<int, int>> RequestedInstrumentedCallIds { get; }
+            public IObservable<ObjectDataRequest> ObjectDataRequests { get; }
         }
     }
 }

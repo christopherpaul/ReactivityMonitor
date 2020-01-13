@@ -12,8 +12,11 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <infra:Activation ViewModel="{Binding}" />
-
-        <TextBlock Text="{Binding Event.CalledMethodName, Mode=OneWay}" />
+        <DataGrid IsReadOnly="True" AutoGenerateColumns="False" ItemsSource="{Binding Event.Payload.Properties}">
+            <DataGrid.Columns>
+                <DataGridTextColumn Width="*" Binding="{Binding Name}" />
+                <DataGridTextColumn Width="*" Binding="{Binding Value}" />
+            </DataGrid.Columns>
+        </DataGrid>        
     </Grid>
 </UserControl>

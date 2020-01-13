@@ -17,6 +17,9 @@ namespace ReactivityProfiler.Support.Server
     {
         private readonly IStore mStore;
         private Channel mChannel;
+        private PayloadStore mPayloadStore;
+        private ValueRenderer mValueRenderer;
+        private TypeInfoStore mTypeInfoStore;
 
         public Server(IStore store)
         {
@@ -30,9 +33,13 @@ namespace ReactivityProfiler.Support.Server
 
         private void CreateChannel()
         {
-            mChannel = new Channel(OnMessageReceived, OnChannelDisconnected);
+            var channel = new Channel(OnMessageReceived, OnChannelDisconnected);
+            mChannel = channel;
+            mPayloadStore = new PayloadStore();
+            mTypeInfoStore = new TypeInfoStore(typeToNotify => SendEvent(channel, new EventMessage { Type = typeToNotify }));
+            mValueRenderer = new ValueRenderer(mPayloadStore, mTypeInfoStore);
             mChannel.Start();
-            mStore.SinkEvents(new StoreEventSink(mChannel));
+            mStore.SinkEvents(new StoreEventSink(mChannel, mValueRenderer));
         }
 
         private void OnChannelDisconnected()
@@ -40,6 +47,8 @@ namespace ReactivityProfiler.Support.Server
             mStore.StopMonitoringAll();
             mChannel.Dispose();
             mChannel = null;
+            mValueRenderer = null;
+            mPayloadStore = null;
 
             CreateChannel();
         }
@@ -67,6 +76,47 @@ namespace ReactivityProfiler.Support.Server
                         mStore.StopMonitoring(id);
                     }
                     break;
+
+                case RequestMessage.RequestOneofCase.GetObjectProperties:
+                    SendObjectProperties(requestMessage.GetObjectProperties.ObjectId);
+                    break;
+            }
+        }
+
+        private void SendObjectProperties(long requestedObjectId)
+        {
+            if (mPayloadStore.TryRetrieve(requestedObjectId, out object value) && value != null)
+            {
+                var type = value.GetType();
+                IReadOnlyList<string> propertyNames = mTypeInfoStore.GetProperties(type);
+
+                var objectProps = new Protocol.ObjectPropertiesResponse
+                {
+                    ObjectId = requestedObjectId
+                };
+                objectProps.PropertyValues.AddRange(
+                    propertyNames
+                        .Select(propName =>
+                        {
+                            try
+                            {
+                                object propValue = type.GetProperty(propName).GetValue(value);
+                                return mValueRenderer.GetPayloadValue(propValue);
+                            }
+                            catch (Exception propEx)
+                            {
+                                var renderedProp = mValueRenderer.GetPayloadValue(propEx);
+                                renderedProp.IsExceptionGettingValue = true;
+                                return renderedProp;
+                            }
+                        }));
+
+                var responseMessage = new Protocol.EventMessage
+                {
+                    ObjectProperties = objectProps
+                };
+
+                SendEvent(mChannel, responseMessage);
             }
         }
 
@@ -153,10 +203,10 @@ namespace ReactivityProfiler.Support.Server
             private readonly Channel mChannel;
             private readonly ValueRenderer mValueRenderer;
 
-            public StoreEventSink(Channel channel)
+            public StoreEventSink(Channel channel, ValueRenderer valueRenderer)
             {
                 mChannel = channel;
-                mValueRenderer = new ValueRenderer(new PayloadStore(), typeToNotify => SendEvent(new EventMessage { Type = typeToNotify }));
+                mValueRenderer = valueRenderer;
             }
 
             void IStoreEventSink.ObservableCreated(ObservableInfo obs)

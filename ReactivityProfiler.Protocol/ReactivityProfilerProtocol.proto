@@ -143,6 +143,7 @@ message Value {
 		bytes ByteString = 13; // Guid, short byte arrays
 		Object Object = 14; // anything else
 	}
+	bool IsExceptionGettingValue = 15;
 }
 
 message Type {

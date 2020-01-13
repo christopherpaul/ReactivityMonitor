@@ -10,7 +10,7 @@ namespace ReactivityMonitor.Model
     {
         private readonly string mRepresentation;
 
-        public PayloadObject(string typeName, long objectId, string representation, int? itemCount, IObservable<IImmutableDictionary<string, object>> properties, IObservable<object> items)
+        public PayloadObject(string typeName, long objectId, string representation, int? itemCount, IObservable<IImmutableDictionary<string, object>> properties, IObservable<IImmutableList<object>> items)
         {
             TypeName = typeName;
             ObjectId = objectId;
@@ -24,7 +24,7 @@ namespace ReactivityMonitor.Model
         public long ObjectId { get; }
         public int? ItemCount { get; }
         public IObservable<IImmutableDictionary<string, object>> Properties { get; }
-        public IObservable<object> Items { get; }
+        public IObservable<IImmutableList<object>> Items { get; }
 
         public override string ToString() => mRepresentation;
     }

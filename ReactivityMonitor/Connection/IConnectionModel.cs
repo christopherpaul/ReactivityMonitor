@@ -18,5 +18,7 @@ namespace ReactivityMonitor.Connection
 
         void PauseUpdates();
         void ResumeUpdates();
+
+        void RequestObjectProperties(long objectId);
     }
 }

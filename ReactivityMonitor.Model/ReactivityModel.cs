@@ -2,6 +2,7 @@
 using ReactivityMonitor.Model.ModelUpdate;
 using ReactivityMonitor.Utility.Extensions;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Reactive.Linq;
@@ -33,6 +34,7 @@ namespace ReactivityMonitor.Model
             private readonly IObservableCache<IObservable<IObservableInstance>, long> mObservableInstanceInputsByOutput;
             private readonly IObservableCache<IObservable<ISubscription>, long> mSubscriptionsByObservableInstance;
             private readonly IObservableCache<IObservable<StreamEvent>, long> mStreamEventsBySubscription;
+            private readonly IObservableCache<ObjectPropertiesInfo, long> mObjectPropertiesInfoByObjectId;
 
             public Impl(IModelUpdateSource updateSource)
             {
@@ -110,6 +112,10 @@ namespace ReactivityMonitor.Model
 
                 mTypeInfoCache = updateSource.Types
                     .ToObservableChangeSet(t => t.TypeId)
+                    .AsObservableCache();
+
+                mObjectPropertiesInfoByObjectId = updateSource.ObjectPropertiesInfos
+                    .ToObservableChangeSet(info => info.ObjectId)
                     .AsObservableCache();
             }
 
@@ -209,13 +215,18 @@ namespace ReactivityMonitor.Model
                     var objPayload = (ObjectPayloadInfo)payloadInfo;
                     var typeInfo = mTypeInfoCache.Lookup(objPayload.TypeId).Value; // should always arrive before object that uses it
 
+                    var properties = mObjectPropertiesInfoByObjectId.WatchValue(objPayload.ObjectId)
+                        .Select(propsInfo => propsInfo.PropertyValues.Select(TranslatePayload))
+                        .Select(propValues => typeInfo.PropertyNames.Zip(propValues, (name, val) => new KeyValuePair<string, object>(name, val)))
+                        .Select(namesAndValues => namesAndValues.ToImmutableDictionary());
+
                     return new PayloadObject(
                         typeInfo.TypeName,
                         objPayload.ObjectId,
                         objPayload.Representation,
                         objPayload.ItemCount,
-                        Observable.Never<IImmutableDictionary<string, object>>(),
-                        Observable.Never<object>());
+                        properties.Take(1),
+                        Observable.Never<IImmutableList<object>>());
                 }
             }
         }

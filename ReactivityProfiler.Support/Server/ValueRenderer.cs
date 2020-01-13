@@ -10,36 +10,19 @@ namespace ReactivityProfiler.Support.Server
 {
     internal sealed class ValueRenderer
     {
-        private readonly ConcurrentDictionary<Type, int> mTypeIds = new ConcurrentDictionary<Type, int>();
-        private readonly Func<Type, int> mCreateNewTypeId;
         private readonly PayloadStore mStore;
-        private int mFreshTypeIdSource;
+        private readonly TypeInfoStore mTypeInfoStore;
 
-        public ValueRenderer(PayloadStore store, Action<Protocol.Type> notifyNewType)
+        public ValueRenderer(PayloadStore store, TypeInfoStore typeInfoStore)
         {
-            mCreateNewTypeId = type =>
-            {
-                int id = Interlocked.Increment(ref mFreshTypeIdSource);
-                var info = new Protocol.Type
-                {
-                    TypeId = id,
-                    TypeName = type.FullName
-                };
-                info.PropertyNames.AddRange(
-                    type.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                        .Where(p => p.CanRead)
-                        .Select(p => p.Name));
-                notifyNewType(info);
-
-                return id;
-            };
             mStore = store;
+            mTypeInfoStore = typeInfoStore;
         }
 
         public Protocol.Value GetPayloadValue<T>(T value)
         {
             Type type = value?.GetType() ?? typeof(object);
-            int typeId = mTypeIds.GetOrAdd(type, mCreateNewTypeId);
+            int typeId = mTypeInfoStore.GetTypeId(type);
 
             var renderedValue = new Protocol.Value
             {
