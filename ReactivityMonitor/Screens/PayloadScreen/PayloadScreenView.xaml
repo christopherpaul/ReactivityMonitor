@@ -13,7 +13,7 @@
             <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Background" Value="{x:Null}" />
         </Style>
-        
+
         <DataTemplate x:Key="InspectValueButtonTemplate">
             <Button Style="{StaticResource IconButton}" Command="{Binding InspectValueCommand}"
                     Visibility="{Binding InspectValueCommand, Converter={StaticResource HiddenWhenNullConverter}}">
@@ -21,14 +21,19 @@
             </Button>
         </DataTemplate>
 
+        <Style x:Key="ReadOnlyTextBox" TargetType="TextBox">
+            <Setter Property="IsReadOnly" Value="True" />
+            <Setter Property="BorderBrush" Value="{x:Null}" />
+            <Setter Property="BorderThickness" Value="0" />
+        </Style>
+
         <DataTemplate x:Key="PropertyValueTemplate">
             <DockPanel>
                 <Image DockPanel.Dock="Left" Source="{StaticResource WarningTriangleIconImage}" Height="16" Visibility="{Binding IsExceptionGettingValue, Converter={StaticResource VisibleWhenTrue}}" />
 
-                <TextBox IsReadOnly="True" Text="{Binding ValueString, Mode=OneWay}" ToolTip="{Binding ValueString}"
-                         BorderBrush="{x:Null}" BorderThickness="0">
+                <TextBox Text="{Binding ValueString, Mode=OneWay}" ToolTip="{Binding ValueString}">
                     <TextBox.Style>
-                        <Style TargetType="TextBox">
+                        <Style TargetType="TextBox" BasedOn="{StaticResource ReadOnlyTextBox}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsExceptionGettingValue}" Value="True">
                                     <Setter Property="FontStyle" Value="Italic" />
@@ -45,25 +50,30 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="Auto" />
-            </Grid.ColumnDefinitions>
+        <TextBox Text="{Binding Event.Payload.ValueString, Mode=OneWay}" ToolTip="{Binding Event.Payload.ValueString}" 
+                 Style="{StaticResource ReadOnlyTextBox}"
+                 FontWeight="Bold" Margin="2,4,2,4" />
+        <TextBox Grid.Row="1" Text="{Binding Event.Payload.TypeName, Mode=OneWay}" ToolTip="{Binding Event.Payload.TypeName}"
+                 Style="{StaticResource ReadOnlyTextBox}"
+                 Margin="2,2,2,2" />
 
-            <Button Style="{StaticResource IconButton}" Grid.Column="1" Command="{Binding Event.GoToParentObjectCommand}">
-                <Image Source="{StaticResource UpArrowIconImage}" />
-            </Button>
-        </Grid>
-        
-        <DataGrid Grid.Row="1" IsReadOnly="True" AutoGenerateColumns="False" ItemsSource="{Binding Event.Payload.Properties}">
+        <DataGrid Grid.Row="2" IsReadOnly="True" AutoGenerateColumns="False" ItemsSource="{Binding Event.Payload.Properties}">
             <DataGrid.Columns>
-                <DataGridTextColumn Width="*" Binding="{Binding Name}" />
-                <DataGridTemplateColumn Width="*" CellTemplate="{StaticResource PropertyValueTemplate}" />
-                <DataGridTemplateColumn Width="Auto" CellTemplate="{StaticResource InspectValueButtonTemplate}" />
+                <DataGridTextColumn Header="Property" Width="*" Binding="{Binding Name}" />
+                <DataGridTemplateColumn Header="Value" Width="*" CellTemplate="{StaticResource PropertyValueTemplate}" />
+                <DataGridTemplateColumn Width="Auto" CellTemplate="{StaticResource InspectValueButtonTemplate}">
+                    <DataGridTemplateColumn.HeaderTemplate>
+                        <DataTemplate>
+                            <Button Style="{StaticResource IconButton}" Command="{Binding RelativeSource={RelativeSource AncestorType={x:Type local:PayloadScreenView}}, Path=DataContext.Event.GoToParentObjectCommand}">
+                                <Image Source="{StaticResource UpArrowIconImage}" />
+                            </Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.HeaderTemplate>
+                </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>        
     </Grid>

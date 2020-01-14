@@ -106,6 +106,7 @@ namespace ReactivityMonitor.Screens.PayloadScreen
                 });
             }
 
+            public string ValueString => mPayload.ToString();
             public string TypeName => mPayload.TypeName;
 
             private ObservableAsPropertyHelper<IReadOnlyList<PayloadProperty>> mProps;
