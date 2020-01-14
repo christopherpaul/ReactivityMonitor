@@ -105,6 +105,10 @@ namespace ReactivityProfiler.Support.Server
                             }
                             catch (Exception propEx)
                             {
+                                if (propEx is System.Reflection.TargetInvocationException tiex)
+                                {
+                                    propEx = tiex.InnerException ?? propEx;
+                                }
                                 var renderedProp = mValueRenderer.GetPayloadValue(propEx);
                                 renderedProp.IsExceptionGettingValue = true;
                                 return renderedProp;
