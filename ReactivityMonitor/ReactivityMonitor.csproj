@@ -69,6 +69,7 @@
     <Compile Include="Factory.cs" />
     <Compile Include="Infrastructure\Activation.cs" />
     <Compile Include="Infrastructure\CommandHelper.cs" />
+    <Compile Include="Infrastructure\Converters\VisibilityConverter.cs" />
     <Compile Include="Infrastructure\ReactiveViewModel.cs" />
     <Compile Include="Infrastructure\TraceLogger.cs" />
     <Compile Include="Infrastructure\WindowManagerEx.cs" />
@@ -153,6 +154,14 @@
     <Compile Include="Workspace\MonitoredCall.cs" />
     <Compile Include="Workspace\MonitoringGroup.cs" />
     <Compile Include="Workspace\Workspace.cs" />
+    <Page Include="Resources\ButtonImages.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Resources\Converters.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Screens\CallsScreen\CallsScreenView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

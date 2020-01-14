@@ -13,8 +13,8 @@
             <Label Target="ConnectionList">_Processes available to connect to</Label>
         </Grid>
         <WrapPanel DockPanel.Dock="Bottom" HorizontalAlignment="Center">
-            <Button Command="{Binding OpenSelectedServer}">Open</Button>
-            <Button Command="{Binding BrowseAndLaunch}">Browse...</Button>
+            <Button Style="{StaticResource StandardButton}" Command="{Binding OpenSelectedServer}">Open</Button>
+            <Button Style="{StaticResource StandardButton}" Command="{Binding BrowseAndLaunch}">Browse...</Button>
         </WrapPanel>
         <ListView x:Name="ConnectionList" ItemsSource="{Binding AvailableConnections}"
                   SelectedValue="{Binding SelectedServer}">

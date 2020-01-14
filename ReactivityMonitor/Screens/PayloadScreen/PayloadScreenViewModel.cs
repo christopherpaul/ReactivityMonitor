@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using DynamicData.Binding;
 using ReactiveUI;
 using ReactivityMonitor.Connection;
@@ -41,36 +44,53 @@ namespace ReactivityMonitor.Screens.PayloadScreen
 
         public sealed class EventItemInfo : ReactiveViewModel
         {
-            private readonly EventItem mItem;
-
             public EventItemInfo(EventItem item, IConcurrencyService concurrencyService, IConnectionModel connection)
             {
-                mItem = item;
+                var whenGoToParentInvoked = CommandHelper.CreateTriggerCommand(out var goToParentCommand);
+                GoToParentObjectCommand = goToParentCommand;
 
                 this.WhenActivated((CompositeDisposable disposables) =>
                 {
-                    var payloadActivation = new SerialDisposable().DisposeWith(disposables);
+                    if (item?.Payload != null)
+                    {
+                        var payloadActivation = new SerialDisposable().DisposeWith(disposables);
 
-                    mPayload = Observable.Never<PayloadObject>()
-                        .StartWith(mItem?.Payload)
-                        .OfType<PayloadObject>()
-                        .Select(payload => new PayloadViewModel(payload, concurrencyService, connection))
-                        .Do(vm => payloadActivation.Disposable = vm.Activator.Activate())
-                        .ObserveOn(concurrencyService.DispatcherRxScheduler)
-                        .ToProperty(this, x => x.Payload)
-                        .DisposeWith(disposables);
+                        var inspectSubject = new Subject<PayloadObject>();
+
+                        var whenUserDrillsIntoObject = inspectSubject
+                            .OfType<PayloadObject>()
+                            .Select(payload => new Func<IImmutableStack<PayloadObject>, IImmutableStack<PayloadObject>>(s => s.Push(payload)));
+
+                        Func<IImmutableStack<PayloadObject>, IImmutableStack<PayloadObject>> pop = s => s.IsEmpty ? s : s.Pop();
+                        var whenUserComesOutOfObject = whenGoToParentInvoked
+                            .Select(_ => pop);
+
+                        IImmutableStack<PayloadObject> emptyStack = ImmutableStack<PayloadObject>.Empty;
+
+                        mPayload = new[] { whenUserDrillsIntoObject, whenUserComesOutOfObject }.Merge()
+                            .Scan(emptyStack, (s, xfm) => xfm(s))
+                            .StartWith(emptyStack)
+                            .Select(s => s.IsEmpty ? item.Payload : s.Peek())
+                            .Where(payload => payload != null)
+                            .Select(payload => new PayloadViewModel(payload, inspectSubject.OnNext, concurrencyService, connection))
+                            .Do(vm => payloadActivation.Disposable = vm.Activator.Activate())
+                            .ObserveOn(concurrencyService.DispatcherRxScheduler)
+                            .ToProperty(this, x => x.Payload)
+                            .DisposeWith(disposables);
+                    }
                 });
             }
 
             private ObservableAsPropertyHelper<PayloadViewModel> mPayload;
             public PayloadViewModel Payload => mPayload?.Value;
+            public ICommand GoToParentObjectCommand { get; }
         }
 
         public sealed class PayloadViewModel : ReactiveViewModel
         {
             private readonly PayloadObject mPayload;
 
-            public PayloadViewModel(PayloadObject payload, IConcurrencyService concurrencyService, IConnectionModel connection)
+            public PayloadViewModel(PayloadObject payload, Action<PayloadObject> inspect, IConcurrencyService concurrencyService, IConnectionModel connection)
             {
                 mPayload = payload;
 
@@ -79,7 +99,7 @@ namespace ReactivityMonitor.Screens.PayloadScreen
                     connection.RequestObjectProperties(payload.ObjectId);
 
                     mProps = payload.Properties
-                        .Select(ps => ps.Select(p => new PayloadProperty(p.Key, p.Value)).ToArray())
+                        .Select(ps => ps.Select(p => new PayloadProperty(p.Key, p.Value, inspect)).ToArray())
                         .ObserveOn(concurrencyService.DispatcherRxScheduler)
                         .ToProperty(this, x => x.Properties)
                         .DisposeWith(disposables);
@@ -96,14 +116,19 @@ namespace ReactivityMonitor.Screens.PayloadScreen
         {
             private readonly object mValue;
 
-            public PayloadProperty(string name, object value)
+            public PayloadProperty(string name, object value, Action<PayloadObject> inspect)
             {
                 Name = name;
                 mValue = value;
+                if (value is PayloadObject child)
+                {
+                    InspectValueCommand = ReactiveCommand.Create(() => inspect(child));
+                }
             }
 
             public string Name { get; }
-            public string Value => mValue?.ToString(); //TODO
+            public string ValueString => mValue?.ToString(); //TODO
+            public ICommand InspectValueCommand { get; }
         }
     }
 }

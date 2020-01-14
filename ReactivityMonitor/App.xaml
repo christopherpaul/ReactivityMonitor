@@ -16,12 +16,14 @@
                     <Style x:Key="ItemSubText" TargetType="TextBlock">
                         <Setter Property="FontSize" Value="10" />
                     </Style>
-                    <Style TargetType="Button">
+                    <Style x:Key="StandardButton" TargetType="Button">
                         <Setter Property="MinWidth" Value="100" />
                         <Setter Property="Margin" Value="8,2,8,2" />
                         <Setter Property="Padding" Value="4,2,4,2" />
                     </Style>
                 </ResourceDictionary>
+                <ResourceDictionary Source="Resources/ButtonImages.xaml" />
+                <ResourceDictionary Source="Resources/Converters.xaml" />
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Application.Resources>

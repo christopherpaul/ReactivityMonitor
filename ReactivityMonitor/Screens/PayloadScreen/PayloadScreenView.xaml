@@ -7,15 +7,42 @@
              xmlns:infra="clr-namespace:ReactivityMonitor.Infrastructure"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <Style x:Key="IconButton" TargetType="Button">
+            <Setter Property="BorderBrush" Value="{x:Null}" />
+            <Setter Property="Background" Value="{x:Null}" />
+        </Style>
+        
+        <DataTemplate x:Key="InspectValueButtonTemplate">
+            <Button Style="{StaticResource IconButton}" Command="{Binding InspectValueCommand}"
+                    Visibility="{Binding InspectValueCommand, Converter={StaticResource HiddenWhenNullConverter}}">
+                <Image Source="{StaticResource MagnifyIconImage}" />
+            </Button>
+        </DataTemplate>
+    </UserControl.Resources>
+    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
-        <DataGrid IsReadOnly="True" AutoGenerateColumns="False" ItemsSource="{Binding Event.Payload.Properties}">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+
+            <Button Style="{StaticResource IconButton}" Grid.Column="1" Command="{Binding Event.GoToParentObjectCommand}">
+                <Image Source="{StaticResource UpArrowIconImage}" />
+            </Button>
+        </Grid>
+        
+        <DataGrid Grid.Row="1" IsReadOnly="True" AutoGenerateColumns="False" ItemsSource="{Binding Event.Payload.Properties}">
             <DataGrid.Columns>
                 <DataGridTextColumn Width="*" Binding="{Binding Name}" />
-                <DataGridTextColumn Width="*" Binding="{Binding Value}" />
+                <DataGridTextColumn Width="*" Binding="{Binding ValueString}" />
+                <DataGridTemplateColumn Width="Auto" CellTemplate="{StaticResource InspectValueButtonTemplate}" />
             </DataGrid.Columns>
         </DataGrid>        
     </Grid>

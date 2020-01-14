@@ -36,7 +36,7 @@ namespace TestProfilee
             IConnectableObservable<string> observable = new[] { "One", "two", "three" }.ToObservable()
                 .Zip(Observable.Interval(TimeSpan.FromSeconds(1)), (x, _) => x)
                 .SelectMany(x => x.ToObservable().Select(c => Observable.Return(c).Delay(TimeSpan.FromMilliseconds(100))).Concat())
-                .Select((x, i) => new ExampleObject($"{x}", i))
+                .Select((x, i) => new ExampleObject($"{x}", i) { Nested = new NestedObject($"{Environment.TickCount} ticks") })
                 .Repeat()
                 .Select(x => x.Str)
                 .Publish();
