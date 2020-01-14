@@ -26,15 +26,17 @@ namespace ReactivityMonitor.Model.ModelUpdate
 
     public sealed class ObjectPayloadInfo : PayloadInfo
     {
-        public ObjectPayloadInfo(int typeId, long objectId, string representation, int? itemCount) : base(typeId)
+        public ObjectPayloadInfo(int typeId, long objectId, string representation, bool isExceptionGettingValue, int? itemCount) : base(typeId)
         {
             ObjectId = objectId;
             Representation = representation;
+            IsExceptionGettingValue = isExceptionGettingValue;
             ItemCount = itemCount;
         }
 
         public long ObjectId { get; }
         public string Representation { get; }
+        public bool IsExceptionGettingValue { get; }
         public int? ItemCount { get; }
     }
 }

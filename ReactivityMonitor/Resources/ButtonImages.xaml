@@ -11,4 +11,10 @@
             <GeometryDrawing Brush="Black" Geometry="M13,20H11V8L5.5,13.5L4.08,12.08L12,4.16L19.92,12.08L18.5,13.5L13,8V20Z" />
         </DrawingImage.Drawing>
     </DrawingImage>
+
+    <DrawingImage x:Key="WarningTriangleIconImage">
+        <DrawingImage.Drawing>
+            <GeometryDrawing Brush="DarkOrange" Geometry="M13,14H11V10H13M13,18H11V16H13M1,21H23L12,2L1,21Z" />
+        </DrawingImage.Drawing>
+    </DrawingImage>
 </ResourceDictionary>

@@ -224,6 +224,7 @@ namespace ReactivityMonitor.Model
                         typeInfo.TypeName,
                         objPayload.ObjectId,
                         objPayload.Representation,
+                        objPayload.IsExceptionGettingValue,
                         objPayload.ItemCount,
                         properties.Take(1),
                         Observable.Never<IImmutableList<object>>());

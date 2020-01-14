@@ -144,7 +144,7 @@ namespace ReactivityMonitor.ProfilerClient
                 case VC.UInt64:
                     return new SimplePayloadInfo(typeId, value.UInt64);
                 case VC.Object:
-                    return new ObjectPayloadInfo(typeId, value.Object.ObjectId, value.Object.StringRepresentation, value.Object.HasItemCount ? (int?)value.Object.ItemCount : null);
+                    return new ObjectPayloadInfo(typeId, value.Object.ObjectId, value.Object.StringRepresentation, value.IsExceptionGettingValue, value.Object.HasItemCount ? (int?)value.Object.ItemCount : null);
             }
         }
 

@@ -28,7 +28,7 @@ namespace ReactivityMonitor.Infrastructure
             var canExecute = new ObservablePromise<bool>();
             var commandImpl = ReactiveCommand.Create(Actions.NoOp, canExecute);
             var observable = commandImpl.MonitorSubscriptionCount(out IObservable<int> subCount);
-            canExecute.Resolve(subCount.Select(c => c > 0));
+            canExecute.Resolve(subCount.Select(c => c > 0).ObserveOnDispatcher());
             command = commandImpl;
             return observable;
         }

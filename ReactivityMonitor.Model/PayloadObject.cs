@@ -10,11 +10,12 @@ namespace ReactivityMonitor.Model
     {
         private readonly string mRepresentation;
 
-        public PayloadObject(string typeName, long objectId, string representation, int? itemCount, IObservable<IImmutableDictionary<string, object>> properties, IObservable<IImmutableList<object>> items)
+        public PayloadObject(string typeName, long objectId, string representation, bool isExceptionGettingValue, int? itemCount, IObservable<IImmutableDictionary<string, object>> properties, IObservable<IImmutableList<object>> items)
         {
             TypeName = typeName;
             ObjectId = objectId;
             mRepresentation = representation;
+            IsExceptionGettingValue = isExceptionGettingValue;
             ItemCount = itemCount;
             Properties = properties;
             Items = items;
@@ -22,6 +23,7 @@ namespace ReactivityMonitor.Model
 
         public string TypeName { get; }
         public long ObjectId { get; }
+        public bool IsExceptionGettingValue { get; }
         public int? ItemCount { get; }
         public IObservable<IImmutableDictionary<string, object>> Properties { get; }
         public IObservable<IImmutableList<object>> Items { get; }

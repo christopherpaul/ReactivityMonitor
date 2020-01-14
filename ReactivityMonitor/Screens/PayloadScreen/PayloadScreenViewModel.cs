@@ -29,9 +29,9 @@ namespace ReactivityMonitor.Screens.PayloadScreen
                 var vmActivation = new SerialDisposable().DisposeWith(disposables);
 
                 mEvent = selectionService.WhenSelectionChanges
+                    .ObserveOn(concurrencyService.DispatcherRxScheduler)
                     .Select(x => new EventItemInfo(x.PrimaryEventItem, concurrencyService, ConnectionModel))
                     .Do(vm => vmActivation.Disposable = vm.Activator.Activate())
-                    .ObserveOn(concurrencyService.DispatcherRxScheduler)
                     .ToProperty(this, x => x.Event)
                     .DisposeWith(disposables);
             });
@@ -128,6 +128,7 @@ namespace ReactivityMonitor.Screens.PayloadScreen
 
             public string Name { get; }
             public string ValueString => mValue?.ToString(); //TODO
+            public bool IsExceptionGettingValue => mValue is PayloadObject payload && payload.IsExceptionGettingValue;
             public ICommand InspectValueCommand { get; }
         }
     }

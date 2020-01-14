@@ -10,14 +10,35 @@
     <UserControl.Resources>
         <Style x:Key="IconButton" TargetType="Button">
             <Setter Property="BorderBrush" Value="{x:Null}" />
+            <Setter Property="BorderThickness" Value="0" />
             <Setter Property="Background" Value="{x:Null}" />
         </Style>
         
         <DataTemplate x:Key="InspectValueButtonTemplate">
             <Button Style="{StaticResource IconButton}" Command="{Binding InspectValueCommand}"
                     Visibility="{Binding InspectValueCommand, Converter={StaticResource HiddenWhenNullConverter}}">
-                <Image Source="{StaticResource MagnifyIconImage}" />
+                <Image Source="{StaticResource MagnifyIconImage}" Height="16" />
             </Button>
+        </DataTemplate>
+
+        <DataTemplate x:Key="PropertyValueTemplate">
+            <DockPanel>
+                <Image DockPanel.Dock="Left" Source="{StaticResource WarningTriangleIconImage}" Height="16" Visibility="{Binding IsExceptionGettingValue, Converter={StaticResource VisibleWhenTrue}}" />
+
+                <TextBox IsReadOnly="True" Text="{Binding ValueString, Mode=OneWay}" ToolTip="{Binding ValueString}"
+                         BorderBrush="{x:Null}" BorderThickness="0">
+                    <TextBox.Style>
+                        <Style TargetType="TextBox">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsExceptionGettingValue}" Value="True">
+                                    <Setter Property="FontStyle" Value="Italic" />
+                                    <Setter Property="Foreground" Value="Gray" />
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBox.Style>
+                </TextBox>
+            </DockPanel>
         </DataTemplate>
     </UserControl.Resources>
     
@@ -41,7 +62,7 @@
         <DataGrid Grid.Row="1" IsReadOnly="True" AutoGenerateColumns="False" ItemsSource="{Binding Event.Payload.Properties}">
             <DataGrid.Columns>
                 <DataGridTextColumn Width="*" Binding="{Binding Name}" />
-                <DataGridTextColumn Width="*" Binding="{Binding ValueString}" />
+                <DataGridTemplateColumn Width="*" CellTemplate="{StaticResource PropertyValueTemplate}" />
                 <DataGridTemplateColumn Width="Auto" CellTemplate="{StaticResource InspectValueButtonTemplate}" />
             </DataGrid.Columns>
         </DataGrid>        

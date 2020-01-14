@@ -73,6 +73,7 @@
     <Compile Include="Infrastructure\ReactiveViewModel.cs" />
     <Compile Include="Infrastructure\TraceLogger.cs" />
     <Compile Include="Infrastructure\WindowManagerEx.cs" />
+    <Compile Include="Resources\Constants.cs" />
     <Compile Include="ScreenFactory.cs" />
     <Compile Include="Screens\CallsScreen\CallsScreenView.xaml.cs">
       <DependentUpon>CallsScreenView.xaml</DependentUpon>
