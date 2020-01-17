@@ -31,7 +31,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".github", ".github", "{830A
 		.github\workflows\BuildAll.CI.yaml = .github\workflows\BuildAll.CI.yaml
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactivityMonitor.Utility.Tests", "ReactivityMonitor.Utility.Tests\ReactivityMonitor.Utility.Tests.csproj", "{04679D98-E305-4E05-863E-1920410A6BA3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactivityMonitor.Utility.Tests", "ReactivityMonitor.Utility.Tests\ReactivityMonitor.Utility.Tests.csproj", "{04679D98-E305-4E05-863E-1920410A6BA3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactivityMonitor.ProfilerClient.Tests", "ReactivityMonitor.ProfilerClient.Tests\ReactivityMonitor.ProfilerClient.Tests.csproj", "{3DB28641-CEF0-411F-A7E1-A23309A25637}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -128,6 +130,14 @@ Global
 		{04679D98-E305-4E05-863E-1920410A6BA3}.Release|x64.Build.0 = Release|Any CPU
 		{04679D98-E305-4E05-863E-1920410A6BA3}.Release|x86.ActiveCfg = Release|Any CPU
 		{04679D98-E305-4E05-863E-1920410A6BA3}.Release|x86.Build.0 = Release|Any CPU
+		{3DB28641-CEF0-411F-A7E1-A23309A25637}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3DB28641-CEF0-411F-A7E1-A23309A25637}.Debug|x64.Build.0 = Debug|Any CPU
+		{3DB28641-CEF0-411F-A7E1-A23309A25637}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3DB28641-CEF0-411F-A7E1-A23309A25637}.Debug|x86.Build.0 = Debug|Any CPU
+		{3DB28641-CEF0-411F-A7E1-A23309A25637}.Release|x64.ActiveCfg = Release|Any CPU
+		{3DB28641-CEF0-411F-A7E1-A23309A25637}.Release|x64.Build.0 = Release|Any CPU
+		{3DB28641-CEF0-411F-A7E1-A23309A25637}.Release|x86.ActiveCfg = Release|Any CPU
+		{3DB28641-CEF0-411F-A7E1-A23309A25637}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

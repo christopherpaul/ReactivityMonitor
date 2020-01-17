@@ -126,9 +126,9 @@ namespace ReactivityMonitor.ProfilerClient
                 case VC.DateTimeLocal:
                     return new SimplePayloadInfo(typeId, new DateTime(value.DateTimeLocal, DateTimeKind.Local));
                 case VC.DateTimeUtc:
-                    return new SimplePayloadInfo(typeId, new DateTime(value.DateTimeLocal, DateTimeKind.Utc));
+                    return new SimplePayloadInfo(typeId, new DateTime(value.DateTimeUtc, DateTimeKind.Utc));
                 case VC.DateTimeUnspecified:
-                    return new SimplePayloadInfo(typeId, new DateTime(value.DateTimeLocal, DateTimeKind.Unspecified));
+                    return new SimplePayloadInfo(typeId, new DateTime(value.DateTimeUnspecified, DateTimeKind.Unspecified));
                 case VC.Double:
                     return new SimplePayloadInfo(typeId, value.Double);
                 case VC.Int64:
