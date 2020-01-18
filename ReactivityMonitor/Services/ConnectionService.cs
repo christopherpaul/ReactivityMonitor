@@ -20,6 +20,7 @@ namespace ReactivityMonitor.Services
         private readonly ISubject<IConnectionModel> mConnectionSubject;
         private readonly string mProfilerLocation32;
         private readonly string mProfilerLocation64;
+        private readonly string mSupportAssemblyLocation;
 
         public ConnectionService()
         {
@@ -44,6 +45,7 @@ namespace ReactivityMonitor.Services
             const string cProfilerDll = "ReactivityProfiler.dll";
             mProfilerLocation32 = Path.Combine(profilersLocation, "Win32", cProfilerDll);
             mProfilerLocation64 = Path.Combine(profilersLocation, "x64", cProfilerDll);
+            mSupportAssemblyLocation = Path.Combine(profilersLocation, "x64", "ReactivityProfiler.Support.dll");
         }
 
         public IObservable<IChangeSet<Server, int>> AvailableServers { get; }
@@ -65,6 +67,8 @@ namespace ReactivityMonitor.Services
                 psi.Environment.Add($"{prefix}_PROFILER_PATH_64", mProfilerLocation64);
                 psi.Environment.Add($"{prefix}_PROFILER", "{09c5b5d7-62d2-4448-911d-2e1346a21110}");
             }
+
+            psi.Environment.Add("DOTNET_STARTUP_HOOKS", mSupportAssemblyLocation);
 
             Process process;
             try
