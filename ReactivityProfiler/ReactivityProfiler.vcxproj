@@ -321,9 +321,11 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
-  <Target Name="CopySupportFiles" AfterTargets="AfterBuild">
+  <Target Name="CopySupportFiles" AfterTargets="AfterBuild" Returns="@(CopiedSupportFiles)">
     <Message Importance="high" Text="SupportFile: @(SupportFile)" />
     <Message Importance="high" Text="OutDir: $(OutDir)" />
-    <Copy SourceFiles="@(SupportFile)" DestinationFolder="$(OutDir)" />
+    <Copy SourceFiles="@(SupportFile)" DestinationFolder="$(OutDir)">
+      <Output TaskParameter="CopiedFiles" ItemName="CopiedSupportFiles" />
+    </Copy>
   </Target>
 </Project>
