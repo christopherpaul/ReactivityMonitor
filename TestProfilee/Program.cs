@@ -12,11 +12,11 @@ namespace TestProfilee
 {
     class Program
     {
-        static Program()
-        {
-            Console.WriteLine("STATIC INIT");
-            DummySupportAssemblyResolution.EnsureHandler();
-        }
+        //static Program()
+        //{
+        //    Console.WriteLine("STATIC INIT");
+        //    DummySupportAssemblyResolution.EnsureHandler();
+        //}
 
         static void Pause()
         {

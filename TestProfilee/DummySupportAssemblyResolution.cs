@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace TestProfilee
 {
-#if true
+#if false
     /// <summary>
     /// This class isn't used; it was the basis for the IL injected to handle assembly
     /// resolve events.
