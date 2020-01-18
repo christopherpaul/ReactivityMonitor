@@ -11,6 +11,41 @@ void CProfilerInfo::Set(IUnknown* profilerInfo)
     }
 }
 
+RuntimeInfo CProfilerInfo::GetRuntimeInfo()
+{
+    RuntimeInfo info;
+    ULONG stringCount = 0;
+    COR_PRF_RUNTIME_TYPE rttype;
+    m_profilerInfo->GetRuntimeInformation(
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr,
+        nullptr,
+        0,
+        &stringCount,
+        nullptr
+    );
+
+    std::vector<WCHAR> verStringChars(stringCount);
+    CHECK_SUCCESS(m_profilerInfo->GetRuntimeInformation(
+        nullptr,
+        &rttype,
+        &info.majorVersion,
+        &info.minorVersion,
+        &info.buildNumber,
+        &info.updateVersion,
+        stringCount,
+        &stringCount,
+        verStringChars.data()
+    ));
+
+    info.versionString = std::wstring(verStringChars.data(), stringCount - 1);
+
+    return info;
+}
+
 ModuleInfo CProfilerInfo::GetModuleInfo(ModuleID moduleId)
 {
     ModuleInfo info;

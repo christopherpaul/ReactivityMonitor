@@ -80,6 +80,7 @@ private:
     CProfilerInfo m_profilerInfo;
     const std::wstring m_supportAssemblyFolder;
     concurrent_map<ModuleID, std::shared_ptr<PerModuleData>> m_moduleInfoMap;
+    RuntimeInfo m_runtimeInfo;
 
     void InstallAssemblyResolutionHandler(ModuleID mscorlibId);
     bool ReferencesObservableInterfaces(ModuleID moduleId, ObservableTypeReferences& typeRefs);

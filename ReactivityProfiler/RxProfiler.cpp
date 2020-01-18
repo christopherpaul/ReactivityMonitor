@@ -20,10 +20,13 @@ HRESULT CRxProfiler::Initialize(
     /* [in] */ IUnknown* pICorProfilerInfoUnk)
 {
     return HandleExceptions([=] {
-        RELTRACE("Initialize");
+        RELTRACE("Initializing RxProfiler");
         ATLTRACE(L"Support assembly path: %s", m_supportAssemblyFolder.c_str());
 
         m_profilerInfo.Set(pICorProfilerInfoUnk);
+
+        m_runtimeInfo = m_profilerInfo.GetRuntimeInfo();
+        RELTRACE(L"Runtime info: %s version %s", m_runtimeInfo.isCore ? L"CoreCLR" : L"CLR", m_runtimeInfo.versionString.c_str());
 
         m_profilerInfo.SetEventMask(
             COR_PRF_MONITOR_MODULE_LOADS |

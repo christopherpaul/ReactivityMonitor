@@ -126,6 +126,16 @@ private:
     std::unique_ptr<Impl> m_pImpl;
 };
 
+struct RuntimeInfo
+{
+    bool isCore = false;
+    USHORT majorVersion = 0;
+    USHORT minorVersion = 0;
+    USHORT buildNumber = 0;
+    USHORT updateVersion = 0;
+    std::wstring versionString;
+};
+
 struct ModuleInfo
 {
     LPCBYTE baseLoadAddress = nullptr;
@@ -270,6 +280,8 @@ public:
     {
         CHECK_SUCCESS(m_profilerInfo->SetEventMask2(dwEventsLow, dwEventsHigh));
     }
+
+    RuntimeInfo GetRuntimeInfo();
 
     ModuleInfo GetModuleInfo(ModuleID moduleId);
     FunctionInfo GetFunctionInfo(FunctionID functionId);
