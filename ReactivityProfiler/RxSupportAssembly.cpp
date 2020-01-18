@@ -223,11 +223,11 @@ void CRxProfiler::AddSupportAssemblyReference(ModuleID moduleId, const Observabl
     SetMethodBody(moduleInitMethod, moduleInitInstr, SignatureBlob());
 }
 
-void CRxProfiler::InstallAssemblyResolutionHandler(ModuleID mscorlibId)
+void CRxProfiler::InstallAssemblyResolutionHandler(ModuleID hostModuleId)
 {
     ATLTRACE("InstallAssemblyResolutionHandler");
 
-    // This method injects a class equivalent to the following into MSCORLIB.
+    // This method injects a class equivalent to the following into the host module.
     //
     //     static class DummySupportAssemblyResolution
     //     {
@@ -252,9 +252,9 @@ void CRxProfiler::InstallAssemblyResolutionHandler(ModuleID mscorlibId)
     //         }
     //     }
 
-
-    CMetadataImport metadataImport = m_profilerInfo.GetMetadataImport(mscorlibId, ofRead);
-    CMetadataEmit metadataEmit = m_profilerInfo.GetMetadataEmit(mscorlibId, ofRead | ofWrite);
+    CMetadataImport metadataImport = m_profilerInfo.GetMetadataImport(hostModuleId, ofRead);
+    CMetadataEmit metadataEmit = m_profilerInfo.GetMetadataEmit(hostModuleId, ofRead | ofWrite);
+    CMetadataAssemblyImport metadataAssemblyImport = m_profilerInfo.GetMetadataAssemblyImport(hostModuleId, ofRead);
 
     std::function<void(mdMethodDef token, InstructionList& builder, const SignatureBlob& sig)> SetMethodBody = [&](mdMethodDef token, InstructionList& instructions, const SignatureBlob& sig) {
         Method builder;
@@ -276,47 +276,55 @@ void CRxProfiler::InstallAssemblyResolutionHandler(ModuleID mscorlibId)
         DWORD size = builder.GetMethodSize();
 
         // buffer is owned by the runtime, we don't need to free it
-        auto buffer = m_profilerInfo.AllocateFunctionBody(mscorlibId, size);
+        auto buffer = m_profilerInfo.AllocateFunctionBody(hostModuleId, size);
         builder.WriteMethod(reinterpret_cast<IMAGE_COR_ILMETHOD*>(buffer.begin()));
 
-        m_profilerInfo.SetILFunctionBody(mscorlibId, token, buffer);
+        m_profilerInfo.SetILFunctionBody(hostModuleId, token, buffer);
     };
 
     std::function<mdToken(const std::wstring & typeName)> GetTypeToken = [&](const std::wstring& typeName) {
         mdTypeDef typeDefToken;
-        if (!metadataImport.TryFindTypeDef(typeName, mdTokenNil, typeDefToken))
+        if (metadataImport.TryFindTypeDef(typeName, mdTokenNil, typeDefToken))
         {
-            RELTRACE(L"Could not find type: %s", typeName.c_str());
-            throw std::domain_error("Could not find type");
+            return typeDefToken;
         }
-        return typeDefToken;
-    };
 
-    std::function<mdToken(const std::wstring & typeName, const std::wstring & methodName)> GetMethodToken = [&](const std::wstring& typeName, const std::wstring& methodName) {
-        mdMethodDef methodDefToken;
-        if (!metadataImport.TryFindMethod(GetTypeToken(typeName), methodName, SignatureBlob(), methodDefToken))
+        mdExportedType expTypeToken;
+        if (metadataAssemblyImport.TryGetExportedType(typeName, mdTokenNil, expTypeToken))
         {
-            RELTRACE(L"Could not find method: %s::%s", typeName.c_str(), methodName.c_str());
-            throw std::domain_error("Could not find method");
+            ExportedTypeProps expTypeProps = metadataAssemblyImport.GetExportedTypeProps(expTypeToken);
+            if (IsTdForwarder(expTypeProps.flags))
+            {
+                ATLTRACE(L"Type %s forwards to AssemblyRef %x", typeName.c_str(), expTypeProps.implementationToken);
+                return metadataEmit.DefineTypeRefByName(expTypeProps.implementationToken, typeName);
+            }
         }
-        return methodDefToken;
+
+        RELTRACE(L"Could not find type definition: %s", typeName.c_str());
+        throw std::domain_error("Could not find type definition");
     };
 
     std::function<mdToken(const std::wstring & typeName, const std::wstring & methodName, const SignatureBlob& sig)> GetMethodTokenSig = [&](const std::wstring& typeName, const std::wstring& methodName, const SignatureBlob& sig) {
+        mdToken typeToken = GetTypeToken(typeName);
+        if (TypeFromToken(typeToken) == mdtTypeRef)
+        {
+            return metadataEmit.DefineMemberRef({ typeToken, methodName, sig });
+        }
+
         mdMethodDef methodDefToken;
         if (!metadataImport.TryFindMethod(GetTypeToken(typeName), methodName, sig, methodDefToken))
         {
-            RELTRACE(L"Could not find method: %s::%s (with sig)", typeName.c_str(), methodName.c_str());
-            throw std::domain_error("Could not find method");
+            RELTRACE(L"Could not find method definition: %s::%s (with sig)", typeName.c_str(), methodName.c_str());
+            throw std::domain_error("Could not find method definition");
         }
         return methodDefToken;
     };
 
-    mdToken mdObjectType;
-    if (!metadataImport.TryFindTypeDef(L"System.Object", mdTokenNil, mdObjectType))
-    {
-        throw std::domain_error("Could not find System.Object in mscorlib");
-    }
+    std::function<mdToken(const std::wstring & typeName, const std::wstring & methodName)> GetMethodToken = [&](const std::wstring& typeName, const std::wstring& methodName) {
+        return GetMethodTokenSig(typeName, methodName, SignatureBlob());
+    };
+
+    mdToken mdObjectType = GetTypeToken(L"System.Object");
 
     mdTypeDef handlerClass = metadataEmit.DefineTypeDef({
             L"RxProfiler.SupportAssemblyResolution",

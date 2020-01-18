@@ -41,6 +41,7 @@ RuntimeInfo CProfilerInfo::GetRuntimeInfo()
         verStringChars.data()
     ));
 
+    info.isCore = rttype == COR_PRF_CORE_CLR;
     info.versionString = std::wstring(verStringChars.data(), stringCount - 1);
 
     return info;
@@ -375,6 +376,41 @@ AssemblyProps CMetadataAssemblyImport::GetAssemblyProps(mdAssembly assemblyToken
     props.publicKey = { static_cast<const byte*>(pk), pkSize };
     props.name = { nameChars.data(), nameChars.size() };
 
+    return props;
+}
+
+bool CMetadataAssemblyImport::TryGetExportedType(const std::wstring& name, mdToken enclosingTypeToken, mdExportedType& expTypeToken)
+{
+    return SUCCEEDED(m_metadata->FindExportedTypeByName(name.c_str(), enclosingTypeToken, &expTypeToken));
+}
+
+ExportedTypeProps CMetadataAssemblyImport::GetExportedTypeProps(mdExportedType expTypeToken)
+{
+    ExportedTypeProps props;
+    ULONG nameLength;
+    DWORD attrFlags;
+    mdToken extendsTypeToken;
+
+    CHECK_SUCCESS(m_metadata->GetExportedTypeProps(
+        expTypeToken,
+        nullptr,
+        0,
+        &nameLength,
+        &props.implementationToken,
+        &props.typeDefToken,
+        &props.flags));
+
+    std::vector<wchar_t> nameChars(nameLength);
+    CHECK_SUCCESS(m_metadata->GetExportedTypeProps(
+        expTypeToken,
+        nameChars.data(),
+        nameLength,
+        &nameLength,
+        &props.implementationToken,
+        &props.typeDefToken,
+        &props.flags));
+
+    props.name = { nameChars.data(), nameChars.size() - 1 };
     return props;
 }
 

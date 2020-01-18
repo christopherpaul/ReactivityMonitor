@@ -189,6 +189,14 @@ struct AssemblyProps
     DWORD flags = 0;
 };
 
+struct ExportedTypeProps
+{
+    std::wstring name;
+    mdToken implementationToken = 0; // which module/assembly implements it
+    mdTypeDef typeDefToken = 0;
+    DWORD flags = 0;
+};
+
 class CMetadataImport
 {
 public:
@@ -227,6 +235,8 @@ public:
     CCorEnum<IMetaDataAssemblyImport, mdAssemblyRef> EnumAssemblyRefs();
     mdAssembly GetCurrentAssembly();
     AssemblyProps GetAssemblyProps(mdAssembly assemblyToken = mdTokenNil);
+    bool TryGetExportedType(const std::wstring& name, mdToken enclosingTypeToken, mdExportedType& expTypeToken);
+    ExportedTypeProps GetExportedTypeProps(mdExportedType expTypeToken);
 
 private:
     CComQIPtr<IMetaDataAssemblyImport, &IID_IMetaDataAssemblyImport> m_metadata;

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace TestProfilee
 {
-#if false
+#if true
     /// <summary>
     /// This class isn't used; it was the basis for the IL injected to handle assembly
     /// resolve events.
@@ -27,7 +27,7 @@ namespace TestProfilee
         private static Assembly ResolveSupportAssembly(object sender, ResolveEventArgs args)
         {
             var name = new AssemblyName(args.Name);
-            string path = "base path\\" + name.Name + ".dll";
+            string path = @"E:\Documents\programming\Repos\ReactivityMonitor\ReactivityMonitor\bin\Debug\profiler\x64\" + name.Name + ".dll";
             if (File.Exists(path))
             {
                 return Assembly.LoadFrom(path);

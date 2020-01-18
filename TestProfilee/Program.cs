@@ -12,6 +12,12 @@ namespace TestProfilee
 {
     class Program
     {
+        static Program()
+        {
+            Console.WriteLine("STATIC INIT");
+            DummySupportAssemblyResolution.EnsureHandler();
+        }
+
         static void Pause()
         {
             Console.WriteLine("Press any key to unsubscribe and finish");
@@ -19,6 +25,11 @@ namespace TestProfilee
         }
 
         static void Main(string[] args)
+        {
+            Main2(args);
+        }
+
+        static void Main2(string[] args)
         {
             string[] envVars =
             {
