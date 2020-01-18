@@ -170,57 +170,60 @@ void CRxProfiler::AddSupportAssemblyReference(ModuleID moduleId, const Observabl
         returnedSubinterfaceMethodSig
         });
 
-    // Add a module initializer that calls EnsureHandler (see InstallAssemblyResolutionHandler below).
-    // TODO - cope if one already exists (unlikely but you never know)
-    ATLTRACE("Adding module initializer to call EnsureHandler");
-    std::function<void(mdMethodDef token, InstructionList & builder, const SignatureBlob & sig)> SetMethodBody = [&](mdMethodDef token, InstructionList& instructions, const SignatureBlob& sig) {
-        Method builder;
-        if (instructions.size() > 0)
-        {
-            builder.InsertInstructionsAtOffset(0, instructions);
-        }
+    if (!m_runtimeInfo.isCore)
+    {
+        // Add a module initializer that calls EnsureHandler (see InstallAssemblyResolutionHandler below).
+        // TODO - cope if one already exists (unlikely but you never know)
+        ATLTRACE("Adding module initializer to call EnsureHandler");
+        std::function<void(mdMethodDef token, InstructionList & builder, const SignatureBlob & sig)> SetMethodBody = [&](mdMethodDef token, InstructionList& instructions, const SignatureBlob& sig) {
+            Method builder;
+            if (instructions.size() > 0)
+            {
+                builder.InsertInstructionsAtOffset(0, instructions);
+            }
 
-        if (sig)
-        {
-            mdSignature sigToken = emit.GetTokenFromSig(sig);
-            builder.SetLocalsSignature(sigToken);
-        }
+            if (sig)
+            {
+                mdSignature sigToken = emit.GetTokenFromSig(sig);
+                builder.SetLocalsSignature(sigToken);
+            }
 
 #ifdef DEBUG
-        builder.DumpIL(true);
+            builder.DumpIL(true);
 #endif
 
-        DWORD size = builder.GetMethodSize();
+            DWORD size = builder.GetMethodSize();
 
-        // buffer is owned by the runtime, we don't need to free it
-        auto buffer = m_profilerInfo.AllocateFunctionBody(moduleId, size);
-        builder.WriteMethod(reinterpret_cast<IMAGE_COR_ILMETHOD*>(buffer.begin()));
+            // buffer is owned by the runtime, we don't need to free it
+            auto buffer = m_profilerInfo.AllocateFunctionBody(moduleId, size);
+            builder.WriteMethod(reinterpret_cast<IMAGE_COR_ILMETHOD*>(buffer.begin()));
 
-        m_profilerInfo.SetILFunctionBody(moduleId, token, buffer);
-    };
+            m_profilerInfo.SetILFunctionBody(moduleId, token, buffer);
+        };
 
-    auto voidVoidSig = MethodSignatureWriter::WriteStatic(0, [](MethodSignatureWriter w) { w.SetVoidReturn(); });
+        auto voidVoidSig = MethodSignatureWriter::WriteStatic(0, [](MethodSignatureWriter w) { w.SetVoidReturn(); });
 
-    mdTypeRef supportAssemblyResolution = emit.DefineTypeRefByName(mscorlib, L"RxProfiler.SupportAssemblyResolution");
+        mdTypeRef supportAssemblyResolution = emit.DefineTypeRefByName(mscorlib, L"RxProfiler.SupportAssemblyResolution");
 
-    mdMemberRef ensureHandler = emit.DefineMemberRef({
-        supportAssemblyResolution,
-        L"EnsureHandler",
-        voidVoidSig
-        });
+        mdMemberRef ensureHandler = emit.DefineMemberRef({
+            supportAssemblyResolution,
+            L"EnsureHandler",
+            voidVoidSig
+            });
 
-    mdMethodDef moduleInitMethod = emit.DefineMethod({
-        mdTokenNil,
-        L".cctor",
-        mdPrivate | mdStatic | mdHideBySig | mdSpecialName | mdRTSpecialName,
-        voidVoidSig
-        });
+        mdMethodDef moduleInitMethod = emit.DefineMethod({
+            mdTokenNil,
+            L".cctor",
+            mdPrivate | mdStatic | mdHideBySig | mdSpecialName | mdRTSpecialName,
+            voidVoidSig
+            });
 
-    InstructionList moduleInitInstr;
+        InstructionList moduleInitInstr;
 #define Instr(...) moduleInitInstr.push_back(std::make_unique<Instruction>(__VA_ARGS__))
-    Instr(CEE_CALL, ensureHandler);
+        Instr(CEE_CALL, ensureHandler);
 #undef Instr
-    SetMethodBody(moduleInitMethod, moduleInitInstr, SignatureBlob());
+        SetMethodBody(moduleInitMethod, moduleInitInstr, SignatureBlob());
+    }
 }
 
 void CRxProfiler::InstallAssemblyResolutionHandler(ModuleID hostModuleId)

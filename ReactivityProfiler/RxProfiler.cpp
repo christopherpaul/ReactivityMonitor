@@ -58,7 +58,7 @@ HRESULT CRxProfiler::ModuleLoadFinished(
         std::lock_guard<std::mutex> lock_pmd(pPerModuleData->m_mutex);
         pPerModuleData->m_assemblyProps = mai.GetAssemblyProps();
 
-        if (IsMscorlib(pPerModuleData->m_assemblyProps))
+        if (IsMscorlib(pPerModuleData->m_assemblyProps) && !m_runtimeInfo.isCore)
         {
             InstallAssemblyResolutionHandler(moduleId);
         }
