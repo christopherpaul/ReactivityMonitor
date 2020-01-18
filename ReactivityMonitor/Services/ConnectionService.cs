@@ -57,10 +57,14 @@ namespace ReactivityMonitor.Services
             psi.Arguments = launchInfo.Arguments;
 
             psi.UseShellExecute = false;
-            psi.Environment.Add("COR_ENABLE_PROFILING", "1");
-            psi.Environment.Add("COR_PROFILER_PATH_32", mProfilerLocation32);
-            psi.Environment.Add("COR_PROFILER_PATH_64", mProfilerLocation64);
-            psi.Environment.Add("COR_PROFILER", "{09c5b5d7-62d2-4448-911d-2e1346a21110}");
+
+            foreach (string prefix in new[] { "COR", "CORECLR" })
+            {
+                psi.Environment.Add($"{prefix}_ENABLE_PROFILING", "1");
+                psi.Environment.Add($"{prefix}_PROFILER_PATH_32", mProfilerLocation32);
+                psi.Environment.Add($"{prefix}_PROFILER_PATH_64", mProfilerLocation64);
+                psi.Environment.Add($"{prefix}_PROFILER", "{09c5b5d7-62d2-4448-911d-2e1346a21110}");
+            }
 
             Process process;
             try
