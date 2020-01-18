@@ -292,28 +292,12 @@ void CRxProfiler::InstallAssemblyResolutionHandler(ModuleID hostModuleId)
             return typeDefToken;
         }
 
-        mdExportedType expTypeToken;
-        if (metadataAssemblyImport.TryGetExportedType(typeName, mdTokenNil, expTypeToken))
-        {
-            ExportedTypeProps expTypeProps = metadataAssemblyImport.GetExportedTypeProps(expTypeToken);
-            if (IsTdForwarder(expTypeProps.flags))
-            {
-                ATLTRACE(L"Type %s forwards to AssemblyRef %x", typeName.c_str(), expTypeProps.implementationToken);
-                return metadataEmit.DefineTypeRefByName(expTypeProps.implementationToken, typeName);
-            }
-        }
-
         RELTRACE(L"Could not find type definition: %s", typeName.c_str());
         throw std::domain_error("Could not find type definition");
     };
 
     std::function<mdToken(const std::wstring & typeName, const std::wstring & methodName, const SignatureBlob& sig)> GetMethodTokenSig = [&](const std::wstring& typeName, const std::wstring& methodName, const SignatureBlob& sig) {
         mdToken typeToken = GetTypeToken(typeName);
-        if (TypeFromToken(typeToken) == mdtTypeRef)
-        {
-            return metadataEmit.DefineMemberRef({ typeToken, methodName, sig });
-        }
-
         mdMethodDef methodDefToken;
         if (!metadataImport.TryFindMethod(GetTypeToken(typeName), methodName, sig, methodDefToken))
         {
