@@ -54,7 +54,6 @@ namespace ReactivityMonitor.Screens.HomeScreen
 
                 eventListScreen.Model = ConnectionModel.Model;
 
-                ConnectionModel.Connect().DisposeWith(disposables);
                 isUpdating.Subscribe(x =>
                 {
                     if (x)

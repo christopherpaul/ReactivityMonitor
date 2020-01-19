@@ -3,24 +3,28 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
+using System.Reactive.Threading.Tasks;
 using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DynamicData;
 using ReactivityMonitor.Connection;
+using ReactivityMonitor.Utility.Flyweights;
 
 namespace ReactivityMonitor.Services
 {
-    public sealed class ConnectionService : IConnectionService
+    public sealed class ConnectionService : IConnectionService, IDisposable
     {
         private readonly ServerDiscovery mServerDiscovery;
         private readonly ISubject<IConnectionModel> mConnectionSubject;
         private readonly string mProfilerLocation32;
         private readonly string mProfilerLocation64;
         private readonly string mSupportAssemblyLocation;
+        private readonly SerialDisposable mActiveConnection = new SerialDisposable();
 
         public ConnectionService()
         {
@@ -70,6 +74,9 @@ namespace ReactivityMonitor.Services
 
             psi.Environment.Add("DOTNET_STARTUP_HOOKS", mSupportAssemblyLocation);
 
+            string pipeName = $"ReactivityProfiler.{Path.GetFileNameWithoutExtension(launchInfo.FileName)}.{Guid.NewGuid():N}";
+            psi.Environment.Add("REACTIVITYPROFILER_PIPENAME", pipeName);
+
             Process process;
             try
             {
@@ -85,28 +92,51 @@ namespace ReactivityMonitor.Services
                 throw new ConnectionException("Process failed to start.");
             }
 
-            Server server;
-            while (!mServerDiscovery.TryGetServer(process, out server))
-            {
-                if (process.HasExited)
-                {
-                    throw new ConnectionException($"Process exited before connection was established (with exit code {process.ExitCode}).");
-                }
-                await Task.Delay(TimeSpan.FromMilliseconds(100), cancellationToken).ConfigureAwait(false);
-            }
+            var server = new Server(process.Id, process.ProcessName, pipeName);
 
             await Open(server, cancellationToken).ConfigureAwait(false);
         }
 
-        public Task Open(Server server, CancellationToken cancellationToken)
+        public async Task Open(Server server, CancellationToken cancellationToken)
         {
-            mConnectionSubject.OnNext(new ConnectionModel(server));
-            return Task.CompletedTask;
+            var process = Process.GetProcessById(server.ProcessId);
+            var whenProcessExits = Observable.FromEventPattern(h => process.Exited += h, h => process.Exited -= h);
+            process.EnableRaisingEvents = true;
+            if (process.HasExited)
+            {
+                ThrowProcessExitedError();
+            }
+
+            var connectionModel = new ConnectionModel(server);
+            mActiveConnection.Disposable = connectionModel.Connect();
+
+            bool connected = await connectionModel.WhenConnected.Where(isConnected => isConnected)
+                .Merge(whenProcessExits.Select(_ => false))
+                .Take(1)
+                .ToTask(cancellationToken);
+
+            if (!connected)
+            {
+                ThrowProcessExitedError();
+            }
+
+            mConnectionSubject.OnNext(connectionModel);
+
+            void ThrowProcessExitedError()
+            {
+                throw new ConnectionException($"Process exited before communication was established.");
+            }
         }
 
         public void Close()
         {
+            mActiveConnection.Disposable = null;
             mConnectionSubject.OnNext(null);
+        }
+
+        public void Dispose()
+        {
+            mActiveConnection.Dispose();
         }
     }
 }

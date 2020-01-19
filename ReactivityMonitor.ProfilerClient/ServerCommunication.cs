@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Pipes;
+using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -17,6 +18,8 @@ namespace ReactivityMonitor.ProfilerClient
         {
             return Observable.Create((IObserver<byte[]> observer) =>
             {
+                var disposables = new CompositeDisposable();
+
                 Trace.TraceInformation($"Creating pipe: {pipeName}");
                 var pipeStream = new NamedPipeClientStream(
                     ".",
@@ -24,22 +27,30 @@ namespace ReactivityMonitor.ProfilerClient
                     PipeDirection.InOut,
                     PipeOptions.Asynchronous | PipeOptions.WriteThrough);
 
-                Trace.TraceInformation("Connecting to the server");
-                pipeStream.Connect();
-                pipeStream.ReadMode = PipeTransmissionMode.Message;
-                Trace.TraceInformation("Connected to the server");
+                disposables.Add(pipeStream);
 
-                return StableCompositeDisposable.Create(
-                    outgoingMessages
+                var setupTask = Observable.FromAsync(async cancellationToken =>
+                {
+                    Trace.TraceInformation("Connecting to the server");
+                    await pipeStream.ConnectAsync(cancellationToken);
+                    pipeStream.ReadMode = PipeTransmissionMode.Message;
+                    Trace.TraceInformation("Connected to the server");
+
+                    disposables.Add(outgoingMessages
                         .ObserveOn(NewThreadScheduler.Default)
-                        .Subscribe(message => pipeStream.Write(message, 0, message.Length)),
+                        .Subscribe(message => pipeStream.Write(message, 0, message.Length)));
 
-                    ReadIncomingMessages(pipeStream)
+                    disposables.Add(ReadIncomingMessages(pipeStream)
                         .ToObservable()
                         .SubscribeOn(NewThreadScheduler.Default)
-                        .Subscribe(observer),
+                        .Subscribe(observer));
 
-                    pipeStream);
+                    return Unit.Default;
+                });
+
+                disposables.Add(setupTask.Subscribe());
+
+                return disposables;
             });
         }
 

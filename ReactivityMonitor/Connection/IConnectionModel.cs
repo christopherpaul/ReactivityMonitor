@@ -12,7 +12,6 @@ namespace ReactivityMonitor.Connection
         Server Server { get; }
         IReactivityModel Model { get; }
 
-        IDisposable Connect();
         void StartMonitoringCall(int callId);
         void StopMonitoringCall(int callId);
 

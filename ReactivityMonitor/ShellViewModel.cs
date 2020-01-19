@@ -33,6 +33,8 @@ namespace ReactivityMonitor
                     .Select(itemTitle => $"{itemTitle} - Reactivity Monitor")
                     .Subscribe(title => DisplayName = title)
                     .DisposeWith(disposables);
+
+                Disposable.Create(connectionService.Close).DisposeWith(disposables);
             });
 
             IScreen GetViewModelForConnection(IConnectionModel conn)

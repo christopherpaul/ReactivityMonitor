@@ -18,12 +18,13 @@ namespace ReactivityProfiler.Support.Server
         private readonly Thread mWriterThread;
         private readonly BlockingCollection<byte[]> mWriteQueue;
         private readonly string mPipeName;
+        private readonly bool mRegisterPipeName;
 
         public Channel(Action<Stream> messageReceivedCallback, Action disconnectedCallback)
         {
             mMessageReceivedCallback = messageReceivedCallback;
             mDisconnectedCallback = disconnectedCallback;
-            mPipeName = $"{nameof(ReactivityProfiler)}.{Process.GetCurrentProcess().Id}.{Guid.NewGuid():N}";
+            (mPipeName, mRegisterPipeName) = GetPipeName();
             Trace.TraceInformation($"Opening pipe: {mPipeName}");
             mPipeStream = new NamedPipeServerStream(
                 mPipeName,
@@ -46,6 +47,17 @@ namespace ReactivityProfiler.Support.Server
             mWriterThread = writerThread;
 
             mWriteQueue = new BlockingCollection<byte[]>();
+        }
+
+        private static (string, bool) GetPipeName()
+        {
+            string pipeName = Environment.GetEnvironmentVariable("REACTIVITYPROFILER_PIPENAME");
+            if (!string.IsNullOrWhiteSpace(pipeName))
+            {
+                return (pipeName, false);
+            }
+
+            return ($"{nameof(ReactivityProfiler)}.{Process.GetCurrentProcess().Id}.{Guid.NewGuid():N}", true);
         }
 
         public void Start()
@@ -91,12 +103,19 @@ namespace ReactivityProfiler.Support.Server
         {
             try
             {
-                Registry.SetChannelPipeName(mPipeName);
+                if (mRegisterPipeName)
+                {
+                    Registry.SetChannelPipeName(mPipeName);
+                }
 
                 Trace.TraceInformation("Waiting for client to connect");
                 mPipeStream.WaitForConnection();
                 Trace.TraceInformation("Client has connected");
-                Registry.ClearChannelPipeName();
+
+                if (mRegisterPipeName)
+                {
+                    Registry.ClearChannelPipeName();
+                }
 
                 mWriterThread.Start();
 
