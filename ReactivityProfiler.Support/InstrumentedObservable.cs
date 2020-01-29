@@ -47,8 +47,8 @@ namespace ReactivityProfiler.Support
 
         public IDisposable Subscribe(IObserver<T> observer)
         {
-            long subId = Services.Store.Subscriptions.CreateSub(Info);
-            var instrumentedObserver = new Observer(observer, subId);
+            var sub = Services.Store.Subscriptions.CreateSub(Info);
+            var instrumentedObserver = new Observer(observer, sub);
             var subscription = mObservable.Subscribe(instrumentedObserver);
             return new Disposable(subscription, instrumentedObserver);
         }
@@ -76,35 +76,37 @@ namespace ReactivityProfiler.Support
         private sealed class Observer : IObserver<T>
         {
             private IObserver<T> mObserver;
-            private readonly long mSubscriptionId;
+            private readonly SubscriptionInfo mSubscriptionInfo;
 
-            public Observer(IObserver<T> observer, long subscriptionId)
+            public Observer(IObserver<T> observer, SubscriptionInfo subscriptionInfo)
             {
                 mObserver = observer;
-                mSubscriptionId = subscriptionId;
+                mSubscriptionInfo = subscriptionInfo;
             }
 
             public void OnUnsubscribe()
             {
-                Services.Store.Subscriptions.DeleteSub(mSubscriptionId);
+                Services.Store.Subscriptions.Unsubscribed(mSubscriptionInfo);
                 mObserver = null;
             }
 
             public void OnCompleted()
             {
-                Services.Store.RxEvents.AddOnCompleted(mSubscriptionId);
+                Services.Store.RxEvents.AddOnCompleted(mSubscriptionInfo);
+                Services.Store.Subscriptions.Terminated(mSubscriptionInfo);
                 mObserver.OnCompleted();
             }
 
             public void OnError(Exception error)
             {
-                Services.Store.RxEvents.AddOnError(mSubscriptionId, error);
+                Services.Store.RxEvents.AddOnError(mSubscriptionInfo, error);
+                Services.Store.Subscriptions.Terminated(mSubscriptionInfo);
                 mObserver.OnError(error);
             }
 
             public void OnNext(T value)
             {
-                Services.Store.RxEvents.AddOnNext(mSubscriptionId, value);
+                Services.Store.RxEvents.AddOnNext(mSubscriptionInfo, value);
                 mObserver.OnNext(value);
             }
         }

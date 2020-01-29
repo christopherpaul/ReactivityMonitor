@@ -4,8 +4,8 @@ namespace ReactivityProfiler.Support.Store
 {
     internal interface IRxEventStore
     {
-        void AddOnCompleted(long subscriptionId);
-        void AddOnError(long subscriptionId, Exception e);
-        void AddOnNext<T>(long subscriptionId, T value);
+        void AddOnCompleted(SubscriptionInfo sub);
+        void AddOnError(SubscriptionInfo sub, Exception e);
+        void AddOnNext<T>(SubscriptionInfo sub, T value);
     }
 }

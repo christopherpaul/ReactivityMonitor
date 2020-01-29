@@ -17,51 +17,51 @@ namespace ReactivityProfiler.Support.Store
 
         public bool TraceEvents { get; } = false;
 
-        public void AddOnNext<T>(long subscriptionId, T value)
+        public void AddOnNext<T>(SubscriptionInfo sub, T value)
         {
-            var details = CommonEventDetails.Capture();
-            var sub = mSubStore.GetSub(subscriptionId);
             if (sub == null)
             {
                 return;
             }
+
+            var details = CommonEventDetails.Capture();
             EventSink.OnNext(ref details, sub, value);
 
             if (TraceEvents)
             {
-                Trace(subscriptionId, $"OnNext({value})");
+                Trace(sub.SubscriptionId, $"OnNext({value})");
             }
         }
 
-        public void AddOnCompleted(long subscriptionId)
+        public void AddOnCompleted(SubscriptionInfo sub)
         {
-            var details = CommonEventDetails.Capture();
-            var sub = mSubStore.GetSub(subscriptionId);
             if (sub == null)
             {
                 return;
             }
+
+            var details = CommonEventDetails.Capture();
             EventSink.OnCompleted(ref details, sub);
 
             if (TraceEvents)
             {
-                Trace(subscriptionId, "OnCompleted");
+                Trace(sub.SubscriptionId, "OnCompleted");
             }
         }
 
-        public void AddOnError(long subscriptionId, Exception e)
+        public void AddOnError(SubscriptionInfo sub, Exception e)
         {
-            var details = CommonEventDetails.Capture();
-            var sub = mSubStore.GetSub(subscriptionId);
             if (sub == null)
             {
                 return;
             }
+
+            var details = CommonEventDetails.Capture();
             EventSink.OnError(ref details, sub, e);
 
             if (TraceEvents)
             {
-                Trace(subscriptionId, $"OnError({e.Message})");
+                Trace(sub.SubscriptionId, $"OnError({e.Message})");
             }
         }
 

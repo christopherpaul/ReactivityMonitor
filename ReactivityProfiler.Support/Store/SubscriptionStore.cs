@@ -17,7 +17,7 @@ namespace ReactivityProfiler.Support.Store
 
         public IStoreEventSink EventSink { get; set; }
 
-        public long CreateSub(ObservableInfo observable)
+        public SubscriptionInfo CreateSub(ObservableInfo observable)
         {
             var sub = new SubscriptionInfo(observable);
             mActiveSubscriptions.TryAdd(sub.SubscriptionId, sub);
@@ -31,7 +31,7 @@ namespace ReactivityProfiler.Support.Store
                 System.Diagnostics.Trace.WriteLine($"Obs{observable.ObservableId}:Sub{sub.SubscriptionId}:Subscribe");
             }
 
-            return sub.SubscriptionId;
+            return sub;
         }
 
         public SubscriptionInfo GetSub(long subId)
@@ -44,20 +44,30 @@ namespace ReactivityProfiler.Support.Store
             return mActiveSubscriptions.Values;
         }
 
-        public void DeleteSub(long subId)
+        public void Terminated(SubscriptionInfo sub)
+        {
+            RemoveFromStore(sub);
+        }
+
+        public void Unsubscribed(SubscriptionInfo sub)
         {
             var details = CommonEventDetails.Capture();
-            if (mActiveSubscriptions.TryRemove(subId, out var sub))
+            RemoveFromStore(sub);
+
+            EventSink.Unsubscribed(ref details, sub);
+
+            if (TraceEvents)
+            {
+                System.Diagnostics.Trace.WriteLine($"Obs{sub?.Observable.ObservableId}:Sub{sub?.SubscriptionId}:Dispose");
+            }
+        }
+
+        private void RemoveFromStore(SubscriptionInfo sub)
+        {
+            if (mActiveSubscriptions.TryRemove(sub.SubscriptionId, out _))
             {
                 GetInstrumentationPointSubscriptions(sub.Observable.InstrumentationPoint).RemoveSub(sub);
-                sub.Observable.ActiveSubscriptions.TryRemove(subId, out _);
-
-                EventSink.Unsubscribed(ref details, sub);
-
-                if (TraceEvents)
-                {
-                    System.Diagnostics.Trace.WriteLine($"Obs{sub?.Observable.ObservableId}:Sub{sub?.SubscriptionId}:Dispose");
-                }
+                sub.Observable.ActiveSubscriptions.TryRemove(sub.SubscriptionId, out _);
             }
         }
 
