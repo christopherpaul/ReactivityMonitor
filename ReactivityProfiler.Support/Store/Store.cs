@@ -46,12 +46,15 @@ namespace ReactivityProfiler.Support.Store
 
         public void StopMonitoring(int instrumentationPoint) => mEventMediator.StopMonitoring(instrumentationPoint);
 
+        public void StartMonitoringAll() => mEventMediator.StartMonitoringAll();
+
         public void StopMonitoringAll() => mEventMediator.StopMonitoringAll();
 
         private sealed class EventMediator : IStoreEventSink
         {
             private IStoreEventSink mEventSink;
             private readonly ConcurrentDictionary<int, bool> mMonitoredInstrumentationPoints = new ConcurrentDictionary<int, bool>();
+            private bool mIsMonitoringAll;
 
             public ISubscriptionStore Subscriptions { get; set; }
 
@@ -82,15 +85,25 @@ namespace ReactivityProfiler.Support.Store
                 }
             }
 
+            public void StartMonitoringAll()
+            {
+                mIsMonitoringAll = true;
+                foreach (var sub in Subscriptions.GetAllSubs())
+                {
+                    MonitorChain(sub.Observable);
+                }
+            }
+
             public void StopMonitoringAll()
             {
+                mIsMonitoringAll = false;
                 mMonitoredInstrumentationPoints.Clear();
                 ObservableInfo.StopMonitoringAll();
             }
 
             public void ObservableCreated(ObservableInfo rootObs)
             {
-                if (mMonitoredInstrumentationPoints.ContainsKey(rootObs.InstrumentationPoint))
+                if (mIsMonitoringAll || mMonitoredInstrumentationPoints.ContainsKey(rootObs.InstrumentationPoint))
                 {
                     MonitorChain(rootObs);
                 }
@@ -159,7 +172,7 @@ namespace ReactivityProfiler.Support.Store
                 // if the observable was already created but had no subscriptions when we began monitoring
                 // the instrumentation point, it would not have been picked up then, so deal with it
                 // retroactively here.
-                if (mMonitoredInstrumentationPoints.ContainsKey(sub.Observable.InstrumentationPoint))
+                if (mIsMonitoringAll || mMonitoredInstrumentationPoints.ContainsKey(sub.Observable.InstrumentationPoint))
                 {
                     // Note that MonitorChain will invoke this method recursively, but it will
                     // have set sub.Observable.Monitoring = true so will not reach this point.

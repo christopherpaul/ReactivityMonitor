@@ -6,8 +6,16 @@ namespace ReactivityProfiler.Support
 {
     internal static class ProfilerOptions
     {
-        public static string PipeName => Environment.GetEnvironmentVariable("REACTIVITYPROFILER_PIPENAME");
-        public static bool WaitForConnection => IsTruthy(Environment.GetEnvironmentVariable("REACTIVITYPROFILER_WAITFORCONNECTION"));
+        static ProfilerOptions()
+        {
+            PipeName = Environment.GetEnvironmentVariable("REACTIVITYPROFILER_PIPENAME");
+            WaitForConnection = IsTruthy(Environment.GetEnvironmentVariable("REACTIVITYPROFILER_WAITFORCONNECTION"));
+            MonitorAllFromStart = IsTruthy(Environment.GetEnvironmentVariable("REACTIVITYPROFILER_MONITORALLFROMSTART"));
+        }
+
+        public static string PipeName { get; }
+        public static bool WaitForConnection { get; }
+        public static bool MonitorAllFromStart { get; }
 
         private static bool IsTruthy(string s)
         {

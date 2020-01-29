@@ -19,12 +19,18 @@ namespace ReactivityProfiler.Support
         {
             try
             {
-                var server = new Server.Server(Services.Store);
+                IStore store = Services.Store;
+                var server = new Server.Server(store);
                 server.Start();
 
                 if (ProfilerOptions.WaitForConnection)
                 {
                     server.WaitUntilConnected();
+                }
+
+                if (ProfilerOptions.MonitorAllFromStart)
+                {
+                    store.StartMonitoringAll();
                 }
             }
             catch (Exception ex)
