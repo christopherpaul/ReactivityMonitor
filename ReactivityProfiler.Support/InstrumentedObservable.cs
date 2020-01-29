@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Text;
 using System.Threading;
 using ReactivityProfiler.Support.Store;
@@ -86,27 +87,58 @@ namespace ReactivityProfiler.Support
 
             public void OnUnsubscribe()
             {
-                Services.Store.Subscriptions.Unsubscribed(mSubscriptionInfo);
+                try
+                {
+                    Services.Store.Subscriptions.Unsubscribed(mSubscriptionInfo);
+                }
+                catch (Exception ex)
+                {
+                    Trace.TraceError("{0}<{1}> threw an exception: {2}", nameof(OnUnsubscribe), typeof(T).FullName, ex);
+                }
                 mObserver = null;
             }
 
             public void OnCompleted()
             {
-                Services.Store.RxEvents.AddOnCompleted(mSubscriptionInfo);
-                Services.Store.Subscriptions.Terminated(mSubscriptionInfo);
+                try
+                {
+                    Services.Store.RxEvents.AddOnCompleted(mSubscriptionInfo);
+                    Services.Store.Subscriptions.Terminated(mSubscriptionInfo);
+                }
+                catch (Exception ex)
+                {
+                    Trace.TraceError("{0}<{1}> threw an exception: {2}", nameof(OnCompleted), typeof(T).FullName, ex);
+                }
+
                 mObserver.OnCompleted();
             }
 
             public void OnError(Exception error)
             {
-                Services.Store.RxEvents.AddOnError(mSubscriptionInfo, error);
-                Services.Store.Subscriptions.Terminated(mSubscriptionInfo);
+                try
+                {
+                    Services.Store.RxEvents.AddOnError(mSubscriptionInfo, error);
+                    Services.Store.Subscriptions.Terminated(mSubscriptionInfo);
+                }
+                catch (Exception ex)
+                {
+                    Trace.TraceError("{0}<{1}> threw an exception: {2}", nameof(OnError), typeof(T).FullName, ex);
+                }
+
                 mObserver.OnError(error);
             }
 
             public void OnNext(T value)
             {
-                Services.Store.RxEvents.AddOnNext(mSubscriptionInfo, value);
+                try
+                {
+                    Services.Store.RxEvents.AddOnNext(mSubscriptionInfo, value);
+                }
+                catch (Exception ex)
+                {
+                    Trace.TraceError("{0}<{1}> threw an exception: {2}", nameof(OnNext), typeof(T).FullName, ex);
+                }
+
                 mObserver.OnNext(value);
             }
         }

@@ -195,13 +195,21 @@ namespace ReactivityProfiler.Support
         /// </summary>
         public static T Argument<T>(T argValue, int instrumentationPoint)
         {
-            var handler = ArgumentTypeSpecialisation<T>.ArgHandler;
-            if (handler == null)
+            try
             {
+                var handler = ArgumentTypeSpecialisation<T>.ArgHandler;
+                if (handler == null)
+                {
+                    return argValue;
+                }
+
+                return handler(argValue, instrumentationPoint);
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError("{0}<{1}> threw an exception: {2}", nameof(Argument), typeof(T).FullName, ex);
                 return argValue;
             }
-
-            return handler(argValue, instrumentationPoint);
         }
 
         /// <summary>
@@ -209,7 +217,14 @@ namespace ReactivityProfiler.Support
         /// </summary>
         public static void Calling(int instrumentationPoint)
         {
-            sTracker.Value.Calling(instrumentationPoint);
+            try
+            {
+                sTracker.Value.Calling(instrumentationPoint);
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError("{0} threw an exception: {1}", nameof(Calling), ex);
+            }
         }
 
         /// <summary>
@@ -217,20 +232,28 @@ namespace ReactivityProfiler.Support
         /// </summary>
         public static IObservable<T> Returned<T>(IObservable<T> observable, int instrumentationPoint)
         {
-            var inputs = sTracker.Value.Returned(instrumentationPoint);
-
-            if (observable == null)
+            try
             {
+                var inputs = sTracker.Value.Returned(instrumentationPoint);
+
+                if (observable == null)
+                {
+                    return observable;
+                }
+
+                var obsInfo = Services.Store.CreateObservable(instrumentationPoint);
+                foreach (var input in inputs)
+                {
+                    input.AssociateWith(obsInfo);
+                }
+
+                return new InstrumentedObservable<T>(observable, obsInfo);
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError("{0}<{1}> threw an exception: {2}", nameof(Returned), typeof(T).FullName, ex);
                 return observable;
             }
-
-            var obsInfo = Services.Store.CreateObservable(instrumentationPoint);
-            foreach (var input in inputs)
-            {
-                input.AssociateWith(obsInfo);
-            }
-
-            return new InstrumentedObservable<T>(observable, obsInfo);
         }
 
         private static readonly ConcurrentDictionary<RuntimeTypeHandle, Func<object, object, object>> cDerivedInterfaceWrappers =
@@ -362,14 +385,22 @@ namespace ReactivityProfiler.Support
 
         public static IObservable<T> ReturnedSubinterface<T>(IObservable<T> observable, int instrumentationPoint, RuntimeTypeHandle constructedTypeHandle)
         {
-            var instrumented = Returned(observable, instrumentationPoint);
-            if (ReferenceEquals(instrumented, observable))
+            try
             {
+                var instrumented = Returned(observable, instrumentationPoint);
+                if (ReferenceEquals(instrumented, observable))
+                {
+                    return observable;
+                }
+
+                var wrapperFunction = GetDerivedInterfaceWrapper(constructedTypeHandle);
+                return (IObservable<T>)wrapperFunction(observable, instrumented);
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError("{0}<{1}>({2}) threw an exception: {3}", nameof(ReturnedSubinterface), typeof(T).FullName, observable?.GetType().FullName, ex);
                 return observable;
             }
-
-            var wrapperFunction = GetDerivedInterfaceWrapper(constructedTypeHandle);
-            return (IObservable<T>)wrapperFunction(observable, instrumented);
         }
     }
 }
