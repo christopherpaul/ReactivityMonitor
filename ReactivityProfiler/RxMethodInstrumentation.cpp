@@ -31,8 +31,8 @@ struct MethodCallInfo
 struct ObservableCallInfo
 {
     std::wstring m_calledMethodName;
-    int m_instructionOffset = 0;
-    int m_instructionLength = 0;
+    int m_instructionOffset = 0; // if call instruction has prefix(es), this is the offset of the (first) prefix
+    int m_instructionLength = 0; // includes length of any prefix(es)
     SigSpanOrVector m_returnType;
     mdToken m_returnObservableTypeRef = 0; // IObservable, IConnectedObservable, IGroupedObservable...?
     SigSpanOrVector m_returnTypeArg; // if call returns IObservable<T>, this is T
@@ -285,10 +285,24 @@ bool MethodBodyInstrumenter::TryFindObservableCalls()
         }
 
         ObservableCallInfo callInfo;
+        int prefixLength = 0;
+        auto prefixIt = it;
+        while (prefixIt != m_method->m_instructions.begin())
+        {
+            prefixIt--;
+            auto pPotentialPrefixInstr = prefixIt->get();
+            if (Operations::m_mapNameOperationDetails[pPotentialPrefixInstr->m_operation].opcodeKind != IPrefix)
+            {
+                break;
+            }
+
+            prefixLength += pPotentialPrefixInstr->length();
+        }
+
         callInfo.m_returnObservableTypeRef = returnTypeRef;
         callInfo.m_calledMethodName = methodCallInfo.name;
-        callInfo.m_instructionOffset = pInstr->m_origOffset;
-        callInfo.m_instructionLength = pInstr->length();
+        callInfo.m_instructionOffset = pInstr->m_origOffset - prefixLength;
+        callInfo.m_instructionLength = prefixLength + pInstr->length();
 
         // Record the return type
         returnTypeReader.MoveNextTypeArg();

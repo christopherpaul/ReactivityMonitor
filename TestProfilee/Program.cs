@@ -52,6 +52,8 @@ namespace TestProfilee
                 .Select(x => x.Str)
                 .Publish();
 
+            ConstrainedGenericExample.Test(new ObjectWithObservableProperty());
+
             using (observable.Subscribe(Console.WriteLine))
             using (observable.Connect())
             using (TestGroupedObservable().Subscribe(Console.WriteLine))
