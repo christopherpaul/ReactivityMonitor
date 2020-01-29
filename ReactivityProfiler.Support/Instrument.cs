@@ -21,6 +21,11 @@ namespace ReactivityProfiler.Support
             {
                 var server = new Server.Server(Services.Store);
                 server.Start();
+
+                if (ProfilerOptions.WaitForConnection)
+                {
+                    server.WaitUntilConnected();
+                }
             }
             catch (Exception ex)
             {

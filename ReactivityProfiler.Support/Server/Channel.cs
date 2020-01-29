@@ -12,6 +12,7 @@ namespace ReactivityProfiler.Support.Server
     internal sealed class Channel : IDisposable
     {
         private readonly Action<Stream> mMessageReceivedCallback;
+        private readonly Action mConnectedCallback;
         private readonly Action mDisconnectedCallback;
         private readonly NamedPipeServerStream mPipeStream;
         private readonly Thread mReaderThread;
@@ -20,9 +21,10 @@ namespace ReactivityProfiler.Support.Server
         private readonly string mPipeName;
         private readonly bool mRegisterPipeName;
 
-        public Channel(Action<Stream> messageReceivedCallback, Action disconnectedCallback)
+        public Channel(Action<Stream> messageReceivedCallback, Action connectedCallback, Action disconnectedCallback)
         {
             mMessageReceivedCallback = messageReceivedCallback;
+            mConnectedCallback = connectedCallback;
             mDisconnectedCallback = disconnectedCallback;
             (mPipeName, mRegisterPipeName) = GetPipeName();
             Trace.TraceInformation($"Opening pipe: {mPipeName}");
@@ -51,7 +53,7 @@ namespace ReactivityProfiler.Support.Server
 
         private static (string, bool) GetPipeName()
         {
-            string pipeName = Environment.GetEnvironmentVariable("REACTIVITYPROFILER_PIPENAME");
+            string pipeName = ProfilerOptions.PipeName;
             if (!string.IsNullOrWhiteSpace(pipeName))
             {
                 return (pipeName, false);
@@ -112,6 +114,8 @@ namespace ReactivityProfiler.Support.Server
                 mPipeStream.WaitForConnection();
                 Trace.TraceInformation("Client has connected");
 
+                mConnectedCallback?.Invoke();
+
                 if (mRegisterPipeName)
                 {
                     Registry.ClearChannelPipeName();
@@ -148,7 +152,7 @@ namespace ReactivityProfiler.Support.Server
                 Trace.TraceError("Error reading pipe: {0}", ex);
             }
 
-            mDisconnectedCallback();
+            mDisconnectedCallback?.Invoke();
         }
 
         private void OnMessageReceived(byte[] buffer, int length)

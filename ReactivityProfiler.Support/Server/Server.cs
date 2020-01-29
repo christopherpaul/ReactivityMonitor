@@ -20,10 +20,12 @@ namespace ReactivityProfiler.Support.Server
         private PayloadStore mPayloadStore;
         private ValueRenderer mValueRenderer;
         private TypeInfoStore mTypeInfoStore;
+        private readonly ManualResetEventSlim mConnectedEvent;
 
         public Server(IStore store)
         {
             mStore = store;
+            mConnectedEvent = new ManualResetEventSlim();
         }
 
         public void Start()
@@ -31,9 +33,14 @@ namespace ReactivityProfiler.Support.Server
             CreateChannel();
         }
 
+        public void WaitUntilConnected()
+        {
+            mConnectedEvent.Wait();
+        }
+
         private void CreateChannel()
         {
-            var channel = new Channel(OnMessageReceived, OnChannelDisconnected);
+            var channel = new Channel(OnMessageReceived, OnChannelConnected, OnChannelDisconnected);
             mChannel = channel;
             mPayloadStore = new PayloadStore();
             mTypeInfoStore = new TypeInfoStore(typeToNotify => SendEvent(channel, new EventMessage { Type = typeToNotify }));
@@ -42,8 +49,15 @@ namespace ReactivityProfiler.Support.Server
             mStore.SinkEvents(new StoreEventSink(mChannel, mValueRenderer));
         }
 
+        private void OnChannelConnected()
+        {
+            mConnectedEvent.Set();
+        }
+
         private void OnChannelDisconnected()
         {
+            mConnectedEvent.Reset();
+
             mStore.StopMonitoringAll();
             mChannel.Dispose();
             mChannel = null;
