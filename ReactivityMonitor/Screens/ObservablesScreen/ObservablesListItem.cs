@@ -12,6 +12,7 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ReactivityMonitor.Utility.Extensions;
+using static ReactivityMonitor.Model.StreamEvent.EventKind;
 
 namespace ReactivityMonitor.Screens.ObservablesScreen
 {
@@ -27,6 +28,7 @@ namespace ReactivityMonitor.Screens.ObservablesScreen
                     .Publish(subs => subs
                         .ToObservableChangeSet(sub => sub.SubscriptionId)
                         .Merge(subs.SelectMany(sub => sub.Events
+                            .TakeUntil(e => e.Kind == OnCompleted || e.Kind == OnError || e.Kind == Unsubscribe)
                             .WhenTerminated()
                             .Select(_ => new Change<ISubscription, long>(ChangeReason.Remove, sub.SubscriptionId, sub))
                             .Select(chg => new ChangeSet<ISubscription, long> { chg }))))
