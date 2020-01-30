@@ -13,6 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DynamicData;
 using ReactivityMonitor.Connection;
+using ReactivityMonitor.ProfilerClient;
 using ReactivityMonitor.Utility.Flyweights;
 
 namespace ReactivityMonitor.Services
@@ -21,9 +22,7 @@ namespace ReactivityMonitor.Services
     {
         private readonly ServerDiscovery mServerDiscovery;
         private readonly ISubject<IConnectionModel> mConnectionSubject;
-        private readonly string mProfilerLocation32;
-        private readonly string mProfilerLocation64;
-        private readonly string mSupportAssemblyLocation;
+        private readonly ProcessSetup mProcessSetup;
         private readonly SerialDisposable mActiveConnection = new SerialDisposable();
 
         public ConnectionService()
@@ -46,10 +45,7 @@ namespace ReactivityMonitor.Services
                         new Uri(Assembly.GetEntryAssembly().CodeBase).LocalPath),
                     "profiler");
 
-            const string cProfilerDll = "ReactivityProfiler.dll";
-            mProfilerLocation32 = Path.Combine(profilersLocation, "Win32", cProfilerDll);
-            mProfilerLocation64 = Path.Combine(profilersLocation, "x64", cProfilerDll);
-            mSupportAssemblyLocation = Path.Combine(profilersLocation, "x64", "ReactivityProfiler.Support.dll");
+            mProcessSetup = new ProcessSetup(profilersLocation);
         }
 
         public IObservable<IChangeSet<Server, int>> AvailableServers { get; }
@@ -64,18 +60,7 @@ namespace ReactivityMonitor.Services
 
             psi.UseShellExecute = false;
 
-            foreach (string prefix in new[] { "COR", "CORECLR" })
-            {
-                psi.Environment.Add($"{prefix}_ENABLE_PROFILING", "1");
-                psi.Environment.Add($"{prefix}_PROFILER_PATH_32", mProfilerLocation32);
-                psi.Environment.Add($"{prefix}_PROFILER_PATH_64", mProfilerLocation64);
-                psi.Environment.Add($"{prefix}_PROFILER", "{09c5b5d7-62d2-4448-911d-2e1346a21110}");
-            }
-
-            psi.Environment.Add("DOTNET_STARTUP_HOOKS", mSupportAssemblyLocation);
-
-            string pipeName = $"ReactivityProfiler.{Path.GetFileNameWithoutExtension(launchInfo.FileName)}.{Guid.NewGuid():N}";
-            psi.Environment.Add("REACTIVITYPROFILER_PIPENAME", pipeName);
+            mProcessSetup.SetEnvironmentVariables(psi);
 
             Process process;
             try
@@ -92,7 +77,7 @@ namespace ReactivityMonitor.Services
                 throw new ConnectionException("Process failed to start.");
             }
 
-            var server = new Server(process.Id, process.ProcessName, pipeName);
+            var server = new Server(process.Id, process.ProcessName, mProcessSetup.PipeName);
 
             await Open(server, cancellationToken).ConfigureAwait(false);
         }

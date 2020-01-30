@@ -12,7 +12,7 @@ using System.Threading;
 
 namespace ReactivityMonitor.ProfilerClient
 {
-    internal static class ServerCommunication
+    public static class ServerCommunication
     {
         public static IObservable<byte[]> CreateRawChannel(string pipeName, IObservable<byte[]> outgoingMessages)
         {

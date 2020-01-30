@@ -257,20 +257,5 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 
-  <Target Name="BuildProfiler" AfterTargets="Build">
-    <ItemGroup>
-      <ProfilerPlatform Include="Win32;x64" />
-    </ItemGroup>
-
-    <MSBuild 
-      Projects="..\ReactivityProfiler\ReactivityProfiler.vcxproj"
-      Properties="Configuration=$(Configuration);Platform=%(ProfilerPlatform.Identity)"
-      Targets="Build;GetNativeTargetPath;CopySupportFiles"
-      RebaseOutputs="true"
-      >
-      <Output TaskParameter="TargetOutputs" ItemName="ProfilerOutput%(ProfilerPlatform.Identity)" />
-    </MSBuild>
-
-    <Copy SourceFiles="@(ProfilerOutput%(ProfilerPlatform.Identity))" DestinationFolder="$(OutDir)profiler\%(ProfilerPlatform.Identity)" />
-  </Target>
+  <Import Project="$(MSBuildThisFileDirectory)..\build\IncludeProfilerBinaries.targets" />
 </Project>
