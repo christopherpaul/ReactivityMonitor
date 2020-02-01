@@ -75,7 +75,7 @@ namespace ReactivityMonitor.VsTest
         private void OnSessionEnd(object sender, SessionEndEventArgs e)
         {
             mSessionEnded.SetResult(default);
-            mFileWriterThing.Wait();
+            mFileWriterThing.LastOrDefaultAsync().Wait();
 
             mDataSink.SendFileAsync(e.Context, mDataFilePath, true);
         }
