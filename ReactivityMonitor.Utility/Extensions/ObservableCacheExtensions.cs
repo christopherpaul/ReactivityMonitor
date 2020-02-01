@@ -16,8 +16,11 @@ namespace ReactivityMonitor.Utility.Extensions
         {
             var rightKeys = right.Transform((_, k) => k);
 
-            return left.Group(leftItemKeySelector)
-                .InnerJoin(rightKeys, k => k, (l, r) => l)
+            object workaroundInnerJoinLocker = new object();
+
+            return left.Group(leftItemKeySelector).Synchronize(workaroundInnerJoinLocker)
+                .InnerJoin(rightKeys.Synchronize(workaroundInnerJoinLocker), k => k, (l, r) => l)
+                .SynchronizeSubscribe(workaroundInnerJoinLocker)
                 .Transform(group =>
                 {
                     var whenGroupRemoved = new Subject<Unit>();
