@@ -15,5 +15,6 @@
         void StopMonitoring(int instrumentationPoint);
         void StartMonitoringAll();
         void StopMonitoringAll();
+        CommonEventDetails RecordEvent();
     }
 }

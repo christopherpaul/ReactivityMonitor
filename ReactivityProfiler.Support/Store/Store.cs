@@ -50,6 +50,8 @@ namespace ReactivityProfiler.Support.Store
 
         public void StopMonitoringAll() => mEventMediator.StopMonitoringAll();
 
+        public CommonEventDetails RecordEvent() => CommonEventDetails.Capture();
+
         private sealed class EventMediator : IStoreEventSink
         {
             private IStoreEventSink mEventSink;

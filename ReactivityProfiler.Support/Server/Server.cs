@@ -35,6 +35,7 @@ namespace ReactivityProfiler.Support.Server
 
         public void WaitUntilConnected()
         {
+            Trace.TraceInformation("Waiting for client connection");
             mConnectedEvent.Wait();
         }
 
@@ -59,7 +60,7 @@ namespace ReactivityProfiler.Support.Server
             mConnectedEvent.Reset();
 
             mStore.StopMonitoringAll();
-            mChannel.Dispose();
+            mChannel?.Dispose();
             mChannel = null;
             mValueRenderer = null;
             mPayloadStore = null;
@@ -74,7 +75,20 @@ namespace ReactivityProfiler.Support.Server
             switch (requestMessage.RequestCase)
             {
                 case RequestMessage.RequestOneofCase.SendInstrumentationEvents:
-                    StartSendingInstrumentationEvents();
+                    switch (requestMessage.SendInstrumentationEvents.Mode)
+                    {
+                        case SendInstrumentationEventsRequest.Types.RequestMode.Continuous:
+                            StartSendingInstrumentationEvents();
+                            break;
+
+                        case SendInstrumentationEventsRequest.Types.RequestMode.OnceAll:
+                            SendAllInstrumentationEvents();
+                            break;
+
+                        default:
+                            Trace.TraceWarning("Unknown Mode value in SendInstrumentationEventsRequest: {0}", (int)requestMessage.SendInstrumentationEvents.Mode);
+                            break;
+                    }
                     break;
 
                 case RequestMessage.RequestOneofCase.StartMonitoring:
@@ -94,7 +108,40 @@ namespace ReactivityProfiler.Support.Server
                 case RequestMessage.RequestOneofCase.GetObjectProperties:
                     SendObjectProperties(requestMessage.GetObjectProperties.ObjectId);
                     break;
+
+                case RequestMessage.RequestOneofCase.RecordEvent:
+                    RecordClientEvent(requestMessage.RecordEvent);
+                    break;
+
+                case RequestMessage.RequestOneofCase.Disconnect:
+                    Disconnect();
+                    break;
             }
+        }
+
+        private void Disconnect()
+        {
+            var channel = mChannel;
+            mChannel = null;
+
+            channel.Dispose();
+        }
+
+        private void RecordClientEvent(RecordEventRequest req)
+        {
+            var details = mStore.RecordEvent();
+            var eventMessage = new EventMessage
+            {
+                ClientEvent = new ClientEvent
+                {
+                    Event = GetEventInfo(details),
+                    Id = req.Id,
+                    Name = req.Name,
+                    Description = req.Description
+                }
+            };
+
+            SendEvent(mChannel, eventMessage);
         }
 
         private void SendObjectProperties(long requestedObjectId)
@@ -140,8 +187,22 @@ namespace ReactivityProfiler.Support.Server
 
         private void StartSendingInstrumentationEvents()
         {
-            var task = new Task(() => SendInstrumentationEvents(mChannel), TaskCreationOptions.LongRunning);
+            var channel = mChannel;
+            var task = new Task(() => SendInstrumentationEvents(channel), TaskCreationOptions.LongRunning);
             task.Start();
+        }
+
+        private void SendAllInstrumentationEvents()
+        {
+            try
+            {
+                int index = 0;
+                TrySendInstrumentationEventsFrom(ref index, mChannel);
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError("Exception sending instrumentation events to client: {0}", ex);
+            }
         }
 
         private void SendInstrumentationEvents(Channel channel)
@@ -151,19 +212,10 @@ namespace ReactivityProfiler.Support.Server
                 int index = 0;
                 while (channel.IsConnected)
                 {
-                    int eventCount = mStore.Instrumentation.GetEventCount();
-                    if (index == eventCount)
+                    if (!TrySendInstrumentationEventsFrom(ref index, channel))
                     {
                         // We've sent all the existing events, so sleep a bit.
                         Thread.Sleep(1000);
-                    }
-
-                    while (index < eventCount)
-                    {
-                        object e = mStore.Instrumentation.GetEvent(index);
-                        EventMessage msg = CreateInstrumentationMessage(e);
-                        SendEvent(channel, msg);
-                        index++;
                     }
                 }
             }
@@ -171,6 +223,26 @@ namespace ReactivityProfiler.Support.Server
             {
                 Trace.TraceError("Exception sending instrumentation events to client: {0}", ex);
             }
+        }
+
+        private bool TrySendInstrumentationEventsFrom(ref int index, Channel channel)
+        {
+            int eventCount = mStore.Instrumentation.GetEventCount();
+            if (index >= eventCount)
+            {
+                // No events to send
+                return false;
+            }
+
+            while (index < eventCount)
+            {
+                object e = mStore.Instrumentation.GetEvent(index);
+                EventMessage msg = CreateInstrumentationMessage(e);
+                SendEvent(channel, msg);
+                index++;
+            }
+
+            return true;
         }
 
         private EventMessage CreateInstrumentationMessage(object e)
@@ -321,17 +393,17 @@ namespace ReactivityProfiler.Support.Server
                 });
             }
 
-            private EventInfo GetEventInfo(CommonEventDetails details)
-            {
-                return new EventInfo
-                {
-                    SequenceId = details.EventSequenceId,
-                    Timestamp = details.Timestamp.Ticks,
-                    ThreadId = details.ThreadId
-                };
-            }
-
             private void SendEvent(EventMessage msg) => Server.SendEvent(mChannel, msg);
+        }
+
+        private static EventInfo GetEventInfo(CommonEventDetails details)
+        {
+            return new EventInfo
+            {
+                SequenceId = details.EventSequenceId,
+                Timestamp = details.Timestamp.Ticks,
+                ThreadId = details.ThreadId
+            };
         }
     }
 }

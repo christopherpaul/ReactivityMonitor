@@ -20,6 +20,7 @@ namespace ReactivityProfiler.Support.Server
         private readonly BlockingCollection<byte[]> mWriteQueue;
         private readonly string mPipeName;
         private readonly bool mRegisterPipeName;
+        private bool mIsDisposed;
 
         public Channel(Action<Stream> messageReceivedCallback, Action connectedCallback, Action disconnectedCallback)
         {
@@ -73,7 +74,14 @@ namespace ReactivityProfiler.Support.Server
         /// </summary>
         public void SendMessage(byte[] message)
         {
-            mWriteQueue.Add(message);
+            try
+            {
+                mWriteQueue.Add(message);
+            }
+            catch (InvalidOperationException)
+            {
+                // queue has been closed
+            }
         }
 
         public bool IsConnected => mPipeStream.IsConnected;
@@ -124,7 +132,7 @@ namespace ReactivityProfiler.Support.Server
                 mWriterThread.Start();
 
                 byte[] buffer = new byte[64];
-                while (mPipeStream.IsConnected)
+                while (mPipeStream.IsConnected && !mIsDisposed)
                 {
                     int bufferOffset = 0;
                     do
@@ -141,7 +149,7 @@ namespace ReactivityProfiler.Support.Server
                     }
                     while (!mPipeStream.IsMessageComplete);
 
-                    if (bufferOffset > 0)
+                    if (bufferOffset > 0 && !mIsDisposed)
                     {
                         OnMessageReceived(buffer, bufferOffset);
                     }
@@ -169,8 +177,16 @@ namespace ReactivityProfiler.Support.Server
 
         public void Dispose()
         {
-            mWriteQueue.CompleteAdding();
-            mPipeStream.Dispose();
+            if (!mIsDisposed)
+            {
+                mIsDisposed = true;
+                mWriteQueue.CompleteAdding();
+                if (mWriterThread.IsAlive)
+                {
+                    mWriterThread.Join();
+                }
+                mPipeStream.Dispose();
+            }
         }
     }
 }

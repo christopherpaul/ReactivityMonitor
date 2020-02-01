@@ -15,6 +15,7 @@ message EventMessage {
 		ObjectPropertiesResponse ObjectProperties = 10;
 		ObjectItemsResponse ObjectItems = 11;
 		Type Type = 12;
+		ClientEvent ClientEvent = 13;
 	}
 }
 
@@ -76,6 +77,13 @@ message OnErrorEvent {
 	Value ExceptionValue = 4;
 }
 
+message ClientEvent {
+	EventInfo Event = 1;
+	int32 Id = 2;
+	string Name = 3;
+	string Description = 4;
+}
+
 message EventInfo {
 	int64 SequenceId = 1;
 	int64 Timestamp = 2;
@@ -101,11 +109,17 @@ message RequestMessage {
 		StopMonitoringRequest StopMonitoring = 3;
 		ObjectPropertiesRequest GetObjectProperties = 4;
 		ObjectItemsRequest GetObjectItems = 5;
+		RecordEventRequest RecordEvent = 6;
+		DisconnectRequest Disconnect = 7;
 	}
 }
 
 message SendInstrumentationEventsRequest {
-
+	enum RequestMode {
+		CONTINUOUS = 0; // send all instrumentation info and continue sending as more becomes available
+		ONCE_ALL = 1; // send all instrumentation info currently available
+	}
+	RequestMode Mode = 1;
 }
 
 message StartMonitoringRequest {
@@ -124,6 +138,17 @@ message ObjectItemsRequest {
 	int64 ObjectId = 1;
 	int32 StartAt = 2;
 	int32 MaxCount = 3; // max number to enumerate
+}
+
+message RecordEventRequest {
+	// server does not interpret these fields, but includes them in the response, so
+	// client can use for whatever purpose makes sense
+	int32 Id = 1;
+	string Name = 2;
+	string Description = 3;
+}
+
+message DisconnectRequest {
 }
 
 message Value {
