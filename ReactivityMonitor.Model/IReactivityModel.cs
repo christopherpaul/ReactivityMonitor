@@ -12,5 +12,7 @@ namespace ReactivityMonitor.Model
         IObservable<IInstrumentedCall> InstrumentedCalls { get; }
 
         IObservable<IObservableInstance> ObservableInstances { get; }
+
+        IObservable<ClientEvent> ClientEvents { get; }
     }
 }

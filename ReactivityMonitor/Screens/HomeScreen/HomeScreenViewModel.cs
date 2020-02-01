@@ -40,7 +40,7 @@ namespace ReactivityMonitor.Screens.HomeScreen
             callsScreen.ConductWith(this);
 
             EventList = eventListScreen;
-            eventListScreen.WhenActiveMonitoringGroupChanges = this.WhenAnyValue(x => x.ActiveMonitoringScreen).Select(s => s.MonitoringGroup);
+            eventListScreen.WhenActiveMonitoringGroupChanges = this.WhenAnyValue(x => x.ActiveMonitoringScreen).Select(s => s?.MonitoringGroup);
             eventListScreen.ConductWith(this);
 
             PayloadScreen = payloadScreen;

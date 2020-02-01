@@ -20,5 +20,6 @@ namespace ReactivityMonitor.Model
         IObservable<NewStreamEvent> StreamEvents { get; }
         IObservable<NewTypeInfo> Types { get; }
         IObservable<ObjectPropertiesInfo> ObjectPropertiesInfos { get; }
+        IObservable<ClientEvent> ClientEvents { get; }
     }
 }

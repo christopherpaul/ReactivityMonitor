@@ -117,11 +117,16 @@ namespace ReactivityMonitor.Model
                 mObjectPropertiesInfoByObjectId = updateSource.ObjectPropertiesInfos
                     .ToObservableChangeSet(info => info.ObjectId)
                     .AsObservableCache();
+
+                var clientEvents = updateSource.ClientEvents.Replay();
+                clientEvents.Connect();
+                ClientEvents = clientEvents.AsObservable();
             }
 
             public IObservable<IModule> Modules { get; }
             public IObservable<IInstrumentedCall> InstrumentedCalls { get; }
             public IObservable<IObservableInstance> ObservableInstances { get; }
+            public IObservable<ClientEvent> ClientEvents { get; }
 
             private IModule CreateModule(NewModuleUpdate m)
             {

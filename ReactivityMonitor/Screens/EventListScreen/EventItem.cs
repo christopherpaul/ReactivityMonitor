@@ -15,13 +15,18 @@ namespace ReactivityMonitor.Screens.EventListScreen
             return new StreamEventItem(sub, e);
         }
 
+        public static EventItem FromClientEvent(ClientEvent clientEvent)
+        {
+            return new ClientEventItem(clientEvent);
+        }
+
         public long SequenceId => Info.SequenceId;
 
         public abstract EventInfo Info { get; }
 
         protected abstract IObservableInstance ObservableInstance { get; }
 
-        public long ObservableId => ObservableInstance.ObservableId;
+        public long ObservableId => ObservableInstance?.ObservableId ?? 0;
         public abstract long? SubscriptionId { get; }
 
         public abstract string EventKindName { get; }
@@ -30,8 +35,8 @@ namespace ReactivityMonitor.Screens.EventListScreen
 
         public abstract PayloadObject Payload { get; }
 
-        public string CalledMethodName => ObservableInstance.Call.CalledMethod;
-        public string CallingMethodName => ObservableInstance.Call.CallingMethod;
+        public string CalledMethodName => ObservableInstance?.Call.CalledMethod;
+        public string CallingMethodName => ObservableInstance?.Call.CallingMethod;
 
         private sealed class ObservableInstanceEventItem : EventItem
         {
@@ -133,6 +138,22 @@ namespace ReactivityMonitor.Screens.EventListScreen
                         throw new ArgumentOutOfRangeException(nameof(kind));
                 }
             }
+        }
+
+        private sealed class ClientEventItem : EventItem
+        {
+            public ClientEventItem(ClientEvent clientEvent)
+            {
+                ClientEvent = clientEvent;
+            }
+
+            public override EventInfo Info => ClientEvent.Info;
+            public override long? SubscriptionId => null;
+            public override string EventKindName => "Information";
+            public override string Value => ClientEvent.Description;
+            public override PayloadObject Payload => null;
+            public ClientEvent ClientEvent { get; }
+            protected override IObservableInstance ObservableInstance => null;
         }
     }
 }

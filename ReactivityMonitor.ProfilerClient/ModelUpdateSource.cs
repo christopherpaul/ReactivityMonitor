@@ -67,6 +67,9 @@ namespace ReactivityMonitor.ProfilerClient
 
             ObjectPropertiesInfos = GetMessages(ObjectProperties, msg => msg.ObjectProperties)
                 .Select(CreateObjectPropertiesInfo);
+
+            ClientEvents = GetMessages(EventMessage.EventOneofCase.ClientEvent, msg => msg.ClientEvent)
+                .Select(msg => new Model.ClientEvent(msg.Event.ToModel(), msg.Description));
         }
 
         public IObservable<NewModuleUpdate> Modules { get; }
@@ -78,6 +81,7 @@ namespace ReactivityMonitor.ProfilerClient
         public IObservable<NewStreamEvent> StreamEvents { get; }
         public IObservable<NewTypeInfo> Types { get; }
         public IObservable<ObjectPropertiesInfo> ObjectPropertiesInfos { get; }
+        public IObservable<Model.ClientEvent> ClientEvents { get; }
 
         public IDisposable Connect()
         {

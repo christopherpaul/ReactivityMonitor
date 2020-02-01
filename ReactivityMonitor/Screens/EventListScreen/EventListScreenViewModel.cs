@@ -41,16 +41,17 @@ namespace ReactivityMonitor.Screens.EventListScreen
                 // just so it can generate a "clear all these" message.
                 // Potentially same deal with filter changes.
 
+                var allObservableInstances = Model.ObservableInstances.ToObservableChangeSet(obs => obs.ObservableId);
+
                 var activeGroupObservableInstances = WhenActiveMonitoringGroupChanges
                     .ObserveOn(concurrencyService.TaskPoolRxScheduler)
                     .Select(group =>
-                        group.Calls
+                        group?.Calls
                             .MergeMany(call => call.Call.ObservableInstances)
                             .Expand(obs => obs.Inputs)
-                            .ToObservableChangeSet(obs => obs.ObservableId))
+                            .ToObservableChangeSet(obs => obs.ObservableId)
+                            ?? allObservableInstances)
                     .Switch();
-
-                var allObservableInstances = Model.ObservableInstances.ToObservableChangeSet(obs => obs.ObservableId);
 
                 var filterObservableInstances = whenIsFilteringToActiveGroupChanges
                     .ObserveOn(concurrencyService.TaskPoolRxScheduler)
@@ -73,6 +74,7 @@ namespace ReactivityMonitor.Screens.EventListScreen
                         .Synchronize(workaroundSwitchIssueLocker))
                     .Synchronize(workaroundSwitchIssueLocker)
                     .Switch()
+                    .Merge(Model.ClientEvents.Select(EventItem.FromClientEvent).ToObservableChangeSet(e => e.Info.SequenceId))
                     .SynchronizeSubscribe(workaroundSwitchIssueLocker)
                     .Batch(TimeSpan.FromMilliseconds(100))
                     .Sort(Utility.Comparer<EventItem>.ByKey(e => e.SequenceId))
