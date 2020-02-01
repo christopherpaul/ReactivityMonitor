@@ -121,7 +121,7 @@ namespace ReactivityMonitor.VsTest
             {
                 SendInstrumentationEvents = new SendInstrumentationEventsRequest
                 {
-                    Mode = SendInstrumentationEventsRequest.Types.RequestMode.OnceAll
+                    Mode = SendInstrumentationEventsRequest.Types.RequestMode.OnceUnsent
                 }
             });
 

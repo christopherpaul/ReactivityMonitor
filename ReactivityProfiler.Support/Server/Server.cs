@@ -21,6 +21,7 @@ namespace ReactivityProfiler.Support.Server
         private ValueRenderer mValueRenderer;
         private TypeInfoStore mTypeInfoStore;
         private readonly ManualResetEventSlim mConnectedEvent;
+        private int mFirstUnsentInstrumentationIndex;
 
         public Server(IStore store)
         {
@@ -64,6 +65,7 @@ namespace ReactivityProfiler.Support.Server
             mChannel = null;
             mValueRenderer = null;
             mPayloadStore = null;
+            mFirstUnsentInstrumentationIndex = 0;
 
             CreateChannel();
         }
@@ -83,6 +85,10 @@ namespace ReactivityProfiler.Support.Server
 
                         case SendInstrumentationEventsRequest.Types.RequestMode.OnceAll:
                             SendAllInstrumentationEvents();
+                            break;
+
+                        case SendInstrumentationEventsRequest.Types.RequestMode.OnceUnsent:
+                            SendAllUnsentInstrumentationEvents();
                             break;
 
                         default:
@@ -205,6 +211,28 @@ namespace ReactivityProfiler.Support.Server
             }
         }
 
+        private void SendAllUnsentInstrumentationEvents()
+        {
+            try
+            {
+                int index = mFirstUnsentInstrumentationIndex;
+                TrySendInstrumentationEventsFrom(ref index, mChannel);
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError("Exception sending instrumentation events to client: {0}", ex);
+            }
+        }
+
+        private void UpdateInstrumentationIndex(int index)
+        {
+            int oldIndex = mFirstUnsentInstrumentationIndex;
+            while (index > oldIndex && Interlocked.CompareExchange(ref mFirstUnsentInstrumentationIndex, index, oldIndex) != oldIndex)
+            {
+                oldIndex = mFirstUnsentInstrumentationIndex;
+            }
+        }
+
         private void SendInstrumentationEvents(Channel channel)
         {
             try
@@ -241,6 +269,8 @@ namespace ReactivityProfiler.Support.Server
                 SendEvent(channel, msg);
                 index++;
             }
+
+            UpdateInstrumentationIndex(index);
 
             return true;
         }

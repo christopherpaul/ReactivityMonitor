@@ -118,6 +118,7 @@ message SendInstrumentationEventsRequest {
 	enum RequestMode {
 		CONTINUOUS = 0; // send all instrumentation info and continue sending as more becomes available
 		ONCE_ALL = 1; // send all instrumentation info currently available
+		ONCE_UNSENT = 2; // send instrumentation info that hasn't already been sent
 	}
 	RequestMode Mode = 1;
 }

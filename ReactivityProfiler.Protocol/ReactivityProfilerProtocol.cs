@@ -73,30 +73,30 @@ namespace ReactivityProfiler.Protocol {
             "KAsyGC5PYmplY3RQcm9wZXJ0aWVzUmVxdWVzdEgAEi0KDkdldE9iamVjdEl0",
             "ZW1zGAUgASgLMhMuT2JqZWN0SXRlbXNSZXF1ZXN0SAASKgoLUmVjb3JkRXZl",
             "bnQYBiABKAsyEy5SZWNvcmRFdmVudFJlcXVlc3RIABIoCgpEaXNjb25uZWN0",
-            "GAcgASgLMhIuRGlzY29ubmVjdFJlcXVlc3RIAEIJCgdSZXF1ZXN0IowBCiBT",
+            "GAcgASgLMhIuRGlzY29ubmVjdFJlcXVlc3RIAEIJCgdSZXF1ZXN0Ip0BCiBT",
             "ZW5kSW5zdHJ1bWVudGF0aW9uRXZlbnRzUmVxdWVzdBI7CgRNb2RlGAEgASgO",
             "Mi0uU2VuZEluc3RydW1lbnRhdGlvbkV2ZW50c1JlcXVlc3QuUmVxdWVzdE1v",
-            "ZGUiKwoLUmVxdWVzdE1vZGUSDgoKQ09OVElOVU9VUxAAEgwKCE9OQ0VfQUxM",
-            "EAEiOAoWU3RhcnRNb25pdG9yaW5nUmVxdWVzdBIeChZJbnN0cnVtZW50YXRp",
-            "b25Qb2ludElkGAEgAygFIjcKFVN0b3BNb25pdG9yaW5nUmVxdWVzdBIeChZJ",
-            "bnN0cnVtZW50YXRpb25Qb2ludElkGAIgAygFIisKF09iamVjdFByb3BlcnRp",
-            "ZXNSZXF1ZXN0EhAKCE9iamVjdElkGAEgASgDIkkKEk9iamVjdEl0ZW1zUmVx",
-            "dWVzdBIQCghPYmplY3RJZBgBIAEoAxIPCgdTdGFydEF0GAIgASgFEhAKCE1h",
-            "eENvdW50GAMgASgFIkMKElJlY29yZEV2ZW50UmVxdWVzdBIKCgJJZBgBIAEo",
-            "BRIMCgROYW1lGAIgASgJEhMKC0Rlc2NyaXB0aW9uGAMgASgJIhMKEURpc2Nv",
-            "bm5lY3RSZXF1ZXN0IswCCgVWYWx1ZRIOCgZUeXBlSWQYASABKAUSDgoETnVs",
-            "bBgCIAEoCEgAEg8KBUludDY0GAMgASgDSAASEAoGVUludDY0GAQgASgESAAS",
-            "EAoGRG91YmxlGAUgASgBSAASDgoEQ2hhchgGIAEoBUgAEg4KBEJvb2wYByAB",
-            "KAhIABIQCgZTdHJpbmcYCCABKAlIABISCghUaW1lc3BhbhgJIAEoA0gAEhUK",
-            "C0RhdGVUaW1lVXRjGAogASgDSAASFwoNRGF0ZVRpbWVMb2NhbBgLIAEoA0gA",
-            "Eh0KE0RhdGVUaW1lVW5zcGVjaWZpZWQYDCABKANIABIUCgpCeXRlU3RyaW5n",
-            "GA0gASgMSAASGQoGT2JqZWN0GA4gASgLMgcuT2JqZWN0SAASHwoXSXNFeGNl",
-            "cHRpb25HZXR0aW5nVmFsdWUYDyABKAhCBwoFVmFsdWUiPwoEVHlwZRIOCgZU",
-            "eXBlSWQYASABKAUSEAoIVHlwZU5hbWUYAiABKAkSFQoNUHJvcGVydHlOYW1l",
-            "cxgDIAMoCSJhCgZPYmplY3QSEAoIT2JqZWN0SWQYASABKAMSHAoUU3RyaW5n",
-            "UmVwcmVzZW50YXRpb24YAiABKAkSFAoMSGFzSXRlbUNvdW50GAMgASgIEhEK",
-            "CUl0ZW1Db3VudBgEIAEoBUIeqgIbUmVhY3Rpdml0eVByb2ZpbGVyLlByb3Rv",
-            "Y29sYgZwcm90bzM="));
+            "ZGUiPAoLUmVxdWVzdE1vZGUSDgoKQ09OVElOVU9VUxAAEgwKCE9OQ0VfQUxM",
+            "EAESDwoLT05DRV9VTlNFTlQQAiI4ChZTdGFydE1vbml0b3JpbmdSZXF1ZXN0",
+            "Eh4KFkluc3RydW1lbnRhdGlvblBvaW50SWQYASADKAUiNwoVU3RvcE1vbml0",
+            "b3JpbmdSZXF1ZXN0Eh4KFkluc3RydW1lbnRhdGlvblBvaW50SWQYAiADKAUi",
+            "KwoXT2JqZWN0UHJvcGVydGllc1JlcXVlc3QSEAoIT2JqZWN0SWQYASABKAMi",
+            "SQoST2JqZWN0SXRlbXNSZXF1ZXN0EhAKCE9iamVjdElkGAEgASgDEg8KB1N0",
+            "YXJ0QXQYAiABKAUSEAoITWF4Q291bnQYAyABKAUiQwoSUmVjb3JkRXZlbnRS",
+            "ZXF1ZXN0EgoKAklkGAEgASgFEgwKBE5hbWUYAiABKAkSEwoLRGVzY3JpcHRp",
+            "b24YAyABKAkiEwoRRGlzY29ubmVjdFJlcXVlc3QizAIKBVZhbHVlEg4KBlR5",
+            "cGVJZBgBIAEoBRIOCgROdWxsGAIgASgISAASDwoFSW50NjQYAyABKANIABIQ",
+            "CgZVSW50NjQYBCABKARIABIQCgZEb3VibGUYBSABKAFIABIOCgRDaGFyGAYg",
+            "ASgFSAASDgoEQm9vbBgHIAEoCEgAEhAKBlN0cmluZxgIIAEoCUgAEhIKCFRp",
+            "bWVzcGFuGAkgASgDSAASFQoLRGF0ZVRpbWVVdGMYCiABKANIABIXCg1EYXRl",
+            "VGltZUxvY2FsGAsgASgDSAASHQoTRGF0ZVRpbWVVbnNwZWNpZmllZBgMIAEo",
+            "A0gAEhQKCkJ5dGVTdHJpbmcYDSABKAxIABIZCgZPYmplY3QYDiABKAsyBy5P",
+            "YmplY3RIABIfChdJc0V4Y2VwdGlvbkdldHRpbmdWYWx1ZRgPIAEoCEIHCgVW",
+            "YWx1ZSI/CgRUeXBlEg4KBlR5cGVJZBgBIAEoBRIQCghUeXBlTmFtZRgCIAEo",
+            "CRIVCg1Qcm9wZXJ0eU5hbWVzGAMgAygJImEKBk9iamVjdBIQCghPYmplY3RJ",
+            "ZBgBIAEoAxIcChRTdHJpbmdSZXByZXNlbnRhdGlvbhgCIAEoCRIUCgxIYXNJ",
+            "dGVtQ291bnQYAyABKAgSEQoJSXRlbUNvdW50GAQgASgFQh6qAhtSZWFjdGl2",
+            "aXR5UHJvZmlsZXIuUHJvdG9jb2xiBnByb3RvMw=="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
@@ -3767,6 +3767,10 @@ namespace ReactivityProfiler.Protocol {
         /// send all instrumentation info currently available
         /// </summary>
         [pbr::OriginalName("ONCE_ALL")] OnceAll = 1,
+        /// <summary>
+        /// send instrumentation info that hasn't already been sent
+        /// </summary>
+        [pbr::OriginalName("ONCE_UNSENT")] OnceUnsent = 2,
       }
 
     }
