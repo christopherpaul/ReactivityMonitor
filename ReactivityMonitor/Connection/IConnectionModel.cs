@@ -9,7 +9,7 @@ namespace ReactivityMonitor.Connection
 {
     public interface IConnectionModel
     {
-        Server Server { get; }
+        string Name { get; }
         IReactivityModel Model { get; }
 
         void StartMonitoringCall(int callId);

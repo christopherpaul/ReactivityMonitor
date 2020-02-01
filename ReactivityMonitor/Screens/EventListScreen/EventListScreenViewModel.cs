@@ -34,6 +34,13 @@ namespace ReactivityMonitor.Screens.EventListScreen
 
             WhenActivated(disposables =>
             {
+                // TODO: consider handling clearing imperatively,
+                // i.e. each time user clears, clear the Events collection
+                // and bind a fresh observable stream to it. At the moment
+                // the Switch is keeping its own cache of all the events,
+                // just so it can generate a "clear all these" message.
+                // Potentially same deal with filter changes.
+
                 var activeGroupObservableInstances = WhenActiveMonitoringGroupChanges
                     .ObserveOn(concurrencyService.TaskPoolRxScheduler)
                     .Select(group =>
@@ -55,12 +62,18 @@ namespace ReactivityMonitor.Screens.EventListScreen
                         Observable.Return(EventItem.FromObservableInstance(obs))
                             .Concat(obs.Subscriptions.SelectMany(sub => sub.Events.Select(e => EventItem.FromStreamEvent(sub, e)))));
 
+                // DynamicData Switch method doesn't synchronise properly
+                object workaroundSwitchIssueLocker = new object();
+
                 allEvents
                     .Window(OnTaskPool(whenClearCommandExecuted))
                     .Select(eventsSinceClear => eventsSinceClear
                         .ToObservableChangeSet(e => e.SequenceId)
-                        .SemiJoinOnRightKey(filterObservableInstances, e => e.ObservableId))
+                        .SemiJoinOnRightKey(filterObservableInstances, e => e.ObservableId)
+                        .Synchronize(workaroundSwitchIssueLocker))
+                    .Synchronize(workaroundSwitchIssueLocker)
                     .Switch()
+                    .SynchronizeSubscribe(workaroundSwitchIssueLocker)
                     .Batch(TimeSpan.FromMilliseconds(100))
                     .Sort(Utility.Comparer<EventItem>.ByKey(e => e.SequenceId))
                     .SubscribeOn(concurrencyService.TaskPoolRxScheduler)

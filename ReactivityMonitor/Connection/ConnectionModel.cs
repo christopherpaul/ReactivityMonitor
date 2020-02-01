@@ -33,6 +33,8 @@ namespace ReactivityMonitor.Connection
             Model = ReactivityModel.Create(mClient.ModelUpdateSource);
         }
 
+        public string Name => Server.ProcessName;
+
         public Server Server { get; }
 
         public IReactivityModel Model { get; }

@@ -47,7 +47,7 @@ namespace ReactivityMonitor.Screens.HomeScreen
 
             WhenActivated(disposables =>
             {
-                DisplayName = ConnectionModel.Server.ProcessName;
+                DisplayName = ConnectionModel.Name;
 
                 callsScreen.Model = ConnectionModel.Model;
                 callsScreen.Workspace = workspace;

@@ -15,6 +15,7 @@ namespace ReactivityMonitor.Services
 
         IObservable<IConnectionModel> WhenConnectionChanges { get; }
 
+        Task OpenDataFile(string path, CancellationToken cancellation = default);
         Task Launch(LaunchInfo launchInfo, CancellationToken cancellationToken = default);
         Task Open(Server server, CancellationToken cancellation = default);
         void Close();

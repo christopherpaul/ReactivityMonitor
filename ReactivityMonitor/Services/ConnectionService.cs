@@ -52,6 +52,21 @@ namespace ReactivityMonitor.Services
 
         public IObservable<IConnectionModel> WhenConnectionChanges => mConnectionSubject.AsObservable();
 
+        public Task OpenDataFile(string path, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var model = DataFileConnectionModel.Create(path);
+                model.Connect();
+                mConnectionSubject.OnNext(model);
+                return Task.CompletedTask;
+            }
+            catch (Exception ex)
+            {
+                throw new ConnectionException($"Error opening data file: {ex.Message}", ex);
+            }
+        }
+
         public async Task Launch(LaunchInfo launchInfo, CancellationToken cancellationToken)
         {
             var psi = new ProcessStartInfo();
@@ -69,7 +84,7 @@ namespace ReactivityMonitor.Services
             }
             catch (Exception ex)
             {
-                throw new ConnectionException($"Failed to start process: {ex.Message}");
+                throw new ConnectionException($"Failed to start process: {ex.Message}", ex);
             }
 
             if (process == null)

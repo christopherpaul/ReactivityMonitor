@@ -1,8 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
-  <PropertyGroup> 
-    <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck> 
+  <PropertyGroup>
+    <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -65,6 +65,7 @@
     <Compile Include="AppBootstrapper.cs" />
     <Compile Include="Connection\ConnectionException.cs" />
     <Compile Include="Connection\ConnectionModel.cs" />
+    <Compile Include="Connection\DataFileConnectionModel.cs" />
     <Compile Include="Connection\IConnectionModel.cs" />
     <Compile Include="Connection\LaunchInfo.cs" />
     <Compile Include="Controls\SimpleViewport.cs" />
@@ -256,6 +257,5 @@
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-
   <Import Project="$(MSBuildThisFileDirectory)..\build\IncludeProfilerBinaries.targets" />
 </Project>

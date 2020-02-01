@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -59,9 +60,15 @@ namespace ReactivityMonitor.Screens.ConnectionScreen
 
         private async Task ExecuteBrowseAndLaunch()
         {
-            string filename = await mDialogService.ShowOpenFileDialog("Start process", "Programs|*.exe|All files|*.*").ConfigureAwait(false);
+            string filename = await mDialogService.ShowOpenFileDialog("Start process", "Supported files|*.exe;*.rxprof|Programs|*.exe|Data files|*.rxprof|All files|*.*").ConfigureAwait(false);
             if (filename == null)
             {
+                return;
+            }
+
+            if (string.Equals(Path.GetExtension(filename), ".rxprof", StringComparison.OrdinalIgnoreCase))
+            {
+                await mConnectionService.OpenDataFile(filename);
                 return;
             }
 
