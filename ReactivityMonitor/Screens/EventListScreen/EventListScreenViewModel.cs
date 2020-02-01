@@ -51,31 +51,25 @@ namespace ReactivityMonitor.Screens.EventListScreen
                             .Expand(obs => obs.Inputs)
                             .ToObservableChangeSet(obs => obs.ObservableId)
                             ?? allObservableInstances)
-                    .Switch();
+                    .SwitchFixed();
 
                 var filterObservableInstances = whenIsFilteringToActiveGroupChanges
                     .ObserveOn(concurrencyService.TaskPoolRxScheduler)
                     .Select(isFilteringToActiveGroup => isFilteringToActiveGroup ? activeGroupObservableInstances : allObservableInstances)
-                    .Switch();
+                    .SwitchFixed();
 
                 var allEvents = Model.ObservableInstances
                     .SelectMany(obs =>
                         Observable.Return(EventItem.FromObservableInstance(obs))
                             .Concat(obs.Subscriptions.SelectMany(sub => sub.Events.Select(e => EventItem.FromStreamEvent(sub, e)))));
 
-                // DynamicData Switch method doesn't synchronise properly
-                object workaroundSwitchIssueLocker = new object();
-
                 allEvents
                     .Window(OnTaskPool(whenClearCommandExecuted))
                     .Select(eventsSinceClear => eventsSinceClear
                         .ToObservableChangeSet(e => e.SequenceId)
-                        .SemiJoinOnRightKey(filterObservableInstances, e => e.ObservableId)
-                        .Synchronize(workaroundSwitchIssueLocker))
-                    .Synchronize(workaroundSwitchIssueLocker)
-                    .Switch()
+                        .SemiJoinOnRightKey(filterObservableInstances, e => e.ObservableId))
+                    .SwitchFixed()
                     .Merge(Model.ClientEvents.Select(EventItem.FromClientEvent).ToObservableChangeSet(e => e.Info.SequenceId))
-                    .SynchronizeSubscribe(workaroundSwitchIssueLocker)
                     .Batch(TimeSpan.FromMilliseconds(100))
                     .Sort(Utility.Comparer<EventItem>.ByKey(e => e.SequenceId))
                     .SubscribeOn(concurrencyService.TaskPoolRxScheduler)

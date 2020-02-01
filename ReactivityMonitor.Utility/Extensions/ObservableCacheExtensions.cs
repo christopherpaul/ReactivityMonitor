@@ -40,5 +40,22 @@ namespace ReactivityMonitor.Utility.Extensions
                 .OnItemRemoved(g => g.whenGroupRemoved.OnNext(default))
                 .MergeMany(g => g.cacheWithRemovals);
         }
+
+        /// <summary>
+        /// Call DynamicData Switch method with workaround for concurrency bug
+        /// </summary>
+        public static IObservable<IChangeSet<TObject, TKey>> SwitchFixed<TObject, TKey>(this IObservable<IObservable<IChangeSet<TObject, TKey>>> sources)
+        {
+            return Observable.Defer(() =>
+            {
+                object extraLocker = new object();
+                var synchronisedSources = sources
+                    .Select(s => s.Synchronize(extraLocker))
+                    .Synchronize(extraLocker);
+
+                return ObservableCacheEx.Switch(synchronisedSources)
+                    .SynchronizeSubscribe(extraLocker);
+            });
+        }
     }
 }
