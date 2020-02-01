@@ -22,7 +22,7 @@ namespace ReactivityMonitor.VsTest
     [DataCollectorTypeUri("datacollector://ReactivityMonitor/ReactivityDataCollector/1")]
     public sealed class ReactivityDataCollector : DataCollector, ITestExecutionEnvironmentSpecifier
     {
-        private readonly string mTempFolder = Path.GetTempPath();
+        private readonly string mTempFolder = Path.Combine(Path.GetTempPath(), $"{nameof(ReactivityDataCollector)}-{Guid.NewGuid().ToString("D")}");
         private readonly ProcessSetup mProcessSetup;
         private IObservable<Unit> mFileWriterThing;
         private string mDataFilePath;
@@ -62,7 +62,8 @@ namespace ReactivityMonitor.VsTest
         {
             Trace.TraceInformation("Session starting");
 
-            mDataFilePath = Path.Combine(mTempFolder, e.Context.SessionId.Id.ToString("N"));
+            Directory.CreateDirectory(mTempFolder);
+            mDataFilePath = Path.Combine(mTempFolder, "TestSessionEvents.rxprof");
 
             var outgoingMessageSource = new ReplaySubject<RequestMessage>();
             mSendMessage = outgoingMessageSource.OnNext;
