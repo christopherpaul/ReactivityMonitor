@@ -56,7 +56,7 @@ namespace ReactivityMonitor.ProfilerClient
         {
             foreach (var env in GetEnvironmentVariables())
             {
-                psi.EnvironmentVariables.Add(env.Key, env.Value);
+                psi.EnvironmentVariables[env.Key] = env.Value;
             }
         }
     }
