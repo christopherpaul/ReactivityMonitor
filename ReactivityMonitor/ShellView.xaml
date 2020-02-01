@@ -4,6 +4,12 @@
         xmlns:defs="clr-namespace:ReactivityMonitor.Definitions"
         >
     <DockPanel>
+        <Menu DockPanel.Dock="Top">
+            <MenuItem Header="_File">
+                <MenuItem Header="_Close workspace" Command="defs:Commands.CloseWorkspace" />
+            </MenuItem>
+        </Menu>
+        
         <ToolBarTray DockPanel.Dock="Top">
             <ToolBar Header="Display">
                 <Button Content="Pause" Command="defs:Commands.Pause" />

@@ -2,6 +2,7 @@
 using DynamicData;
 using ReactiveUI;
 using ReactivityMonitor.Connection;
+using ReactivityMonitor.Definitions;
 using ReactivityMonitor.Infrastructure;
 using ReactivityMonitor.Screens.CallsScreen;
 using ReactivityMonitor.Screens.EventListScreen;
@@ -31,7 +32,8 @@ namespace ReactivityMonitor.Screens.HomeScreen
             IEventListScreen eventListScreen,
             IPayloadScreen payloadScreen,
             IConcurrencyService concurrencyService,
-            ICommandHandlerService commandHandlerService)
+            ICommandHandlerService commandHandlerService,
+            IConnectionService connectionService)
         {
             var isUpdating = GoPauseControl.SetupGoPause(out var attachGoPauseHandlers)
                 .ObserveOn(concurrencyService.TaskPoolRxScheduler);
@@ -95,6 +97,9 @@ namespace ReactivityMonitor.Screens.HomeScreen
 
                 PayloadScreen.ConnectionModel = ConnectionModel;
                 PayloadScreen.Activator.Activate().DisposeWith(disposables);
+
+                var closeCommand = ReactiveCommand.Create(() => connectionService.Close());
+                commandHandlerService.RegisterHandler(Commands.CloseWorkspace, closeCommand).DisposeWith(disposables);
             });
         }
 
