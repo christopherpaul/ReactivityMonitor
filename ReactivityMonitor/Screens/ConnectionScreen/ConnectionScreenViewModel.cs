@@ -13,6 +13,7 @@ using DynamicData;
 using ReactiveUI;
 using ReactivityMonitor.Connection;
 using ReactivityMonitor.Infrastructure;
+using ReactivityMonitor.ProfilerClient;
 using ReactivityMonitor.Services;
 
 namespace ReactivityMonitor.Screens.ConnectionScreen
@@ -60,13 +61,13 @@ namespace ReactivityMonitor.Screens.ConnectionScreen
 
         private async Task ExecuteBrowseAndLaunch()
         {
-            string filename = await mDialogService.ShowOpenFileDialog("Start process", "Supported files|*.exe;*.rxprof|Programs|*.exe|Data files|*.rxprof|All files|*.*").ConfigureAwait(false);
+            string filename = await mDialogService.ShowOpenFileDialog("Start process", $"Supported files|*.exe;*{DataFile.ProfileDataFileExtension}|Programs|*.exe|Data files|*{DataFile.ProfileDataFileExtension}|All files|*.*").ConfigureAwait(false);
             if (filename == null)
             {
                 return;
             }
 
-            if (string.Equals(Path.GetExtension(filename), ".rxprof", StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(Path.GetExtension(filename), DataFile.ProfileDataFileExtension, StringComparison.OrdinalIgnoreCase))
             {
                 await mConnectionService.OpenDataFile(filename);
                 return;

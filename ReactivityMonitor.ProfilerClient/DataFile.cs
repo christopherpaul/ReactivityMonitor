@@ -12,6 +12,8 @@ namespace ReactivityMonitor.ProfilerClient
 {
     public static class DataFile
     {
+        public static string ProfileDataFileExtension => ".rxprofile";
+
         public static IModelUpdateSource CreateModelUpdateSource(string path)
         {
             return new ModelUpdateSource(GetDataFileStream(path));

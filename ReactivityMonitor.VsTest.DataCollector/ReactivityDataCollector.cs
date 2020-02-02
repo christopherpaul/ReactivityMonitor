@@ -63,7 +63,7 @@ namespace ReactivityMonitor.VsTest
             Trace.TraceInformation("Session starting");
 
             Directory.CreateDirectory(mTempFolder);
-            mDataFilePath = Path.Combine(mTempFolder, "TestSessionEvents.rxprof");
+            mDataFilePath = Path.Combine(mTempFolder, "TestSessionEvents" + DataFile.ProfileDataFileExtension);
 
             var outgoingMessageSource = new ReplaySubject<RequestMessage>();
             mSendMessage = outgoingMessageSource.OnNext;
