@@ -17,6 +17,7 @@ namespace ReactivityProfiler.Support
         // Class constructor gives us an opportunity to fire up our server
         static Instrument()
         {
+            Trace.TraceInformation("{0}: initialising", typeof(Instrument).FullName);
             try
             {
                 IStore store = Services.Store;
@@ -38,6 +39,11 @@ namespace ReactivityProfiler.Support
                 Trace.TraceError("{0}: failed to launch server: {1}", typeof(Instrument).FullName, ex);
             }
         }
+
+        /// <summary>
+        /// Provided as a simple way to ensure static constructor above has been run.
+        /// </summary>
+        public static void EnsureInitialised() { }
 
         /// <summary>
         /// Per-thread tracking of instrumentation calls.

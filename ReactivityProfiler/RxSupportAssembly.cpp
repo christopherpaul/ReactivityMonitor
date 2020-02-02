@@ -117,8 +117,10 @@ static std::vector<COR_SIGNATURE> CreateInstrumentReturnedSubinterfaceSig(const 
     return returnedMethodSig;
 }
 
-void CRxProfiler::AddSupportAssemblyReference(ModuleID moduleId, const ObservableTypeReferences& observableRefs, SupportAssemblyReferences& refs)
+void CRxProfiler::AddSupportAssemblyReference(ModuleID moduleId, PerModuleData& perModuleData)
 {
+    SupportAssemblyReferences& refs = perModuleData.m_supportAssemblyRefs;
+
     CMetadataAssemblyEmit assemblyEmit = m_profilerInfo.GetMetadataAssemblyEmit(moduleId, ofRead | ofWrite);
     CMetadataEmit emit = m_profilerInfo.GetMetadataEmit(moduleId, ofRead | ofWrite);
 
@@ -141,68 +143,107 @@ void CRxProfiler::AddSupportAssemblyReference(ModuleID moduleId, const Observabl
     refs.m_AssemblyRef = assemblyEmit.DefineAssemblyRef({ c_PublicKeyToken, sizeof c_PublicKeyToken }, GetSupportAssemblyName(), metadata, {});
     refs.m_Instrument = emit.DefineTypeRefByName(refs.m_AssemblyRef, L"ReactivityProfiler.Support.Instrument");
 
-    static auto c_callingMethodSig = CreateInstrumentCallingSig();
-    refs.m_Calling = emit.DefineMemberRef({
-        refs.m_Instrument,
-        L"Calling",
-        c_callingMethodSig
-        });
-
-    auto argumentMethodSig = CreateInstrumentArgumentSig(observableRefs);
-    refs.m_Argument = emit.DefineMemberRef({
-        refs.m_Instrument,
-        L"Argument",
-        argumentMethodSig
-        });
-
-    auto returnedMethodSig = CreateInstrumentReturnedSig(observableRefs);
-    refs.m_Returned = emit.DefineMemberRef({
-        refs.m_Instrument,
-        L"Returned",
-        returnedMethodSig
-        });
-
-    mdTypeRef rtTypeHandleToken = emit.DefineTypeRefByName(mscorlib, L"System.RuntimeTypeHandle");
-    auto returnedSubinterfaceMethodSig = CreateInstrumentReturnedSubinterfaceSig(observableRefs, rtTypeHandleToken);
-    refs.m_ReturnedSubinterface = emit.DefineMemberRef({
-        refs.m_Instrument,
-        L"ReturnedSubinterface",
-        returnedSubinterfaceMethodSig
-        });
-
-    if (!m_runtimeInfo.isCore)
+    // Only need the references to Calling/Argument/Returned if there's something to instrument
+    // in the module.
+    if (perModuleData.m_referencesObservableTypes)
     {
-        // Add a module initializer that calls EnsureHandler (see InstallAssemblyResolutionHandler below).
-        // TODO - cope if one already exists (unlikely but you never know)
-        ATLTRACE("Adding module initializer to call EnsureHandler");
-        std::function<void(mdMethodDef token, InstructionList & builder, const SignatureBlob & sig)> SetMethodBody = [&](mdMethodDef token, InstructionList& instructions, const SignatureBlob& sig) {
-            Method builder;
-            if (instructions.size() > 0)
-            {
-                builder.InsertInstructionsAtOffset(0, instructions);
-            }
+        static auto c_callingMethodSig = CreateInstrumentCallingSig();
+        refs.m_Calling = emit.DefineMemberRef({
+            refs.m_Instrument,
+            L"Calling",
+            c_callingMethodSig
+            });
 
-            if (sig)
-            {
-                mdSignature sigToken = emit.GetTokenFromSig(sig);
-                builder.SetLocalsSignature(sigToken);
-            }
+        auto argumentMethodSig = CreateInstrumentArgumentSig(perModuleData.m_observableTypeRefs);
+        refs.m_Argument = emit.DefineMemberRef({
+            refs.m_Instrument,
+            L"Argument",
+            argumentMethodSig
+            });
+
+        auto returnedMethodSig = CreateInstrumentReturnedSig(perModuleData.m_observableTypeRefs);
+        refs.m_Returned = emit.DefineMemberRef({
+            refs.m_Instrument,
+            L"Returned",
+            returnedMethodSig
+            });
+
+        mdTypeRef rtTypeHandleToken = emit.DefineTypeRefByName(mscorlib, L"System.RuntimeTypeHandle");
+        auto returnedSubinterfaceMethodSig = CreateInstrumentReturnedSubinterfaceSig(perModuleData.m_observableTypeRefs, rtTypeHandleToken);
+        refs.m_ReturnedSubinterface = emit.DefineMemberRef({
+            refs.m_Instrument,
+            L"ReturnedSubinterface",
+            returnedSubinterfaceMethodSig
+            });
+    }
+
+    // Add a module initializer that calls EnsureHandler (see InstallAssemblyResolutionHandler below)
+    // and Instrument.EnsureInitialised.
+    // TODO - cope if one already exists (unlikely but you never know)
+    ATLTRACE("Adding module initializer");
+    std::function<void(mdMethodDef token, InstructionList & builder, const SignatureBlob & sig)> SetMethodBody = [&](mdMethodDef token, InstructionList& instructions, const SignatureBlob& sig) {
+        Method builder;
+        if (instructions.size() > 0)
+        {
+            builder.InsertInstructionsAtOffset(0, instructions);
+        }
+
+        if (sig)
+        {
+            mdSignature sigToken = emit.GetTokenFromSig(sig);
+            builder.SetLocalsSignature(sigToken);
+        }
 
 #ifdef DEBUG
-            builder.DumpIL(true);
+        builder.DumpIL(true);
 #endif
 
-            DWORD size = builder.GetMethodSize();
+        DWORD size = builder.GetMethodSize();
 
-            // buffer is owned by the runtime, we don't need to free it
-            auto buffer = m_profilerInfo.AllocateFunctionBody(moduleId, size);
-            builder.WriteMethod(reinterpret_cast<IMAGE_COR_ILMETHOD*>(buffer.begin()));
+        // buffer is owned by the runtime, we don't need to free it
+        auto buffer = m_profilerInfo.AllocateFunctionBody(moduleId, size);
+        builder.WriteMethod(reinterpret_cast<IMAGE_COR_ILMETHOD*>(buffer.begin()));
 
-            m_profilerInfo.SetILFunctionBody(moduleId, token, buffer);
-        };
+        m_profilerInfo.SetILFunctionBody(moduleId, token, buffer);
+    };
 
-        auto voidVoidSig = MethodSignatureWriter::WriteStatic(0, [](MethodSignatureWriter w) { w.SetVoidReturn(); });
+    auto voidVoidSig = MethodSignatureWriter::WriteStatic(0, [](MethodSignatureWriter w) { w.SetVoidReturn(); });
 
+    // Need a separate method to call Instrument.EnsureInitialised as the assembly resolution
+    // stuff needs to have been called before the call to EnsureInitialised is JITted.
+    mdMethodDef callEnsureInitialisedMethod = emit.DefineMethod({
+        mdTokenNil,
+        L"RxProfiler.EnsureInitialisedProxy8D4F8AEF610C454CA3AD2F486B21285D",
+        mdPrivate | mdStatic | mdHideBySig,
+        voidVoidSig
+        });
+
+    InstructionList ensureInitInstr;
+#define Instr(...) ensureInitInstr.push_back(std::make_unique<Instruction>(__VA_ARGS__))
+    mdMemberRef ensureHandler = emit.DefineMemberRef({
+        refs.m_Instrument,
+        L"EnsureInitialised",
+        voidVoidSig
+        });
+
+    Instr(CEE_CALL, ensureHandler);
+#undef Instr
+
+    SetMethodBody(callEnsureInitialisedMethod, ensureInitInstr, SignatureBlob());
+
+    mdMethodDef moduleInitMethod = emit.DefineMethod({
+        mdTokenNil,
+        L".cctor",
+        mdPrivate | mdStatic | mdHideBySig | mdSpecialName | mdRTSpecialName,
+        voidVoidSig
+        });
+
+    InstructionList moduleInitInstr;
+#define Instr(...) moduleInitInstr.push_back(std::make_unique<Instruction>(__VA_ARGS__))
+
+    // Assembly resolution handler stuff is Framework-only (can't get it to work in Core so using startup hook instead)
+    if (!m_runtimeInfo.isCore)
+    {
         mdTypeRef supportAssemblyResolution = emit.DefineTypeRefByName(mscorlib, L"RxProfiler.SupportAssemblyResolution");
 
         mdMemberRef ensureHandler = emit.DefineMemberRef({
@@ -211,19 +252,14 @@ void CRxProfiler::AddSupportAssemblyReference(ModuleID moduleId, const Observabl
             voidVoidSig
             });
 
-        mdMethodDef moduleInitMethod = emit.DefineMethod({
-            mdTokenNil,
-            L".cctor",
-            mdPrivate | mdStatic | mdHideBySig | mdSpecialName | mdRTSpecialName,
-            voidVoidSig
-            });
-
-        InstructionList moduleInitInstr;
-#define Instr(...) moduleInitInstr.push_back(std::make_unique<Instruction>(__VA_ARGS__))
         Instr(CEE_CALL, ensureHandler);
-#undef Instr
-        SetMethodBody(moduleInitMethod, moduleInitInstr, SignatureBlob());
     }
+
+    Instr(CEE_CALL, callEnsureInitialisedMethod);
+
+#undef Instr
+
+    SetMethodBody(moduleInitMethod, moduleInitInstr, SignatureBlob());
 }
 
 void CRxProfiler::InstallAssemblyResolutionHandler(ModuleID hostModuleId)

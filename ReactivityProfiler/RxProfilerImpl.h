@@ -28,6 +28,7 @@ struct PerModuleData
     std::mutex m_mutex;
 
     bool m_supportAssemblyReferenced = false;
+    bool m_referencesObservableTypes = false;
     AssemblyProps m_assemblyProps;
     ObservableTypeReferences m_observableTypeRefs;
     SupportAssemblyReferences m_supportAssemblyRefs;

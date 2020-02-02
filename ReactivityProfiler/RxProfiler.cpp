@@ -7,12 +7,14 @@
 #include "Signature.h"
 #include "Store.h"
 
-static bool IsExcludedAssembly(const AssemblyProps& assemblyProps);
+static bool IsSystemAssembly(const AssemblyProps& assemblyProps);
 static bool IsMscorlib(const AssemblyProps& assemblyProps);
+static bool IsSupportAssembly(const AssemblyProps& assemblyProps);
 
 // CRxProfiler
 
-CRxProfiler::CRxProfiler() : m_supportAssemblyFolder(GetSupportAssemblyPath())
+CRxProfiler::CRxProfiler() : m_supportAssemblyFolder(GetSupportAssemblyPath()),
+    m_supportAssemblyModuleId(0)
 {
 }
 
@@ -63,14 +65,30 @@ HRESULT CRxProfiler::ModuleLoadFinished(
             InstallAssemblyResolutionHandler(moduleId);
         }
 
-        if (!IsExcludedAssembly(pPerModuleData->m_assemblyProps) &&
-            ReferencesObservableInterfaces(moduleId, pPerModuleData->m_observableTypeRefs))
+        if (IsSupportAssembly(pPerModuleData->m_assemblyProps))
         {
-            ATLTRACE(L"Adding support assembly reference to %s", moduleInfo.name.c_str());
-            AddSupportAssemblyReference(moduleId, pPerModuleData->m_observableTypeRefs, pPerModuleData->m_supportAssemblyRefs);
-            pPerModuleData->m_supportAssemblyReferenced = true;
+            m_supportAssemblyModuleId = moduleId;
+            ATLTRACE(L"Support assembly loaded");
+        }
+        else if (!IsSystemAssembly(pPerModuleData->m_assemblyProps))
+        {
+            pPerModuleData->m_referencesObservableTypes = ReferencesObservableInterfaces(moduleId, pPerModuleData->m_observableTypeRefs);
 
-            g_Store.AddModuleInfo(moduleId, moduleInfo.name, pPerModuleData->m_assemblyProps.name);
+            // If the support assembly isn't loaded yet, add it as a reference even if
+            // we're not going to be instrumenting any methods in this module, so that
+            // we can get it loaded and activate the server as soon as possible.
+            if (pPerModuleData->m_referencesObservableTypes || !m_supportAssemblyModuleId)
+            {
+                ATLTRACE(L"Adding support assembly reference to %s", moduleInfo.name.c_str());
+                AddSupportAssemblyReference(moduleId, *pPerModuleData);
+                pPerModuleData->m_supportAssemblyReferenced = true;
+            }
+
+            // But we don't need to report modules with no Rx involvement
+            if (pPerModuleData->m_referencesObservableTypes)
+            {
+                g_Store.AddModuleInfo(moduleId, moduleInfo.name, pPerModuleData->m_assemblyProps.name);
+            }
         }
     });
 }
@@ -100,7 +118,7 @@ HRESULT CRxProfiler::JITCompilationStarted(FunctionID functionId, BOOL fIsSafeTo
         FunctionInfo info = m_profilerInfo.GetFunctionInfo(functionId);
         std::shared_ptr<PerModuleData> pPerModuleData;
         if (!m_moduleInfoMap.try_get(info.moduleId, pPerModuleData) ||
-            !pPerModuleData->m_supportAssemblyReferenced)
+            !pPerModuleData->m_referencesObservableTypes)
         {
             return;
         }
@@ -114,20 +132,25 @@ HRESULT CRxProfiler::JITCompilationStarted(FunctionID functionId, BOOL fIsSafeTo
     });
 }
 
-bool IsExcludedAssembly(const AssemblyProps& assemblyProps)
+bool IsSystemAssembly(const AssemblyProps& assemblyProps)
 {
     if (IsMscorlib(assemblyProps))
     {
         return true;
     }
 
-    if (lstrcmpi(assemblyProps.name.c_str(), GetSupportAssemblyName()) == 0)
+    std::wstring firstNsPart = assemblyProps.name.substr(0, assemblyProps.name.find_first_of(L'.'));
+    if (lstrcmpi(firstNsPart.c_str(), L"System") == 0)
     {
         return true;
     }
 
-    std::wstring firstNsPart = assemblyProps.name.substr(0, assemblyProps.name.find_first_of(L'.'));
-    if (lstrcmpi(firstNsPart.c_str(), L"System") == 0)
+    return false;
+}
+
+bool IsSupportAssembly(const AssemblyProps& assemblyProps)
+{
+    if (lstrcmpi(assemblyProps.name.c_str(), GetSupportAssemblyName()) == 0)
     {
         return true;
     }

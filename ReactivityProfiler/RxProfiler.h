@@ -81,10 +81,11 @@ private:
     const std::wstring m_supportAssemblyFolder;
     concurrent_map<ModuleID, std::shared_ptr<PerModuleData>> m_moduleInfoMap;
     RuntimeInfo m_runtimeInfo;
+    std::atomic<ModuleID> m_supportAssemblyModuleId;
 
     void InstallAssemblyResolutionHandler(ModuleID mscorlibId);
     bool ReferencesObservableInterfaces(ModuleID moduleId, ObservableTypeReferences& typeRefs);
-    void AddSupportAssemblyReference(ModuleID moduleId, const ObservableTypeReferences& observableRefs, SupportAssemblyReferences& refs);
+    void AddSupportAssemblyReference(ModuleID moduleId, PerModuleData& perModuleData);
     void InstrumentMethodBody(FunctionID functionId, const MethodProps& name, const FunctionInfo& info, CMetadataImport& metadata, std::shared_ptr<PerModuleData>& pPerModuleData);
 };
 
