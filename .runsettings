@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <!-- Configurations that affect the Test Framework -->
+  <RunConfiguration>
+    <!-- Path relative to directory that contains .runsettings file-->
+    <ResultsDirectory>.\TestResults</ResultsDirectory>
+
+    <!-- x86 or x64 -->
+    <!-- You can also change it from the Test menu; choose "Processor Architecture for AnyCPU Projects" -->
+    <TargetPlatform>x64</TargetPlatform>
+
+    <!-- Path to Test Adapters -->
+    <TestAdaptersPaths>.\ReactivityMonitor.VsTest.DataCollector\bin\Debug\net472</TestAdaptersPaths>
+  </RunConfiguration>
+
+  <!-- Configurations for data collectors -->
+  <DataCollectionRunSettings>
+    <DataCollectors>
+      <DataCollector 
+        friendlyName="ReactivityDataCollector" 
+        uri="datacollector://ReactivityMonitor/ReactivityDataCollector/1"
+        enabled="false"/>
+    </DataCollectors>
+  </DataCollectionRunSettings>
+
+  <!-- Parameters used by tests at run time -->
+  <TestRunParameters>
+  </TestRunParameters>
+
+  <!-- Adapter Specific sections -->
+</RunSettings>
