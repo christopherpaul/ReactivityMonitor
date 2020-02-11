@@ -1,11 +1,21 @@
 <Project>
+  <!-- Useful paths -->
   <PropertyGroup>
     <TopLevelSourceDirectory>$(MSBuildThisFileDirectory)</TopLevelSourceDirectory>
     <BuildScriptsDirectory>$(TopLevelSourceDirectory)build\</BuildScriptsDirectory>
   </PropertyGroup>
   
+  <!-- Common settings -->
   <PropertyGroup>
     <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+  
+  <!-- Product info, versions, etc. -->
+  <PropertyGroup>
+    <Version>0.1.0.0</Version>
+    <AssemblyVersion>0.1.0.0</AssemblyVersion>
+    <FileVersion>0.1.0.0</FileVersion>
+    <Authors>Chris White</Authors>
   </PropertyGroup>
 
   <PropertyGroup>
