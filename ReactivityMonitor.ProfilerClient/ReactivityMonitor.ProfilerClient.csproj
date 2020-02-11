@@ -5,8 +5,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ReactivityMonitor.Model\ReactivityMonitor.Model.csproj" />
-    <ProjectReference Include="..\ReactivityProfiler.Protocol\ReactivityProfiler.Protocol.csproj" />
+    <ProjectReference Include="$(TopLevelSourceDirectory)ReactivityMonitor.Model\ReactivityMonitor.Model.csproj" />
+    <ProjectReference Include="$(TopLevelSourceDirectory)ReactivityProfiler.Protocol\ReactivityProfiler.Protocol.csproj" />
   </ItemGroup>
 
   <ItemGroup>

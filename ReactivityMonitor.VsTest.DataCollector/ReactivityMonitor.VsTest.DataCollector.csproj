@@ -10,9 +10,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ReactivityMonitor.ProfilerClient\ReactivityMonitor.ProfilerClient.csproj" />
+    <ProjectReference Include="$(TopLevelSourceDirectory)ReactivityMonitor.ProfilerClient\ReactivityMonitor.ProfilerClient.csproj" />
   </ItemGroup>
 
-  <Import Project="$(MSBuildThisFileDirectory)..\build\IncludeProfilerBinaries.targets" />
+  <Import Project="$(BuildScriptsDirectory)IncludeProfilerBinaries.targets" />
 
 </Project>

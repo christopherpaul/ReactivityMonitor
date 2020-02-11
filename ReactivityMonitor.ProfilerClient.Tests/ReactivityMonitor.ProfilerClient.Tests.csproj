@@ -13,8 +13,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ReactivityMonitor.ProfilerClient\ReactivityMonitor.ProfilerClient.csproj" />
-    <ProjectReference Include="..\ReactivityProfiler.Protocol\ReactivityProfiler.Protocol.csproj" />
+    <ProjectReference Include="$(TopLevelSourceDirectory)ReactivityMonitor.ProfilerClient\ReactivityMonitor.ProfilerClient.csproj" />
+    <ProjectReference Include="$(TopLevelSourceDirectory)ReactivityProfiler.Protocol\ReactivityProfiler.Protocol.csproj" />
   </ItemGroup>
 
 </Project>

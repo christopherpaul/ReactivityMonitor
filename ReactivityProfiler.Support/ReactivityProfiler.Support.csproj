@@ -3,8 +3,6 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
     <SignAssembly>true</SignAssembly>
-    <DelaySign>false</DelaySign>
-    <AssemblyOriginatorKeyFile>ReactivityProfiler.Support.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -12,7 +10,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ReactivityProfiler.Protocol\ReactivityProfiler.Protocol.csproj" />
+    <ProjectReference Include="$(TopLevelSourceDirectory)ReactivityProfiler.Protocol\ReactivityProfiler.Protocol.csproj" />
   </ItemGroup>
 
   <ItemGroup>

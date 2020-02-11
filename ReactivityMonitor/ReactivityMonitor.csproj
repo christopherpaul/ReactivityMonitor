@@ -232,15 +232,15 @@
   </ItemGroup>
   <ItemGroup />
   <ItemGroup>
-    <ProjectReference Include="..\ReactivityMonitor.Model\ReactivityMonitor.Model.csproj">
+    <ProjectReference Include="$(TopLevelSourceDirectory)ReactivityMonitor.Model\ReactivityMonitor.Model.csproj">
       <Project>{2E30E243-38D4-45DB-B864-3D67ADD15994}</Project>
       <Name>ReactivityMonitor.Model</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ReactivityMonitor.ProfilerClient\ReactivityMonitor.ProfilerClient.csproj">
+    <ProjectReference Include="$(TopLevelSourceDirectory)ReactivityMonitor.ProfilerClient\ReactivityMonitor.ProfilerClient.csproj">
       <Project>{a71f5a1d-dd80-40e9-b3e7-51c4b22a2dcd}</Project>
       <Name>ReactivityMonitor.ProfilerClient</Name>
     </ProjectReference>
-    <ProjectReference Include="..\ReactivityMonitor.Utility\ReactivityMonitor.Utility.csproj">
+    <ProjectReference Include="$(TopLevelSourceDirectory)ReactivityMonitor.Utility\ReactivityMonitor.Utility.csproj">
       <Project>{47021846-34AB-45A0-9866-B8EB46CAF4A2}</Project>
       <Name>ReactivityMonitor.Utility</Name>
     </ProjectReference>
@@ -257,5 +257,5 @@
     <PackageReference Include="System.ValueTuple" Version="4.5.0" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(MSBuildThisFileDirectory)..\build\IncludeProfilerBinaries.targets" />
+  <Import Project="$(BuildScriptsDirectory)IncludeProfilerBinaries.targets" />
 </Project>

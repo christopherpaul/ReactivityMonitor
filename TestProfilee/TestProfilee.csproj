@@ -25,9 +25,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\ReactivityProfiler\ReactivityProfiler.vcxproj" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="System.Reactive" Version="4.2.0" />
   </ItemGroup>
   <ItemGroup>
@@ -35,24 +32,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-  
-  <!-- Uncomment to copy all support assemblies next to the profilee - should no longer be necessary -->
-  <!--
-  <ItemGroup>
-    <ProjectReference Include="..\ReactivityProfiler.Support\ReactivityProfiler.Support.csproj">
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-      <OutputItemType>SupportFile</OutputItemType>
-    </ProjectReference>
-  </ItemGroup>
-
-  <Target Name="CopySupport" AfterTargets="AfterBuild">
-    <ItemGroup>
-      <SupportFile Include="%(SupportFile.RootDir)%(SupportFile.Directory)*.dll" />
-    </ItemGroup>
-    <Message Importance="high" Text="Support file: %(SupportFile.Identity)" />
-    <Copy SourceFiles="@(SupportFile)" DestinationFolder="$(OutDir)" />
-  </Target>
-  -->
 
   <Target Name="DumpIL" AfterTargets="AfterBuild" Condition="'$(TargetFramework)' == 'net472'">
     <GetFrameworkSdkPath>

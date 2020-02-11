@@ -5,7 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="../ReactivityMonitor.Utility/ReactivityMonitor.Utility.csproj" />
+    <ProjectReference Include="$(TopLevelSourceDirectory)ReactivityMonitor.Utility/ReactivityMonitor.Utility.csproj" />
   </ItemGroup>
   
   <ItemGroup>

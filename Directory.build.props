@@ -1,5 +1,15 @@
 <Project>
-    <PropertyGroup>
-        <LangVersion>latest</LangVersion>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TopLevelSourceDirectory>$(MSBuildThisFileDirectory)</TopLevelSourceDirectory>
+    <BuildScriptsDirectory>$(TopLevelSourceDirectory)build\</BuildScriptsDirectory>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <DelaySign>false</DelaySign>
+    <AssemblyOriginatorKeyFile>$(TopLevelSourceDirectory)build\ReactivityProfiler.Support.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
 </Project>
