@@ -8,6 +8,7 @@ namespace ReactivityMonitor.Model
     {
         int InstrumentedCallId { get; }
         IModule Module { get; }
+        uint CallingMethodMetadataToken { get; }
         string CallingType { get; }
         string CallingMethod { get; }
         string CalledMethod { get; }

@@ -20,7 +20,7 @@ namespace ReactivityMonitor.Model
         private sealed class Impl : IReactivityModel
         {
             private static readonly IModule cUnknownModule = new Module(0, string.Empty, string.Empty, Observable.Empty<IInstrumentedCall>());
-            private static readonly IInstrumentedCall cUnknownInstrumentedCall = new InstrumentedCall(-1, Observable.Return(cUnknownModule), string.Empty, string.Empty, string.Empty, 0, Observable.Empty<IObservableInstance>());
+            private static readonly IInstrumentedCall cUnknownInstrumentedCall = new InstrumentedCall(-1, Observable.Return(cUnknownModule), 0, string.Empty, string.Empty, string.Empty, 0, Observable.Empty<IObservableInstance>());
             private static readonly IObservableInstance cUnknownObservable = new ObservableInstance(new EventInfo(-1, DateTime.MinValue, -1), Observable.Return(cUnknownInstrumentedCall), Observable.Empty<IObservableInstance>(), Observable.Empty<ISubscription>());
 
             private readonly IObservableCache<IModule, ulong> mModuleCache;
@@ -150,7 +150,7 @@ namespace ReactivityMonitor.Model
                     .Take(1)
                     .StartWith(cUnknownModule);
 
-                return new InstrumentedCall(c.Id, module, c.CallingType, c.CallingMethod, c.CalledMethod, c.InstructionOffset, observableInstances);
+                return new InstrumentedCall(c.Id, module, c.CallingMethodMetadataToken, c.CallingType, c.CallingMethod, c.CalledMethod, c.InstructionOffset, observableInstances);
             }
 
             private IObservableInstance CreateObservableInstance(NewObservableInstance o)

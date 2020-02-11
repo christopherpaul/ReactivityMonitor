@@ -7,10 +7,11 @@ namespace ReactivityMonitor.Model
 {
     internal sealed class InstrumentedCall : IInstrumentedCall
     {
-        public InstrumentedCall(int id, IObservable<IModule> module, string callingType, string callingMethod, string calledMethod, int instructionOffset, IObservable<IObservableInstance> observableInstances)
+        public InstrumentedCall(int id, IObservable<IModule> module, uint callingMethodMetadataToken, string callingType, string callingMethod, string calledMethod, int instructionOffset, IObservable<IObservableInstance> observableInstances)
         {
             InstrumentedCallId = id;
             module.Subscribe(m => Module = m);
+            CallingMethodMetadataToken = callingMethodMetadataToken;
             CallingType = callingType;
             CallingMethod = callingMethod;
             CalledMethod = calledMethod;
@@ -21,6 +22,8 @@ namespace ReactivityMonitor.Model
         public int InstrumentedCallId { get; }
 
         public IModule Module { get; private set; }
+
+        public uint CallingMethodMetadataToken { get; }
 
         public string CallingType { get; }
 

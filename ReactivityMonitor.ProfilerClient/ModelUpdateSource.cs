@@ -37,7 +37,7 @@ namespace ReactivityMonitor.ProfilerClient
                 .Select(msg => new NewModuleUpdate(msg.ModuleID, msg.Path, msg.AssemblyName));
 
             InstrumentedCalls = GetMessages(MethodCallInstrumented, msg => msg.MethodCallInstrumented)
-                .Select(msg => new NewInstrumentedCall(msg.InstrumentationPointId, msg.ModuleId, msg.OwningTypeName, msg.CallingMethodName, msg.CalledMethodName, msg.InstructionOffset));
+                .Select(msg => new NewInstrumentedCall(msg.InstrumentationPointId, msg.ModuleId, msg.FunctionToken, msg.OwningTypeName, msg.CallingMethodName, msg.CalledMethodName, msg.InstructionOffset));
 
             ObservableInstances = GetMessages(ObservableCreated, msg => msg.ObservableCreated)
                 .Select(msg => new NewObservableInstance(msg.CreatedEvent.ToModel(), msg.InstrumentationPointId));
