@@ -38,13 +38,13 @@ public:
     {
         int length = static_cast<int>(s.length());
         Write32(length);
-        m_buffer.write(reinterpret_cast<const byte*>(s.data()), length * sizeof(wchar_t));
+        m_buffer.write(reinterpret_cast<const byte*>(s.data()), static_cast<std::streamsize>(length) * sizeof(wchar_t));
     }
 
     std::vector<byte> Get() const
     {
         std::basic_string<byte> str = m_buffer.str();
-        uint64_t contentLen = str.length();
+        size_t contentLen = str.length();
 
         std::vector<byte> vec;
         vec.resize(contentLen);
