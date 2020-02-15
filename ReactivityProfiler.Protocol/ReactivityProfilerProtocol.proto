@@ -4,6 +4,8 @@ option csharp_namespace = "ReactivityProfiler.Protocol";
 message EventMessage {
 	oneof Event {
 		ModuleLoadedEvent ModuleLoaded = 1;
+		MethodInstrumentationStartEvent MethodInstrumentationStart = 14;
+		MethodInstrumentationDoneEvent MethodInstrumentationDone = 15;
 		MethodCallInstrumentedEvent MethodCallInstrumented = 2;
 		ObservableCreatedEvent ObservableCreated = 3;
 		SubscribeEvent Subscribe = 4;
@@ -25,19 +27,27 @@ message ModuleLoadedEvent {
 	string AssemblyName = 3;
 }
 
-message MethodCallInstrumentedEvent {
-    int32 InstrumentationPointId = 1;
+message MethodInstrumentationStartEvent {
+	int32 InstrumentedMethodId = 1;
     uint64 ModuleId = 2;
     uint32 FunctionToken = 3;
-    int32 InstructionOffset = 4;
-    string CalledMethodName = 5;
-	string OwningTypeName = 6;
-	string CallingMethodName = 7;
+	string OwningTypeName = 4;
+	string Name = 5;
+}
+
+message MethodInstrumentationDoneEvent {
+	int32 InstrumentedMethodId = 1;
+}
+
+message MethodCallInstrumentedEvent {
+    int32 InstrumentationPointId = 1;
+	int32 InstrumentedMethodId = 2;
+    int32 InstructionOffset = 3;
+    string CalledMethodName = 4;
 }
 
 // Observable's ID is CreatedEvent.SequenceId
 message ObservableCreatedEvent {
-	reserved 3, 4;
 	EventInfo CreatedEvent = 1;
 	int32 InstrumentationPointId = 2;
 }
@@ -59,7 +69,6 @@ message UnsubscribeEvent {
 }
 
 message OnNextEvent {
-	reserved 3;
 	EventInfo Event = 1;
 	int64 SubscriptionId = 2; // refers to Event.SequenceId of the SubscribeEvent
 	Value Value = 4;
@@ -71,7 +80,6 @@ message OnCompletedEvent {
 }
 
 message OnErrorEvent {
-	reserved 3;
 	EventInfo Event = 1;
 	int64 SubscriptionId = 2; // refers to Event.SequenceId of the SubscribeEvent
 	Value ExceptionValue = 4;

@@ -296,12 +296,31 @@ namespace ReactivityProfiler.Support.Server
                         MethodCallInstrumented = new Protocol.MethodCallInstrumentedEvent
                         {
                             InstrumentationPointId = mcie.InstrumentationPointId,
-                            ModuleId = mcie.ModuleId,
-                            FunctionToken = mcie.FunctionToken,
+                            InstrumentedMethodId = mcie.InstrumentedMethodId,
                             InstructionOffset = mcie.InstructionOffset,
                             CalledMethodName = mcie.CalledMethodName,
-                            OwningTypeName = mcie.OwningTypeName,
-                            CallingMethodName = mcie.CallingMethodName
+                        }
+                    };
+
+                case Store.MethodInfoEvent mie:
+                    return new EventMessage
+                    {
+                        MethodInstrumentationStart = new Protocol.MethodInstrumentationStartEvent
+                        {
+                            InstrumentedMethodId = mie.InstrumentedMethodId,
+                            ModuleId = mie.ModuleId,
+                            FunctionToken = mie.FunctionToken,
+                            OwningTypeName = mie.OwningTypeName,
+                            Name = mie.Name
+                        }
+                    };
+
+                case Store.MethodDoneEvent mde:
+                    return new EventMessage
+                    {
+                        MethodInstrumentationDone = new Protocol.MethodInstrumentationDoneEvent
+                        {
+                            InstrumentedMethodId = mde.InstrumentedMethodId
                         }
                     };
 

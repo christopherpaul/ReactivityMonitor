@@ -52,7 +52,8 @@ public:
         m_methodProps(props),
         m_functionInfo(info),
         m_metadataImport(metadata),
-        m_pPerModuleData(pPerModuleData)
+        m_pPerModuleData(pPerModuleData),
+        m_instrumentedMethodId(0)
     {
     }
 
@@ -78,7 +79,11 @@ private:
 
     std::unique_ptr<Method> m_method;
     std::vector<ObservableCallInfo> m_observableCalls;
+
+    int32_t m_instrumentedMethodId;
 };
+
+static std::atomic_int32_t s_instrumentationIdSource = 0;
 
 void CRxProfiler::InstrumentMethodBody(FunctionID functionId, const MethodProps& props, const FunctionInfo& info, CMetadataImport& metadata, std::shared_ptr<PerModuleData>& pPerModuleData)
 {
@@ -157,6 +162,8 @@ RewrittenFunctionData MethodBodyInstrumenter::CreateInstrumentedFunction()
         return {};
     }
 
+    m_instrumentedMethodId = ++s_instrumentationIdSource;
+
     auto owningTypeProps = m_metadataImport.GetTypeDefProps(m_methodProps.classDefToken);
     m_owningTypeName = owningTypeProps.name;
     mdTypeDef typeDefToken = m_methodProps.classDefToken;
@@ -166,6 +173,13 @@ RewrittenFunctionData MethodBodyInstrumenter::CreateInstrumentedFunction()
         owningTypeProps = m_metadataImport.GetTypeDefProps(typeDefToken);
         m_owningTypeName = owningTypeProps.name + L"." + m_owningTypeName;
     }
+
+    g_Store.AddMethodInfo(
+        m_instrumentedMethodId,
+        m_functionInfo.moduleId,
+        m_functionInfo.functionToken,
+        m_owningTypeName,
+        m_methodProps.name);
 
     CMetadataEmit emit = m_profilerInfo.GetMetadataEmit(m_functionInfo.moduleId, ofRead | ofWrite);
 
@@ -190,6 +204,8 @@ RewrittenFunctionData MethodBodyInstrumenter::CreateInstrumentedFunction()
     ULONG mapSize = m_method->GetILMapSize();
     COR_IL_MAP* ilMapEntries = static_cast<COR_IL_MAP*>(CoTaskMemAlloc(mapSize * sizeof(COR_IL_MAP)));
     m_method->PopulateILMap(mapSize, ilMapEntries);
+
+    g_Store.MethodInstrumentationDone(m_instrumentedMethodId);
 
     return { rewrittenILBuffer, { ilMapEntries, mapSize } };
 }
@@ -358,9 +374,7 @@ bool MethodBodyInstrumenter::TryFindObservableCalls()
 
 void MethodBodyInstrumenter::InstrumentCall(ObservableCallInfo& call, CMetadataEmit& emit)
 {
-    static std::atomic_int32_t m_instrumentationPointSource = 0;
-
-    int32_t instrumentationPoint = ++m_instrumentationPointSource;
+    int32_t instrumentationPoint = ++s_instrumentationIdSource;
 
     InstructionList preCallInstrs;
     if (!call.m_argIsObservable.empty())
@@ -474,10 +488,7 @@ void MethodBodyInstrumenter::InstrumentCall(ObservableCallInfo& call, CMetadataE
 
     g_Store.AddInstrumentationInfo(
         instrumentationPoint, 
-        m_functionInfo.moduleId, 
-        m_functionInfo.functionToken,
-        m_owningTypeName,
-        m_methodProps.name,
+        m_instrumentedMethodId,
         call.m_instructionOffset,
         call.m_calledMethodName);
 }

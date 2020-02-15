@@ -12,7 +12,7 @@ namespace ReactivityMonitor.Model
         void Resume();
 
         IObservable<NewModuleUpdate> Modules { get; }
-        IObservable<NewInstrumentedCall> InstrumentedCalls { get; }
+        IObservable<NewInstrumentedMethod> InstrumentedMethods { get; }
         IObservable<NewObservableInstance> ObservableInstances { get; }
         IObservable<NewObservableInstanceLink> ObservableInstanceLinks { get; }
         IObservable<NewSubscription> CreatedSubscriptions { get; }

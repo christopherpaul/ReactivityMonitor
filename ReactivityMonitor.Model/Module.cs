@@ -7,17 +7,17 @@ namespace ReactivityMonitor.Model
 {
     internal sealed class Module : IModule
     {
-        public Module(ulong id, string path, string assemblyName, IObservable<IInstrumentedCall> instrumentedCalls)
+        public Module(ulong id, string path, string assemblyName, IObservable<IInstrumentedMethod> instrumentedMethods)
         {
             ModuleId = id;
             Path = path;
             AssemblyName = assemblyName;
-            InstrumentedCalls = instrumentedCalls;
+            InstrumentedMethods = instrumentedMethods;
         }
 
         public ulong ModuleId { get; }
         public string Path { get; }
         public string AssemblyName { get; }
-        public IObservable<IInstrumentedCall> InstrumentedCalls { get; }
+        public IObservable<IInstrumentedMethod> InstrumentedMethods { get; }
     }
 }

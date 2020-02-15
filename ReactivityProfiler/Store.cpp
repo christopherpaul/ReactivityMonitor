@@ -6,7 +6,9 @@ Store g_Store;
 enum class EventId
 {
     ModuleInfo,
-    InstrumentationInfo
+    MethodInfo,
+    CallInfo,
+    MethodInstrumentationDone,
 };
 
 class EventRecord
@@ -58,14 +60,21 @@ class StoreImpl
 {
 public:
     void AddModuleInfo(ModuleID moduleId, const std::wstring& modulePath, const std::wstring& assemblyName);
+
+    void AddMethodInfo(
+        int32_t instrumentedMethodId, 
+        ModuleID moduleId, 
+        mdToken functionToken, 
+        const std::wstring& owningTypeName, 
+        const std::wstring& name);
+
     void AddInstrumentationInfo(
         int32_t instrumentationPoint,
-        ModuleID moduleId,
-        mdToken functionToken,
-        const std::wstring& owningTypeName,
-        const std::wstring& callingMethodName,
+        int32_t instrumentedMethodId,
         int32_t instructionOffset,
         const std::wstring& calledMethodName);
+
+    void MethodInstrumentationDone(int32_t instrumentedMethodId);
 
     int32_t GetEventCount()
     {
@@ -101,23 +110,27 @@ void Store::AddModuleInfo(ModuleID moduleId, const std::wstring& modulePath, con
     m_pImpl->AddModuleInfo(moduleId, modulePath, assemblyName);
 }
 
+void Store::AddMethodInfo(int32_t instrumentedMethodId, ModuleID moduleId, mdToken functionToken, const std::wstring& owningTypeName, const std::wstring& name)
+{
+    m_pImpl->AddMethodInfo(instrumentedMethodId, moduleId, functionToken, owningTypeName, name);
+}
+
 void Store::AddInstrumentationInfo(
     int32_t instrumentationPoint, 
-    ModuleID moduleId, 
-    mdToken functionToken, 
-    const std::wstring& owningTypeName,
-    const std::wstring& callingMethodName,
+    int32_t instrumentedMethodId,
     int32_t instructionOffset,
     const std::wstring& calledMethodName)
 {
     m_pImpl->AddInstrumentationInfo(
         instrumentationPoint,
-        moduleId,
-        functionToken,
-        owningTypeName,
-        callingMethodName,
+        instrumentedMethodId,
         instructionOffset,
         calledMethodName);
+}
+
+void Store::MethodInstrumentationDone(int32_t instrumentedMethodId)
+{
+    m_pImpl->MethodInstrumentationDone(instrumentedMethodId);
 }
 
 int32_t Store::GetEventCount()
@@ -140,22 +153,39 @@ void StoreImpl::AddModuleInfo(ModuleID moduleId, const std::wstring& modulePath,
     WriteRecord(r);
 }
 
-void StoreImpl::AddInstrumentationInfo(
-    int32_t instrumentationPoint, 
+void StoreImpl::AddMethodInfo(
+    int32_t instrumentedMethodId, 
     ModuleID moduleId, 
     mdToken functionToken, 
-    const std::wstring& owningTypeName,
-    const std::wstring& callingMethodName,
+    const std::wstring& owningTypeName, 
+    const std::wstring& name)
+{
+    EventRecord r(EventId::MethodInfo);
+    r.Write32(instrumentedMethodId);
+    r.Write64(moduleId);
+    r.Write32(functionToken);
+    r.Write(owningTypeName);
+    r.Write(name);
+    WriteRecord(r);
+}
+
+void StoreImpl::AddInstrumentationInfo(
+    int32_t instrumentationPoint, 
+    int32_t instrumentedMethodId,
     int32_t instructionOffset,
     const std::wstring& calledMethodName)
 {
-    EventRecord r(EventId::InstrumentationInfo);
+    EventRecord r(EventId::CallInfo);
     r.Write32(instrumentationPoint);
-    r.Write64(moduleId);
-    r.Write32(functionToken);
+    r.Write32(instrumentedMethodId);
     r.Write32(instructionOffset);
-    r.Write(owningTypeName);
-    r.Write(callingMethodName);
     r.Write(calledMethodName);
+    WriteRecord(r);
+}
+
+void StoreImpl::MethodInstrumentationDone(int32_t instrumentedMethodId)
+{
+    EventRecord r(EventId::MethodInstrumentationDone);
+    r.Write32(instrumentedMethodId);
     WriteRecord(r);
 }

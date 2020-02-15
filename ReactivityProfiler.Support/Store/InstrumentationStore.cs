@@ -30,10 +30,32 @@ namespace ReactivityProfiler.Support.Store
                 case 0:
                     return DecodeModuleLoadEvent(reader);
                 case 1:
+                    return DecodeMethodEvent(reader);
+                case 2:
                     return DecodeMethodCallInstrumentedEvent(reader);
+                case 3:
+                    return DecodeMethodInstrumentationDoneEvent(reader);
                 default:
                     return null;
             }
+        }
+
+        private static object DecodeMethodInstrumentationDoneEvent(BinaryReader reader)
+        {
+            var e = new MethodDoneEvent();
+            e.InstrumentedMethodId = reader.ReadInt32();
+            return e;
+        }
+
+        private static object DecodeMethodEvent(BinaryReader reader)
+        {
+            var e = new MethodInfoEvent();
+            e.InstrumentedMethodId = reader.ReadInt32();
+            e.ModuleId = reader.ReadUInt64();
+            e.FunctionToken = reader.ReadUInt32();
+            e.OwningTypeName = ReadInt32LengthString(reader);
+            e.Name = ReadInt32LengthString(reader);
+            return e;
         }
 
         private static object DecodeModuleLoadEvent(BinaryReader reader)
@@ -49,11 +71,8 @@ namespace ReactivityProfiler.Support.Store
         {
             var e = new MethodCallInstrumentedEvent();
             e.InstrumentationPointId = reader.ReadInt32();
-            e.ModuleId = reader.ReadUInt64();
-            e.FunctionToken = reader.ReadUInt32();
+            e.InstrumentedMethodId = reader.ReadInt32();
             e.InstructionOffset = reader.ReadInt32();
-            e.OwningTypeName = ReadInt32LengthString(reader);
-            e.CallingMethodName = ReadInt32LengthString(reader);
             e.CalledMethodName = ReadInt32LengthString(reader);
             return e;
         }

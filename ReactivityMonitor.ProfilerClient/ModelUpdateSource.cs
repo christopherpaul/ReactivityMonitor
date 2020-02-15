@@ -36,8 +36,29 @@ namespace ReactivityMonitor.ProfilerClient
             Modules = GetMessages(ModuleLoaded, msg => msg.ModuleLoaded)
                 .Select(msg => new NewModuleUpdate(msg.ModuleID, msg.Path, msg.AssemblyName));
 
-            InstrumentedCalls = GetMessages(MethodCallInstrumented, msg => msg.MethodCallInstrumented)
-                .Select(msg => new NewInstrumentedCall(msg.InstrumentationPointId, msg.ModuleId, msg.FunctionToken, msg.OwningTypeName, msg.CallingMethodName, msg.CalledMethodName, msg.InstructionOffset));
+            // Sequence:
+            //  - MethodInstrumentationStart
+            //  - MethodCallInstrumented (repeated for each call)
+            //  - MethodInstrumentationDone
+            // This code extracts these sequences and bundles them into a single method event
+            // containing the method info and all the calls.
+            var whenCallInstrumented = GetMessages(MethodCallInstrumented, msg => msg.MethodCallInstrumented)
+                .Publish().ConnectForEver();
+            var whenMethodInstrumentationDone = GetMessages(MethodInstrumentationDone, msg => msg.MethodInstrumentationDone.InstrumentedMethodId)
+                .Publish().ConnectForEver();
+            InstrumentedMethods = GetMessages(MethodInstrumentationStart, msg => msg.MethodInstrumentationStart)
+                .SelectMany(msg =>
+                    whenCallInstrumented
+                        .Where(c => c.InstrumentedMethodId == msg.InstrumentedMethodId)
+                        .TakeUntil(whenMethodInstrumentationDone.Where(id => id == msg.InstrumentedMethodId))
+                        .ToList()
+                        .Select(calls => new NewInstrumentedMethod(
+                            msg.InstrumentedMethodId,
+                            msg.ModuleId,
+                            msg.FunctionToken,
+                            msg.OwningTypeName,
+                            msg.Name,
+                            calls.Select(c => new NewInstrumentedCall(c.InstrumentationPointId, c.CalledMethodName, c.InstructionOffset)))));
 
             ObservableInstances = GetMessages(ObservableCreated, msg => msg.ObservableCreated)
                 .Select(msg => new NewObservableInstance(msg.CreatedEvent.ToModel(), msg.InstrumentationPointId));
@@ -73,7 +94,7 @@ namespace ReactivityMonitor.ProfilerClient
         }
 
         public IObservable<NewModuleUpdate> Modules { get; }
-        public IObservable<NewInstrumentedCall> InstrumentedCalls { get; }
+        public IObservable<NewInstrumentedMethod> InstrumentedMethods { get; }
         public IObservable<NewObservableInstance> ObservableInstances { get; }
         public IObservable<NewObservableInstanceLink> ObservableInstanceLinks { get; }
         public IObservable<NewSubscription> CreatedSubscriptions { get; }

@@ -11,6 +11,6 @@ namespace ReactivityMonitor.Model
         string Path { get; }
         string AssemblyName { get; }
 
-        IObservable<IInstrumentedCall> InstrumentedCalls { get; }
+        IObservable<IInstrumentedMethod> InstrumentedMethods { get; }
     }
 }

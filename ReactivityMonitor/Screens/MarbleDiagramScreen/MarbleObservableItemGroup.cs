@@ -37,7 +37,7 @@ namespace ReactivityMonitor.Screens.MarbleDiagramScreen
         }
 
         public string ShortName => mCall.CalledMethod;
-        public string LongName => $"{mCall.CallingType}.{mCall.CallingMethod}: {mCall.CalledMethod}";
+        public string LongName => $"{mCall.Method.ParentType}.{mCall.Method.Name}: {mCall.CalledMethod}";
         public IImmutableList<long> Ordering { get; }
         public ReadOnlyObservableCollection<MarbleObservableItem> Items { get; }
 

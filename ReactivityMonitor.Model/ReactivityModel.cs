@@ -19,17 +19,19 @@ namespace ReactivityMonitor.Model
 
         private sealed class Impl : IReactivityModel
         {
-            private static readonly IModule cUnknownModule = new Module(0, string.Empty, string.Empty, Observable.Empty<IInstrumentedCall>());
-            private static readonly IInstrumentedCall cUnknownInstrumentedCall = new InstrumentedCall(-1, Observable.Return(cUnknownModule), 0, string.Empty, string.Empty, string.Empty, 0, Observable.Empty<IObservableInstance>());
+            private static readonly IModule cUnknownModule = new Module(0, string.Empty, string.Empty, Observable.Empty<IInstrumentedMethod>());
+            private static readonly IInstrumentedMethod cUnknownMethod = new InstrumentedMethod(-1, cUnknownModule, 0, string.Empty, string.Empty);
+            private static readonly IInstrumentedCall cUnknownInstrumentedCall = new InstrumentedCall(-1, cUnknownMethod, string.Empty, 0, Observable.Empty<IObservableInstance>());
             private static readonly IObservableInstance cUnknownObservable = new ObservableInstance(new EventInfo(-1, DateTime.MinValue, -1), Observable.Return(cUnknownInstrumentedCall), Observable.Empty<IObservableInstance>(), Observable.Empty<ISubscription>());
 
             private readonly IObservableCache<IModule, ulong> mModuleCache;
+            private readonly IObservableCache<IInstrumentedMethod, int> mInstrumentedMethodCache;
             private readonly IObservableCache<IInstrumentedCall, int> mInstrumentedCallsCache;
             private readonly IObservableCache<IObservableInstance, long> mObservableInstancesCache;
             private readonly IObservableCache<ISubscription, long> mSubscriptionsCache;
             private readonly IObservableCache<UnsubscribeEvent, long> mSubscriptionDisposalsCache;
             private readonly IObservableCache<NewTypeInfo, int> mTypeInfoCache;
-            private readonly IObservableCache<IObservable<IInstrumentedCall>, ulong> mInstrumentedCallsByModule;
+            private readonly IObservableCache<IObservable<IInstrumentedMethod>, ulong> mInstrumentedMethodsByModule;
             private readonly IObservableCache<IObservable<IObservableInstance>, int> mObservableInstancesByCall;
             private readonly IObservableCache<IObservable<IObservableInstance>, long> mObservableInstanceInputsByOutput;
             private readonly IObservableCache<IObservable<ISubscription>, long> mSubscriptionsByObservableInstance;
@@ -48,11 +50,25 @@ namespace ReactivityMonitor.Model
 
                 Modules = mModuleCache.Connect().SynchronizeSubscribe(moduleCacheLocker).Flatten().Select(chg => chg.Current);
 
+                IObservable<IInstrumentedMethod> methods = updateSource.InstrumentedMethods
+                    .Select(CreateInstrumentedMethod)
+                    .Publish()
+                    .ConnectForEver();
+
+                object instrumentedMethodCacheLocker = new object();
+
+                mInstrumentedMethodCache = methods
+                    .ToObservableChangeSet(m => m.InstrumentedMethodId)
+                    .Synchronize(instrumentedMethodCacheLocker)
+                    .AsObservableCache();
+
+                InstrumentedMethods = mInstrumentedMethodCache.Connect().SynchronizeSubscribe(instrumentedMethodCacheLocker)
+                    .Flatten().Select(chg => chg.Current);
+
                 object instrumentedCallsCacheLocker = new object();
 
-                mInstrumentedCallsCache = updateSource.InstrumentedCalls
-                    .ToObservableChangeSet(c => c.Id)
-                    .Transform(CreateInstrumentedCall)
+                mInstrumentedCallsCache = methods.SelectMany(m => m.InstrumentedCalls)
+                    .ToObservableChangeSet(c => c.InstrumentedCallId)
                     .Synchronize(instrumentedCallsCacheLocker)
                     .AsObservableCache();
 
@@ -80,10 +96,10 @@ namespace ReactivityMonitor.Model
                     .Transform(d => new UnsubscribeEvent(d.Disposed))
                     .AsObservableCache();
 
-                mInstrumentedCallsByModule = updateSource.InstrumentedCalls
-                    .GroupBy(c => c.ModuleId)
+                mInstrumentedMethodsByModule = methods
+                    .GroupBy(m => m.Module.ModuleId)
                     .ToObservableChangeSet(grp => grp.Key)
-                    .Transform(calls => calls.SelectMany(c => mInstrumentedCallsCache.WatchValue(c.Id).Take(1)).Replay().ConnectForEver())
+                    .Transform(grp => grp.Replay().ConnectForEver())
                     .AsObservableCache();
 
                 mObservableInstancesByCall = updateSource.ObservableInstances
@@ -124,33 +140,37 @@ namespace ReactivityMonitor.Model
             }
 
             public IObservable<IModule> Modules { get; }
+            public IObservable<IInstrumentedMethod> InstrumentedMethods { get; }
             public IObservable<IInstrumentedCall> InstrumentedCalls { get; }
             public IObservable<IObservableInstance> ObservableInstances { get; }
             public IObservable<ClientEvent> ClientEvents { get; }
 
             private IModule CreateModule(NewModuleUpdate m)
             {
-                var instrumentedCalls = mInstrumentedCallsByModule
+                var instrumentedMethods = mInstrumentedMethodsByModule
                     .WatchValue(m.ModuleId)
                     .Take(1)
                     .SelectMany(calls => calls);
 
-                return new Module(m.ModuleId, m.Path, m.AssemblyName, instrumentedCalls);
+                return new Module(m.ModuleId, m.Path, m.AssemblyName, instrumentedMethods);
             }
 
-            private IInstrumentedCall CreateInstrumentedCall(NewInstrumentedCall c)
+            private IInstrumentedMethod CreateInstrumentedMethod(NewInstrumentedMethod m)
+            {
+                var module = mModuleCache.Lookup(m.ModuleId);
+                var method = new InstrumentedMethod(m.Id, module.HasValue ? module.Value : cUnknownModule, m.MetadataToken, m.OwningType, m.Name);
+                method.InstrumentedCalls = m.InstrumentedCalls.Select(c => CreateInstrumentedCall(method, c)).ToImmutableList();
+                return method;
+            }
+
+            private IInstrumentedCall CreateInstrumentedCall(IInstrumentedMethod method, NewInstrumentedCall c)
             {
                 var observableInstances = mObservableInstancesByCall
                     .WatchValue(c.Id)
                     .Take(1)
                     .SelectMany(obses => obses);
 
-                IObservable<IModule> module = mModuleCache
-                    .WatchValue(c.ModuleId)
-                    .Take(1)
-                    .StartWith(cUnknownModule);
-
-                return new InstrumentedCall(c.Id, module, c.CallingMethodMetadataToken, c.CallingType, c.CallingMethod, c.CalledMethod, c.InstructionOffset, observableInstances);
+                return new InstrumentedCall(c.Id, method, c.CalledMethod, c.InstructionOffset, observableInstances);
             }
 
             private IObservableInstance CreateObservableInstance(NewObservableInstance o)

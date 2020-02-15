@@ -24,85 +24,93 @@ namespace ReactivityProfiler.Protocol {
     static ReactivityProfilerProtocolReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "CiBSZWFjdGl2aXR5UHJvZmlsZXJQcm90b2NvbC5wcm90byLLBAoMRXZlbnRN",
+            "CiBSZWFjdGl2aXR5UHJvZmlsZXJQcm90b2NvbC5wcm90byLZBQoMRXZlbnRN",
             "ZXNzYWdlEioKDE1vZHVsZUxvYWRlZBgBIAEoCzISLk1vZHVsZUxvYWRlZEV2",
-            "ZW50SAASPgoWTWV0aG9kQ2FsbEluc3RydW1lbnRlZBgCIAEoCzIcLk1ldGhv",
-            "ZENhbGxJbnN0cnVtZW50ZWRFdmVudEgAEjQKEU9ic2VydmFibGVDcmVhdGVk",
-            "GAMgASgLMhcuT2JzZXJ2YWJsZUNyZWF0ZWRFdmVudEgAEiQKCVN1YnNjcmli",
-            "ZRgEIAEoCzIPLlN1YnNjcmliZUV2ZW50SAASKAoLVW5zdWJzY3JpYmUYBSAB",
-            "KAsyES5VbnN1YnNjcmliZUV2ZW50SAASHgoGT25OZXh0GAYgASgLMgwuT25O",
-            "ZXh0RXZlbnRIABIoCgtPbkNvbXBsZXRlZBgHIAEoCzIRLk9uQ29tcGxldGVk",
-            "RXZlbnRIABIgCgdPbkVycm9yGAggASgLMg0uT25FcnJvckV2ZW50SAASNAoR",
-            "T2JzZXJ2YWJsZXNMaW5rZWQYCSABKAsyFy5PYnNlcnZhYmxlc0xpbmtlZEV2",
-            "ZW50SAASNQoQT2JqZWN0UHJvcGVydGllcxgKIAEoCzIZLk9iamVjdFByb3Bl",
-            "cnRpZXNSZXNwb25zZUgAEisKC09iamVjdEl0ZW1zGAsgASgLMhQuT2JqZWN0",
-            "SXRlbXNSZXNwb25zZUgAEhUKBFR5cGUYDCABKAsyBS5UeXBlSAASIwoLQ2xp",
-            "ZW50RXZlbnQYDSABKAsyDC5DbGllbnRFdmVudEgAQgcKBUV2ZW50IkkKEU1v",
-            "ZHVsZUxvYWRlZEV2ZW50EhAKCE1vZHVsZUlEGAEgASgEEgwKBFBhdGgYAiAB",
-            "KAkSFAoMQXNzZW1ibHlOYW1lGAMgASgJIs4BChtNZXRob2RDYWxsSW5zdHJ1",
-            "bWVudGVkRXZlbnQSHgoWSW5zdHJ1bWVudGF0aW9uUG9pbnRJZBgBIAEoBRIQ",
-            "CghNb2R1bGVJZBgCIAEoBBIVCg1GdW5jdGlvblRva2VuGAMgASgNEhkKEUlu",
-            "c3RydWN0aW9uT2Zmc2V0GAQgASgFEhgKEENhbGxlZE1ldGhvZE5hbWUYBSAB",
-            "KAkSFgoOT3duaW5nVHlwZU5hbWUYBiABKAkSGQoRQ2FsbGluZ01ldGhvZE5h",
-            "bWUYByABKAkiZgoWT2JzZXJ2YWJsZUNyZWF0ZWRFdmVudBIgCgxDcmVhdGVk",
-            "RXZlbnQYASABKAsyCi5FdmVudEluZm8SHgoWSW5zdHJ1bWVudGF0aW9uUG9p",
-            "bnRJZBgCIAEoBUoECAMQBEoECAQQBSJPChZPYnNlcnZhYmxlc0xpbmtlZEV2",
-            "ZW50EhoKEk91dHB1dE9ic2VydmFibGVJZBgBIAEoAxIZChFJbnB1dE9ic2Vy",
-            "dmFibGVJZBgCIAEoAyJBCg5TdWJzY3JpYmVFdmVudBIZCgVFdmVudBgBIAEo",
-            "CzIKLkV2ZW50SW5mbxIUCgxPYnNlcnZhYmxlSWQYAiABKAMiRQoQVW5zdWJz",
-            "Y3JpYmVFdmVudBIZCgVFdmVudBgBIAEoCzIKLkV2ZW50SW5mbxIWCg5TdWJz",
-            "Y3JpcHRpb25JZBgCIAEoAyJdCgtPbk5leHRFdmVudBIZCgVFdmVudBgBIAEo",
-            "CzIKLkV2ZW50SW5mbxIWCg5TdWJzY3JpcHRpb25JZBgCIAEoAxIVCgVWYWx1",
-            "ZRgEIAEoCzIGLlZhbHVlSgQIAxAEIkUKEE9uQ29tcGxldGVkRXZlbnQSGQoF",
-            "RXZlbnQYASABKAsyCi5FdmVudEluZm8SFgoOU3Vic2NyaXB0aW9uSWQYAiAB",
-            "KAMiZwoMT25FcnJvckV2ZW50EhkKBUV2ZW50GAEgASgLMgouRXZlbnRJbmZv",
-            "EhYKDlN1YnNjcmlwdGlvbklkGAIgASgDEh4KDkV4Y2VwdGlvblZhbHVlGAQg",
-            "ASgLMgYuVmFsdWVKBAgDEAQiVwoLQ2xpZW50RXZlbnQSGQoFRXZlbnQYASAB",
-            "KAsyCi5FdmVudEluZm8SCgoCSWQYAiABKAUSDAoETmFtZRgDIAEoCRITCgtE",
-            "ZXNjcmlwdGlvbhgEIAEoCSJECglFdmVudEluZm8SEgoKU2VxdWVuY2VJZBgB",
-            "IAEoAxIRCglUaW1lc3RhbXAYAiABKAMSEAoIVGhyZWFkSWQYAyABKAUiTAoY",
-            "T2JqZWN0UHJvcGVydGllc1Jlc3BvbnNlEhAKCE9iamVjdElkGAEgASgDEh4K",
-            "DlByb3BlcnR5VmFsdWVzGAIgAygLMgYuVmFsdWUibQoTT2JqZWN0SXRlbXNS",
-            "ZXNwb25zZRIQCghPYmplY3RJZBgBIAEoAxISCgpTdGFydGluZ0F0GAIgASgF",
-            "EhoKCkl0ZW1WYWx1ZXMYAyADKAsyBi5WYWx1ZRIUCgxDb3VudFJlYWNoZWQY",
-            "BCABKAgihwMKDlJlcXVlc3RNZXNzYWdlEkYKGVNlbmRJbnN0cnVtZW50YXRp",
-            "b25FdmVudHMYASABKAsyIS5TZW5kSW5zdHJ1bWVudGF0aW9uRXZlbnRzUmVx",
-            "dWVzdEgAEjIKD1N0YXJ0TW9uaXRvcmluZxgCIAEoCzIXLlN0YXJ0TW9uaXRv",
-            "cmluZ1JlcXVlc3RIABIwCg5TdG9wTW9uaXRvcmluZxgDIAEoCzIWLlN0b3BN",
-            "b25pdG9yaW5nUmVxdWVzdEgAEjcKE0dldE9iamVjdFByb3BlcnRpZXMYBCAB",
-            "KAsyGC5PYmplY3RQcm9wZXJ0aWVzUmVxdWVzdEgAEi0KDkdldE9iamVjdEl0",
-            "ZW1zGAUgASgLMhMuT2JqZWN0SXRlbXNSZXF1ZXN0SAASKgoLUmVjb3JkRXZl",
-            "bnQYBiABKAsyEy5SZWNvcmRFdmVudFJlcXVlc3RIABIoCgpEaXNjb25uZWN0",
-            "GAcgASgLMhIuRGlzY29ubmVjdFJlcXVlc3RIAEIJCgdSZXF1ZXN0Ip0BCiBT",
-            "ZW5kSW5zdHJ1bWVudGF0aW9uRXZlbnRzUmVxdWVzdBI7CgRNb2RlGAEgASgO",
-            "Mi0uU2VuZEluc3RydW1lbnRhdGlvbkV2ZW50c1JlcXVlc3QuUmVxdWVzdE1v",
-            "ZGUiPAoLUmVxdWVzdE1vZGUSDgoKQ09OVElOVU9VUxAAEgwKCE9OQ0VfQUxM",
-            "EAESDwoLT05DRV9VTlNFTlQQAiI4ChZTdGFydE1vbml0b3JpbmdSZXF1ZXN0",
-            "Eh4KFkluc3RydW1lbnRhdGlvblBvaW50SWQYASADKAUiNwoVU3RvcE1vbml0",
-            "b3JpbmdSZXF1ZXN0Eh4KFkluc3RydW1lbnRhdGlvblBvaW50SWQYAiADKAUi",
-            "KwoXT2JqZWN0UHJvcGVydGllc1JlcXVlc3QSEAoIT2JqZWN0SWQYASABKAMi",
-            "SQoST2JqZWN0SXRlbXNSZXF1ZXN0EhAKCE9iamVjdElkGAEgASgDEg8KB1N0",
-            "YXJ0QXQYAiABKAUSEAoITWF4Q291bnQYAyABKAUiQwoSUmVjb3JkRXZlbnRS",
-            "ZXF1ZXN0EgoKAklkGAEgASgFEgwKBE5hbWUYAiABKAkSEwoLRGVzY3JpcHRp",
-            "b24YAyABKAkiEwoRRGlzY29ubmVjdFJlcXVlc3QizAIKBVZhbHVlEg4KBlR5",
-            "cGVJZBgBIAEoBRIOCgROdWxsGAIgASgISAASDwoFSW50NjQYAyABKANIABIQ",
-            "CgZVSW50NjQYBCABKARIABIQCgZEb3VibGUYBSABKAFIABIOCgRDaGFyGAYg",
-            "ASgFSAASDgoEQm9vbBgHIAEoCEgAEhAKBlN0cmluZxgIIAEoCUgAEhIKCFRp",
-            "bWVzcGFuGAkgASgDSAASFQoLRGF0ZVRpbWVVdGMYCiABKANIABIXCg1EYXRl",
-            "VGltZUxvY2FsGAsgASgDSAASHQoTRGF0ZVRpbWVVbnNwZWNpZmllZBgMIAEo",
-            "A0gAEhQKCkJ5dGVTdHJpbmcYDSABKAxIABIZCgZPYmplY3QYDiABKAsyBy5P",
-            "YmplY3RIABIfChdJc0V4Y2VwdGlvbkdldHRpbmdWYWx1ZRgPIAEoCEIHCgVW",
-            "YWx1ZSI/CgRUeXBlEg4KBlR5cGVJZBgBIAEoBRIQCghUeXBlTmFtZRgCIAEo",
-            "CRIVCg1Qcm9wZXJ0eU5hbWVzGAMgAygJImEKBk9iamVjdBIQCghPYmplY3RJ",
-            "ZBgBIAEoAxIcChRTdHJpbmdSZXByZXNlbnRhdGlvbhgCIAEoCRIUCgxIYXNJ",
-            "dGVtQ291bnQYAyABKAgSEQoJSXRlbUNvdW50GAQgASgFQh6qAhtSZWFjdGl2",
-            "aXR5UHJvZmlsZXIuUHJvdG9jb2xiBnByb3RvMw=="));
+            "ZW50SAASRgoaTWV0aG9kSW5zdHJ1bWVudGF0aW9uU3RhcnQYDiABKAsyIC5N",
+            "ZXRob2RJbnN0cnVtZW50YXRpb25TdGFydEV2ZW50SAASRAoZTWV0aG9kSW5z",
+            "dHJ1bWVudGF0aW9uRG9uZRgPIAEoCzIfLk1ldGhvZEluc3RydW1lbnRhdGlv",
+            "bkRvbmVFdmVudEgAEj4KFk1ldGhvZENhbGxJbnN0cnVtZW50ZWQYAiABKAsy",
+            "HC5NZXRob2RDYWxsSW5zdHJ1bWVudGVkRXZlbnRIABI0ChFPYnNlcnZhYmxl",
+            "Q3JlYXRlZBgDIAEoCzIXLk9ic2VydmFibGVDcmVhdGVkRXZlbnRIABIkCglT",
+            "dWJzY3JpYmUYBCABKAsyDy5TdWJzY3JpYmVFdmVudEgAEigKC1Vuc3Vic2Ny",
+            "aWJlGAUgASgLMhEuVW5zdWJzY3JpYmVFdmVudEgAEh4KBk9uTmV4dBgGIAEo",
+            "CzIMLk9uTmV4dEV2ZW50SAASKAoLT25Db21wbGV0ZWQYByABKAsyES5PbkNv",
+            "bXBsZXRlZEV2ZW50SAASIAoHT25FcnJvchgIIAEoCzINLk9uRXJyb3JFdmVu",
+            "dEgAEjQKEU9ic2VydmFibGVzTGlua2VkGAkgASgLMhcuT2JzZXJ2YWJsZXNM",
+            "aW5rZWRFdmVudEgAEjUKEE9iamVjdFByb3BlcnRpZXMYCiABKAsyGS5PYmpl",
+            "Y3RQcm9wZXJ0aWVzUmVzcG9uc2VIABIrCgtPYmplY3RJdGVtcxgLIAEoCzIU",
+            "Lk9iamVjdEl0ZW1zUmVzcG9uc2VIABIVCgRUeXBlGAwgASgLMgUuVHlwZUgA",
+            "EiMKC0NsaWVudEV2ZW50GA0gASgLMgwuQ2xpZW50RXZlbnRIAEIHCgVFdmVu",
+            "dCJJChFNb2R1bGVMb2FkZWRFdmVudBIQCghNb2R1bGVJRBgBIAEoBBIMCgRQ",
+            "YXRoGAIgASgJEhQKDEFzc2VtYmx5TmFtZRgDIAEoCSKOAQofTWV0aG9kSW5z",
+            "dHJ1bWVudGF0aW9uU3RhcnRFdmVudBIcChRJbnN0cnVtZW50ZWRNZXRob2RJ",
+            "ZBgBIAEoBRIQCghNb2R1bGVJZBgCIAEoBBIVCg1GdW5jdGlvblRva2VuGAMg",
+            "ASgNEhYKDk93bmluZ1R5cGVOYW1lGAQgASgJEgwKBE5hbWUYBSABKAkiPgoe",
+            "TWV0aG9kSW5zdHJ1bWVudGF0aW9uRG9uZUV2ZW50EhwKFEluc3RydW1lbnRl",
+            "ZE1ldGhvZElkGAEgASgFIpABChtNZXRob2RDYWxsSW5zdHJ1bWVudGVkRXZl",
+            "bnQSHgoWSW5zdHJ1bWVudGF0aW9uUG9pbnRJZBgBIAEoBRIcChRJbnN0cnVt",
+            "ZW50ZWRNZXRob2RJZBgCIAEoBRIZChFJbnN0cnVjdGlvbk9mZnNldBgDIAEo",
+            "BRIYChBDYWxsZWRNZXRob2ROYW1lGAQgASgJIloKFk9ic2VydmFibGVDcmVh",
+            "dGVkRXZlbnQSIAoMQ3JlYXRlZEV2ZW50GAEgASgLMgouRXZlbnRJbmZvEh4K",
+            "Fkluc3RydW1lbnRhdGlvblBvaW50SWQYAiABKAUiTwoWT2JzZXJ2YWJsZXNM",
+            "aW5rZWRFdmVudBIaChJPdXRwdXRPYnNlcnZhYmxlSWQYASABKAMSGQoRSW5w",
+            "dXRPYnNlcnZhYmxlSWQYAiABKAMiQQoOU3Vic2NyaWJlRXZlbnQSGQoFRXZl",
+            "bnQYASABKAsyCi5FdmVudEluZm8SFAoMT2JzZXJ2YWJsZUlkGAIgASgDIkUK",
+            "EFVuc3Vic2NyaWJlRXZlbnQSGQoFRXZlbnQYASABKAsyCi5FdmVudEluZm8S",
+            "FgoOU3Vic2NyaXB0aW9uSWQYAiABKAMiVwoLT25OZXh0RXZlbnQSGQoFRXZl",
+            "bnQYASABKAsyCi5FdmVudEluZm8SFgoOU3Vic2NyaXB0aW9uSWQYAiABKAMS",
+            "FQoFVmFsdWUYBCABKAsyBi5WYWx1ZSJFChBPbkNvbXBsZXRlZEV2ZW50EhkK",
+            "BUV2ZW50GAEgASgLMgouRXZlbnRJbmZvEhYKDlN1YnNjcmlwdGlvbklkGAIg",
+            "ASgDImEKDE9uRXJyb3JFdmVudBIZCgVFdmVudBgBIAEoCzIKLkV2ZW50SW5m",
+            "bxIWCg5TdWJzY3JpcHRpb25JZBgCIAEoAxIeCg5FeGNlcHRpb25WYWx1ZRgE",
+            "IAEoCzIGLlZhbHVlIlcKC0NsaWVudEV2ZW50EhkKBUV2ZW50GAEgASgLMgou",
+            "RXZlbnRJbmZvEgoKAklkGAIgASgFEgwKBE5hbWUYAyABKAkSEwoLRGVzY3Jp",
+            "cHRpb24YBCABKAkiRAoJRXZlbnRJbmZvEhIKClNlcXVlbmNlSWQYASABKAMS",
+            "EQoJVGltZXN0YW1wGAIgASgDEhAKCFRocmVhZElkGAMgASgFIkwKGE9iamVj",
+            "dFByb3BlcnRpZXNSZXNwb25zZRIQCghPYmplY3RJZBgBIAEoAxIeCg5Qcm9w",
+            "ZXJ0eVZhbHVlcxgCIAMoCzIGLlZhbHVlIm0KE09iamVjdEl0ZW1zUmVzcG9u",
+            "c2USEAoIT2JqZWN0SWQYASABKAMSEgoKU3RhcnRpbmdBdBgCIAEoBRIaCgpJ",
+            "dGVtVmFsdWVzGAMgAygLMgYuVmFsdWUSFAoMQ291bnRSZWFjaGVkGAQgASgI",
+            "IocDCg5SZXF1ZXN0TWVzc2FnZRJGChlTZW5kSW5zdHJ1bWVudGF0aW9uRXZl",
+            "bnRzGAEgASgLMiEuU2VuZEluc3RydW1lbnRhdGlvbkV2ZW50c1JlcXVlc3RI",
+            "ABIyCg9TdGFydE1vbml0b3JpbmcYAiABKAsyFy5TdGFydE1vbml0b3JpbmdS",
+            "ZXF1ZXN0SAASMAoOU3RvcE1vbml0b3JpbmcYAyABKAsyFi5TdG9wTW9uaXRv",
+            "cmluZ1JlcXVlc3RIABI3ChNHZXRPYmplY3RQcm9wZXJ0aWVzGAQgASgLMhgu",
+            "T2JqZWN0UHJvcGVydGllc1JlcXVlc3RIABItCg5HZXRPYmplY3RJdGVtcxgF",
+            "IAEoCzITLk9iamVjdEl0ZW1zUmVxdWVzdEgAEioKC1JlY29yZEV2ZW50GAYg",
+            "ASgLMhMuUmVjb3JkRXZlbnRSZXF1ZXN0SAASKAoKRGlzY29ubmVjdBgHIAEo",
+            "CzISLkRpc2Nvbm5lY3RSZXF1ZXN0SABCCQoHUmVxdWVzdCKdAQogU2VuZElu",
+            "c3RydW1lbnRhdGlvbkV2ZW50c1JlcXVlc3QSOwoETW9kZRgBIAEoDjItLlNl",
+            "bmRJbnN0cnVtZW50YXRpb25FdmVudHNSZXF1ZXN0LlJlcXVlc3RNb2RlIjwK",
+            "C1JlcXVlc3RNb2RlEg4KCkNPTlRJTlVPVVMQABIMCghPTkNFX0FMTBABEg8K",
+            "C09OQ0VfVU5TRU5UEAIiOAoWU3RhcnRNb25pdG9yaW5nUmVxdWVzdBIeChZJ",
+            "bnN0cnVtZW50YXRpb25Qb2ludElkGAEgAygFIjcKFVN0b3BNb25pdG9yaW5n",
+            "UmVxdWVzdBIeChZJbnN0cnVtZW50YXRpb25Qb2ludElkGAIgAygFIisKF09i",
+            "amVjdFByb3BlcnRpZXNSZXF1ZXN0EhAKCE9iamVjdElkGAEgASgDIkkKEk9i",
+            "amVjdEl0ZW1zUmVxdWVzdBIQCghPYmplY3RJZBgBIAEoAxIPCgdTdGFydEF0",
+            "GAIgASgFEhAKCE1heENvdW50GAMgASgFIkMKElJlY29yZEV2ZW50UmVxdWVz",
+            "dBIKCgJJZBgBIAEoBRIMCgROYW1lGAIgASgJEhMKC0Rlc2NyaXB0aW9uGAMg",
+            "ASgJIhMKEURpc2Nvbm5lY3RSZXF1ZXN0IswCCgVWYWx1ZRIOCgZUeXBlSWQY",
+            "ASABKAUSDgoETnVsbBgCIAEoCEgAEg8KBUludDY0GAMgASgDSAASEAoGVUlu",
+            "dDY0GAQgASgESAASEAoGRG91YmxlGAUgASgBSAASDgoEQ2hhchgGIAEoBUgA",
+            "Eg4KBEJvb2wYByABKAhIABIQCgZTdHJpbmcYCCABKAlIABISCghUaW1lc3Bh",
+            "bhgJIAEoA0gAEhUKC0RhdGVUaW1lVXRjGAogASgDSAASFwoNRGF0ZVRpbWVM",
+            "b2NhbBgLIAEoA0gAEh0KE0RhdGVUaW1lVW5zcGVjaWZpZWQYDCABKANIABIU",
+            "CgpCeXRlU3RyaW5nGA0gASgMSAASGQoGT2JqZWN0GA4gASgLMgcuT2JqZWN0",
+            "SAASHwoXSXNFeGNlcHRpb25HZXR0aW5nVmFsdWUYDyABKAhCBwoFVmFsdWUi",
+            "PwoEVHlwZRIOCgZUeXBlSWQYASABKAUSEAoIVHlwZU5hbWUYAiABKAkSFQoN",
+            "UHJvcGVydHlOYW1lcxgDIAMoCSJhCgZPYmplY3QSEAoIT2JqZWN0SWQYASAB",
+            "KAMSHAoUU3RyaW5nUmVwcmVzZW50YXRpb24YAiABKAkSFAoMSGFzSXRlbUNv",
+            "dW50GAMgASgIEhEKCUl0ZW1Db3VudBgEIAEoBUIeqgIbUmVhY3Rpdml0eVBy",
+            "b2ZpbGVyLlByb3RvY29sYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.EventMessage), global::ReactivityProfiler.Protocol.EventMessage.Parser, new[]{ "ModuleLoaded", "MethodCallInstrumented", "ObservableCreated", "Subscribe", "Unsubscribe", "OnNext", "OnCompleted", "OnError", "ObservablesLinked", "ObjectProperties", "ObjectItems", "Type", "ClientEvent" }, new[]{ "Event" }, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.EventMessage), global::ReactivityProfiler.Protocol.EventMessage.Parser, new[]{ "ModuleLoaded", "MethodInstrumentationStart", "MethodInstrumentationDone", "MethodCallInstrumented", "ObservableCreated", "Subscribe", "Unsubscribe", "OnNext", "OnCompleted", "OnError", "ObservablesLinked", "ObjectProperties", "ObjectItems", "Type", "ClientEvent" }, new[]{ "Event" }, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.ModuleLoadedEvent), global::ReactivityProfiler.Protocol.ModuleLoadedEvent.Parser, new[]{ "ModuleID", "Path", "AssemblyName" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.MethodCallInstrumentedEvent), global::ReactivityProfiler.Protocol.MethodCallInstrumentedEvent.Parser, new[]{ "InstrumentationPointId", "ModuleId", "FunctionToken", "InstructionOffset", "CalledMethodName", "OwningTypeName", "CallingMethodName" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.MethodInstrumentationStartEvent), global::ReactivityProfiler.Protocol.MethodInstrumentationStartEvent.Parser, new[]{ "InstrumentedMethodId", "ModuleId", "FunctionToken", "OwningTypeName", "Name" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.MethodInstrumentationDoneEvent), global::ReactivityProfiler.Protocol.MethodInstrumentationDoneEvent.Parser, new[]{ "InstrumentedMethodId" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.MethodCallInstrumentedEvent), global::ReactivityProfiler.Protocol.MethodCallInstrumentedEvent.Parser, new[]{ "InstrumentationPointId", "InstrumentedMethodId", "InstructionOffset", "CalledMethodName" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.ObservableCreatedEvent), global::ReactivityProfiler.Protocol.ObservableCreatedEvent.Parser, new[]{ "CreatedEvent", "InstrumentationPointId" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.ObservablesLinkedEvent), global::ReactivityProfiler.Protocol.ObservablesLinkedEvent.Parser, new[]{ "OutputObservableId", "InputObservableId" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::ReactivityProfiler.Protocol.SubscribeEvent), global::ReactivityProfiler.Protocol.SubscribeEvent.Parser, new[]{ "Event", "ObservableId" }, null, null, null),
@@ -160,6 +168,12 @@ namespace ReactivityProfiler.Protocol {
         case EventOneofCase.ModuleLoaded:
           ModuleLoaded = other.ModuleLoaded.Clone();
           break;
+        case EventOneofCase.MethodInstrumentationStart:
+          MethodInstrumentationStart = other.MethodInstrumentationStart.Clone();
+          break;
+        case EventOneofCase.MethodInstrumentationDone:
+          MethodInstrumentationDone = other.MethodInstrumentationDone.Clone();
+          break;
         case EventOneofCase.MethodCallInstrumented:
           MethodCallInstrumented = other.MethodCallInstrumented.Clone();
           break;
@@ -214,6 +228,28 @@ namespace ReactivityProfiler.Protocol {
       set {
         event_ = value;
         eventCase_ = value == null ? EventOneofCase.None : EventOneofCase.ModuleLoaded;
+      }
+    }
+
+    /// <summary>Field number for the "MethodInstrumentationStart" field.</summary>
+    public const int MethodInstrumentationStartFieldNumber = 14;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::ReactivityProfiler.Protocol.MethodInstrumentationStartEvent MethodInstrumentationStart {
+      get { return eventCase_ == EventOneofCase.MethodInstrumentationStart ? (global::ReactivityProfiler.Protocol.MethodInstrumentationStartEvent) event_ : null; }
+      set {
+        event_ = value;
+        eventCase_ = value == null ? EventOneofCase.None : EventOneofCase.MethodInstrumentationStart;
+      }
+    }
+
+    /// <summary>Field number for the "MethodInstrumentationDone" field.</summary>
+    public const int MethodInstrumentationDoneFieldNumber = 15;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::ReactivityProfiler.Protocol.MethodInstrumentationDoneEvent MethodInstrumentationDone {
+      get { return eventCase_ == EventOneofCase.MethodInstrumentationDone ? (global::ReactivityProfiler.Protocol.MethodInstrumentationDoneEvent) event_ : null; }
+      set {
+        event_ = value;
+        eventCase_ = value == null ? EventOneofCase.None : EventOneofCase.MethodInstrumentationDone;
       }
     }
 
@@ -354,6 +390,8 @@ namespace ReactivityProfiler.Protocol {
     public enum EventOneofCase {
       None = 0,
       ModuleLoaded = 1,
+      MethodInstrumentationStart = 14,
+      MethodInstrumentationDone = 15,
       MethodCallInstrumented = 2,
       ObservableCreated = 3,
       Subscribe = 4,
@@ -393,6 +431,8 @@ namespace ReactivityProfiler.Protocol {
         return true;
       }
       if (!object.Equals(ModuleLoaded, other.ModuleLoaded)) return false;
+      if (!object.Equals(MethodInstrumentationStart, other.MethodInstrumentationStart)) return false;
+      if (!object.Equals(MethodInstrumentationDone, other.MethodInstrumentationDone)) return false;
       if (!object.Equals(MethodCallInstrumented, other.MethodCallInstrumented)) return false;
       if (!object.Equals(ObservableCreated, other.ObservableCreated)) return false;
       if (!object.Equals(Subscribe, other.Subscribe)) return false;
@@ -413,6 +453,8 @@ namespace ReactivityProfiler.Protocol {
     public override int GetHashCode() {
       int hash = 1;
       if (eventCase_ == EventOneofCase.ModuleLoaded) hash ^= ModuleLoaded.GetHashCode();
+      if (eventCase_ == EventOneofCase.MethodInstrumentationStart) hash ^= MethodInstrumentationStart.GetHashCode();
+      if (eventCase_ == EventOneofCase.MethodInstrumentationDone) hash ^= MethodInstrumentationDone.GetHashCode();
       if (eventCase_ == EventOneofCase.MethodCallInstrumented) hash ^= MethodCallInstrumented.GetHashCode();
       if (eventCase_ == EventOneofCase.ObservableCreated) hash ^= ObservableCreated.GetHashCode();
       if (eventCase_ == EventOneofCase.Subscribe) hash ^= Subscribe.GetHashCode();
@@ -491,6 +533,14 @@ namespace ReactivityProfiler.Protocol {
         output.WriteRawTag(106);
         output.WriteMessage(ClientEvent);
       }
+      if (eventCase_ == EventOneofCase.MethodInstrumentationStart) {
+        output.WriteRawTag(114);
+        output.WriteMessage(MethodInstrumentationStart);
+      }
+      if (eventCase_ == EventOneofCase.MethodInstrumentationDone) {
+        output.WriteRawTag(122);
+        output.WriteMessage(MethodInstrumentationDone);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -501,6 +551,12 @@ namespace ReactivityProfiler.Protocol {
       int size = 0;
       if (eventCase_ == EventOneofCase.ModuleLoaded) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(ModuleLoaded);
+      }
+      if (eventCase_ == EventOneofCase.MethodInstrumentationStart) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(MethodInstrumentationStart);
+      }
+      if (eventCase_ == EventOneofCase.MethodInstrumentationDone) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(MethodInstrumentationDone);
       }
       if (eventCase_ == EventOneofCase.MethodCallInstrumented) {
         size += 1 + pb::CodedOutputStream.ComputeMessageSize(MethodCallInstrumented);
@@ -555,6 +611,18 @@ namespace ReactivityProfiler.Protocol {
             ModuleLoaded = new global::ReactivityProfiler.Protocol.ModuleLoadedEvent();
           }
           ModuleLoaded.MergeFrom(other.ModuleLoaded);
+          break;
+        case EventOneofCase.MethodInstrumentationStart:
+          if (MethodInstrumentationStart == null) {
+            MethodInstrumentationStart = new global::ReactivityProfiler.Protocol.MethodInstrumentationStartEvent();
+          }
+          MethodInstrumentationStart.MergeFrom(other.MethodInstrumentationStart);
+          break;
+        case EventOneofCase.MethodInstrumentationDone:
+          if (MethodInstrumentationDone == null) {
+            MethodInstrumentationDone = new global::ReactivityProfiler.Protocol.MethodInstrumentationDoneEvent();
+          }
+          MethodInstrumentationDone.MergeFrom(other.MethodInstrumentationDone);
           break;
         case EventOneofCase.MethodCallInstrumented:
           if (MethodCallInstrumented == null) {
@@ -758,6 +826,24 @@ namespace ReactivityProfiler.Protocol {
             ClientEvent = subBuilder;
             break;
           }
+          case 114: {
+            global::ReactivityProfiler.Protocol.MethodInstrumentationStartEvent subBuilder = new global::ReactivityProfiler.Protocol.MethodInstrumentationStartEvent();
+            if (eventCase_ == EventOneofCase.MethodInstrumentationStart) {
+              subBuilder.MergeFrom(MethodInstrumentationStart);
+            }
+            input.ReadMessage(subBuilder);
+            MethodInstrumentationStart = subBuilder;
+            break;
+          }
+          case 122: {
+            global::ReactivityProfiler.Protocol.MethodInstrumentationDoneEvent subBuilder = new global::ReactivityProfiler.Protocol.MethodInstrumentationDoneEvent();
+            if (eventCase_ == EventOneofCase.MethodInstrumentationDone) {
+              subBuilder.MergeFrom(MethodInstrumentationDone);
+            }
+            input.ReadMessage(subBuilder);
+            MethodInstrumentationDone = subBuilder;
+            break;
+          }
         }
       }
     }
@@ -949,11 +1035,11 @@ namespace ReactivityProfiler.Protocol {
 
   }
 
-  public sealed partial class MethodCallInstrumentedEvent : pb::IMessage<MethodCallInstrumentedEvent> {
-    private static readonly pb::MessageParser<MethodCallInstrumentedEvent> _parser = new pb::MessageParser<MethodCallInstrumentedEvent>(() => new MethodCallInstrumentedEvent());
+  public sealed partial class MethodInstrumentationStartEvent : pb::IMessage<MethodInstrumentationStartEvent> {
+    private static readonly pb::MessageParser<MethodInstrumentationStartEvent> _parser = new pb::MessageParser<MethodInstrumentationStartEvent>(() => new MethodInstrumentationStartEvent());
     private pb::UnknownFieldSet _unknownFields;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public static pb::MessageParser<MethodCallInstrumentedEvent> Parser { get { return _parser; } }
+    public static pb::MessageParser<MethodInstrumentationStartEvent> Parser { get { return _parser; } }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
@@ -966,37 +1052,35 @@ namespace ReactivityProfiler.Protocol {
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public MethodCallInstrumentedEvent() {
+    public MethodInstrumentationStartEvent() {
       OnConstruction();
     }
 
     partial void OnConstruction();
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public MethodCallInstrumentedEvent(MethodCallInstrumentedEvent other) : this() {
-      instrumentationPointId_ = other.instrumentationPointId_;
+    public MethodInstrumentationStartEvent(MethodInstrumentationStartEvent other) : this() {
+      instrumentedMethodId_ = other.instrumentedMethodId_;
       moduleId_ = other.moduleId_;
       functionToken_ = other.functionToken_;
-      instructionOffset_ = other.instructionOffset_;
-      calledMethodName_ = other.calledMethodName_;
       owningTypeName_ = other.owningTypeName_;
-      callingMethodName_ = other.callingMethodName_;
+      name_ = other.name_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public MethodCallInstrumentedEvent Clone() {
-      return new MethodCallInstrumentedEvent(this);
+    public MethodInstrumentationStartEvent Clone() {
+      return new MethodInstrumentationStartEvent(this);
     }
 
-    /// <summary>Field number for the "InstrumentationPointId" field.</summary>
-    public const int InstrumentationPointIdFieldNumber = 1;
-    private int instrumentationPointId_;
+    /// <summary>Field number for the "InstrumentedMethodId" field.</summary>
+    public const int InstrumentedMethodIdFieldNumber = 1;
+    private int instrumentedMethodId_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public int InstrumentationPointId {
-      get { return instrumentationPointId_; }
+    public int InstrumentedMethodId {
+      get { return instrumentedMethodId_; }
       set {
-        instrumentationPointId_ = value;
+        instrumentedMethodId_ = value;
       }
     }
 
@@ -1022,8 +1106,366 @@ namespace ReactivityProfiler.Protocol {
       }
     }
 
+    /// <summary>Field number for the "OwningTypeName" field.</summary>
+    public const int OwningTypeNameFieldNumber = 4;
+    private string owningTypeName_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public string OwningTypeName {
+      get { return owningTypeName_; }
+      set {
+        owningTypeName_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "Name" field.</summary>
+    public const int NameFieldNumber = 5;
+    private string name_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public string Name {
+      get { return name_; }
+      set {
+        name_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as MethodInstrumentationStartEvent);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(MethodInstrumentationStartEvent other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (InstrumentedMethodId != other.InstrumentedMethodId) return false;
+      if (ModuleId != other.ModuleId) return false;
+      if (FunctionToken != other.FunctionToken) return false;
+      if (OwningTypeName != other.OwningTypeName) return false;
+      if (Name != other.Name) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (InstrumentedMethodId != 0) hash ^= InstrumentedMethodId.GetHashCode();
+      if (ModuleId != 0UL) hash ^= ModuleId.GetHashCode();
+      if (FunctionToken != 0) hash ^= FunctionToken.GetHashCode();
+      if (OwningTypeName.Length != 0) hash ^= OwningTypeName.GetHashCode();
+      if (Name.Length != 0) hash ^= Name.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      if (InstrumentedMethodId != 0) {
+        output.WriteRawTag(8);
+        output.WriteInt32(InstrumentedMethodId);
+      }
+      if (ModuleId != 0UL) {
+        output.WriteRawTag(16);
+        output.WriteUInt64(ModuleId);
+      }
+      if (FunctionToken != 0) {
+        output.WriteRawTag(24);
+        output.WriteUInt32(FunctionToken);
+      }
+      if (OwningTypeName.Length != 0) {
+        output.WriteRawTag(34);
+        output.WriteString(OwningTypeName);
+      }
+      if (Name.Length != 0) {
+        output.WriteRawTag(42);
+        output.WriteString(Name);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (InstrumentedMethodId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(InstrumentedMethodId);
+      }
+      if (ModuleId != 0UL) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(ModuleId);
+      }
+      if (FunctionToken != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(FunctionToken);
+      }
+      if (OwningTypeName.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(OwningTypeName);
+      }
+      if (Name.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(MethodInstrumentationStartEvent other) {
+      if (other == null) {
+        return;
+      }
+      if (other.InstrumentedMethodId != 0) {
+        InstrumentedMethodId = other.InstrumentedMethodId;
+      }
+      if (other.ModuleId != 0UL) {
+        ModuleId = other.ModuleId;
+      }
+      if (other.FunctionToken != 0) {
+        FunctionToken = other.FunctionToken;
+      }
+      if (other.OwningTypeName.Length != 0) {
+        OwningTypeName = other.OwningTypeName;
+      }
+      if (other.Name.Length != 0) {
+        Name = other.Name;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            InstrumentedMethodId = input.ReadInt32();
+            break;
+          }
+          case 16: {
+            ModuleId = input.ReadUInt64();
+            break;
+          }
+          case 24: {
+            FunctionToken = input.ReadUInt32();
+            break;
+          }
+          case 34: {
+            OwningTypeName = input.ReadString();
+            break;
+          }
+          case 42: {
+            Name = input.ReadString();
+            break;
+          }
+        }
+      }
+    }
+
+  }
+
+  public sealed partial class MethodInstrumentationDoneEvent : pb::IMessage<MethodInstrumentationDoneEvent> {
+    private static readonly pb::MessageParser<MethodInstrumentationDoneEvent> _parser = new pb::MessageParser<MethodInstrumentationDoneEvent>(() => new MethodInstrumentationDoneEvent());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<MethodInstrumentationDoneEvent> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[3]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public MethodInstrumentationDoneEvent() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public MethodInstrumentationDoneEvent(MethodInstrumentationDoneEvent other) : this() {
+      instrumentedMethodId_ = other.instrumentedMethodId_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public MethodInstrumentationDoneEvent Clone() {
+      return new MethodInstrumentationDoneEvent(this);
+    }
+
+    /// <summary>Field number for the "InstrumentedMethodId" field.</summary>
+    public const int InstrumentedMethodIdFieldNumber = 1;
+    private int instrumentedMethodId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int InstrumentedMethodId {
+      get { return instrumentedMethodId_; }
+      set {
+        instrumentedMethodId_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as MethodInstrumentationDoneEvent);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(MethodInstrumentationDoneEvent other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (InstrumentedMethodId != other.InstrumentedMethodId) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (InstrumentedMethodId != 0) hash ^= InstrumentedMethodId.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      if (InstrumentedMethodId != 0) {
+        output.WriteRawTag(8);
+        output.WriteInt32(InstrumentedMethodId);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (InstrumentedMethodId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(InstrumentedMethodId);
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(MethodInstrumentationDoneEvent other) {
+      if (other == null) {
+        return;
+      }
+      if (other.InstrumentedMethodId != 0) {
+        InstrumentedMethodId = other.InstrumentedMethodId;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            InstrumentedMethodId = input.ReadInt32();
+            break;
+          }
+        }
+      }
+    }
+
+  }
+
+  public sealed partial class MethodCallInstrumentedEvent : pb::IMessage<MethodCallInstrumentedEvent> {
+    private static readonly pb::MessageParser<MethodCallInstrumentedEvent> _parser = new pb::MessageParser<MethodCallInstrumentedEvent>(() => new MethodCallInstrumentedEvent());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<MethodCallInstrumentedEvent> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[4]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public MethodCallInstrumentedEvent() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public MethodCallInstrumentedEvent(MethodCallInstrumentedEvent other) : this() {
+      instrumentationPointId_ = other.instrumentationPointId_;
+      instrumentedMethodId_ = other.instrumentedMethodId_;
+      instructionOffset_ = other.instructionOffset_;
+      calledMethodName_ = other.calledMethodName_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public MethodCallInstrumentedEvent Clone() {
+      return new MethodCallInstrumentedEvent(this);
+    }
+
+    /// <summary>Field number for the "InstrumentationPointId" field.</summary>
+    public const int InstrumentationPointIdFieldNumber = 1;
+    private int instrumentationPointId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int InstrumentationPointId {
+      get { return instrumentationPointId_; }
+      set {
+        instrumentationPointId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "InstrumentedMethodId" field.</summary>
+    public const int InstrumentedMethodIdFieldNumber = 2;
+    private int instrumentedMethodId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int InstrumentedMethodId {
+      get { return instrumentedMethodId_; }
+      set {
+        instrumentedMethodId_ = value;
+      }
+    }
+
     /// <summary>Field number for the "InstructionOffset" field.</summary>
-    public const int InstructionOffsetFieldNumber = 4;
+    public const int InstructionOffsetFieldNumber = 3;
     private int instructionOffset_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int InstructionOffset {
@@ -1034,35 +1476,13 @@ namespace ReactivityProfiler.Protocol {
     }
 
     /// <summary>Field number for the "CalledMethodName" field.</summary>
-    public const int CalledMethodNameFieldNumber = 5;
+    public const int CalledMethodNameFieldNumber = 4;
     private string calledMethodName_ = "";
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string CalledMethodName {
       get { return calledMethodName_; }
       set {
         calledMethodName_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
-      }
-    }
-
-    /// <summary>Field number for the "OwningTypeName" field.</summary>
-    public const int OwningTypeNameFieldNumber = 6;
-    private string owningTypeName_ = "";
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public string OwningTypeName {
-      get { return owningTypeName_; }
-      set {
-        owningTypeName_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
-      }
-    }
-
-    /// <summary>Field number for the "CallingMethodName" field.</summary>
-    public const int CallingMethodNameFieldNumber = 7;
-    private string callingMethodName_ = "";
-    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public string CallingMethodName {
-      get { return callingMethodName_; }
-      set {
-        callingMethodName_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
       }
     }
 
@@ -1080,12 +1500,9 @@ namespace ReactivityProfiler.Protocol {
         return true;
       }
       if (InstrumentationPointId != other.InstrumentationPointId) return false;
-      if (ModuleId != other.ModuleId) return false;
-      if (FunctionToken != other.FunctionToken) return false;
+      if (InstrumentedMethodId != other.InstrumentedMethodId) return false;
       if (InstructionOffset != other.InstructionOffset) return false;
       if (CalledMethodName != other.CalledMethodName) return false;
-      if (OwningTypeName != other.OwningTypeName) return false;
-      if (CallingMethodName != other.CallingMethodName) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -1093,12 +1510,9 @@ namespace ReactivityProfiler.Protocol {
     public override int GetHashCode() {
       int hash = 1;
       if (InstrumentationPointId != 0) hash ^= InstrumentationPointId.GetHashCode();
-      if (ModuleId != 0UL) hash ^= ModuleId.GetHashCode();
-      if (FunctionToken != 0) hash ^= FunctionToken.GetHashCode();
+      if (InstrumentedMethodId != 0) hash ^= InstrumentedMethodId.GetHashCode();
       if (InstructionOffset != 0) hash ^= InstructionOffset.GetHashCode();
       if (CalledMethodName.Length != 0) hash ^= CalledMethodName.GetHashCode();
-      if (OwningTypeName.Length != 0) hash ^= OwningTypeName.GetHashCode();
-      if (CallingMethodName.Length != 0) hash ^= CallingMethodName.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -1116,29 +1530,17 @@ namespace ReactivityProfiler.Protocol {
         output.WriteRawTag(8);
         output.WriteInt32(InstrumentationPointId);
       }
-      if (ModuleId != 0UL) {
+      if (InstrumentedMethodId != 0) {
         output.WriteRawTag(16);
-        output.WriteUInt64(ModuleId);
-      }
-      if (FunctionToken != 0) {
-        output.WriteRawTag(24);
-        output.WriteUInt32(FunctionToken);
+        output.WriteInt32(InstrumentedMethodId);
       }
       if (InstructionOffset != 0) {
-        output.WriteRawTag(32);
+        output.WriteRawTag(24);
         output.WriteInt32(InstructionOffset);
       }
       if (CalledMethodName.Length != 0) {
-        output.WriteRawTag(42);
+        output.WriteRawTag(34);
         output.WriteString(CalledMethodName);
-      }
-      if (OwningTypeName.Length != 0) {
-        output.WriteRawTag(50);
-        output.WriteString(OwningTypeName);
-      }
-      if (CallingMethodName.Length != 0) {
-        output.WriteRawTag(58);
-        output.WriteString(CallingMethodName);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -1151,23 +1553,14 @@ namespace ReactivityProfiler.Protocol {
       if (InstrumentationPointId != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(InstrumentationPointId);
       }
-      if (ModuleId != 0UL) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt64Size(ModuleId);
-      }
-      if (FunctionToken != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeUInt32Size(FunctionToken);
+      if (InstrumentedMethodId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(InstrumentedMethodId);
       }
       if (InstructionOffset != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(InstructionOffset);
       }
       if (CalledMethodName.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(CalledMethodName);
-      }
-      if (OwningTypeName.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(OwningTypeName);
-      }
-      if (CallingMethodName.Length != 0) {
-        size += 1 + pb::CodedOutputStream.ComputeStringSize(CallingMethodName);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -1183,23 +1576,14 @@ namespace ReactivityProfiler.Protocol {
       if (other.InstrumentationPointId != 0) {
         InstrumentationPointId = other.InstrumentationPointId;
       }
-      if (other.ModuleId != 0UL) {
-        ModuleId = other.ModuleId;
-      }
-      if (other.FunctionToken != 0) {
-        FunctionToken = other.FunctionToken;
+      if (other.InstrumentedMethodId != 0) {
+        InstrumentedMethodId = other.InstrumentedMethodId;
       }
       if (other.InstructionOffset != 0) {
         InstructionOffset = other.InstructionOffset;
       }
       if (other.CalledMethodName.Length != 0) {
         CalledMethodName = other.CalledMethodName;
-      }
-      if (other.OwningTypeName.Length != 0) {
-        OwningTypeName = other.OwningTypeName;
-      }
-      if (other.CallingMethodName.Length != 0) {
-        CallingMethodName = other.CallingMethodName;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -1217,27 +1601,15 @@ namespace ReactivityProfiler.Protocol {
             break;
           }
           case 16: {
-            ModuleId = input.ReadUInt64();
+            InstrumentedMethodId = input.ReadInt32();
             break;
           }
           case 24: {
-            FunctionToken = input.ReadUInt32();
-            break;
-          }
-          case 32: {
             InstructionOffset = input.ReadInt32();
             break;
           }
-          case 42: {
+          case 34: {
             CalledMethodName = input.ReadString();
-            break;
-          }
-          case 50: {
-            OwningTypeName = input.ReadString();
-            break;
-          }
-          case 58: {
-            CallingMethodName = input.ReadString();
             break;
           }
         }
@@ -1257,7 +1629,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[3]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[5]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1420,7 +1792,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[4]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[6]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1580,7 +1952,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[5]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[7]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1743,7 +2115,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[6]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[8]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -1909,7 +2281,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[7]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[9]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2109,7 +2481,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[8]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[10]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2275,7 +2647,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[9]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[11]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2475,7 +2847,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[10]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[12]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2694,7 +3066,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[11]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[13]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -2879,7 +3251,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[12]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[14]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3031,7 +3403,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[13]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[15]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3236,7 +3608,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[14]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[16]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3635,7 +4007,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[15]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[17]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3786,7 +4158,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[16]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[18]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -3908,7 +4280,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[17]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[19]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4030,7 +4402,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[18]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[20]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4159,7 +4531,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[19]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[21]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4347,7 +4719,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[20]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[22]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4536,7 +4908,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[21]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[23]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -4637,7 +5009,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[22]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[24]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5245,7 +5617,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[23]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[25]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
@@ -5422,7 +5794,7 @@ namespace ReactivityProfiler.Protocol {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public static pbr::MessageDescriptor Descriptor {
-      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[24]; }
+      get { return global::ReactivityProfiler.Protocol.ReactivityProfilerProtocolReflection.Descriptor.MessageTypes[26]; }
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]

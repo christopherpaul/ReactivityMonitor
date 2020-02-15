@@ -36,7 +36,7 @@ namespace ReactivityMonitor.Screens.EventListScreen
         public abstract PayloadObject Payload { get; }
 
         public string CalledMethodName => ObservableInstance?.Call.CalledMethod;
-        public string CallingMethodName => ObservableInstance?.Call.CallingMethod;
+        public string CallingMethodName => ObservableInstance?.Call.Method.Name;
 
         private sealed class ObservableInstanceEventItem : EventItem
         {
@@ -53,7 +53,7 @@ namespace ReactivityMonitor.Screens.EventListScreen
 
             public override string EventKindName => "Create observable";
 
-            public override string Value => $"{mObs.Call.CallingType}::{mObs.Call.CallingMethod}: {mObs.Call.CalledMethod}";
+            public override string Value => $"{mObs.Call.Method.ParentType}::{mObs.Call.Method.Name}: {mObs.Call.CalledMethod}";
 
             public override PayloadObject Payload => null;
 
