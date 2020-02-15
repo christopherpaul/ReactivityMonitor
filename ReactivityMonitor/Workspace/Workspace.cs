@@ -22,6 +22,8 @@ namespace ReactivityMonitor.Workspace
             MonitoringGroups = mMonitoringGroups.Connect();
         }
 
+        public IObservable<IChangeSet<IInstrumentedMethod>> Methods { get; }
+
         public IObservable<IChangeSet<IMonitoredCall>> MonitoredCalls { get; }
 
         public IObservable<IChangeSet<IMonitoringGroup>> MonitoringGroups { get; }

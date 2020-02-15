@@ -19,14 +19,16 @@ using System.Collections.Immutable;
 
 namespace ReactivityMonitor.Screens.CallsScreen
 {
-    public sealed class CallsScreenViewModel : ReactiveScreen, ICallsScreen
+    public sealed class CallsScreenViewModel : ReactiveViewModel, ICallsScreen
     {
+        public string DisplayName => "Instrumented methods";
+
         public CallsScreenViewModel(IConcurrencyService concurrencyService)
         {
             var modules = new ObservableCollectionExtended<ModuleItem>();
             Modules = new ReadOnlyObservableCollection<ModuleItem>(modules);
 
-            WhenActivated(disposables =>
+            this.WhenActivated(disposables =>
             {
                 modules.Clear();
 

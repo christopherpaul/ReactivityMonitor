@@ -100,6 +100,12 @@
     </Compile>
     <Compile Include="Screens\EventListScreen\EventListScreenViewModel.cs" />
     <Compile Include="Screens\EventListScreen\IEventListScreen.cs" />
+    <Compile Include="Screens\IWorkspaceDocumentScreen.cs" />
+    <Compile Include="Screens\MonitoringConfigurationScreen\IMonitoringConfigurationScreen.cs" />
+    <Compile Include="Screens\MonitoringConfigurationScreen\MonitoringConfigurationScreenView.xaml.cs">
+      <DependentUpon>MonitoringConfigurationScreenView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Screens\MonitoringConfigurationScreen\MonitoringConfigurationScreenViewModel.cs" />
     <Compile Include="Screens\PayloadScreen\PayloadScreenView.xaml.cs">
       <DependentUpon>PayloadScreenView.xaml</DependentUpon>
     </Compile>
@@ -176,6 +182,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Screens\EventListScreen\EventListScreenView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Screens\MonitoringConfigurationScreen\MonitoringConfigurationScreenView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

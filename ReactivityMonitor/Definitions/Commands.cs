@@ -15,5 +15,6 @@ namespace ReactivityMonitor.Definitions
         public static ICommand FilterEventList { get; } = new RoutedCommand(nameof(FilterEventList), typeof(Commands));
         public static ICommand ChangeSelectedEventItems { get; } = new RoutedCommand(nameof(ChangeSelectedEventItems), typeof(Commands));
         public static ICommand CloseWorkspace { get; } = new RoutedCommand(nameof(CloseWorkspace), typeof(Commands));
+        public static ICommand ShowAddToConfiguration { get; } = new RoutedCommand(nameof(ShowAddToConfiguration), typeof(Commands));
     }
 }

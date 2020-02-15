@@ -10,6 +10,7 @@ namespace ReactivityMonitor.Workspace
 {
     public interface IWorkspace
     {
+        IObservable<IChangeSet<IInstrumentedMethod>> Methods { get; }
         IObservable<IChangeSet<IMonitoredCall>> MonitoredCalls { get; }
 
         IMonitoredCall StartMonitoringCall(IInstrumentedCall call);

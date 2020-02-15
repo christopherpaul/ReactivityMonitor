@@ -9,43 +9,13 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              >
-    <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="1*" />
-            <ColumnDefinition Width="5" />
-            <ColumnDefinition Width="3*" />
-            <ColumnDefinition Width="5" />
-            <ColumnDefinition Width="1*" />
-        </Grid.ColumnDefinitions>
-        
-        <ContentControl x:Name="Calls" Grid.Column="0" />
-        <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" />
-
-        <Grid Grid.Column="2">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="1*" />
-                <RowDefinition Height="5" />
-                <RowDefinition Height="1*" />
-            </Grid.RowDefinitions>
-
-            <TabControl ItemsSource="{Binding MonitoringScreens}" SelectedItem="{Binding ActiveMonitoringScreen}">
-                <TabControl.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding Name, Mode=OneWay}" />
-                    </DataTemplate>
-                </TabControl.ItemTemplate>
-                <TabControl.Resources>
-                    <DataTemplate DataType="{x:Type monitoringscreen:MonitoringScreenViewModel}">
-                        <monitoringscreen:MonitoringScreenView />
-                    </DataTemplate>
-                </TabControl.Resources>
-            </TabControl>
-            <GridSplitter Grid.Row="1" VerticalAlignment="Stretch" ResizeDirection="Rows" HorizontalAlignment="Stretch" />
-            <ContentControl x:Name="EventList" Grid.Row="2" />
-        </Grid>
-
-        <GridSplitter Grid.Column="3" HorizontalAlignment="Stretch" />
-
-        <ContentControl Grid.Column="4" Content="{Binding PayloadScreen}" />
-    </Grid>
+    <DockPanel>
+        <TabControl ItemsSource="{Binding DocumentScreens}" SelectedItem="{Binding ActiveDocumentScreen}">
+            <TabControl.ItemTemplate>
+                <DataTemplate>
+                    <TextBlock Text="{Binding DisplayName, Mode=OneWay}" />
+                </DataTemplate>
+            </TabControl.ItemTemplate>
+        </TabControl>
+    </DockPanel>
 </UserControl>
