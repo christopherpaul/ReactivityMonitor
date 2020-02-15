@@ -70,6 +70,11 @@
     <Compile Include="Connection\LaunchInfo.cs" />
     <Compile Include="Controls\SimpleViewport.cs" />
     <Compile Include="Definitions\Commands.cs" />
+    <Compile Include="Dialogs\AddMethod\AddMethodDialogView.xaml.cs">
+      <DependentUpon>AddMethodDialogView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\AddMethod\AddMethodDialogViewModel.cs" />
+    <Compile Include="Dialogs\AddMethod\IAddMethodDialog.cs" />
     <Compile Include="Factory.cs" />
     <Compile Include="Infrastructure\Activation.cs" />
     <Compile Include="Infrastructure\CommandHelper.cs" />
@@ -151,6 +156,7 @@
     <Compile Include="Services\IConcurrencyService.cs" />
     <Compile Include="Services\IConnectionService.cs" />
     <Compile Include="Services\IDialogService.cs" />
+    <Compile Include="Services\IDialogViewModel.cs" />
     <Compile Include="Services\ISelectionService.cs" />
     <Compile Include="Services\Selection.cs" />
     <Compile Include="Services\SelectionService.cs" />
@@ -165,6 +171,10 @@
     <Compile Include="Workspace\MonitoredCall.cs" />
     <Compile Include="Workspace\MonitoringGroup.cs" />
     <Compile Include="Workspace\Workspace.cs" />
+    <Page Include="Dialogs\AddMethod\AddMethodDialogView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Resources\ButtonImages.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -258,6 +268,9 @@
   <ItemGroup>
     <PackageReference Include="Caliburn.Micro.Start" Version="3.2.0" />
     <PackageReference Include="DynamicData" Version="6.13.21" />
+    <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf">
+      <Version>1.1.19</Version>
+    </PackageReference>
     <PackageReference Include="ReactiveUI" Version="10.5.31" />
     <PackageReference Include="ReactiveUI.WPF" Version="10.5.31" />
     <PackageReference Include="System.Collections.Immutable">

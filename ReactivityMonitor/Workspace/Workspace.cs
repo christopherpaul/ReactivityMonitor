@@ -12,14 +12,17 @@ namespace ReactivityMonitor.Workspace
     {
         private ISourceCache<IMonitoredCall, int> mMonitoredCalls;
         private ISourceList<IMonitoringGroup> mMonitoringGroups;
+        private ISourceCache<IInstrumentedMethod, int> mMethods;
 
         public Workspace()
         {
             mMonitoredCalls = new SourceCache<IMonitoredCall, int>(c => c.Call.InstrumentedCallId);
             mMonitoringGroups = new SourceList<IMonitoringGroup>();
+            mMethods = new SourceCache<IInstrumentedMethod, int>(m => m.InstrumentedMethodId);
 
             MonitoredCalls = mMonitoredCalls.Connect().RemoveKey();
             MonitoringGroups = mMonitoringGroups.Connect();
+            Methods = mMethods.Connect().RemoveKey();
         }
 
         public IObservable<IChangeSet<IInstrumentedMethod>> Methods { get; }
@@ -38,6 +41,16 @@ namespace ReactivityMonitor.Workspace
         public void DeleteMonitoringGroup(IMonitoringGroup group)
         {
             mMonitoringGroups.Remove(group);
+        }
+
+        public void AddMethod(IInstrumentedMethod method)
+        {
+            mMethods.AddOrUpdate(method);
+        }
+
+        public void RemoveMethod(IInstrumentedMethod method)
+        {
+            mMethods.RemoveKey(method.InstrumentedMethodId);
         }
 
         public IMonitoredCall StartMonitoringCall(IInstrumentedCall call)

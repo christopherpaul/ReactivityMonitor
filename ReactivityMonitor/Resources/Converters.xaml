@@ -4,5 +4,6 @@
                     xmlns:cvt="clr-namespace:ReactivityMonitor.Infrastructure.Converters">
     <cvt:VisibilityConverter x:Key="HiddenWhenNullConverter" HiddenWhenEqualTo="{x:Null}" Default="Visible" />
     <cvt:VisibilityConverter x:Key="VisibleWhenTrue" VisibleWhenEqualTo="{x:Static local:Constants.True}" Default="Collapsed" />
+    <cvt:VisibilityConverter x:Key="CollapsedWhenNullConverter" CollapsedWhenEqualTo="{x:Null}" Default="Visible" />
 
 </ResourceDictionary>

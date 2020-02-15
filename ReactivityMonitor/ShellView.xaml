@@ -2,26 +2,68 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:defs="clr-namespace:ReactivityMonitor.Definitions"
+        xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors"
         >
-    <DockPanel>
-        <Menu DockPanel.Dock="Top">
-            <MenuItem Header="_File">
-                <MenuItem Header="_Close workspace" Command="defs:Commands.CloseWorkspace" />
-            </MenuItem>
-        </Menu>
-        
-        <ToolBarTray DockPanel.Dock="Top">
-            <ToolBar Header="Display">
-                <Button Content="Pause" Command="defs:Commands.Pause" />
-                <Button Content="Go" Command="defs:Commands.Go" />
-            </ToolBar>
-            <ToolBar Header="Event list">
-                <Button Content="Clear" Command="defs:Commands.ClearEventList" />
-                <ToggleButton Content="Filter to tab" Command="defs:Commands.FilterEventList" CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}" />
-            </ToolBar>
-        </ToolBarTray>
-        
-        <ContentControl x:Name="ActiveItem" />
-    </DockPanel>
+    <Grid>
+        <DockPanel>
+            <Menu DockPanel.Dock="Top">
+                <MenuItem Header="_File">
+                    <MenuItem Header="_Close workspace" Command="defs:Commands.CloseWorkspace" />
+                </MenuItem>
+                <MenuItem Header="_Configuration">
+                    <MenuItem Header="Add _method..." Command="defs:Commands.ShowAddToConfiguration" />
+                </MenuItem>
+            </Menu>
+
+            <ToolBarTray DockPanel.Dock="Top">
+                <ToolBar Header="Display">
+                    <Button Content="Pause" Command="defs:Commands.Pause" />
+                    <Button Content="Go" Command="defs:Commands.Go" />
+                </ToolBar>
+                <ToolBar Header="Event list">
+                    <Button Content="Clear" Command="defs:Commands.ClearEventList" />
+                    <ToggleButton Content="Filter to tab" Command="defs:Commands.FilterEventList" CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}" />
+                </ToolBar>
+            </ToolBarTray>
+
+            <ContentControl x:Name="ActiveItem" />
+        </DockPanel>
+
+        <Grid Visibility="{Binding DialogViewModel, Converter={StaticResource CollapsedWhenNullConverter}}">
+            <!-- Fade out main content; respond to click outside dialog -->
+            <Grid x:Name="DialogOverlay" Background="Gray" Opacity="0.2" />
+
+            <Border Background="White" BorderBrush="Gray" BorderThickness="4" Margin="50">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto" />
+                        <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+
+                    <Border HorizontalAlignment="Stretch" Padding="4" Visibility="{Binding DialogTitle, Converter={StaticResource CollapsedWhenNullConverter}}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*" />
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Text="{Binding DialogTitle}" />
+                            <Button Grid.Column="1" Content="X" Command="{Binding CancelDialogCommand}" />
+                        </Grid>
+                    </Border>
+
+                    <ContentControl x:Name="DialogContent" Grid.Row="1" Padding="20" Content="{Binding DialogViewModel}" />
+                </Grid>
+            </Border>
+
+            <behaviors:Interaction.Triggers>
+                <behaviors:EventTrigger EventName="MouseDown" SourceName="DialogOverlay">
+                    <behaviors:InvokeCommandAction Command="{Binding CancelDialogCommand}" />
+                </behaviors:EventTrigger>
+                <behaviors:KeyTrigger ActiveOnFocus="True" Key="Esc">
+                    <behaviors:InvokeCommandAction Command="{Binding CancelDialogCommand}" />
+                </behaviors:KeyTrigger>
+            </behaviors:Interaction.Triggers>
+        </Grid>
+    </Grid>
 
 </Window>

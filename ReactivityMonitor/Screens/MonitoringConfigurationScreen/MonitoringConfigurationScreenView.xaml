@@ -14,7 +14,7 @@
             <TreeView.ItemTemplate>
                 <HierarchicalDataTemplate ItemsSource="{Binding Calls}">
                     <TextBlock>
-                        <Run Text="{Binding TypeName, Mode=OneTime}" />.<Run Text="{Binding Name, Mode=OneTime}" FontWeight="Bold" />
+                        <Run Text="{Binding TypeName, Mode=OneTime}" />.<Run Text="{Binding MethodName, Mode=OneTime}" FontWeight="Bold" />
                     </TextBlock>
                     <HierarchicalDataTemplate.ItemTemplate>
                         <DataTemplate>

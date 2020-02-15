@@ -10,6 +10,7 @@ namespace ReactivityMonitor
     using System.Windows.Markup;
     using System.Xml;
     using Caliburn.Micro;
+    using ReactivityMonitor.Dialogs.AddMethod;
     using ReactivityMonitor.Infrastructure;
     using ReactivityMonitor.Screens.CallsScreen;
     using ReactivityMonitor.Screens.ConnectionScreen;
@@ -88,6 +89,7 @@ namespace ReactivityMonitor
             mContainer.Singleton<IObservablesScreenItemFactory, ObservablesScreenItemFactory>();
             mContainer.PerRequest<ObservablesListItem>();
             mContainer.PerRequest<IPayloadScreen, PayloadScreenViewModel>();
+            mContainer.PerRequest<IAddMethodDialog, AddMethodDialogViewModel>();
         }
 
         protected override object GetInstance(Type service, string key)

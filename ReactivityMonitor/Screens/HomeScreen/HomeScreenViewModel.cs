@@ -2,6 +2,7 @@
 using DynamicData;
 using ReactivityMonitor.Connection;
 using ReactivityMonitor.Definitions;
+using ReactivityMonitor.Dialogs.AddMethod;
 using ReactivityMonitor.Infrastructure;
 using ReactivityMonitor.Screens.CallsScreen;
 using ReactivityMonitor.Screens.EventListScreen;
@@ -31,7 +32,9 @@ namespace ReactivityMonitor.Screens.HomeScreen
             IConcurrencyService concurrencyService,
             ICommandHandlerService commandHandlerService,
             IConnectionService connectionService,
-            IMonitoringConfigurationScreen configScreen)
+            IMonitoringConfigurationScreen configScreen,
+            IDialogService dialogService,
+            IAddMethodDialog addMethodDialog)
         {
             var isUpdating = GoPauseControl.SetupGoPause(out var attachGoPauseHandlers)
                 .ObserveOn(concurrencyService.TaskPoolRxScheduler);
@@ -63,7 +66,17 @@ namespace ReactivityMonitor.Screens.HomeScreen
                 attachGoPauseHandlers(commandHandlerService).DisposeWith(disposables);
 
                 var closeCommand = ReactiveUI.ReactiveCommand.Create(() => connectionService.Close());
-                commandHandlerService.RegisterHandler(Commands.CloseWorkspace, closeCommand).DisposeWith(disposables);
+                commandHandlerService.RegisterHandler(Commands.CloseWorkspace, closeCommand)
+                    .DisposeWith(disposables);
+
+                addMethodDialog.Model = ConnectionModel.Model;
+                var addMethodToConfigCommand = ReactiveUI.ReactiveCommand.Create(async () =>
+                {
+                    var methodToAdd = await dialogService.ShowDialogContent(addMethodDialog);
+                    workspace.AddMethod(methodToAdd);
+                });
+                commandHandlerService.RegisterHandler(Commands.ShowAddToConfiguration, addMethodToConfigCommand)
+                    .DisposeWith(disposables);
 
                 // Document screens
                 Observable.Empty<IWorkspaceDocumentScreen>()

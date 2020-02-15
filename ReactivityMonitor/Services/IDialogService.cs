@@ -14,5 +14,7 @@ namespace ReactivityMonitor.Services
             string title,
             string filter,
             string initialDirectory = null);
+
+        Task<T> ShowDialogContent<T>(IDialogViewModel<T> viewModel);
     }
 }
