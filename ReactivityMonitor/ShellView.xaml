@@ -5,13 +5,14 @@
         xmlns:behaviors="http://schemas.microsoft.com/xaml/behaviors"
         >
     <Grid>
-        <DockPanel>
+        <DockPanel IsEnabled="{Binding DialogViewModel, Converter={StaticResource TrueWhenNull}}">
             <Menu DockPanel.Dock="Top">
                 <MenuItem Header="_File">
                     <MenuItem Header="_Close workspace" Command="defs:Commands.CloseWorkspace" />
                 </MenuItem>
                 <MenuItem Header="_Configuration">
-                    <MenuItem Header="Add _method..." Command="defs:Commands.ShowAddToConfiguration" />
+                    <MenuItem Header="Add _method..." Command="defs:Commands.ShowAddToConfiguration"
+                              InputGestureText="Ctrl+M" />
                 </MenuItem>
             </Menu>
 
@@ -33,25 +34,33 @@
             <!-- Fade out main content; respond to click outside dialog -->
             <Grid x:Name="DialogOverlay" Background="Gray" Opacity="0.2" />
 
-            <Border Background="White" BorderBrush="Gray" BorderThickness="4" Margin="50">
+            <Border Background="White" BorderThickness="8" Margin="50">
+                <Border.BorderBrush>
+                    <SolidColorBrush Color="Gray" Opacity="0.5" />
+                </Border.BorderBrush>
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto" />
                         <RowDefinition Height="*" />
                     </Grid.RowDefinitions>
 
-                    <Border HorizontalAlignment="Stretch" Padding="4" Visibility="{Binding DialogTitle, Converter={StaticResource CollapsedWhenNullConverter}}">
+                    <Border HorizontalAlignment="Stretch" Padding="8" Visibility="{Binding DialogTitle, Converter={StaticResource CollapsedWhenNullConverter}}"
+                            BorderBrush="LightGray" BorderThickness="0,0,0,1"
+                            Margin="0,0,0,8">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*" />
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <TextBlock Text="{Binding DialogTitle}" />
+                            <!-- Probably don't really need a close button
                             <Button Grid.Column="1" Content="X" Command="{Binding CancelDialogCommand}" />
+                            -->
                         </Grid>
                     </Border>
 
-                    <ContentControl x:Name="DialogContent" Grid.Row="1" Padding="20" Content="{Binding DialogViewModel}" />
+                    <ContentControl x:Name="DialogContent" Grid.Row="1" Content="{Binding DialogViewModel}"
+                                    Focusable="False" />
                 </Grid>
             </Border>
 
@@ -66,4 +75,7 @@
         </Grid>
     </Grid>
 
+    <Window.InputBindings>
+        <KeyBinding Command="defs:Commands.ShowAddToConfiguration" Key="M" Modifiers="Ctrl" />
+    </Window.InputBindings>
 </Window>

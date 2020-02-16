@@ -5,38 +5,83 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ReactivityMonitor.Dialogs.AddMethod"
              xmlns:infra="clr-namespace:ReactivityMonitor.Infrastructure"
+             xmlns:res="clr-namespace:ReactivityMonitor.Resources"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         
         <infra:Activation ViewModel="{Binding}" />
 
-        <TextBox x:Name="SearchBox" Text="{Binding SearchString, UpdateSourceTrigger=PropertyChanged}" 
-                 HorizontalAlignment="Stretch" Padding="8" />
-
-        <ListBox ItemsSource="{Binding Methods}" SelectedItem="{Binding SelectedMethod}"
-                 Grid.Row="1" VerticalAlignment="Stretch">
+        <ListBox Name="MatchingMethodList" ItemsSource="{Binding Methods}" SelectedItem="{Binding SelectedMethod}"
+                 Margin="4,4,4,4" VerticalAlignment="Stretch">
             <ListBox.ItemTemplate>
                 <DataTemplate DataType="{x:Type local:AddMethodDialogViewModel+MethodItem}">
                     <TextBlock>
-                        <Run Text="{Binding TypeAndName, Mode=OneTime}" />
+                        <Run Text="{Binding MethodName, Mode=OneTime}" />
                         <LineBreak/>
-                        <Run Text="{Binding Namespace, Mode=OneTime}" FontSize="10" />
+                        in <Run Text="{Binding FullTypeName, Mode=OneTime}" FontSize="10" />
                     </TextBlock>
                 </DataTemplate>
             </ListBox.ItemTemplate>
+            <ListBox.Template>
+                <ControlTemplate TargetType="ListBox">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="*" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+
+                        <Label Target="{Binding ElementName=SearchBox}"
+                                Content="_Method name:"
+                                VerticalContentAlignment="Center" />
+
+                        <Grid Grid.Column="1"
+                              Loaded="SearchBoxParent_Loaded">
+                            <TextBox Name="SearchBox" Text="{Binding SearchString, UpdateSourceTrigger=PropertyChanged}" 
+                                    HorizontalAlignment="Stretch" Padding="8"
+                                    Loaded="SearchBox_Loaded" />
+                        </Grid>
+
+                        <Border Name="Border"
+                                BorderThickness="0"
+                                Grid.Row="1" Grid.ColumnSpan="2">
+                            <Grid>
+                                <ScrollViewer Name="ScrollViewer" Margin="0" Focusable="False">
+                                    <StackPanel IsItemsHost="True" />
+                                </ScrollViewer>
+                                <TextBlock Name="NoItemsPlaceholder" Text="{Binding NoItemsPlaceholderText}" 
+                                    HorizontalAlignment="Center" VerticalAlignment="Center"
+                                    Visibility="Hidden" />
+                            </Grid>
+                        </Border>
+                    </Grid>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="HasItems" Value="{x:Static res:Constants.False}">
+                            <Setter TargetName="NoItemsPlaceholder" Property="Visibility" Value="Visible" />
+                            <Setter TargetName="ScrollViewer" Property="Visibility" Value="Hidden" />
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </ListBox.Template>
         </ListBox>
 
-        <WrapPanel Grid.Row="2" HorizontalAlignment="Right">
-            <Button Content="Cancel" IsCancel="True" Command="{Binding CancelCommand}"
+        <Border Grid.Row="1" Padding="8"
+                BorderThickness="0,1,0,0" BorderBrush="LightGray"
+                Margin="0,8,0,0">
+            <WrapPanel HorizontalAlignment="Right">
+                <Button Content="Cancel" IsCancel="True" Command="{Binding CancelCommand}"
                     Style="{StaticResource StandardButton}"/>
-            <Button Content="Add" IsDefault="True" Command="{Binding AddSelectedCommand}"
+                <Button Content="Add" IsDefault="True" Command="{Binding AddSelectedCommand}"
                     Style="{StaticResource StandardButton}"/>
-        </WrapPanel>
+            </WrapPanel>
+        </Border>
     </Grid>
 </UserControl>

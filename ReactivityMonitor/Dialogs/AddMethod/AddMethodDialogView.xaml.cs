@@ -23,8 +23,51 @@ namespace ReactivityMonitor.Dialogs.AddMethod
         public AddMethodDialogView()
         {
             InitializeComponent();
+        }
 
-            Loaded += (sender, e) => SearchBox.Focus();
+        private void SearchBox_Loaded(object sender, RoutedEventArgs e)
+        {
+            ((TextBox)sender).Focus();
+        }
+
+        private void SearchBoxParent_Loaded(object sender, RoutedEventArgs e)
+        {
+            UIElement parent = (UIElement)sender;
+            parent.AddHandler(KeyDownEvent, (KeyEventHandler)HandleListBoxNavigationKeys, true);
+        }
+
+        private void HandleListBoxNavigationKeys(object sender, KeyEventArgs e)
+        {
+            switch (e.Key)
+            {
+                case Key.Up:
+                    MoveSelectedIndex(-1);
+                    break;
+
+                case Key.Down:
+                    MoveSelectedIndex(1);
+                    break;
+            }
+
+            void MoveSelectedIndex(int delta)
+            {
+                int index = MatchingMethodList.SelectedIndex;
+                SetSelectedIndex(index < 0 ? 0 : index + delta);
+            }
+
+            void SetSelectedIndex(int index)
+            {
+                int count = MatchingMethodList.Items.Count;
+                if (count <= 0)
+                {
+                    return;
+                }
+
+                index = Math.Min(count - 1, Math.Max(0, index));
+
+                MatchingMethodList.SelectedIndex = index;
+                MatchingMethodList.ScrollIntoView(MatchingMethodList.Items[index]);
+            }
         }
     }
 }

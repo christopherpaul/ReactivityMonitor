@@ -4,6 +4,7 @@ using ReactiveUI;
 using ReactivityMonitor.Infrastructure;
 using ReactivityMonitor.Model;
 using ReactivityMonitor.Services;
+using ReactivityMonitor.Utility.Flyweights;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -31,6 +32,8 @@ namespace ReactivityMonitor.Dialogs.AddMethod
 
             this.WhenActivated((CompositeDisposable disposables) =>
             {
+                SearchString = string.Empty;
+
                 var whenSearchStringChanges = this.WhenAnyValue(x => x.SearchString)
                     .ObserveOn(concurrencyService.TaskPoolRxScheduler);
 
@@ -45,9 +48,15 @@ namespace ReactivityMonitor.Dialogs.AddMethod
                     .Subscribe()
                     .DisposeWith(disposables);
 
-                Func<IInstrumentedMethod, bool> FilterMethod(string s) => m =>
-                    m.Name.IndexOf(s, StringComparison.CurrentCultureIgnoreCase) >= 0 ||
-                    m.ParentType.IndexOf(s, StringComparison.CurrentCultureIgnoreCase) >= 0;
+                Func<IInstrumentedMethod, bool> FilterMethod(string s)
+                {
+                    if (string.IsNullOrWhiteSpace(s))
+                    {
+                        return Funcs<IInstrumentedMethod>.False;
+                    }
+
+                    return m => m.Name.IndexOf(s, StringComparison.CurrentCultureIgnoreCase) >= 0;
+                }
 
                 whenUserCancels.Subscribe(_ => Cancel())
                     .DisposeWith(disposables);
@@ -88,8 +97,29 @@ namespace ReactivityMonitor.Dialogs.AddMethod
         public string SearchString
         {
             get => mSearchString;
-            set => this.RaiseAndSetIfChanged(ref mSearchString, value);
+            set 
+            { 
+                this.RaiseAndSetIfChanged(ref mSearchString, value);
+                SearchStringIsEmpty = string.IsNullOrWhiteSpace(value);
+            }
         }
+
+        private bool mSearchStringIsEmpty = true;
+        public bool SearchStringIsEmpty
+        {
+            get => mSearchStringIsEmpty;
+            private set
+            {
+                if (value != mSearchStringIsEmpty)
+                {
+                    mSearchStringIsEmpty = value;
+                    this.RaisePropertyChanged();
+                    this.RaisePropertyChanged(nameof(NoItemsPlaceholderText));
+                }
+            }
+        }
+
+        public string NoItemsPlaceholderText => SearchStringIsEmpty ? string.Empty : "No matching methods found";
 
         public ReadOnlyObservableCollection<MethodItem> Methods { get; }
 
@@ -117,6 +147,7 @@ namespace ReactivityMonitor.Dialogs.AddMethod
             public string MethodName => mMethod.Name;
             public string TypeName { get; }
             public string TypeAndName => $"{TypeName}.{MethodName}";
+            public string FullTypeName => mMethod.ParentType;
             public string Namespace { get; }
         }
     }

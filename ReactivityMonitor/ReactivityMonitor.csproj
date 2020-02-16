@@ -78,6 +78,7 @@
     <Compile Include="Factory.cs" />
     <Compile Include="Infrastructure\Activation.cs" />
     <Compile Include="Infrastructure\CommandHelper.cs" />
+    <Compile Include="Infrastructure\Converters\BooleanConverter.cs" />
     <Compile Include="Infrastructure\Converters\VisibilityConverter.cs" />
     <Compile Include="Infrastructure\ReactiveViewModel.cs" />
     <Compile Include="Infrastructure\TraceLogger.cs" />

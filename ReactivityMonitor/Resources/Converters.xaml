@@ -3,7 +3,11 @@
                     xmlns:local="clr-namespace:ReactivityMonitor.Resources"
                     xmlns:cvt="clr-namespace:ReactivityMonitor.Infrastructure.Converters">
     <cvt:VisibilityConverter x:Key="HiddenWhenNullConverter" HiddenWhenEqualTo="{x:Null}" Default="Visible" />
-    <cvt:VisibilityConverter x:Key="VisibleWhenTrue" VisibleWhenEqualTo="{x:Static local:Constants.True}" Default="Collapsed" />
+    <cvt:VisibilityConverter x:Key="CollapsedWhenFalse" VisibleWhenEqualTo="{x:Static local:Constants.True}" Default="Collapsed" />
     <cvt:VisibilityConverter x:Key="CollapsedWhenNullConverter" CollapsedWhenEqualTo="{x:Null}" Default="Visible" />
+    <cvt:VisibilityConverter x:Key="HiddenWhenFalse" HiddenWhenEqualTo="{x:Static local:Constants.False}" Default="Visible" />
+    <cvt:VisibilityConverter x:Key="HiddenWhenTrue" HiddenWhenEqualTo="{x:Static local:Constants.True}" Default="Visible" />
 
+    <cvt:BooleanConverter x:Key="TrueWhenNull" TrueWhenEqualTo="{x:Null}" Default="False" />
+    <cvt:BooleanConverter x:Key="FalseWhenNull" FalseWhenEqualTo="{x:Null}" Default="True" />
 </ResourceDictionary>
