@@ -15,6 +15,7 @@ using ReactivityMonitor.Services;
 using DynamicData.Binding;
 using System.Collections.ObjectModel;
 using System.Collections.Immutable;
+using System.Windows.Input;
 
 namespace ReactivityMonitor.Screens.MonitoringConfigurationScreen
 {
@@ -37,7 +38,7 @@ namespace ReactivityMonitor.Screens.MonitoringConfigurationScreen
                     .AsObservableCache();
 
                 Workspace.Methods
-                    .Transform(method => new MethodItem(method, monitoredCalls, concurrencyService))
+                    .Transform(method => new MethodItem(method, monitoredCalls, concurrencyService, Workspace))
                     .SubscribeOn(concurrencyService.TaskPoolRxScheduler)
                     .ObserveOn(concurrencyService.DispatcherRxScheduler)
                     .Bind(methodItems)
@@ -52,35 +53,69 @@ namespace ReactivityMonitor.Screens.MonitoringConfigurationScreen
 
         public ReadOnlyObservableCollection<MethodItem> Methods { get; }
 
-        public sealed class MethodItem : IDisposable
+        public sealed class MethodItem : ReactiveObject, IDisposable
         {
             private readonly CompositeDisposable mDisposables;
             private readonly IInstrumentedMethod mMethod;
 
-            public MethodItem(IInstrumentedMethod method, IObservableCache<IInstrumentedCall, int> monitoredCalls, IConcurrencyService concurrencyService)
+            public MethodItem(IInstrumentedMethod method, IObservableCache<IInstrumentedCall, int> monitoredCalls, IConcurrencyService concurrencyService, IWorkspace workspace)
             {
                 mDisposables = new CompositeDisposable();
 
-                Calls = method.InstrumentedCalls
-                    .Select(CreateCallItem)
+                var callsWithIsMonitoredChanges = method.InstrumentedCalls
+                    .Select(call => new { Call = call, WhenIsMonitoredChanges = GetWhenIsMonitoredChanges(call) })
                     .ToImmutableList();
 
-                CallItem CreateCallItem(IInstrumentedCall c)
-                {
-                    var whenIsMonitoredChanges = monitoredCalls.Watch(c.InstrumentedCallId)
-                        .TakeUntilDisposed(mDisposables)
-                        .Select(chg => chg.Reason != ChangeReason.Remove)
-                        .DistinctUntilChanged()
-                        .ObserveOn(concurrencyService.DispatcherRxScheduler);
+                Calls = callsWithIsMonitoredChanges
+                    .Select(x => new CallItem(x.Call, x.WhenIsMonitoredChanges.ObserveOn(concurrencyService.DispatcherRxScheduler), workspace))
+                    .ToImmutableList();
 
-                    return new CallItem(c, whenIsMonitoredChanges);
-                }
+                var canStartMonitoring = Observable.CombineLatest(
+                    callsWithIsMonitoredChanges.Select(x => x.WhenIsMonitoredChanges),
+                    list => list.Contains(false)).ObserveOn(concurrencyService.DispatcherRxScheduler);
+
+                var canStopMonitoring = Observable.CombineLatest(
+                    callsWithIsMonitoredChanges.Select(x => x.WhenIsMonitoredChanges),
+                    list => list.Contains(true)).ObserveOn(concurrencyService.DispatcherRxScheduler);
+
+                StartMonitoringAllCommand = ReactiveCommand.Create(StartMonitoringAllCalls, canStartMonitoring);
+                StopMonitoringAllCommand = ReactiveCommand.Create(StopMonitoringAllCalls, canStopMonitoring);
 
                 mMethod = method;
+
+                IObservable<bool> GetWhenIsMonitoredChanges(IInstrumentedCall c)
+                {
+                    return monitoredCalls.Watch(c.InstrumentedCallId)
+                        .TakeUntilDisposed(mDisposables)
+                        .Select(chg => chg.Reason != ChangeReason.Remove)
+                        .StartWith(false)
+                        .DistinctUntilChanged()
+                        .Replay(1)
+                        .ConnectForEver();
+                }
+
+                void StartMonitoringAllCalls()
+                {
+                    foreach (var call in method.InstrumentedCalls)
+                    {
+                        workspace.StartMonitoringCall(call);
+                    }
+                }
+
+                void StopMonitoringAllCalls()
+                {
+                    foreach (var call in method.InstrumentedCalls)
+                    {
+                        workspace.StopMonitoringCall(call);
+                    }
+                }
             }
 
             public string TypeName => mMethod.ParentType;
             public string MethodName => mMethod.Name;
+
+            public ICommand StartMonitoringAllCommand { get; }
+            public ICommand StopMonitoringAllCommand { get; }
 
             public IImmutableList<CallItem> Calls { get; }
 
@@ -94,16 +129,18 @@ namespace ReactivityMonitor.Screens.MonitoringConfigurationScreen
         {
             private readonly IInstrumentedCall mCall;
 
-            public CallItem(IInstrumentedCall call, IObservable<bool> whenIsMonitoredChanges)
+            public CallItem(IInstrumentedCall call, IObservable<bool> whenIsMonitoredChanges, IWorkspace workspace)
             {
                 mCall = call;
-                mIsMonitored = whenIsMonitoredChanges.ToProperty(this, x => x.IsMonitored);
+
+                StartMonitoringCommand = ReactiveCommand.Create(() => workspace.StartMonitoringCall(call), whenIsMonitoredChanges.Select(x => !x));
+                StopMonitoringCommand = ReactiveCommand.Create(() => workspace.StopMonitoringCall(call), whenIsMonitoredChanges);
             }
 
             public string MethodName => mCall.CalledMethod;
 
-            private readonly ObservableAsPropertyHelper<bool> mIsMonitored;
-            public bool IsMonitored => mIsMonitored.Value;
+            public ICommand StartMonitoringCommand { get; }
+            public ICommand StopMonitoringCommand { get; }
         }
     }
 }

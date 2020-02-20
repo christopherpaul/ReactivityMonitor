@@ -13,12 +13,18 @@
         <TreeView ItemsSource="{Binding Methods}">
             <TreeView.ItemTemplate>
                 <HierarchicalDataTemplate ItemsSource="{Binding Calls}">
-                    <TextBlock>
-                        <Run Text="{Binding TypeName, Mode=OneTime}" />.<Run Text="{Binding MethodName, Mode=OneTime}" FontWeight="Bold" />
-                    </TextBlock>
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="Stop" Command="{Binding StopMonitoringAllCommand}" />
+                        <Button Content="Start" Command="{Binding StartMonitoringAllCommand}" />
+                        <TextBlock>
+                            <Run Text="{Binding TypeName, Mode=OneTime}" />.<Run Text="{Binding MethodName, Mode=OneTime}" FontWeight="Bold" />
+                        </TextBlock>
+                    </StackPanel>
                     <HierarchicalDataTemplate.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
+                                <Button Content="Stop" Command="{Binding StopMonitoringCommand}" />
+                                <Button Content="Start" Command="{Binding StartMonitoringCommand}" />
                                 <TextBlock Text="{Binding MethodName, Mode=OneTime}" />
                             </StackPanel>
                         </DataTemplate>
