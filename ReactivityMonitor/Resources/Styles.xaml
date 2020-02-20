@@ -1,0 +1,20 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:ReactivityMonitor.Resources">
+    <Style x:Key="ItemHeadingText" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="14" />
+    </Style>
+    <Style x:Key="ItemSubText" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="10" />
+    </Style>
+    <Style x:Key="StandardButton" TargetType="Button">
+        <Setter Property="MinWidth" Value="100" />
+        <Setter Property="Margin" Value="8,2,8,2" />
+        <Setter Property="Padding" Value="4,2,4,2" />
+    </Style>
+    <Style x:Key="IconButton" TargetType="Button">
+        <Setter Property="BorderBrush" Value="{x:Null}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="Background" Value="{x:Null}" />
+    </Style>
+</ResourceDictionary>

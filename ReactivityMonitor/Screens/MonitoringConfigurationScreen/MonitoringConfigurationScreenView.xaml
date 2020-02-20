@@ -5,8 +5,19 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ReactivityMonitor.Screens.MonitoringConfigurationScreen"
              xmlns:infra="clr-namespace:ReactivityMonitor.Infrastructure"
+             xmlns:res="clr-namespace:ReactivityMonitor.Resources"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Resources>
+        <Style x:Key="MonitorControlButton" TargetType="Button" BasedOn="{StaticResource IconButton}">
+            <Setter Property="Padding" Value="4" />
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="{x:Static res:Constants.False}">
+                    <Setter Property="Opacity" Value="0.3" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </UserControl.Resources>
     <Grid>
         <infra:Activation ViewModel="{Binding}" />
 
@@ -14,8 +25,16 @@
             <TreeView.ItemTemplate>
                 <HierarchicalDataTemplate ItemsSource="{Binding Calls}">
                     <StackPanel Orientation="Horizontal">
-                        <Button Content="Stop" Command="{Binding StopMonitoringAllCommand}" />
-                        <Button Content="Start" Command="{Binding StartMonitoringAllCommand}" />
+                        <Button Style="{StaticResource MonitorControlButton}" Command="{Binding StopMonitoringAllCommand}"
+                                ToolTip="Stop monitoring all calls">
+                            <Image Source="{StaticResource StopIconImage}" Height="8" />
+                        </Button>
+
+                        <Button Style="{StaticResource MonitorControlButton}" Command="{Binding StartMonitoringAllCommand}"
+                                ToolTip="Start monitoring all calls">
+                            <Image Source="{StaticResource PlayIconImage}" Height="8" />
+                        </Button>
+
                         <TextBlock>
                             <Run Text="{Binding TypeName, Mode=OneTime}" />.<Run Text="{Binding MethodName, Mode=OneTime}" FontWeight="Bold" />
                         </TextBlock>
@@ -23,8 +42,16 @@
                     <HierarchicalDataTemplate.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
-                                <Button Content="Stop" Command="{Binding StopMonitoringCommand}" />
-                                <Button Content="Start" Command="{Binding StartMonitoringCommand}" />
+                                <Button Style="{StaticResource MonitorControlButton}" Command="{Binding StopMonitoringCommand}"
+                                        ToolTip="Stop monitoring this call">
+                                    <Image Source="{StaticResource StopIconImage}" Height="8" />
+                                </Button>
+
+                                <Button Style="{StaticResource MonitorControlButton}" Command="{Binding StartMonitoringCommand}"
+                                        ToolTip="Start monitoring this call">
+                                    <Image Source="{StaticResource PlayIconImage}" Height="8" />
+                                </Button>
+
                                 <TextBlock Text="{Binding MethodName, Mode=OneTime}" />
                             </StackPanel>
                         </DataTemplate>

@@ -8,12 +8,6 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
-        <Style x:Key="IconButton" TargetType="Button">
-            <Setter Property="BorderBrush" Value="{x:Null}" />
-            <Setter Property="BorderThickness" Value="0" />
-            <Setter Property="Background" Value="{x:Null}" />
-        </Style>
-
         <DataTemplate x:Key="InspectValueButtonTemplate">
             <Button Style="{StaticResource IconButton}" Command="{Binding InspectValueCommand}"
                     Visibility="{Binding InspectValueCommand, Converter={StaticResource HiddenWhenNullConverter}}">
