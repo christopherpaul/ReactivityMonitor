@@ -105,6 +105,11 @@
       <DependentUpon>EventListScreenView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Screens\EventListScreen\EventListScreenViewModel.cs" />
+    <Compile Include="Screens\EventListScreen\EventListView.xaml.cs">
+      <DependentUpon>EventListView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Screens\EventListScreen\EventListViewModel.cs" />
+    <Compile Include="Screens\EventListScreen\IEventList.cs" />
     <Compile Include="Screens\EventListScreen\IEventListScreen.cs" />
     <Compile Include="Screens\IWorkspaceDocumentScreen.cs" />
     <Compile Include="Screens\MonitoringConfigurationScreen\IMonitoringConfigurationScreen.cs" />
@@ -197,6 +202,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Screens\EventListScreen\EventListScreenView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Screens\EventListScreen\EventListView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
