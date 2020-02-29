@@ -14,8 +14,6 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         
-        <infra:Activation ViewModel="{Binding}" />
-
         <ListBox Name="MatchingMethodList" ItemsSource="{Binding Methods}" SelectedItem="{Binding SelectedMethod}"
                  Margin="4,4,4,4" VerticalAlignment="Stretch">
             <ListBox.ItemTemplate>

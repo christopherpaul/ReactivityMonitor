@@ -75,6 +75,11 @@
     </Compile>
     <Compile Include="Dialogs\AddMethod\AddMethodDialogViewModel.cs" />
     <Compile Include="Dialogs\AddMethod\IAddMethodDialog.cs" />
+    <Compile Include="Dialogs\QuickEventList\IQuickEventListDialog.cs" />
+    <Compile Include="Dialogs\QuickEventList\QuickEventListDialogView.xaml.cs">
+      <DependentUpon>QuickEventListDialogView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Dialogs\QuickEventList\QuickEventListDialogViewModel.cs" />
     <Compile Include="Factory.cs" />
     <Compile Include="Infrastructure\Activation.cs" />
     <Compile Include="Infrastructure\CommandHelper.cs" />
@@ -178,6 +183,10 @@
     <Compile Include="Workspace\MonitoringGroup.cs" />
     <Compile Include="Workspace\Workspace.cs" />
     <Page Include="Dialogs\AddMethod\AddMethodDialogView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Dialogs\QuickEventList\QuickEventListDialogView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

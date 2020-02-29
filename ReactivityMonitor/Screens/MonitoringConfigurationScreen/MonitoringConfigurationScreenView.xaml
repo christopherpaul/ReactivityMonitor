@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:ReactivityMonitor.Screens.MonitoringConfigurationScreen"
              xmlns:infra="clr-namespace:ReactivityMonitor.Infrastructure"
              xmlns:res="clr-namespace:ReactivityMonitor.Resources"
+             xmlns:defs="clr-namespace:ReactivityMonitor.Definitions"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <UserControl.Resources>
@@ -20,8 +21,10 @@
     </UserControl.Resources>
     <Grid>
         <infra:Activation ViewModel="{Binding}" />
-
-        <TreeView ItemsSource="{Binding Methods}">
+        
+        <TreeView ItemsSource="{Binding Methods}"
+                  SelectedItemChanged="TreeView_SelectedItemChanged"
+                  ContextMenuOpening="TreeView_ContextMenuOpening">
             <TreeView.ItemTemplate>
                 <HierarchicalDataTemplate ItemsSource="{Binding Calls}">
                     <StackPanel Orientation="Horizontal">
@@ -53,6 +56,12 @@
                                 </Button>
 
                                 <TextBlock Text="{Binding MethodName, Mode=OneTime}" />
+
+                                <StackPanel.ContextMenu>
+                                    <ContextMenu>
+                                        <MenuItem Header="Quick _event list" Command="defs:Commands.QuickEventList" />
+                                    </ContextMenu>
+                                </StackPanel.ContextMenu>
                             </StackPanel>
                         </DataTemplate>
                     </HierarchicalDataTemplate.ItemTemplate>
@@ -60,4 +69,5 @@
             </TreeView.ItemTemplate>
         </TreeView>
     </Grid>
+
 </UserControl>

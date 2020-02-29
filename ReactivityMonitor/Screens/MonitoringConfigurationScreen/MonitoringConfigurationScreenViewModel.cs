@@ -23,7 +23,7 @@ namespace ReactivityMonitor.Screens.MonitoringConfigurationScreen
     {
         public string DisplayName => "Configuration";
 
-        public MonitoringConfigurationScreenViewModel(IConcurrencyService concurrencyService)
+        public MonitoringConfigurationScreenViewModel(IConcurrencyService concurrencyService, ISelectionService selectionService)
         {
             var methodItems = new ObservableCollectionExtended<MethodItem>();
             Methods = new ReadOnlyObservableCollection<MethodItem>(methodItems);
@@ -45,7 +45,28 @@ namespace ReactivityMonitor.Screens.MonitoringConfigurationScreen
                     .DisposeMany()
                     .Subscribe()
                     .DisposeWith(disposables);
+
+                this.WhenValueChanged(x => x.SelectedItem)
+                    .ObserveOn(concurrencyService.TaskPoolRxScheduler)
+                    .Subscribe(item =>
+                    {
+                        if (item is CallItem c)
+                        {
+                            selectionService.ChangeSelection(s => s.SetCall(c.InstrumentedCall));
+                        }
+                        else
+                        {
+                            selectionService.ChangeSelection(s => s.ClearCall());
+                        }
+                    });
             });
+        }
+
+        private object mSelectedItem;
+        public object SelectedItem
+        {
+            get => mSelectedItem;
+            set => this.RaiseAndSetIfChanged(ref mSelectedItem, value);
         }
 
         public IReactivityModel Model { get; set; }
@@ -136,6 +157,8 @@ namespace ReactivityMonitor.Screens.MonitoringConfigurationScreen
                 StartMonitoringCommand = ReactiveCommand.Create(() => workspace.StartMonitoringCall(call), whenIsMonitoredChanges.Select(x => !x));
                 StopMonitoringCommand = ReactiveCommand.Create(() => workspace.StopMonitoringCall(call), whenIsMonitoredChanges);
             }
+
+            public IInstrumentedCall InstrumentedCall => mCall;
 
             public string MethodName => mCall.CalledMethod;
 

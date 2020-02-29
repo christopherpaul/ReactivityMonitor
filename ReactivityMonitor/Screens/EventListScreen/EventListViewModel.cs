@@ -29,7 +29,7 @@ namespace ReactivityMonitor.Screens.EventListScreen
                     .TakeWhile(change => change.Removes == 0)
                     .Transform(obs => Observable.Return(obs))
                     .MergeMany(obs =>
-                        IncludeInputObservables.Select(includeInputs => includeInputs
+                        (IncludeInputObservables ?? Observable.Return(false)).Select(includeInputs => includeInputs
                             ? obs.Expand(obs => obs.Inputs)
                             : obs).Switch())
                     .Distinct(obs => obs.ObservableId);

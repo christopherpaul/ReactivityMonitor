@@ -1,8 +1,10 @@
 ﻿using Microsoft.Win32;
+using ReactiveUI;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text;
@@ -17,6 +19,7 @@ namespace ReactivityMonitor.Services
         private readonly IConcurrencyService mConcurrencyService;
         private readonly Action<object> mPushDialogViewModel;
         private Action mCancelActiveDialog;
+        private readonly SerialDisposable mDialogActivationDisposable;
 
         public DialogService(IConcurrencyService concurrencyService)
         {
@@ -25,7 +28,9 @@ namespace ReactivityMonitor.Services
             var dialogViewModelSubject = new BehaviorSubject<object>(null);
             mPushDialogViewModel = dialogViewModelSubject.OnNext;
 
-            WhenDialogViewModelChanges = dialogViewModelSubject.AsObservable();
+            mDialogActivationDisposable = new SerialDisposable();
+            WhenDialogViewModelChanges = dialogViewModelSubject.AsObservable()
+                .Do(vm => mDialogActivationDisposable.Disposable = (vm as IActivatableViewModel)?.Activator.Activate());
         }
 
         public Task ShowErrorDialog(string title, string message)

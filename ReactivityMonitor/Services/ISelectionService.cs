@@ -8,6 +8,8 @@ namespace ReactivityMonitor.Services
 {
     public interface ISelectionService
     {
+        Selection CurrentSelection { get; }
+
         IObservable<Selection> WhenSelectionChanges { get; }
 
         void ChangeSelection(Func<Selection, Selection> changer);

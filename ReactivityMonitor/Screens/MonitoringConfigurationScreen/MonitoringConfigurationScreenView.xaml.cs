@@ -24,5 +24,19 @@ namespace ReactivityMonitor.Screens.MonitoringConfigurationScreen
         {
             InitializeComponent();
         }
+
+        private void TreeView_SelectedItemChanged(object sender, RoutedPropertyChangedEventArgs<object> e)
+        {
+            var item = ((TreeView)sender).SelectedItem;
+            ((MonitoringConfigurationScreenViewModel)DataContext).SelectedItem = item;
+        }
+
+        private void TreeView_ContextMenuOpening(object sender, ContextMenuEventArgs e)
+        {
+            if (e.Source is TreeViewItem item)
+            {
+                item.IsSelected = true;
+            }
+        }
     }
 }

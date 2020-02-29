@@ -11,6 +11,7 @@ namespace ReactivityMonitor
     using System.Xml;
     using Caliburn.Micro;
     using ReactivityMonitor.Dialogs.AddMethod;
+    using ReactivityMonitor.Dialogs.QuickEventList;
     using ReactivityMonitor.Infrastructure;
     using ReactivityMonitor.Screens.CallsScreen;
     using ReactivityMonitor.Screens.ConnectionScreen;
@@ -83,6 +84,7 @@ namespace ReactivityMonitor
             mContainer.PerRequest<IMonitoringConfigurationScreen, MonitoringConfigurationScreenViewModel>();
             mContainer.PerRequest<ICallsScreen, CallsScreenViewModel>();
             mContainer.PerRequest<IMonitoringScreen, MonitoringScreenViewModel>();
+            mContainer.PerRequest<IEventList, EventListViewModel>();
             mContainer.PerRequest<IEventListScreen, EventListScreenViewModel>();
             mContainer.PerRequest<IMarbleDiagramScreen, MarbleDiagramScreenViewModel>();
             mContainer.PerRequest<IObservablesScreen, ObservablesScreenViewModel>();
@@ -90,6 +92,7 @@ namespace ReactivityMonitor
             mContainer.PerRequest<ObservablesListItem>();
             mContainer.PerRequest<IPayloadScreen, PayloadScreenViewModel>();
             mContainer.PerRequest<IAddMethodDialog, AddMethodDialogViewModel>();
+            mContainer.PerRequest<IQuickEventListDialog, QuickEventListDialogViewModel>();
         }
 
         protected override object GetInstance(Type service, string key)

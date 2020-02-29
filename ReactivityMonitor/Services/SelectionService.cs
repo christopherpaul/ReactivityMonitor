@@ -23,6 +23,7 @@ namespace ReactivityMonitor.Services
             WhenSelectionChanges = changes
                 .ObserveOn(concurrencyService.TaskPoolRxScheduler)
                 .Scan(Selection.Empty, (sel, change) => change(sel))
+                .Do(s => CurrentSelection = s)
                 .Publish(Selection.Empty)
                 .ConnectForEver();
 
@@ -32,6 +33,8 @@ namespace ReactivityMonitor.Services
         }
 
         public IObservable<Selection> WhenSelectionChanges { get; }
+
+        public Selection CurrentSelection { get; private set; } = Selection.Empty;
 
         public void ChangeSelection(Func<Selection, Selection> changer)
         {

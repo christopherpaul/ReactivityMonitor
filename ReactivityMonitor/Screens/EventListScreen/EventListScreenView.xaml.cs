@@ -33,12 +33,12 @@ namespace ReactivityMonitor.Screens.EventListScreen
             {
                 foreach (var item in e.RemovedItems.OfType<EventItem>())
                 {
-                    selection = selection.Remove(item);
+                    selection = selection.RemoveEvent(item);
                 }
 
                 foreach (var item in e.AddedItems.OfType<EventItem>())
                 {
-                    selection = selection.Add(item);
+                    selection = selection.AddEvent(item);
                 }
 
                 return selection;

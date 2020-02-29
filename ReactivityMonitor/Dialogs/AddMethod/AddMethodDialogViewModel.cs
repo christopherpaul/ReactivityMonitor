@@ -33,6 +33,8 @@ namespace ReactivityMonitor.Dialogs.AddMethod
             this.WhenActivated((CompositeDisposable disposables) =>
             {
                 SearchString = string.Empty;
+                SelectedMethod = null;
+                methods.Clear();
 
                 var whenSearchStringChanges = this.WhenAnyValue(x => x.SearchString)
                     .ObserveOn(concurrencyService.TaskPoolRxScheduler);
@@ -67,7 +69,9 @@ namespace ReactivityMonitor.Dialogs.AddMethod
                     {
                         if (m == null)
                         {
-                            return Methods.ToObservableChangeSet().Top(1)
+                            return Methods.ToObservableChangeSet()
+                                .ObserveOn(concurrencyService.TaskPoolRxScheduler)
+                                .Top(1)
                                 .OnItemAdded(firstMethod => SelectedMethod = firstMethod)
                                 .Select(_ => Unit.Default);
                         }

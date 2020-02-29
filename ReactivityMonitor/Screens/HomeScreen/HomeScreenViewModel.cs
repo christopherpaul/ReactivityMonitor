@@ -3,6 +3,7 @@ using DynamicData;
 using ReactivityMonitor.Connection;
 using ReactivityMonitor.Definitions;
 using ReactivityMonitor.Dialogs.AddMethod;
+using ReactivityMonitor.Dialogs.QuickEventList;
 using ReactivityMonitor.Infrastructure;
 using ReactivityMonitor.Screens.CallsScreen;
 using ReactivityMonitor.Screens.EventListScreen;
@@ -34,7 +35,9 @@ namespace ReactivityMonitor.Screens.HomeScreen
             IConnectionService connectionService,
             IMonitoringConfigurationScreen configScreen,
             IDialogService dialogService,
-            IAddMethodDialog addMethodDialog)
+            IAddMethodDialog addMethodDialog,
+            ISelectionService selectionService,
+            IQuickEventListDialog quickEventListDialog)
         {
             var isUpdating = GoPauseControl.SetupGoPause(out var attachGoPauseHandlers)
                 .ObserveOn(concurrencyService.TaskPoolRxScheduler);
@@ -76,6 +79,19 @@ namespace ReactivityMonitor.Screens.HomeScreen
                     workspace.AddMethod(methodToAdd);
                 });
                 commandHandlerService.RegisterHandler(Commands.ShowAddToConfiguration, addMethodToConfigCommand)
+                    .DisposeWith(disposables);
+
+                var quickEventListCommand = ReactiveUI.ReactiveCommand.Create(async () =>
+                {
+                    var call = selectionService.CurrentSelection.PrimaryInstrumentedCall;
+                    if (call != null)
+                    {
+                        quickEventListDialog.Observables = call.ObservableInstances.ToObservableChangeSet(o => o.ObservableId);
+                        quickEventListDialog.Title = $"{call.Method.Name}: {call.CalledMethod}";
+                        await dialogService.ShowDialogContent(quickEventListDialog);
+                    }
+                }, selectionService.WhenSelectionChanges.Select(s => s.PrimaryInstrumentedCall != null).ObserveOn(concurrencyService.DispatcherRxScheduler));
+                commandHandlerService.RegisterHandler(Commands.QuickEventList, quickEventListCommand)
                     .DisposeWith(disposables);
 
                 // Document screens
