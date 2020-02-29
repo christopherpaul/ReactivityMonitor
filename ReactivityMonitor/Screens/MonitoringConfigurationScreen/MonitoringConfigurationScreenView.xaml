@@ -45,6 +45,8 @@
                     <HierarchicalDataTemplate.ItemTemplate>
                         <DataTemplate>
                             <StackPanel Orientation="Horizontal">
+                                <infra:Activation ViewModel="{Binding}" />
+
                                 <Button Style="{StaticResource MonitorControlButton}" Command="{Binding StopMonitoringCommand}"
                                         ToolTip="Stop monitoring this call">
                                     <Image Source="{StaticResource StopIconImage}" Height="8" />
@@ -55,7 +57,10 @@
                                     <Image Source="{StaticResource PlayIconImage}" Height="8" />
                                 </Button>
 
-                                <TextBlock Text="{Binding MethodName, Mode=OneTime}" />
+                                <TextBlock>
+                                    <Run Text="{Binding MethodName, Mode=OneTime}" />
+                                    <Run Text="{Binding ActiveSubscriptionCount, Mode=OneWay}" ToolTip="Active subscription count" />
+                                </TextBlock>
 
                                 <StackPanel.ContextMenu>
                                     <ContextMenu>

@@ -146,7 +146,7 @@ namespace ReactivityMonitor.Screens.MonitoringConfigurationScreen
             }
         }
 
-        public sealed class CallItem : ReactiveObject
+        public sealed class CallItem : ReactiveViewModel
         {
             private readonly IInstrumentedCall mCall;
 
@@ -154,8 +154,36 @@ namespace ReactivityMonitor.Screens.MonitoringConfigurationScreen
             {
                 mCall = call;
 
-                StartMonitoringCommand = ReactiveCommand.Create(() => workspace.StartMonitoringCall(call), whenIsMonitoredChanges.Select(x => !x));
-                StopMonitoringCommand = ReactiveCommand.Create(() => workspace.StopMonitoringCall(call), whenIsMonitoredChanges);
+                var isMonitoredWhileActive = Observable.Merge(
+                    Activator.Activated.Select(_ => whenIsMonitoredChanges),
+                    Activator.Deactivated.Select(_ => Observable.Empty<bool>()))
+                    .Switch()
+                    .Publish(default)
+                    .RefCount();
+
+                StartMonitoringCommand = ReactiveCommand.Create(() => workspace.StartMonitoringCall(call), isMonitoredWhileActive.Select(x => !x));
+                StopMonitoringCommand = ReactiveCommand.Create(() => workspace.StopMonitoringCall(call), isMonitoredWhileActive);
+                
+                this.WhenActivated((CompositeDisposable disposables) =>
+                {
+                    var activeSubs = call.ObservableInstances
+                        .SelectMany(obs => obs.Subscriptions)
+                        .SelectMany(sub => Observable.Return(1).Concat(sub.Events.TakeUntil(IsDeactivationEvent).WhenTerminated(-1)))
+                        .Scan(0, (tally, x) => tally + x);
+
+                    mActiveSubscriptionCount = whenIsMonitoredChanges
+                        .Select(isMonitored => isMonitored
+                            ? activeSubs
+                            : Observable.Return(-1))
+                        .Switch()
+                        .Select(count => count >= 0 ? $"[{count}]" : string.Empty)
+                        .ToProperty(this, x => x.ActiveSubscriptionCount);
+                });
+
+                bool IsDeactivationEvent(StreamEvent e) =>
+                    e.Kind == StreamEvent.EventKind.OnCompleted ||
+                    e.Kind == StreamEvent.EventKind.OnError ||
+                    e.Kind == StreamEvent.EventKind.Unsubscribe;
             }
 
             public IInstrumentedCall InstrumentedCall => mCall;
@@ -164,6 +192,9 @@ namespace ReactivityMonitor.Screens.MonitoringConfigurationScreen
 
             public ICommand StartMonitoringCommand { get; }
             public ICommand StopMonitoringCommand { get; }
+
+            private ObservableAsPropertyHelper<string> mActiveSubscriptionCount;
+            public string ActiveSubscriptionCount => mActiveSubscriptionCount?.Value;
         }
     }
 }

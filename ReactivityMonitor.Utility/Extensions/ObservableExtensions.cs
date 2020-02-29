@@ -44,6 +44,8 @@ namespace ReactivityMonitor.Utility.Extensions
 
         public static IObservable<Unit> WhenTerminated<T>(this IObservable<T> source) => source.IgnoreElements().Select(Funcs<T>.DefaultOf<Unit>()).Append(default);
 
+        public static IObservable<TResult> WhenTerminated<TSource, TResult>(this IObservable<TSource> source, TResult value) => source.IgnoreElements().Select(Funcs<TSource>.DefaultOf<TResult>()).Append(value);
+
         /// <summary>
         /// Provides an observable (via <paramref name="whenSubscriptionCountChanges"/>) whose value is the number of active
         /// subscriptions made to <paramref name="source"/> via this operator.
