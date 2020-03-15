@@ -78,14 +78,44 @@ namespace ReactivityMonitor.Screens.HomeScreen
 
                 var quickEventListCommand = ReactiveUI.ReactiveCommand.Create(async () =>
                 {
-                    var call = selectionService.CurrentSelection.PrimaryInstrumentedCall;
-                    if (call != null)
+                    Selection sel = selectionService.CurrentSelection;
+                    bool haveObservables = false;
+
+                    if (sel.SelectedObservableInstances.Count > 0)
                     {
-                        quickEventListDialog.Observables = call.ObservableInstances.ToObservableChangeSet(o => o.ObservableId);
-                        quickEventListDialog.Title = $"{call.Method.Name}: {call.CalledMethod}";
+                        haveObservables = true;
+                        quickEventListDialog.Observables = sel.SelectedObservableInstances
+                            .ToObservable()
+                            .ToObservableChangeSet(o => o.ObservableId);
+
+                        if (sel.SelectedObservableInstances.Count == 1)
+                        {
+                            var obs = sel.SelectedObservableInstances[0];
+                            var call = obs.Call;
+                            quickEventListDialog.Title = $"{call.Method.Name}: {call.CalledMethod} @{obs.Created.Timestamp}";
+                        }
+                        else
+                        {
+                            quickEventListDialog.Title = $"{sel.SelectedObservableInstances.Count} IObservable instances";
+                        }
+                    }
+                    else
+                    {
+                        var call = sel.PrimaryInstrumentedCall;
+                        if (call != null)
+                        {
+                            haveObservables = true;
+                            quickEventListDialog.Observables = call.ObservableInstances.ToObservableChangeSet(o => o.ObservableId);
+                            quickEventListDialog.Title = $"{call.Method.Name}: {call.CalledMethod}";
+                        }
+                    }
+
+                    if (haveObservables)
+                    {
                         await dialogService.ShowDialogContent(quickEventListDialog);
                     }
-                }, selectionService.WhenSelectionChanges.Select(s => s.PrimaryInstrumentedCall != null).ObserveOn(concurrencyService.DispatcherRxScheduler));
+
+                }, selectionService.WhenSelectionChanges.Select(s => s.PrimaryInstrumentedCall != null || s.SelectedObservableInstances.Count > 0).ObserveOn(concurrencyService.DispatcherRxScheduler));
                 commandHandlerService.RegisterHandler(Commands.QuickEventList, quickEventListCommand)
                     .DisposeWith(disposables);
 

@@ -24,7 +24,9 @@ namespace ReactivityMonitor.Screens.SelectedCallsScreen
 
             observablesListViewModel.Observables = selectionService.WhenSelectionChanges
                 .ObserveOn(concurrencyService.TaskPoolRxScheduler)
-                .Select(selection => selection.SelectedInstrumentedCalls
+                .Select(selection => selection.SelectedInstrumentedCalls)
+                .DistinctUntilChanged()
+                .Select(calls => calls
                     .Select(c => c.ObservableInstances)
                     .Merge()
                     .ToObservableChangeSet(obs => obs.ObservableId))
@@ -32,6 +34,12 @@ namespace ReactivityMonitor.Screens.SelectedCallsScreen
 
             this.WhenActivated((CompositeDisposable disposables) =>
             {
+                observablesListViewModel.WhenSelectionChanges
+                    .OnItemAdded(obs => selectionService.ChangeSelection(s => s.AddObservableInstance(obs)))
+                    .OnItemRemoved(obs => selectionService.ChangeSelection(s => s.RemoveObservableInstance(obs)))
+                    .Subscribe()
+                    .DisposeWith(disposables);
+
                 observablesListViewModel.Activator.Activate()
                     .DisposeWith(disposables);
             });

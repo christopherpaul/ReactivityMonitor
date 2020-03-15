@@ -77,5 +77,6 @@
 
     <Window.InputBindings>
         <KeyBinding Command="defs:Commands.ShowAddToConfiguration" Key="M" Modifiers="Ctrl" />
+        <KeyBinding Command="defs:Commands.QuickEventList" Key="E" Modifiers="Ctrl" />
     </Window.InputBindings>
 </Window>

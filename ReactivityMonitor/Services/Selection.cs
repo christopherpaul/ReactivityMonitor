@@ -12,15 +12,17 @@ namespace ReactivityMonitor.Services
 {
     public sealed class Selection
     {
-        public static Selection Empty { get; } = new Selection(default, default, default);
+        public static Selection Empty { get; } = new Selection(default, default, default, default);
 
         private readonly Selected<IInstrumentedCall> mCallSelection;
+        private readonly Selected<IObservableInstance> mObservableSelection;
         private readonly Selected<EventItem> mEventSelection;
 
-        private Selection(IWorkspace workspace, Selected<IInstrumentedCall> callSelection, Selected<EventItem> eventSelection)
+        private Selection(IWorkspace workspace, Selected<IInstrumentedCall> callSelection, Selected<IObservableInstance> observableSelection, Selected<EventItem> eventSelection)
         {
             Workspace = workspace;
             mCallSelection = callSelection;
+            mObservableSelection = observableSelection;
             mEventSelection = eventSelection;
         }
 
@@ -31,32 +33,7 @@ namespace ReactivityMonitor.Services
                 return this;
             }
 
-            return new Selection(workspace, mCallSelection, mEventSelection);
-        }
-
-        public Selection SetEvent(EventItem eventItem)
-        {
-            return ChangeEvents(mEventSelection.Single(eventItem));
-        }
-
-        public Selection AddEvent(EventItem eventItem)
-        {
-            return ChangeEvents(mEventSelection.Add(eventItem));
-        }
-
-        public Selection RemoveEvent(EventItem eventItem)
-        {
-            return ChangeEvents(mEventSelection.Remove(eventItem));
-        }
-
-        public Selection ClearEvent()
-        {
-            return ChangeEvents(default);
-        }
-
-        private Selection ChangeEvents(Selected<EventItem> eventSelection)
-        {
-            return new Selection(Workspace, mCallSelection, eventSelection);
+            return new Selection(workspace, mCallSelection, mObservableSelection, mEventSelection);
         }
 
         public Selection SetCall(IInstrumentedCall call)
@@ -81,14 +58,66 @@ namespace ReactivityMonitor.Services
 
         private Selection ChangeCalls(Selected<IInstrumentedCall> callSelection)
         {
-            return new Selection(Workspace, callSelection, mEventSelection);
+            return new Selection(Workspace, callSelection, mObservableSelection, mEventSelection);
+        }
+
+        public Selection SetObservableInstance(IObservableInstance observable)
+        {
+            return ChangeObservables(mObservableSelection.Single(observable));
+        }
+
+        public Selection AddObservableInstance(IObservableInstance observable)
+        {
+            return ChangeObservables(mObservableSelection.Add(observable));
+        }
+
+        public Selection RemoveObservableInstance(IObservableInstance observable)
+        {
+            return ChangeObservables(mObservableSelection.Remove(observable));
+        }
+
+        public Selection ClearObservableInstances()
+        {
+            return ChangeObservables(default);
+        }
+
+        private Selection ChangeObservables(Selected<IObservableInstance> observableSelection)
+        {
+            return new Selection(Workspace, mCallSelection, observableSelection, mEventSelection);
+        }
+
+        public Selection SetEvent(EventItem eventItem)
+        {
+            return ChangeEvents(mEventSelection.Single(eventItem));
+        }
+
+        public Selection AddEvent(EventItem eventItem)
+        {
+            return ChangeEvents(mEventSelection.Add(eventItem));
+        }
+
+        public Selection RemoveEvent(EventItem eventItem)
+        {
+            return ChangeEvents(mEventSelection.Remove(eventItem));
+        }
+
+        public Selection ClearEvent()
+        {
+            return ChangeEvents(default);
+        }
+
+        private Selection ChangeEvents(Selected<EventItem> eventSelection)
+        {
+            return new Selection(Workspace, mCallSelection, mObservableSelection, eventSelection);
         }
 
         public IWorkspace Workspace { get; }
-        public EventItem PrimaryEventItem => mEventSelection.Primary;
-        public IImmutableList<EventItem> SelectedEventItems => mEventSelection.All;
         public IInstrumentedCall PrimaryInstrumentedCall => mCallSelection.Primary;
         public IImmutableList<IInstrumentedCall> SelectedInstrumentedCalls => mCallSelection.All;
+        public IObservableInstance PrimaryObservableInstance => mObservableSelection.Primary;
+        public IImmutableList<IObservableInstance> SelectedObservableInstances => mObservableSelection.All;
+        public EventItem PrimaryEventItem => mEventSelection.Primary;
+        public IImmutableList<EventItem> SelectedEventItems => mEventSelection.All;
 
         private struct Selected<T> where T : class
         {

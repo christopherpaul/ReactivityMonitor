@@ -64,7 +64,7 @@
 
                                 <StackPanel.ContextMenu>
                                     <ContextMenu>
-                                        <MenuItem Header="Quick _event list" Command="defs:Commands.QuickEventList" />
+                                        <MenuItem Header="Quick _event list" InputGestureText="Ctrl+E" Command="defs:Commands.QuickEventList" />
                                     </ContextMenu>
                                 </StackPanel.ContextMenu>
                             </StackPanel>
