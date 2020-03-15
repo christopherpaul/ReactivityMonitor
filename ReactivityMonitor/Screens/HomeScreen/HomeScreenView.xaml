@@ -9,13 +9,45 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              >
-    <DockPanel>
-        <TabControl ItemsSource="{Binding DocumentScreens}" SelectedItem="{Binding ActiveDocumentScreen}">
-            <TabControl.ItemTemplate>
-                <DataTemplate>
-                    <TextBlock Text="{Binding DisplayName, Mode=OneWay}" />
-                </DataTemplate>
-            </TabControl.ItemTemplate>
-        </TabControl>
-    </DockPanel>
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*" />
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="1*" />
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <!-- Main content -->
+        <Grid Grid.Column="0" Grid.Row="0" Grid.RowSpan="3">
+            <TabControl ItemsSource="{Binding DocumentScreens}" SelectedItem="{Binding ActiveDocumentScreen}">
+                <TabControl.ItemTemplate>
+                    <DataTemplate>
+                        <TextBlock Text="{Binding DisplayName, Mode=OneWay}" />
+                    </DataTemplate>
+                </TabControl.ItemTemplate>
+            </TabControl>
+        </Grid>
+        
+        <!-- Selected 1 -->
+        <Grid Grid.Column="2" Grid.Row="0">
+            <ContentControl Content="{Binding SelectedCallsScreen}" />
+        </Grid>
+        
+        <!-- Selected 2 -->
+        <Grid Grid.Column="2" Grid.Row="2">
+            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center">Selected 2 will go here</TextBlock>
+        </Grid>
+        
+        <!-- Splitters -->
+        <GridSplitter Grid.Column="1" Grid.Row="0" Grid.RowSpan="3" Width="3" 
+                      VerticalAlignment="Stretch" ResizeDirection="Columns" ResizeBehavior="PreviousAndNext" />
+
+        <GridSplitter Grid.Column="2" Grid.Row="1" Height="3"
+                      HorizontalAlignment="Stretch" ResizeDirection="Rows" ResizeBehavior="PreviousAndNext" />
+    </Grid>
 </UserControl>

@@ -22,6 +22,7 @@ namespace ReactivityMonitor
     using ReactivityMonitor.Screens.MonitoringScreen;
     using ReactivityMonitor.Screens.ObservablesScreen;
     using ReactivityMonitor.Screens.PayloadScreen;
+    using ReactivityMonitor.Screens.SelectedCallsScreen;
     using ReactivityMonitor.Services;
     using ReactivityMonitor.Workspace;
 
@@ -94,6 +95,8 @@ namespace ReactivityMonitor
             mContainer.PerRequest<IPayloadScreen, PayloadScreenViewModel>();
             mContainer.PerRequest<IAddMethodDialog, AddMethodDialogViewModel>();
             mContainer.PerRequest<IQuickEventListDialog, QuickEventListDialogViewModel>();
+            mContainer.PerRequest<IObservablesList, ObservablesListViewModel>();
+            mContainer.PerRequest<ISelectedCallsScreen, SelectedCallsScreenViewModel>();
         }
 
         protected override object GetInstance(Type service, string key)

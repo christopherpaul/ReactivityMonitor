@@ -117,12 +117,18 @@
     <Compile Include="Screens\EventListScreen\EventListViewModel.cs" />
     <Compile Include="Screens\EventListScreen\IEventList.cs" />
     <Compile Include="Screens\EventListScreen\IEventListScreen.cs" />
+    <Compile Include="Screens\IToolScreen.cs" />
     <Compile Include="Screens\IWorkspaceDocumentScreen.cs" />
     <Compile Include="Screens\MonitoringConfigurationScreen\IMonitoringConfigurationScreen.cs" />
     <Compile Include="Screens\MonitoringConfigurationScreen\MonitoringConfigurationScreenView.xaml.cs">
       <DependentUpon>MonitoringConfigurationScreenView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Screens\MonitoringConfigurationScreen\MonitoringConfigurationScreenViewModel.cs" />
+    <Compile Include="Screens\ObservablesScreen\IObservablesList.cs" />
+    <Compile Include="Screens\ObservablesScreen\ObservablesListView.xaml.cs">
+      <DependentUpon>ObservablesListView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Screens\ObservablesScreen\ObservablesListViewModel.cs" />
     <Compile Include="Screens\PayloadScreen\PayloadScreenView.xaml.cs">
       <DependentUpon>PayloadScreenView.xaml</DependentUpon>
     </Compile>
@@ -160,6 +166,11 @@
     <Compile Include="Screens\ObservablesScreen\ObservablesScreenViewModel.cs" />
     <Compile Include="Screens\PayloadScreen\IPayloadScreen.cs" />
     <Compile Include="Screens\PayloadScreen\PayloadScreenViewModel.cs" />
+    <Compile Include="Screens\SelectedCallsScreen\ISelectedCallsScreen.cs" />
+    <Compile Include="Screens\SelectedCallsScreen\SelectedCallsScreenView.xaml.cs">
+      <DependentUpon>SelectedCallsScreenView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Screens\SelectedCallsScreen\SelectedCallsScreenViewModel.cs" />
     <Compile Include="Services\CommandHandlerService.cs" />
     <Compile Include="Services\ConcurrencyService.cs" />
     <Compile Include="Services\ConnectionService.cs" />
@@ -224,6 +235,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Screens\ObservablesScreen\ObservablesListView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Screens\PayloadScreen\PayloadScreenView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -241,6 +256,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Screens\ObservablesScreen\ObservablesScreenView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Screens\SelectedCallsScreen\SelectedCallsScreenView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

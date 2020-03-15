@@ -1,0 +1,32 @@
+﻿<UserControl x:Class="ReactivityMonitor.Screens.ObservablesScreen.ObservablesListView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:ReactivityMonitor.Screens.ObservablesScreen"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid>
+
+        <DataGrid Grid.Column="0" ItemsSource="{Binding Items}" AutoGenerateColumns="False" IsReadOnly="True"
+                  SelectionChanged="DataGrid_SelectionChanged">
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Sequence" Binding="{Binding SequenceId, Mode=OneTime}" />
+                <DataGridTextColumn Header="Created" Binding="{Binding Timestamp, Mode=OneTime}" />
+                <DataGridTextColumn Header="Thread" Binding="{Binding ThreadId, Mode=OneTime}" />
+                <DataGridTextColumn Header="Active subs" Binding="{Binding SubscriptionCount, Mode=OneWay}" />
+            </DataGrid.Columns>
+
+            <DataGrid.RowStyle>
+                <Style TargetType="{x:Type DataGridRow}">
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding SubscriptionCount, Mode=OneWay}" Value="0">
+                            <Setter Property="Foreground" Value="Gray" />
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </DataGrid.RowStyle>
+        </DataGrid>
+
+    </Grid>
+</UserControl>
