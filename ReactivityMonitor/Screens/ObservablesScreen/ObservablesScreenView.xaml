@@ -12,26 +12,8 @@
             <ColumnDefinition Width="5" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
-        
-        <DataGrid Grid.Column="0" ItemsSource="{Binding Items}" AutoGenerateColumns="False" IsReadOnly="True"
-                  SelectionChanged="DataGrid_SelectionChanged">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Sequence" Binding="{Binding SequenceId, Mode=OneTime}" />
-                <DataGridTextColumn Header="Created" Binding="{Binding Timestamp, Mode=OneTime}" />
-                <DataGridTextColumn Header="Thread" Binding="{Binding ThreadId, Mode=OneTime}" />
-                <DataGridTextColumn Header="Active subs" Binding="{Binding SubscriptionCount, Mode=OneWay}" />
-            </DataGrid.Columns>
 
-            <DataGrid.RowStyle>
-                <Style TargetType="{x:Type DataGridRow}">
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding SubscriptionCount, Mode=OneWay}" Value="0">
-                            <Setter Property="Foreground" Value="Gray" />
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </DataGrid.RowStyle>
-        </DataGrid>
+        <ContentControl Grid.Column="0" Content="{Binding ObservablesList}" />
 
         <GridSplitter Grid.Column="1" HorizontalAlignment="Stretch" />
 
