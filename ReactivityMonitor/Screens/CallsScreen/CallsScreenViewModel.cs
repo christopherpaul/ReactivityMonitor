@@ -32,7 +32,7 @@ namespace ReactivityMonitor.Screens.CallsScreen
             {
                 modules.Clear();
 
-                Model.Modules
+                Workspace.Model.Modules
                     .ToObservableChangeSet(m => m.ModuleId)
                     .Transform(module =>
                     {
@@ -61,7 +61,6 @@ namespace ReactivityMonitor.Screens.CallsScreen
             });
         }
 
-        public IReactivityModel Model { get; set; }
         public IWorkspace Workspace { get; set; }
 
         public ReadOnlyObservableCollection<ModuleItem> Modules { get; }

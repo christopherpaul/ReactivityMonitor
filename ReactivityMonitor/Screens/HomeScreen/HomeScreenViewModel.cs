@@ -28,7 +28,6 @@ namespace ReactivityMonitor.Screens.HomeScreen
     public sealed class HomeScreenViewModel : ReactiveScreen, IHomeScreen
     {
         public HomeScreenViewModel(
-            IWorkspace workspace, 
             IScreenFactory screenFactory,
             IConcurrencyService concurrencyService,
             ICommandHandlerService commandHandlerService,
@@ -44,27 +43,19 @@ namespace ReactivityMonitor.Screens.HomeScreen
 
             WhenActivated(disposables =>
             {
-                DisplayName = ConnectionModel.Name;
+                DisplayName = Workspace.Name;
 
                 isUpdating.Subscribe(x =>
                 {
                     if (x)
                     {
-                        ConnectionModel.ResumeUpdates();
+                        Workspace.ResumeUpdates();
                     }
                     else
                     {
-                        ConnectionModel.PauseUpdates();
+                        Workspace.PauseUpdates();
                     }
                 }).DisposeWith(disposables);
-
-                // Tell model we want to monitor the calls as dictated by the workspace
-                workspace.MonitoredCalls
-                    .Transform(call => call.Call.InstrumentedCallId)
-                    .OnItemAdded(ConnectionModel.StartMonitoringCall)
-                    .OnItemRemoved(ConnectionModel.StopMonitoringCall)
-                    .Subscribe()
-                    .DisposeWith(disposables);
 
                 attachGoPauseHandlers(commandHandlerService).DisposeWith(disposables);
 
@@ -72,11 +63,11 @@ namespace ReactivityMonitor.Screens.HomeScreen
                 commandHandlerService.RegisterHandler(Commands.CloseWorkspace, closeCommand)
                     .DisposeWith(disposables);
 
-                addMethodDialog.Model = ConnectionModel.Model;
+                addMethodDialog.Model = Workspace.Model;
                 var addMethodToConfigCommand = ReactiveUI.ReactiveCommand.Create(async () =>
                 {
                     var methodToAdd = await dialogService.ShowDialogContent(addMethodDialog);
-                    workspace.AddMethod(methodToAdd);
+                    Workspace.AddMethod(methodToAdd);
                 });
                 commandHandlerService.RegisterHandler(Commands.ShowAddToConfiguration, addMethodToConfigCommand)
                     .DisposeWith(disposables);
@@ -100,8 +91,7 @@ namespace ReactivityMonitor.Screens.HomeScreen
                     .ToObservableChangeSet()
                     .OnItemAdded(s =>
                     {
-                        s.Model = ConnectionModel.Model;
-                        s.Workspace = workspace;
+                        s.Workspace = Workspace;
                     })
                     .ObserveOn(concurrencyService.DispatcherRxScheduler)
                     .Bind(out var documentScreens)
@@ -112,7 +102,7 @@ namespace ReactivityMonitor.Screens.HomeScreen
             });
         }
 
-        public IConnectionModel ConnectionModel { get; set; }
+        public IWorkspace Workspace { get; set; }
 
         public ReadOnlyObservableCollection<IWorkspaceDocumentScreen> DocumentScreens { get; private set; }
 

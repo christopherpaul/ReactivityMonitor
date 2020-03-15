@@ -17,7 +17,8 @@ namespace ReactivityMonitor
     public class ShellViewModel : ReactiveConductor<IScreen>, IShell
     {
         public ShellViewModel(IConnectionService connectionService, IScreenFactory screenFactory,
-            IDialogService dialogService, IConcurrencyService concurrencyService)
+            IDialogService dialogService, IConcurrencyService concurrencyService,
+            IWorkspaceFactory workspaceFactory, ISelectionService selectionService)
         {
             DisplayName = "Reactivity Monitor";
 
@@ -38,6 +39,10 @@ namespace ReactivityMonitor
                     .Subscribe(title => DisplayName = title)
                     .DisposeWith(disposables);
 
+                this.WhenAnyValue(x => x.ActiveItem)
+                    .Subscribe(item => selectionService.ChangeSelection(s => s.SetWorkspace((item as IHomeScreen)?.Workspace)))
+                    .DisposeWith(disposables);
+
                 Disposable.Create(connectionService.Close).DisposeWith(disposables);
 
                 concreteDialogService.WhenDialogViewModelChanges
@@ -56,8 +61,8 @@ namespace ReactivityMonitor
                 }
                 else
                 {
-                    var homeScreen = screenFactory.CreateHomeScreen();
-                    homeScreen.ConnectionModel = conn;
+                    var workspace = workspaceFactory.CreateWorkspace(conn);
+                    var homeScreen = screenFactory.CreateHomeScreen(workspace);
                     return homeScreen;
                 }
             }

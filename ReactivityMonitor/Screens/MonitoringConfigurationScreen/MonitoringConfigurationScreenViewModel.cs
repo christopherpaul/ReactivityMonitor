@@ -69,7 +69,6 @@ namespace ReactivityMonitor.Screens.MonitoringConfigurationScreen
             set => this.RaiseAndSetIfChanged(ref mSelectedItem, value);
         }
 
-        public IReactivityModel Model { get; set; }
         public IWorkspace Workspace { get; set; }
 
         public ReadOnlyObservableCollection<MethodItem> Methods { get; }

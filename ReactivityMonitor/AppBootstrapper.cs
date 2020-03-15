@@ -74,7 +74,8 @@ namespace ReactivityMonitor
             mContainer.Singleton<ISelectionService, SelectionService>();
 
             // Units of work
-            mContainer.PerRequest<IWorkspace, Workspace.Workspace>();
+            mContainer.Singleton<IWorkspaceFactory, WorkspaceFactory>();
+            mContainer.PerRequest<IWorkspaceBuilder, Workspace.Workspace>();
 
             // Screens etc.
             mContainer.Singleton<IScreenFactory, ScreenFactory>();

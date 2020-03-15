@@ -88,6 +88,7 @@
     <Compile Include="Infrastructure\ReactiveViewModel.cs" />
     <Compile Include="Infrastructure\TraceLogger.cs" />
     <Compile Include="Infrastructure\WindowManagerEx.cs" />
+    <Compile Include="IWorkspaceFactory.cs" />
     <Compile Include="Resources\Constants.cs" />
     <Compile Include="ScreenFactory.cs" />
     <Compile Include="Screens\CallsScreen\CallsScreenView.xaml.cs">
@@ -176,6 +177,7 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="WorkspaceFactory.cs" />
     <Compile Include="Workspace\IMonitoredCall.cs" />
     <Compile Include="Workspace\IMonitoringGroup.cs" />
     <Compile Include="Workspace\IWorkspace.cs" />

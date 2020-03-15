@@ -1,5 +1,6 @@
 ﻿using ReactivityMonitor.Model;
 using ReactivityMonitor.Screens.EventListScreen;
+using ReactivityMonitor.Workspace;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -11,15 +12,25 @@ namespace ReactivityMonitor.Services
 {
     public sealed class Selection
     {
-        public static Selection Empty { get; } = new Selection(null, ImmutableList<EventItem>.Empty, null, ImmutableList<IInstrumentedCall>.Empty);
+        public static Selection Empty { get; } = new Selection(null, null, ImmutableList<EventItem>.Empty, null, ImmutableList<IInstrumentedCall>.Empty);
 
-        private Selection(EventItem primaryEventItem, IImmutableList<EventItem> selectedEventItems,
+        private Selection(IWorkspace workspace, EventItem primaryEventItem, IImmutableList<EventItem> selectedEventItems,
             IInstrumentedCall primaryInstrumentedCall, IImmutableList<IInstrumentedCall> selectedInstrumentedCalls)
         {
             PrimaryEventItem = primaryEventItem;
             SelectedEventItems = selectedEventItems;
             PrimaryInstrumentedCall = primaryInstrumentedCall;
             SelectedInstrumentedCalls = selectedInstrumentedCalls;
+        }
+
+        public Selection SetWorkspace(IWorkspace workspace)
+        {
+            if (Workspace == workspace)
+            {
+                return this;
+            }
+
+            return new Selection(workspace, null, Empty.SelectedEventItems, null, Empty.SelectedInstrumentedCalls);
         }
 
         public Selection SetEvent(EventItem eventItem)
@@ -44,7 +55,7 @@ namespace ReactivityMonitor.Services
 
         private Selection ChangeEvents(EventItem primary, IImmutableList<EventItem> selected)
         {
-            return new Selection(primary, selected, PrimaryInstrumentedCall, SelectedInstrumentedCalls);
+            return new Selection(Workspace, primary, selected, PrimaryInstrumentedCall, SelectedInstrumentedCalls);
         }
 
         public Selection SetCall(IInstrumentedCall call)
@@ -70,9 +81,10 @@ namespace ReactivityMonitor.Services
 
         private Selection ChangeCalls(IInstrumentedCall primary, IImmutableList<IInstrumentedCall> selected)
         {
-            return new Selection(PrimaryEventItem, SelectedEventItems, primary, selected);
+            return new Selection(Workspace, PrimaryEventItem, SelectedEventItems, primary, selected);
         }
 
+        public IWorkspace Workspace { get; }
         public EventItem PrimaryEventItem { get; }
         public IImmutableList<EventItem> SelectedEventItems { get; }
         public IInstrumentedCall PrimaryInstrumentedCall { get; }

@@ -12,7 +12,6 @@ namespace ReactivityMonitor.Screens
     public interface IWorkspaceDocumentScreen
     {
         string DisplayName { get; }
-        IReactivityModel Model { get; set; }
         IWorkspace Workspace { get; set; }
     }
 }

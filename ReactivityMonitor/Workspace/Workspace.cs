@@ -4,12 +4,14 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DynamicData;
+using ReactivityMonitor.Connection;
 using ReactivityMonitor.Model;
 
 namespace ReactivityMonitor.Workspace
 {
-    public sealed class Workspace : IWorkspace
+    public sealed class Workspace : IWorkspaceBuilder
     {
+        private IConnectionModel mConnectionModel;
         private ISourceCache<IMonitoredCall, int> mMonitoredCalls;
         private ISourceList<IMonitoringGroup> mMonitoringGroups;
         private ISourceCache<IInstrumentedMethod, int> mMethods;
@@ -24,6 +26,10 @@ namespace ReactivityMonitor.Workspace
             MonitoringGroups = mMonitoringGroups.Connect();
             Methods = mMethods.Connect().RemoveKey();
         }
+
+        public string Name => mConnectionModel.Name;
+
+        public IReactivityModel Model => mConnectionModel.Model;
 
         public IObservable<IChangeSet<IInstrumentedMethod>> Methods { get; }
 
@@ -69,6 +75,38 @@ namespace ReactivityMonitor.Workspace
         public void StopMonitoringCall(IInstrumentedCall call)
         {
             mMonitoredCalls.RemoveKey(call.InstrumentedCallId);
+        }
+
+        public void Initialise(IConnectionModel connectionModel)
+        {
+            if (mConnectionModel != null)
+            {
+                throw new InvalidOperationException($"{nameof(Initialise)} can only be called once.");
+            }
+
+            mConnectionModel = connectionModel ?? throw new ArgumentNullException(nameof(connectionModel));
+
+            // Tell model we want to monitor the calls as dictated by the workspace
+            MonitoredCalls
+                .Transform(call => call.Call.InstrumentedCallId)
+                .OnItemAdded(mConnectionModel.StartMonitoringCall)
+                .OnItemRemoved(mConnectionModel.StopMonitoringCall)
+                .Subscribe();
+        }
+
+        public void PauseUpdates()
+        {
+            mConnectionModel.PauseUpdates();
+        }
+
+        public void ResumeUpdates()
+        {
+            mConnectionModel.ResumeUpdates();
+        }
+
+        public void RequestObjectProperties(PayloadObject obj)
+        {
+            mConnectionModel.RequestObjectProperties(obj.ObjectId);
         }
     }
 }

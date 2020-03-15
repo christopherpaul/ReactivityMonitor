@@ -1,6 +1,7 @@
 ﻿using Caliburn.Micro;
 using ReactivityMonitor.Connection;
 using ReactivityMonitor.Screens.CallsScreen;
+using ReactivityMonitor.Workspace;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,6 @@ namespace ReactivityMonitor.Screens.HomeScreen
 {
     public interface IHomeScreen : IScreen
     {
-        IConnectionModel ConnectionModel { get; set; }
+        IWorkspace Workspace { get; set; }
     }
 }

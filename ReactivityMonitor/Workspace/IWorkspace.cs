@@ -1,4 +1,5 @@
 ﻿using DynamicData;
+using ReactivityMonitor.Connection;
 using ReactivityMonitor.Model;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,14 @@ namespace ReactivityMonitor.Workspace
 {
     public interface IWorkspace
     {
+        string Name { get; }
+        IReactivityModel Model { get; }
+
+        void PauseUpdates();
+        void ResumeUpdates();
+
+        void RequestObjectProperties(PayloadObject obj);
+
         IObservable<IChangeSet<IInstrumentedMethod>> Methods { get; }
 
         void AddMethod(IInstrumentedMethod method);
@@ -24,5 +33,10 @@ namespace ReactivityMonitor.Workspace
 
         IMonitoringGroup CreateMonitoringGroup(string name);
         void DeleteMonitoringGroup(IMonitoringGroup group);
+    }
+
+    public interface IWorkspaceBuilder : IWorkspace
+    {
+        void Initialise(IConnectionModel connectionModel);
     }
 }
