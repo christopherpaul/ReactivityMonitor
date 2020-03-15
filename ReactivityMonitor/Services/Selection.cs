@@ -17,6 +17,7 @@ namespace ReactivityMonitor.Services
         private Selection(IWorkspace workspace, EventItem primaryEventItem, IImmutableList<EventItem> selectedEventItems,
             IInstrumentedCall primaryInstrumentedCall, IImmutableList<IInstrumentedCall> selectedInstrumentedCalls)
         {
+            Workspace = workspace;
             PrimaryEventItem = primaryEventItem;
             SelectedEventItems = selectedEventItems;
             PrimaryInstrumentedCall = primaryInstrumentedCall;
