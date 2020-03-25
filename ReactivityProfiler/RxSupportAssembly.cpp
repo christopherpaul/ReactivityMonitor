@@ -14,14 +14,13 @@ const wchar_t* GetSupportAssemblyName()
 std::wstring GetSupportAssemblyPath()
 {
     std::vector<wchar_t> buffer(100);
-    HRESULT hr;
-    while ((hr = GetModuleFileName(g_profilerModule, buffer.data(), static_cast<DWORD>(buffer.size()))) == ERROR_INSUFFICIENT_BUFFER)
+    while (GetModuleFileName(g_profilerModule, buffer.data(), static_cast<DWORD>(buffer.size())) >= buffer.size())
     {
         buffer = std::vector<wchar_t>(buffer.size() * 2);
     }
 
     std::wstring thisDllPath(buffer.data());
-
+    ATLTRACE(L"Profiler: %s", thisDllPath.c_str());
     return thisDllPath.substr(0, thisDllPath.find_last_of(L'\\') + 1);
 }
 
