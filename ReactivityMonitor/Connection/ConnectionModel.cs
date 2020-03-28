@@ -15,7 +15,7 @@ namespace ReactivityMonitor.Connection
     {
         private readonly ISourceCache<int, int> mMonitoredCalls;
         private readonly Action<ObjectDataRequest> mMakeObjectDataRequest;
-        private readonly Client mClient;
+        private readonly ProfilerClient.Connection mClient;
 
         public ConnectionModel(Server server)
         {
@@ -28,7 +28,7 @@ namespace ReactivityMonitor.Connection
 
             var profilerControl = new ProfilerControl(mMonitoredCalls.Connect(), objectDataRequestSubject);
 
-            mClient = Client.Create(server.PipeName, profilerControl);
+            mClient = ProfilerClient.Connection.Create(server.PipeName, profilerControl);
 
             Model = ReactivityModel.Create(mClient.ModelUpdateSource);
         }

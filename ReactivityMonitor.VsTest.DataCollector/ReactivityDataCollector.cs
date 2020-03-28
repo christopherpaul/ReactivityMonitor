@@ -75,7 +75,7 @@ namespace ReactivityMonitor.VsTest
             var incomingRawMessages = Observable.Using(() => OpenDataFile(mDataFilePath),
                 writer =>
                 {
-                    return ServerCommunication.CreateRawChannel(mProcessSetup.PipeName, outgoingMessages)
+                    return ProfilerCommunication.CreateRawChannel(mProcessSetup.PipeName, outgoingMessages)
                         .Do(msg =>
                         {
                             writer.Write(msg.Length);
