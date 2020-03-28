@@ -28,5 +28,8 @@ namespace ReactivityProfiler.Support
 
         [DllImport("ReactivityProfiler.dll", CharSet = CharSet.Unicode)]
         public extern static void SetChannelPipeName(string pipeName);
+
+        [DllImport("ReactivityProfiler.dll")]
+        public extern static unsafe long* GetCommonSequenceIdSource();
     }
 }

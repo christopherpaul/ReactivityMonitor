@@ -11,3 +11,4 @@ EXPORTS
 	GetStoreEventCount
 	ReadStoreEvent
 	SetChannelPipeName
+	GetCommonSequenceIdSource
