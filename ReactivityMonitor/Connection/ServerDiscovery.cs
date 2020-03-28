@@ -42,10 +42,10 @@ namespace ReactivityMonitor.Connection
             try
             {
                 using (var software = Registry.CurrentUser.OpenSubKey(cSoftware))
-                using (var product = software.OpenSubKey(cProduct))
-                using (var servers = product.OpenSubKey(cServers))
+                using (var product = software?.OpenSubKey(cProduct))
+                using (var servers = product?.OpenSubKey(cServers))
                 {
-                    foreach (string subKey in servers.GetSubKeyNames())
+                    foreach (string subKey in servers?.GetSubKeyNames() ?? Enumerable.Empty<string>())
                     {
                         if (!int.TryParse(subKey, out int processId))
                         {
