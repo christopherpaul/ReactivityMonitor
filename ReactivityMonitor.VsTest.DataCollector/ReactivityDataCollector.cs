@@ -15,6 +15,8 @@ using Google.Protobuf;
 using Microsoft.VisualStudio.TestPlatform.ObjectModel.DataCollection;
 using ReactivityMonitor.ProfilerClient;
 using ReactivityProfiler.Protocol;
+using ReactivityMonitor.Utility.Extensions;
+using ReactivityMonitor.Utility.Flyweights;
 
 namespace ReactivityMonitor.VsTest
 {
@@ -25,10 +27,11 @@ namespace ReactivityMonitor.VsTest
         private readonly string mTempFolder = Path.Combine(Path.GetTempPath(), $"{nameof(ReactivityDataCollector)}-{Guid.NewGuid().ToString("D")}");
         private readonly ProcessSetup mProcessSetup;
         private IObservable<Unit> mFileWriterThing;
+        private Action mSessionEnded = () => { };
         private string mDataFilePath;
         private DataCollectionSink mDataSink;
         private Action<RequestMessage> mSendMessage;
-        private IObservable<ClientEvent> mReceivedClientEvents; // cold
+        private IObservable<string> mLatestEndedTestName; // cold; null means no active connections
 
         private const int cStartTestCaseEventId = 1;
         private const int cEndTestCaseEventId = 2;
@@ -72,31 +75,79 @@ namespace ReactivityMonitor.VsTest
                 .Select(msg => msg.ToByteArray())
                 .Concat(Observable.Never<byte[]>()); // don't close pipe from this end
 
-            var incomingRawMessages = Observable.Using(() => OpenDataFile(mDataFilePath),
+            var incomingRawMessageStreams = ProfilerCommunication.CreateRawChannel(mProcessSetup.PipeName, outgoingMessages)
+                .Publish();
+
+            var incomingMessageStreams = incomingRawMessageStreams
+                .Select(rawMessages => rawMessages.Select(EventMessage.Parser.ParseFrom));
+
+            var receivedClientEventStreams = incomingMessageStreams
+                .Select(messages => messages
+                    .Where(m => m.EventCase == EventMessage.EventOneofCase.ClientEvent)
+                    .Select(m => m.ClientEvent)
+                    .Replay(1));
+
+            var latestEndedTest =
+                Observable.Defer(() =>
+                {
+                    var returnNull = Observable.Return((string)null);
+                    var latestTestPerStream = new Dictionary<int, string>();
+                    return receivedClientEventStreams
+                        .SelectMany((clientEvents, streamNumber) => clientEvents
+                            .Where(ev => ev.Id == cEndTestCaseEventId)
+                            .Select(ev => ev.Name)
+                            .StartWith(string.Empty)
+                            .Concat(returnNull)
+                            .Select(testName => (streamNumber, testName)))
+                        .Select(item =>
+                        {
+                            latestTestPerStream[item.streamNumber] = item.testName;
+                            if (item.testName is null)
+                            {
+                                latestTestPerStream.Remove(item.streamNumber);
+                            }
+
+                            int count = latestTestPerStream.Values.Distinct().Take(2).Count();
+                            if (count == 0)
+                            {
+                                return null;
+                            }
+                            else if (count == 1)
+                            {
+                                return latestTestPerStream.Values.First();
+                            }
+                            else
+                            {
+                                return string.Empty;
+                            }
+                        })
+                        .Where(testName => testName != string.Empty);
+                })
+                .StartWith((string)null)
+                .Replay(1);
+
+            latestEndedTest.Connect();
+            mLatestEndedTestName = latestEndedTest.AsObservable();
+
+            var fileWriter = Observable.Using(() => OpenDataFile(mDataFilePath),
                 writer =>
                 {
-                    return ProfilerCommunication.CreateRawChannel(mProcessSetup.PipeName, outgoingMessages)
+                    return incomingRawMessageStreams
+                        .TakeUntil(Observable.FromEvent(h => mSessionEnded += h, h => mSessionEnded -= h))
+                        .Merge()
                         .Do(msg =>
                         {
                             writer.Write(msg.Length);
                             writer.Write(msg);
-                        });
+                        })
+                        .LastOrDefaultAsync()
+                        .Select(Funcs<byte[]>.DefaultOf<Unit>());
                 })
                 .Publish();
+            fileWriter.Connect();
+            mFileWriterThing = fileWriter.AsObservable();
 
-            var incomingMessages = incomingRawMessages
-                .Select(EventMessage.Parser.ParseFrom);
-
-            var receivedClientEvents = incomingMessages
-                .Where(m => m.EventCase == EventMessage.EventOneofCase.ClientEvent)
-                .Select(m => m.ClientEvent)
-                .Replay(1);
-
-            receivedClientEvents.Connect();
-            mReceivedClientEvents = receivedClientEvents.AsObservable();
-
-            incomingRawMessages.Connect();
-            mFileWriterThing = incomingRawMessages.Select(_ => Unit.Default).AsObservable();
+            incomingRawMessageStreams.Connect();
         }
 
         private void OnTestCaseStart(object sender, TestCaseStartEventArgs e)
@@ -137,7 +188,7 @@ namespace ReactivityMonitor.VsTest
                 }
             });
 
-            mReceivedClientEvents.FirstAsync(ev => ev.Id == cEndTestCaseEventId && ev.Name == testCaseId)
+            mLatestEndedTestName.FirstAsync(testName => testName is null || testName == testCaseId)
                 .Wait();
         }
 
@@ -145,6 +196,7 @@ namespace ReactivityMonitor.VsTest
         {
             Trace.TraceInformation("Session ended");
 
+            mSessionEnded();
             mFileWriterThing.LastOrDefaultAsync().Wait();
             mDataSink.SendFileAsync(e.Context, mDataFilePath, true);
         }

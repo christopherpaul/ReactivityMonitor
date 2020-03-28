@@ -24,6 +24,8 @@ namespace ReactivityMonitor.ProfilerClient
                 .MonitorSubscriptionCount(out var whenOutgoingMessagesSubscriptionCountChanges);
 
             var incomingMessages = ProfilerCommunication.CreateRawChannel(pipeName, outgoingMessages)
+                .Take(1) // for now just deal with the first connection
+                .Merge()
                 .Select(Protocol.EventMessage.Parser.ParseFrom);
 
             var modelUpdateSource = new ModelUpdateSource(incomingMessages);
