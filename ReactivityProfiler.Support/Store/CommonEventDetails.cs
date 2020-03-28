@@ -7,8 +7,6 @@ namespace ReactivityProfiler.Support.Store
 {
     internal struct CommonEventDetails
     {
-        private static long sEventSequenceIdSource;
-
         public CommonEventDetails(long eventSequenceId, DateTime timestamp, int threadId)
         {
             EventSequenceId = eventSequenceId;
@@ -19,7 +17,7 @@ namespace ReactivityProfiler.Support.Store
         public static CommonEventDetails Capture()
         {
             return new CommonEventDetails(
-                Interlocked.Increment(ref sEventSequenceIdSource),
+                SequenceIdSource.GetNext(),
                 DateTime.UtcNow, 
                 Thread.CurrentThread.ManagedThreadId);
         }
@@ -27,5 +25,20 @@ namespace ReactivityProfiler.Support.Store
         public long EventSequenceId { get; }
         public DateTime Timestamp { get; }
         public int ThreadId { get; }
+
+        private unsafe static class SequenceIdSource
+        {
+            private static long* sEventSequenceIdSource;
+
+            static SequenceIdSource()
+            {
+                sEventSequenceIdSource = NativeMethods.GetCommonSequenceIdSource();
+            }
+
+            public static long GetNext()
+            {
+                return Interlocked.Increment(ref *sEventSequenceIdSource);
+            }
+        }
     }
 }

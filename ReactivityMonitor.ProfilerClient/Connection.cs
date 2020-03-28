@@ -8,7 +8,7 @@ using ReactivityMonitor.Utility.Extensions;
 
 namespace ReactivityMonitor.ProfilerClient
 {
-    public sealed class Client
+    public sealed class Connection
     {
         private static readonly Protocol.RequestMessage cStartSendingInstrumentationEvents = new Protocol.RequestMessage
         {
@@ -16,14 +16,16 @@ namespace ReactivityMonitor.ProfilerClient
         };
         private readonly Func<IDisposable> mConnect;
 
-        public static Client Create(string pipeName, Model.IProfilerControl profilerControl)
+        public static Connection Create(string pipeName, Model.IProfilerControl profilerControl)
         {
             var outgoingMessages = profilerControl.GetControlMessages()
                 .StartWith(cStartSendingInstrumentationEvents)
                 .Select(msg => msg.ToByteArray())
                 .MonitorSubscriptionCount(out var whenOutgoingMessagesSubscriptionCountChanges);
 
-            var incomingMessages = ServerCommunication.CreateRawChannel(pipeName, outgoingMessages)
+            var incomingMessages = ProfilerCommunication.CreateRawChannel(pipeName, outgoingMessages)
+                .Take(1) // for now just deal with the first connection
+                .Merge()
                 .Select(Protocol.EventMessage.Parser.ParseFrom);
 
             var modelUpdateSource = new ModelUpdateSource(incomingMessages);
@@ -34,10 +36,10 @@ namespace ReactivityMonitor.ProfilerClient
                 .Publish(false)
                 .ConnectForEver();
 
-            return new Client(modelUpdateSource, modelUpdateSource.Connect, whenConnected);
+            return new Connection(modelUpdateSource, modelUpdateSource.Connect, whenConnected);
         }
 
-        private Client(Model.IModelUpdateSource modelUpdateSource, Func<IDisposable> connect, IObservable<bool> whenConnected)
+        private Connection(Model.IModelUpdateSource modelUpdateSource, Func<IDisposable> connect, IObservable<bool> whenConnected)
         {
             ModelUpdateSource = modelUpdateSource;
             mConnect = connect;

@@ -12,30 +12,37 @@ using System.Threading;
 
 namespace ReactivityMonitor.ProfilerClient
 {
-    public static class ServerCommunication
+    public static class ProfilerCommunication
     {
-        public static IObservable<byte[]> CreateRawChannel(string pipeName, IObservable<byte[]> outgoingMessages)
+        /// <summary>
+        /// Creates an observable that emits a raw message stream for each connection made
+        /// to the specified pipe.
+        /// </summary>
+        /// <param name="pipeName">Name of the pipe to receive connections on</param>
+        /// <param name="outgoingMessages">Outgoing messages to send through connected pipes</param>
+        public static IObservable<IObservable<byte[]>> CreateRawChannel(string pipeName, IObservable<byte[]> outgoingMessages)
         {
-            return Observable.Create((IObserver<byte[]> observer) =>
+            return Observable.FromAsync(async cancellationToken =>
             {
                 var disposables = new CompositeDisposable();
 
                 Trace.TraceInformation($"Creating pipe: {pipeName}");
-                var pipeStream = new NamedPipeClientStream(
-                    ".",
+                var pipeStream = new NamedPipeServerStream(
                     pipeName,
                     PipeDirection.InOut,
-                    PipeOptions.Asynchronous | PipeOptions.WriteThrough);
+                    maxNumberOfServerInstances: NamedPipeServerStream.MaxAllowedServerInstances,
+                    transmissionMode: PipeTransmissionMode.Message,
+                    options: PipeOptions.Asynchronous | PipeOptions.WriteThrough);
+                pipeStream.ReadMode = PipeTransmissionMode.Message;
 
                 disposables.Add(pipeStream);
 
-                var setupTask = Observable.FromAsync(async cancellationToken =>
-                {
-                    Trace.TraceInformation("Connecting to the server");
-                    await pipeStream.ConnectAsync(cancellationToken);
-                    pipeStream.ReadMode = PipeTransmissionMode.Message;
-                    Trace.TraceInformation("Connected to the server");
+                Trace.TraceInformation("Waiting for connection");
+                await pipeStream.WaitForConnectionAsync(cancellationToken).ConfigureAwait(false);
+                Trace.TraceInformation("Profiler has connected");
 
+                return Observable.Create((IObserver<byte[]> observer) =>
+                {
                     disposables.Add(outgoingMessages
                         .ObserveOn(NewThreadScheduler.Default)
                         .Subscribe(message => pipeStream.Write(message, 0, message.Length)));
@@ -45,13 +52,10 @@ namespace ReactivityMonitor.ProfilerClient
                         .SubscribeOn(NewThreadScheduler.Default)
                         .Subscribe(observer));
 
-                    return Unit.Default;
+                    return disposables;
                 });
-
-                disposables.Add(setupTask.Subscribe());
-
-                return disposables;
-            });
+            })
+            .Repeat();
         }
 
         private static IEnumerable<byte[]> ReadIncomingMessages(PipeStream pipeStream)
