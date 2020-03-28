@@ -14,7 +14,7 @@ namespace ReactivityProfiler.Support.Server
         private readonly Action<Stream> mMessageReceivedCallback;
         private readonly Action mConnectedCallback;
         private readonly Action mDisconnectedCallback;
-        private readonly NamedPipeServerStream mPipeStream;
+        private readonly NamedPipeClientStream mPipeStream;
         private readonly Thread mReaderThread;
         private readonly Thread mWriterThread;
         private readonly BlockingCollection<byte[]> mWriteQueue;
@@ -29,13 +29,11 @@ namespace ReactivityProfiler.Support.Server
             mDisconnectedCallback = disconnectedCallback;
             (mPipeName, mRegisterPipeName) = GetPipeName();
             Trace.TraceInformation($"Opening pipe: {mPipeName}");
-            mPipeStream = new NamedPipeServerStream(
-                mPipeName,
-                PipeDirection.InOut,
-                maxNumberOfServerInstances: 1,
-                transmissionMode: PipeTransmissionMode.Message,
-                options: PipeOptions.Asynchronous | PipeOptions.WriteThrough);
-            mPipeStream.ReadMode = PipeTransmissionMode.Message;
+            mPipeStream = new NamedPipeClientStream(
+                    ".",
+                    mPipeName,
+                    PipeDirection.InOut,
+                    PipeOptions.Asynchronous | PipeOptions.WriteThrough);
 
             var readerThread = new Thread(ReceiveMessages);
             readerThread.IsBackground = true;
@@ -118,9 +116,10 @@ namespace ReactivityProfiler.Support.Server
                     Registry.SetChannelPipeName(mPipeName);
                 }
 
-                Trace.TraceInformation("Waiting for client to connect");
-                mPipeStream.WaitForConnection();
-                Trace.TraceInformation("Client has connected");
+                Trace.TraceInformation("Connecting to server");
+                mPipeStream.Connect();
+                mPipeStream.ReadMode = PipeTransmissionMode.Message;
+                Trace.TraceInformation("Connected to server");
 
                 mConnectedCallback?.Invoke();
 

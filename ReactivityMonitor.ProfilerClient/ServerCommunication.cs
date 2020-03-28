@@ -21,20 +21,21 @@ namespace ReactivityMonitor.ProfilerClient
                 var disposables = new CompositeDisposable();
 
                 Trace.TraceInformation($"Creating pipe: {pipeName}");
-                var pipeStream = new NamedPipeClientStream(
-                    ".",
+                var pipeStream = new NamedPipeServerStream(
                     pipeName,
                     PipeDirection.InOut,
-                    PipeOptions.Asynchronous | PipeOptions.WriteThrough);
+                    maxNumberOfServerInstances: NamedPipeServerStream.MaxAllowedServerInstances,
+                    transmissionMode: PipeTransmissionMode.Message,
+                    options: PipeOptions.Asynchronous | PipeOptions.WriteThrough);
+                pipeStream.ReadMode = PipeTransmissionMode.Message;
 
                 disposables.Add(pipeStream);
 
                 var setupTask = Observable.FromAsync(async cancellationToken =>
                 {
-                    Trace.TraceInformation("Connecting to the server");
-                    await pipeStream.ConnectAsync(cancellationToken);
-                    pipeStream.ReadMode = PipeTransmissionMode.Message;
-                    Trace.TraceInformation("Connected to the server");
+                    Trace.TraceInformation("Waiting for connection");
+                    await pipeStream.WaitForConnectionAsync(cancellationToken);
+                    Trace.TraceInformation("Profiler has connected");
 
                     disposables.Add(outgoingMessages
                         .ObserveOn(NewThreadScheduler.Default)
