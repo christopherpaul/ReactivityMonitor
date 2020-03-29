@@ -12,3 +12,9 @@ STDAPI_(void) ReadStoreEvent(int32_t index, byte** buffer, int32_t* size)
     *buffer = eventData.begin();
     *size = static_cast<int>(eventData.length());
 }
+
+STDAPI_(int64_t*) GetCommonSequenceIdSource()
+{
+    static int64_t sequenceIdSource;
+    return &sequenceIdSource;
+}
