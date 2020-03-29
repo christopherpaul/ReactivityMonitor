@@ -12,17 +12,24 @@ namespace ReactivityMonitor.Services
 {
     public sealed class Selection
     {
-        public static Selection Empty { get; } = new Selection(default, default, default, default);
+        public static Selection Empty { get; } = new Selection(default, default, default, default, default);
 
         private readonly Selected<IInstrumentedCall> mCallSelection;
         private readonly Selected<IObservableInstance> mObservableSelection;
         private readonly Selected<EventItem> mEventSelection;
+        private readonly Selected<ISubscription> mSubscriptionSelection;
 
-        private Selection(IWorkspace workspace, Selected<IInstrumentedCall> callSelection, Selected<IObservableInstance> observableSelection, Selected<EventItem> eventSelection)
+        private Selection(
+            IWorkspace workspace, 
+            Selected<IInstrumentedCall> callSelection, 
+            Selected<IObservableInstance> observableSelection, 
+            Selected<ISubscription> subscriptionSelection,
+            Selected<EventItem> eventSelection)
         {
             Workspace = workspace;
             mCallSelection = callSelection;
             mObservableSelection = observableSelection;
+            mSubscriptionSelection = subscriptionSelection;
             mEventSelection = eventSelection;
         }
 
@@ -33,82 +40,47 @@ namespace ReactivityMonitor.Services
                 return this;
             }
 
-            return new Selection(workspace, mCallSelection, mObservableSelection, mEventSelection);
+            return new Selection(workspace, mCallSelection, mObservableSelection, mSubscriptionSelection, mEventSelection);
         }
 
-        public Selection SetCall(IInstrumentedCall call)
-        {
-            return ChangeCalls(mCallSelection.Single(call));
-        }
-
-        public Selection AddCall(IInstrumentedCall call)
-        {
-            return ChangeCalls(mCallSelection.Add(call));
-        }
-
-        public Selection RemoveCall(IInstrumentedCall call)
-        {
-            return ChangeCalls(mCallSelection.Remove(call));
-        }
-
-        public Selection ClearCall()
-        {
-            return ChangeCalls(default);
-        }
+        public Selection SetCall(IInstrumentedCall call) => ChangeCalls(mCallSelection.Single(call));
+        public Selection AddCall(IInstrumentedCall call) => ChangeCalls(mCallSelection.Add(call));
+        public Selection RemoveCall(IInstrumentedCall call) => ChangeCalls(mCallSelection.Remove(call));
+        public Selection ClearCall() => ChangeCalls(default);
 
         private Selection ChangeCalls(Selected<IInstrumentedCall> callSelection)
         {
-            return new Selection(Workspace, callSelection, mObservableSelection, mEventSelection);
+            return new Selection(Workspace, callSelection, mObservableSelection, mSubscriptionSelection, mEventSelection);
         }
 
-        public Selection SetObservableInstance(IObservableInstance observable)
-        {
-            return ChangeObservables(mObservableSelection.Single(observable));
-        }
-
-        public Selection AddObservableInstance(IObservableInstance observable)
-        {
-            return ChangeObservables(mObservableSelection.Add(observable));
-        }
-
-        public Selection RemoveObservableInstance(IObservableInstance observable)
-        {
-            return ChangeObservables(mObservableSelection.Remove(observable));
-        }
-
-        public Selection ClearObservableInstances()
-        {
-            return ChangeObservables(default);
-        }
+        public Selection SetObservableInstance(IObservableInstance observable) => ChangeObservables(mObservableSelection.Single(observable));
+        public Selection AddObservableInstance(IObservableInstance observable) => ChangeObservables(mObservableSelection.Add(observable));
+        public Selection RemoveObservableInstance(IObservableInstance observable) => ChangeObservables(mObservableSelection.Remove(observable));
+        public Selection ClearObservableInstances() => ChangeObservables(default);
 
         private Selection ChangeObservables(Selected<IObservableInstance> observableSelection)
         {
-            return new Selection(Workspace, mCallSelection, observableSelection, mEventSelection);
+            return new Selection(Workspace, mCallSelection, observableSelection, mSubscriptionSelection, mEventSelection);
         }
 
-        public Selection SetEvent(EventItem eventItem)
+        public Selection SetSubscription(ISubscription subscription) => ChangeSubscriptions(mSubscriptionSelection.Single(subscription));
+        public Selection AddSubscription(ISubscription subscription) => ChangeSubscriptions(mSubscriptionSelection.Add(subscription));
+        public Selection RemoveSubscription(ISubscription subscription) => ChangeSubscriptions(mSubscriptionSelection.Remove(subscription));
+        public Selection ClearSubscriptions() => ChangeSubscriptions(default);
+
+        private Selection ChangeSubscriptions(Selected<ISubscription> subscriptionSelection)
         {
-            return ChangeEvents(mEventSelection.Single(eventItem));
+            return new Selection(Workspace, mCallSelection, mObservableSelection, subscriptionSelection, mEventSelection);
         }
 
-        public Selection AddEvent(EventItem eventItem)
-        {
-            return ChangeEvents(mEventSelection.Add(eventItem));
-        }
-
-        public Selection RemoveEvent(EventItem eventItem)
-        {
-            return ChangeEvents(mEventSelection.Remove(eventItem));
-        }
-
-        public Selection ClearEvent()
-        {
-            return ChangeEvents(default);
-        }
+        public Selection SetEvent(EventItem eventItem) => ChangeEvents(mEventSelection.Single(eventItem));
+        public Selection AddEvent(EventItem eventItem) => ChangeEvents(mEventSelection.Add(eventItem));
+        public Selection RemoveEvent(EventItem eventItem) => ChangeEvents(mEventSelection.Remove(eventItem));
+        public Selection ClearEvent() => ChangeEvents(default);
 
         private Selection ChangeEvents(Selected<EventItem> eventSelection)
         {
-            return new Selection(Workspace, mCallSelection, mObservableSelection, eventSelection);
+            return new Selection(Workspace, mCallSelection, mObservableSelection, mSubscriptionSelection, eventSelection);
         }
 
         public IWorkspace Workspace { get; }
