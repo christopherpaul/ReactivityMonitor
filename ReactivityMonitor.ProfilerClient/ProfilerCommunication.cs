@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ReactivityMonitor.Utility.Extensions;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO.Pipes;
@@ -20,12 +21,17 @@ namespace ReactivityMonitor.ProfilerClient
         /// </summary>
         /// <param name="pipeName">Name of the pipe to receive connections on</param>
         /// <param name="outgoingMessages">Outgoing messages to send through connected pipes</param>
+        /// <remarks>
+        /// <para>The resources for each emitted observable message stream remain allocated until
+        /// either the other end of the pipe disconnects or <paramref name="outgoingMessages"/>
+        /// terminates. Unsubscribing from the message stream does not release resources.</para>
+        /// <para>Each emitted message stream is hot once it has been subscribed to for the first
+        /// time.</para>
+        /// </remarks>
         public static IObservable<IObservable<byte[]>> CreateRawChannel(string pipeName, IObservable<byte[]> outgoingMessages)
         {
             return Observable.FromAsync(async cancellationToken =>
             {
-                var disposables = new CompositeDisposable();
-
                 Trace.TraceInformation($"Creating pipe: {pipeName}");
                 var pipeStream = new NamedPipeServerStream(
                     pipeName,
@@ -35,25 +41,38 @@ namespace ReactivityMonitor.ProfilerClient
                     options: PipeOptions.Asynchronous | PipeOptions.WriteThrough);
                 pipeStream.ReadMode = PipeTransmissionMode.Message;
 
-                disposables.Add(pipeStream);
-
-                Trace.TraceInformation("Waiting for connection");
-                await pipeStream.WaitForConnectionAsync(cancellationToken).ConfigureAwait(false);
-                Trace.TraceInformation("Profiler has connected");
-
-                return Observable.Create((IObserver<byte[]> observer) =>
+                try
                 {
-                    disposables.Add(outgoingMessages
-                        .ObserveOn(NewThreadScheduler.Default)
-                        .Subscribe(message => pipeStream.Write(message, 0, message.Length)));
+                    Trace.TraceInformation("Waiting for connection");
+                    await pipeStream.WaitForConnectionAsync(cancellationToken).ConfigureAwait(false);
+                    Trace.TraceInformation("Profiler has connected");
 
-                    disposables.Add(ReadIncomingMessages(pipeStream)
-                        .ToObservable()
-                        .SubscribeOn(NewThreadScheduler.Default)
-                        .Subscribe(observer));
+                    var incomingMessageStream = Observable.Create((IObserver<byte[]> observer) =>
+                    {
+                        var writer = new CompositeDisposable();
 
-                    return disposables;
-                });
+                        outgoingMessages
+                            .TakeUntilDisposed(writer)
+                            .ObserveOn(NewThreadScheduler.Default)
+                            .Finally(pipeStream.Dispose) // after finishing writing, dispose pipe (which will terminate the reader too)
+                            .Subscribe(message => pipeStream.Write(message, 0, message.Length));
+
+                        ReadIncomingMessages(pipeStream)
+                            .ToObservable()
+                            .Finally(writer.Dispose) // If other end disconnects, stop the writer (which will then dispose the pipe)
+                            .SubscribeOn(NewThreadScheduler.Default)
+                            .Subscribe(observer);
+
+                        return Disposable.Empty;
+                    }).Publish().AutoConnect();
+
+                    return incomingMessageStream;
+                }
+                catch
+                {
+                    pipeStream.Dispose();
+                    throw;
+                }
             })
             .Repeat();
         }
