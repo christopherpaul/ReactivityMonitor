@@ -1,4 +1,5 @@
-﻿using ReactivityMonitor.Screens.ConnectionScreen;
+﻿using ReactivityMonitor.Screens;
+using ReactivityMonitor.Screens.ConnectionScreen;
 using ReactivityMonitor.Screens.HomeScreen;
 using ReactivityMonitor.Screens.MonitoringScreen;
 using ReactivityMonitor.Workspace;
@@ -14,6 +15,6 @@ namespace ReactivityMonitor
     {
         IConnectionScreen CreateConnectionScreen();
         IHomeScreen CreateHomeScreen(IWorkspace workspace);
-        IMonitoringScreen CreateMonitoringScreen();
+        IWorkspaceDocumentScreen CreateDocumentScreen(IWorkspaceDocument document);
     }
 }

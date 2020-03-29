@@ -16,5 +16,7 @@ namespace ReactivityMonitor
         }
 
         protected T GetInstance<T>() => (T)mServiceProvider.GetService(typeof(T));
+
+        protected object GetInstance(Type type) => mServiceProvider.GetService(type);
     }
 }

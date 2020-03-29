@@ -14,6 +14,8 @@ namespace ReactivityMonitor.Workspace
         string Name { get; }
         IReactivityModel Model { get; }
 
+        IMonitoringConfiguration MonitoringConfiguration { get; }
+
         void PauseUpdates();
         void ResumeUpdates();
 

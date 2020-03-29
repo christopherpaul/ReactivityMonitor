@@ -1,28 +1,17 @@
-﻿using Caliburn.Micro;
-using DynamicData;
-using ReactivityMonitor.Connection;
+﻿using DynamicData;
 using ReactivityMonitor.Definitions;
 using ReactivityMonitor.Dialogs.AddMethod;
 using ReactivityMonitor.Dialogs.QuickEventList;
 using ReactivityMonitor.Infrastructure;
-using ReactivityMonitor.Screens.CallsScreen;
-using ReactivityMonitor.Screens.EventListScreen;
 using ReactivityMonitor.Screens.MonitoringConfigurationScreen;
-using ReactivityMonitor.Screens.MonitoringScreen;
-using ReactivityMonitor.Screens.PayloadScreen;
 using ReactivityMonitor.Screens.SelectedCallsScreen;
 using ReactivityMonitor.Services;
 using ReactivityMonitor.Workspace;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Input;
 
 namespace ReactivityMonitor.Screens.HomeScreen
 {
@@ -33,7 +22,6 @@ namespace ReactivityMonitor.Screens.HomeScreen
             IConcurrencyService concurrencyService,
             ICommandHandlerService commandHandlerService,
             IConnectionService connectionService,
-            IMonitoringConfigurationScreen configScreen,
             IDialogService dialogService,
             IAddMethodDialog addMethodDialog,
             ISelectionService selectionService,
@@ -120,13 +108,10 @@ namespace ReactivityMonitor.Screens.HomeScreen
                     .DisposeWith(disposables);
 
                 // Document screens
-                Observable.Empty<IWorkspaceDocumentScreen>()
-                    .StartWith(configScreen)
+                Observable.Empty<IWorkspaceDocument>()
+                    .StartWith(Workspace.MonitoringConfiguration)
                     .ToObservableChangeSet()
-                    .OnItemAdded(s =>
-                    {
-                        s.Workspace = Workspace;
-                    })
+                    .Transform(screenFactory.CreateDocumentScreen)
                     .ObserveOn(concurrencyService.DispatcherRxScheduler)
                     .Bind(out var documentScreens)
                     .Subscribe()

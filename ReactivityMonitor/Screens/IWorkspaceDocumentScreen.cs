@@ -12,6 +12,12 @@ namespace ReactivityMonitor.Screens
     public interface IWorkspaceDocumentScreen
     {
         string DisplayName { get; }
-        IWorkspace Workspace { get; set; }
+        IWorkspaceDocument Document { get; }
+    }
+
+    public interface IWorkspaceDocumentScreenBuilder<TDocument> : IWorkspaceDocumentScreen
+        where TDocument : IWorkspaceDocument
+    {
+        void SetDocument(TDocument document);
     }
 }

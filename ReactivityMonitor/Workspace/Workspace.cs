@@ -9,7 +9,7 @@ using ReactivityMonitor.Model;
 
 namespace ReactivityMonitor.Workspace
 {
-    public sealed class Workspace : IWorkspaceBuilder
+    public sealed class Workspace : IWorkspaceBuilder, IMonitoringConfiguration
     {
         private IConnectionModel mConnectionModel;
         private ISourceCache<IMonitoredCall, int> mMonitoredCalls;
@@ -30,6 +30,8 @@ namespace ReactivityMonitor.Workspace
         public string Name => mConnectionModel.Name;
 
         public IReactivityModel Model => mConnectionModel.Model;
+
+        public IMonitoringConfiguration MonitoringConfiguration => this;
 
         public IObservable<IChangeSet<IInstrumentedMethod>> Methods { get; }
 
@@ -108,5 +110,7 @@ namespace ReactivityMonitor.Workspace
         {
             mConnectionModel.RequestObjectProperties(obj.ObjectId);
         }
+
+        IWorkspace IWorkspaceDocument.Workspace => this;
     }
 }

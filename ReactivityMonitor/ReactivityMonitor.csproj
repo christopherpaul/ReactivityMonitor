@@ -91,11 +91,6 @@
     <Compile Include="IWorkspaceFactory.cs" />
     <Compile Include="Resources\Constants.cs" />
     <Compile Include="ScreenFactory.cs" />
-    <Compile Include="Screens\CallsScreen\CallsScreenView.xaml.cs">
-      <DependentUpon>CallsScreenView.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Screens\CallsScreen\CallsScreenViewModel.cs" />
-    <Compile Include="Screens\CallsScreen\ICallsScreen.cs" />
     <Compile Include="Screens\ConnectionScreen\ConnectionScreenView.xaml.cs">
       <DependentUpon>ConnectionScreenView.xaml</DependentUpon>
     </Compile>
@@ -119,7 +114,6 @@
     <Compile Include="Screens\EventListScreen\IEventListScreen.cs" />
     <Compile Include="Screens\IToolScreen.cs" />
     <Compile Include="Screens\IWorkspaceDocumentScreen.cs" />
-    <Compile Include="Screens\MonitoringConfigurationScreen\IMonitoringConfigurationScreen.cs" />
     <Compile Include="Screens\MonitoringConfigurationScreen\MonitoringConfigurationScreenView.xaml.cs">
       <DependentUpon>MonitoringConfigurationScreenView.xaml</DependentUpon>
     </Compile>
@@ -192,6 +186,8 @@
     <Compile Include="Workspace\IMonitoredCall.cs" />
     <Compile Include="Workspace\IMonitoringGroup.cs" />
     <Compile Include="Workspace\IWorkspace.cs" />
+    <Compile Include="Workspace\IMonitoringConfiguration.cs" />
+    <Compile Include="Workspace\IWorkspaceDocument.cs" />
     <Compile Include="Workspace\MonitoredCall.cs" />
     <Compile Include="Workspace\MonitoringGroup.cs" />
     <Compile Include="Workspace\Workspace.cs" />
@@ -212,10 +208,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Resources\Styles.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Screens\CallsScreen\CallsScreenView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

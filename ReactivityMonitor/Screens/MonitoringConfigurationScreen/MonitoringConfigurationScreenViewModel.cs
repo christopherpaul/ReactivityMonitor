@@ -19,9 +19,9 @@ using System.Windows.Input;
 
 namespace ReactivityMonitor.Screens.MonitoringConfigurationScreen
 {
-    public sealed class MonitoringConfigurationScreenViewModel : ReactiveViewModel, IMonitoringConfigurationScreen
+    public sealed class MonitoringConfigurationScreenViewModel : ReactiveViewModel, IWorkspaceDocumentScreenBuilder<IMonitoringConfiguration>
     {
-        public string DisplayName => "Configuration";
+        private IMonitoringConfiguration mDocument;
 
         public MonitoringConfigurationScreenViewModel(IConcurrencyService concurrencyService, ISelectionService selectionService)
         {
@@ -62,6 +62,8 @@ namespace ReactivityMonitor.Screens.MonitoringConfigurationScreen
             });
         }
 
+        public string DisplayName => "Configuration";
+
         private object mSelectedItem;
         public object SelectedItem
         {
@@ -69,7 +71,8 @@ namespace ReactivityMonitor.Screens.MonitoringConfigurationScreen
             set => this.RaiseAndSetIfChanged(ref mSelectedItem, value);
         }
 
-        public IWorkspace Workspace { get; set; }
+        public IWorkspaceDocument Document => mDocument;
+        private IWorkspace Workspace => Document?.Workspace;
 
         public ReadOnlyObservableCollection<MethodItem> Methods { get; }
 
@@ -194,6 +197,11 @@ namespace ReactivityMonitor.Screens.MonitoringConfigurationScreen
 
             private ObservableAsPropertyHelper<string> mActiveSubscriptionCount;
             public string ActiveSubscriptionCount => mActiveSubscriptionCount?.Value;
+        }
+
+        public void SetDocument(IMonitoringConfiguration document)
+        {
+            mDocument = document;
         }
     }
 }

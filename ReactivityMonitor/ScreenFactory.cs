@@ -28,6 +28,27 @@ namespace ReactivityMonitor
             return homeScreen;
         }
 
-        public IMonitoringScreen CreateMonitoringScreen() => GetInstance<IMonitoringScreen>();
+        public IWorkspaceDocumentScreen CreateDocumentScreen(IWorkspaceDocument document)
+        {
+            switch (document)
+            {
+                case IMonitoringConfiguration monitoringConfiguration:
+                    return CreateSpecifiedDocumentScreen(monitoringConfiguration);
+
+                case null:
+                    throw new ArgumentNullException(nameof(document));
+
+                default:
+                    throw new ArgumentException($"Unsupported document type {document.GetType()}");
+            }
+        }
+
+        private IWorkspaceDocumentScreen CreateSpecifiedDocumentScreen<TDocument>(TDocument document)
+            where TDocument : class, IWorkspaceDocument
+        {
+            var builder = GetInstance<IWorkspaceDocumentScreenBuilder<TDocument>>();
+            builder.SetDocument(document);
+            return builder;
+        }
     }
 }

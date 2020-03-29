@@ -13,7 +13,7 @@ namespace ReactivityMonitor
     using ReactivityMonitor.Dialogs.AddMethod;
     using ReactivityMonitor.Dialogs.QuickEventList;
     using ReactivityMonitor.Infrastructure;
-    using ReactivityMonitor.Screens.CallsScreen;
+    using ReactivityMonitor.Screens;
     using ReactivityMonitor.Screens.ConnectionScreen;
     using ReactivityMonitor.Screens.EventListScreen;
     using ReactivityMonitor.Screens.HomeScreen;
@@ -83,8 +83,7 @@ namespace ReactivityMonitor
             mContainer.PerRequest<IShell, ShellViewModel>();
             mContainer.PerRequest<IConnectionScreen, ConnectionScreenViewModel>();
             mContainer.PerRequest<IHomeScreen, HomeScreenViewModel>();
-            mContainer.PerRequest<IMonitoringConfigurationScreen, MonitoringConfigurationScreenViewModel>();
-            mContainer.PerRequest<ICallsScreen, CallsScreenViewModel>();
+            mContainer.PerRequest<IWorkspaceDocumentScreenBuilder<IMonitoringConfiguration>, MonitoringConfigurationScreenViewModel>();
             mContainer.PerRequest<IMonitoringScreen, MonitoringScreenViewModel>();
             mContainer.PerRequest<IEventList, EventListViewModel>();
             mContainer.PerRequest<IEventListScreen, EventListScreenViewModel>();
