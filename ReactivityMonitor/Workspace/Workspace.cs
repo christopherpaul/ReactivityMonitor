@@ -13,18 +13,20 @@ namespace ReactivityMonitor.Workspace
     {
         private IConnectionModel mConnectionModel;
         private ISourceCache<IMonitoredCall, int> mMonitoredCalls;
-        private ISourceList<IMonitoringGroup> mMonitoringGroups;
         private ISourceCache<IInstrumentedMethod, int> mMethods;
+        private ISourceList<IWorkspaceDocument> mDocuments;
 
         public Workspace()
         {
             mMonitoredCalls = new SourceCache<IMonitoredCall, int>(c => c.Call.InstrumentedCallId);
-            mMonitoringGroups = new SourceList<IMonitoringGroup>();
             mMethods = new SourceCache<IInstrumentedMethod, int>(m => m.InstrumentedMethodId);
+            mDocuments = new SourceList<IWorkspaceDocument>();
 
             MonitoredCalls = mMonitoredCalls.Connect().RemoveKey();
-            MonitoringGroups = mMonitoringGroups.Connect();
             Methods = mMethods.Connect().RemoveKey();
+            Documents = mDocuments.Connect();
+
+            mDocuments.Add(MonitoringConfiguration);
         }
 
         public string Name => mConnectionModel.Name;
@@ -33,23 +35,30 @@ namespace ReactivityMonitor.Workspace
 
         public IMonitoringConfiguration MonitoringConfiguration => this;
 
+        public IObservable<IChangeSet<IWorkspaceDocument>> Documents { get; }
+
+        public IEventsDocument CreateEventsDocument(IEnumerable<IInstrumentedCall> calls)
+        {
+            var callsList = calls.ToArray();
+            var doc = new EventsDocument(this);
+            doc.AddRange(callsList);
+            doc.DocumentName = callsList.Length == 1 ? $"{callsList[0].CalledMethod} - events" : $"{callsList.Length} calls - events";
+            mDocuments.Add(doc);
+            return doc;
+        }
+
+        public IEventsDocument CreateEventsDocument(IEnumerable<IObservableInstance> observableInstances)
+        {
+            var doc = new EventsDocument(this);
+            doc.AddRange(observableInstances);
+            doc.DocumentName = "Events";
+            mDocuments.Add(doc);
+            return doc;
+        }
+
         public IObservable<IChangeSet<IInstrumentedMethod>> Methods { get; }
 
         public IObservable<IChangeSet<IMonitoredCall>> MonitoredCalls { get; }
-
-        public IObservable<IChangeSet<IMonitoringGroup>> MonitoringGroups { get; }
-
-        public IMonitoringGroup CreateMonitoringGroup(string name)
-        {
-            var mg = new MonitoringGroup(name, mMonitoredCalls);
-            mMonitoringGroups.Add(mg);
-            return mg;
-        }
-
-        public void DeleteMonitoringGroup(IMonitoringGroup group)
-        {
-            mMonitoringGroups.Remove(group);
-        }
 
         public void AddMethod(IInstrumentedMethod method)
         {

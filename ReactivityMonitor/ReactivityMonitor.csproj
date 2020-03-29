@@ -111,7 +111,6 @@
     </Compile>
     <Compile Include="Screens\EventListScreen\EventListViewModel.cs" />
     <Compile Include="Screens\EventListScreen\IEventList.cs" />
-    <Compile Include="Screens\EventListScreen\IEventListScreen.cs" />
     <Compile Include="Screens\IToolScreen.cs" />
     <Compile Include="Screens\IWorkspaceDocumentScreen.cs" />
     <Compile Include="Screens\MonitoringConfigurationScreen\MonitoringConfigurationScreenView.xaml.cs">
@@ -183,6 +182,8 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="WorkspaceFactory.cs" />
+    <Compile Include="Workspace\EventsDocument.cs" />
+    <Compile Include="Workspace\IEventsDocument.cs" />
     <Compile Include="Workspace\IMonitoredCall.cs" />
     <Compile Include="Workspace\IMonitoringGroup.cs" />
     <Compile Include="Workspace\IWorkspace.cs" />

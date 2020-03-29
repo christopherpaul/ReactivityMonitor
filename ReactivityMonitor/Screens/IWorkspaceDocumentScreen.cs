@@ -1,4 +1,5 @@
 ﻿using Caliburn.Micro;
+using ReactiveUI;
 using ReactivityMonitor.Model;
 using ReactivityMonitor.Workspace;
 using System;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace ReactivityMonitor.Screens
 {
-    public interface IWorkspaceDocumentScreen
+    public interface IWorkspaceDocumentScreen : IActivatableViewModel
     {
         string DisplayName { get; }
         IWorkspaceDocument Document { get; }

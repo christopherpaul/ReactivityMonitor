@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ReactivityMonitor.Screens.ObservablesScreen"
+             xmlns:defs="clr-namespace:ReactivityMonitor.Definitions"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
@@ -19,6 +20,15 @@
 
             <DataGrid.RowStyle>
                 <Style TargetType="{x:Type DataGridRow}">
+                    <Setter Property="ContextMenu">
+                        <Setter.Value>
+                            <ContextMenu>
+                                <MenuItem Header="Quick _event list" InputGestureText="Ctrl+E" Command="defs:Commands.QuickEventList" />
+                                <Separator />
+                                <MenuItem Header="Open event list in tab" Command="defs:Commands.OpenEventList" />
+                            </ContextMenu>
+                        </Setter.Value>
+                    </Setter>
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding SubscriptionCount, Mode=OneWay}" Value="0">
                             <Setter Property="Foreground" Value="Gray" />

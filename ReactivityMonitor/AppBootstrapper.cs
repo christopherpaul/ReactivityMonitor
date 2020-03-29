@@ -86,7 +86,7 @@ namespace ReactivityMonitor
             mContainer.PerRequest<IWorkspaceDocumentScreenBuilder<IMonitoringConfiguration>, MonitoringConfigurationScreenViewModel>();
             mContainer.PerRequest<IMonitoringScreen, MonitoringScreenViewModel>();
             mContainer.PerRequest<IEventList, EventListViewModel>();
-            mContainer.PerRequest<IEventListScreen, EventListScreenViewModel>();
+            mContainer.PerRequest<IWorkspaceDocumentScreenBuilder<IEventsDocument>, EventListScreenViewModel>();
             mContainer.PerRequest<IMarbleDiagramScreen, MarbleDiagramScreenViewModel>();
             mContainer.PerRequest<IObservablesScreen, ObservablesScreenViewModel>();
             mContainer.Singleton<IObservablesScreenItemFactory, ObservablesScreenItemFactory>();

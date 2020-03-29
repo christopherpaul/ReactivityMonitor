@@ -20,8 +20,6 @@
         </Style>
     </UserControl.Resources>
     <Grid>
-        <infra:Activation ViewModel="{Binding}" />
-        
         <TreeView ItemsSource="{Binding Methods}"
                   SelectedItemChanged="TreeView_SelectedItemChanged"
                   ContextMenuOpening="TreeView_ContextMenuOpening">
@@ -65,6 +63,8 @@
                                 <StackPanel.ContextMenu>
                                     <ContextMenu>
                                         <MenuItem Header="Quick _event list" InputGestureText="Ctrl+E" Command="defs:Commands.QuickEventList" />
+                                        <Separator />
+                                        <MenuItem Header="Open event list in tab" Command="defs:Commands.OpenEventList" />
                                     </ContextMenu>
                                 </StackPanel.ContextMenu>
                             </StackPanel>
@@ -72,6 +72,11 @@
                     </HierarchicalDataTemplate.ItemTemplate>
                 </HierarchicalDataTemplate>
             </TreeView.ItemTemplate>
+            <TreeView.ItemContainerStyle>
+                <Style TargetType="TreeViewItem">
+                    <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}" />
+                </Style>
+            </TreeView.ItemContainerStyle>
         </TreeView>
     </Grid>
 

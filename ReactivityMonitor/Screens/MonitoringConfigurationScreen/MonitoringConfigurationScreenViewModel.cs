@@ -30,6 +30,8 @@ namespace ReactivityMonitor.Screens.MonitoringConfigurationScreen
 
             this.WhenActivated((CompositeDisposable disposables) =>
             {
+                methodItems.Clear();
+
                 var monitoredCalls = Workspace.MonitoredCalls
                     .TakeUntilDisposed(disposables)
                     .Transform(c => c.Call)
@@ -145,6 +147,13 @@ namespace ReactivityMonitor.Screens.MonitoringConfigurationScreen
             public void Dispose()
             {
                 mDisposables.Dispose();
+            }
+
+            private bool mIsExpanded = true;
+            public bool IsExpanded
+            {
+                get => mIsExpanded;
+                set => this.RaiseAndSetIfChanged(ref mIsExpanded, value);
             }
         }
 

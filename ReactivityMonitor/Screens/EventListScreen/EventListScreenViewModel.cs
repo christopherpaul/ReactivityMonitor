@@ -21,77 +21,40 @@ using ReactivityMonitor.Definitions;
 
 namespace ReactivityMonitor.Screens.EventListScreen
 {
-    public sealed class EventListScreenViewModel : ReactiveScreen, IEventListScreen
+    public sealed class EventListScreenViewModel : ReactiveViewModel, IWorkspaceDocumentScreenBuilder<IEventsDocument>
     {
-        public EventListScreenViewModel(IConcurrencyService concurrencyService, ICommandHandlerService commandHandlerService)
+        private IEventsDocument mDocument;
+
+        public EventListScreenViewModel(
+            IConcurrencyService concurrencyService, 
+            IEventList eventList)
         {
-            var filterCommand = ReactiveCommand.Create<bool, bool>(filter => filter);
-            var whenIsFilteringToActiveGroupChanges = filterCommand.ObserveOn(concurrencyService.TaskPoolRxScheduler)
-                .StartWith(false)
-                .Replay(1);
+            EventList = eventList;
 
-            var whenClearCommandExecuted = CommandHelper.CreateTriggerCommand(out var clearCommand);
-
-            WhenActivated(disposables =>
+            this.WhenActivated(disposables =>
             {
-                // TODO: consider handling clearing imperatively,
-                // i.e. each time user clears, clear the Events collection
-                // and bind a fresh observable stream to it. At the moment
-                // the Switch is keeping its own cache of all the events,
-                // just so it can generate a "clear all these" message.
-                // Potentially same deal with filter changes.
-
-                var allObservableInstances = Model.ObservableInstances.ToObservableChangeSet(obs => obs.ObservableId);
-
-                var activeGroupObservableInstances = WhenActiveMonitoringGroupChanges
+                var observablesForCalls = mDocument.Calls
                     .ObserveOn(concurrencyService.TaskPoolRxScheduler)
-                    .Select(group =>
-                        group?.Calls
-                            .MergeMany(call => call.Call.ObservableInstances)
-                            .Expand(obs => obs.Inputs)
-                            .ToObservableChangeSet(obs => obs.ObservableId)
-                            ?? allObservableInstances)
-                    .SwitchFixed();
+                    .TakeWhile(change => change.Removes == 0) // stop if any calls removed
+                    .MergeMany(call => call.ObservableInstances)
+                    .ToObservableChangeSet(obs => obs.ObservableId)
+                    .Repeat(); // reset after calls removed
 
-                var filterObservableInstances = whenIsFilteringToActiveGroupChanges
-                    .ObserveOn(concurrencyService.TaskPoolRxScheduler)
-                    .Select(isFilteringToActiveGroup => isFilteringToActiveGroup ? activeGroupObservableInstances : allObservableInstances)
-                    .SwitchFixed();
+                eventList.Observables = mDocument.Observables.Or(observablesForCalls);
 
-                var allEvents = Model.ObservableInstances
-                    .SelectMany(obs =>
-                        Observable.Return(EventItem.FromObservableInstance(obs))
-                            .Concat(obs.Subscriptions.SelectMany(sub => sub.Events.Select(e => EventItem.FromStreamEvent(sub, e)))));
-
-                allEvents
-                    .Window(OnTaskPool(whenClearCommandExecuted))
-                    .Select(eventsSinceClear => eventsSinceClear
-                        .ToObservableChangeSet(e => e.SequenceId)
-                        .SemiJoinOnRightKey(filterObservableInstances, e => e.ObservableId))
-                    .SwitchFixed()
-                    .Merge(Model.ClientEvents.Select(EventItem.FromClientEvent).ToObservableChangeSet(e => e.Info.SequenceId))
-                    .Batch(TimeSpan.FromMilliseconds(100))
-                    .Sort(Utility.Comparer<EventItem>.ByKey(e => e.SequenceId))
-                    .SubscribeOn(concurrencyService.TaskPoolRxScheduler)
-                    .ObserveOn(concurrencyService.DispatcherRxScheduler)
-                    .Bind(out var eventsCollection, resetThreshold: int.MaxValue)
-                    .Subscribe()
-                    .DisposeWith(disposables);
-
-                Events = eventsCollection;
-
-                commandHandlerService.RegisterHandler(Commands.ClearEventList, clearCommand).DisposeWith(disposables);
-                commandHandlerService.RegisterHandler(Commands.FilterEventList, filterCommand).DisposeWith(disposables);
-
-                whenIsFilteringToActiveGroupChanges.Connect().DisposeWith(disposables);
+                eventList.Activator.Activate().DisposeWith(disposables);
             });
-
-            IObservable<Unit> OnTaskPool(IObservable<Unit> obs) => obs.ObserveOn(concurrencyService.TaskPoolRxScheduler);
         }
 
-        public IReactivityModel Model { get; set; }
-        public IObservable<IMonitoringGroup> WhenActiveMonitoringGroupChanges { get; set; }
+        public string DisplayName => mDocument.DocumentName;
 
-        public ReadOnlyObservableCollection<EventItem> Events { get; private set; }
+        public IEventList EventList { get; }
+
+        public IWorkspaceDocument Document => mDocument;
+
+        public void SetDocument(IEventsDocument document)
+        {
+            mDocument = document;
+        }
     }
 }

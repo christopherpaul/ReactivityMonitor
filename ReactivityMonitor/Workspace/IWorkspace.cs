@@ -16,6 +16,11 @@ namespace ReactivityMonitor.Workspace
 
         IMonitoringConfiguration MonitoringConfiguration { get; }
 
+        IObservable<IChangeSet<IWorkspaceDocument>> Documents { get; }
+
+        IEventsDocument CreateEventsDocument(IEnumerable<IInstrumentedCall> calls);
+        IEventsDocument CreateEventsDocument(IEnumerable<IObservableInstance> observableInstances);
+
         void PauseUpdates();
         void ResumeUpdates();
 
@@ -30,11 +35,6 @@ namespace ReactivityMonitor.Workspace
 
         IMonitoredCall StartMonitoringCall(IInstrumentedCall call);
         void StopMonitoringCall(IInstrumentedCall call);
-
-        IObservable<IChangeSet<IMonitoringGroup>> MonitoringGroups { get; }
-
-        IMonitoringGroup CreateMonitoringGroup(string name);
-        void DeleteMonitoringGroup(IMonitoringGroup group);
     }
 
     public interface IWorkspaceBuilder : IWorkspace

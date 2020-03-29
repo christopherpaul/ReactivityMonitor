@@ -64,6 +64,8 @@ namespace ReactivityMonitor.Screens.HomeScreen
                 commandHandlerService.RegisterHandler(Commands.ShowAddToConfiguration, addMethodToConfigCommand)
                     .DisposeWith(disposables);
 
+                var selectionHasItemsWithEvents = selectionService.WhenSelectionChanges.Select(s => s.PrimaryInstrumentedCall != null || s.SelectedObservableInstances.Count > 0).ObserveOn(concurrencyService.DispatcherRxScheduler);
+
                 var quickEventListCommand = ReactiveUI.ReactiveCommand.Create(async () =>
                 {
                     Selection sel = selectionService.CurrentSelection;
@@ -103,17 +105,34 @@ namespace ReactivityMonitor.Screens.HomeScreen
                         await dialogService.ShowDialogContent(quickEventListDialog);
                     }
 
-                }, selectionService.WhenSelectionChanges.Select(s => s.PrimaryInstrumentedCall != null || s.SelectedObservableInstances.Count > 0).ObserveOn(concurrencyService.DispatcherRxScheduler));
+                }, selectionHasItemsWithEvents);
                 commandHandlerService.RegisterHandler(Commands.QuickEventList, quickEventListCommand)
                     .DisposeWith(disposables);
 
+                var openEventListCommand = ReactiveUI.ReactiveCommand.Create(() =>
+                {
+                    Selection sel = selectionService.CurrentSelection;
+
+                    if (sel.SelectedObservableInstances.Count > 0)
+                    {
+                        Workspace.CreateEventsDocument(sel.SelectedObservableInstances);
+                    }
+                    else if (sel.PrimaryInstrumentedCall != null)
+                    {
+                        Workspace.CreateEventsDocument(new[] { sel.PrimaryInstrumentedCall });
+                    }
+
+                }, selectionHasItemsWithEvents);
+                commandHandlerService.RegisterHandler(Commands.OpenEventList, openEventListCommand)
+                    .DisposeWith(disposables);
+
                 // Document screens
-                Observable.Empty<IWorkspaceDocument>()
-                    .StartWith(Workspace.MonitoringConfiguration)
-                    .ToObservableChangeSet()
+                Workspace.Documents
                     .Transform(screenFactory.CreateDocumentScreen)
                     .ObserveOn(concurrencyService.DispatcherRxScheduler)
                     .Bind(out var documentScreens)
+                    .Transform(screen => screen.Activator.Activate())
+                    .DisposeMany()
                     .Subscribe()
                     .DisposeWith(disposables);
 

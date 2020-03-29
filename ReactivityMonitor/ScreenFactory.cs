@@ -35,6 +35,9 @@ namespace ReactivityMonitor
                 case IMonitoringConfiguration monitoringConfiguration:
                     return CreateSpecifiedDocumentScreen(monitoringConfiguration);
 
+                case IEventsDocument eventsDocument:
+                    return CreateSpecifiedDocumentScreen(eventsDocument);
+
                 case null:
                     throw new ArgumentNullException(nameof(document));
 

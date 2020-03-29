@@ -8,17 +8,8 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              >
-    <DockPanel>
-        <DataGrid ItemsSource="{Binding Events}" AutoGenerateColumns="False" IsReadOnly="True" Selector.SelectionChanged="DataGrid_SelectionChanged">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Sequence" Binding="{Binding SequenceId, Mode=OneTime}" />
-                <DataGridTextColumn Header="Time" Binding="{Binding Info.Timestamp, Mode=OneTime}" />
-                <DataGridTextColumn Header="Thread" Binding="{Binding Info.ThreadId, Mode=OneTime}" />
-                <DataGridTextColumn Header="Event" Binding="{Binding EventKindName, Mode=OneTime}" />
-                <DataGridTextColumn Header="Method" Binding="{Binding CalledMethodName, Mode=OneTime}" />
-                <DataGridTextColumn Header="Subscription" Binding="{Binding SubscriptionId, Mode=OneTime}" />
-                <DataGridTextColumn Header="Value/info" Binding="{Binding Value, Mode=OneTime}" />
-            </DataGrid.Columns>
-        </DataGrid>
-    </DockPanel>
+    <Grid>
+        <ContentControl Content="{Binding EventList}"
+                        VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" />
+    </Grid>
 </UserControl>
