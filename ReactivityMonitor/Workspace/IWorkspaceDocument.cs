@@ -11,3 +11,4 @@ namespace ReactivityMonitor.Workspace
         IWorkspace Workspace { get; }
     }
 }
+

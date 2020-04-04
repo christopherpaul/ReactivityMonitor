@@ -10,6 +10,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -17,10 +18,17 @@ namespace ReactivityMonitor.Screens.EventListScreen
 {
     public sealed class EventListViewModel : ReactiveViewModel, IEventList
     {
+        private readonly Action<Func<Selection, Selection>> mSubmitSelectionChange;
+
         public EventListViewModel(IConcurrencyService concurrencyService)
         {
             var eventsCollection = new ObservableCollectionExtended<EventItem>();
             Events = new ReadOnlyObservableCollection<EventItem>(eventsCollection);
+
+            var selectionChangeSubject = new Subject<Func<Selection, Selection>>();
+            mSubmitSelectionChange = selectionChangeSubject.OnNext;
+            WhenEventSelectionChanges = selectionChangeSubject
+                .ObserveOn(concurrencyService.TaskPoolRxScheduler);
 
             this.WhenActivated((CompositeDisposable disposables) => 
             {
@@ -72,5 +80,9 @@ namespace ReactivityMonitor.Screens.EventListScreen
         public IObservable<ClientEvent> ClientEvents { get; set; }
 
         public ReadOnlyObservableCollection<EventItem> Events { get; }
+
+        public void SubmitSelectionChange(Func<Selection, Selection> selectionChanger) => mSubmitSelectionChange(selectionChanger);
+
+        public IObservable<Func<Selection, Selection>> WhenEventSelectionChanges { get; }
     }
 }

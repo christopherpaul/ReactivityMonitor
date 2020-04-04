@@ -4,6 +4,7 @@ using ReactivityMonitor.Dialogs.AddMethod;
 using ReactivityMonitor.Dialogs.QuickEventList;
 using ReactivityMonitor.Infrastructure;
 using ReactivityMonitor.Screens.MonitoringConfigurationScreen;
+using ReactivityMonitor.Screens.PayloadScreen;
 using ReactivityMonitor.Screens.SelectedCallsScreen;
 using ReactivityMonitor.Services;
 using ReactivityMonitor.Workspace;
@@ -26,9 +27,11 @@ namespace ReactivityMonitor.Screens.HomeScreen
             IAddMethodDialog addMethodDialog,
             ISelectionService selectionService,
             IQuickEventListDialog quickEventListDialog,
-            ISelectedCallsScreen selectedCallsScreen)
+            ISelectedCallsScreen selectedCallsScreen,
+            IPayloadScreen payloadScreen)
         {
             SelectedCallsScreen = selectedCallsScreen;
+            PayloadScreen = payloadScreen;
 
             var isUpdating = GoPauseControl.SetupGoPause(out var attachGoPauseHandlers)
                 .ObserveOn(concurrencyService.TaskPoolRxScheduler);
@@ -131,6 +134,7 @@ namespace ReactivityMonitor.Screens.HomeScreen
                     .Transform(screenFactory.CreateDocumentScreen)
                     .ObserveOn(concurrencyService.DispatcherRxScheduler)
                     .Bind(out var documentScreens)
+                    .OnItemAdded(screen => ActiveDocumentScreen = screen)
                     .Transform(screen => screen.Activator.Activate())
                     .DisposeMany()
                     .Subscribe()
@@ -152,5 +156,6 @@ namespace ReactivityMonitor.Screens.HomeScreen
         }
 
         public ISelectedCallsScreen SelectedCallsScreen { get; }
+        public IPayloadScreen PayloadScreen { get; }
     }
 }

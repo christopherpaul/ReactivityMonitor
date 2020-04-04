@@ -17,6 +17,7 @@ using ReactivityMonitor.Infrastructure;
 using ReactivityMonitor.Model;
 using ReactivityMonitor.Screens.EventListScreen;
 using ReactivityMonitor.Services;
+using ReactivityMonitor.Workspace;
 
 namespace ReactivityMonitor.Screens.PayloadScreen
 {
@@ -30,21 +31,19 @@ namespace ReactivityMonitor.Screens.PayloadScreen
 
                 mEvent = selectionService.WhenSelectionChanges
                     .ObserveOn(concurrencyService.DispatcherRxScheduler)
-                    .Select(x => new EventItemInfo(x.PrimaryEventItem, concurrencyService, ConnectionModel))
+                    .Select(x => new EventItemInfo(x.PrimaryEventItem, concurrencyService, x.Workspace))
                     .Do(vm => vmActivation.Disposable = vm.Activator.Activate())
                     .ToProperty(this, x => x.Event)
                     .DisposeWith(disposables);
             });
         }
 
-        public IConnectionModel ConnectionModel { get; set; }
-
         private ObservableAsPropertyHelper<EventItemInfo> mEvent;
         public EventItemInfo Event => mEvent?.Value;
 
         public sealed class EventItemInfo : ReactiveViewModel
         {
-            public EventItemInfo(EventItem item, IConcurrencyService concurrencyService, IConnectionModel connection)
+            public EventItemInfo(EventItem item, IConcurrencyService concurrencyService, IWorkspace workspace)
             {
                 var whenGoToParentInvoked = CommandHelper.CreateTriggerCommand(out var goToParentCommand);
                 GoToParentObjectCommand = goToParentCommand;
@@ -72,7 +71,7 @@ namespace ReactivityMonitor.Screens.PayloadScreen
                             .StartWith(emptyStack)
                             .Select(s => s.IsEmpty ? item.Payload : s.Peek())
                             .Where(payload => payload != null)
-                            .Select(payload => new PayloadViewModel(payload, inspectSubject.OnNext, concurrencyService, connection))
+                            .Select(payload => new PayloadViewModel(payload, inspectSubject.OnNext, concurrencyService, workspace))
                             .Do(vm => payloadActivation.Disposable = vm.Activator.Activate())
                             .ObserveOn(concurrencyService.DispatcherRxScheduler)
                             .ToProperty(this, x => x.Payload)
@@ -90,13 +89,13 @@ namespace ReactivityMonitor.Screens.PayloadScreen
         {
             private readonly PayloadObject mPayload;
 
-            public PayloadViewModel(PayloadObject payload, Action<PayloadObject> inspect, IConcurrencyService concurrencyService, IConnectionModel connection)
+            public PayloadViewModel(PayloadObject payload, Action<PayloadObject> inspect, IConcurrencyService concurrencyService, IWorkspace workspace)
             {
                 mPayload = payload;
 
                 this.WhenActivated((CompositeDisposable disposables) =>
                 {
-                    connection.RequestObjectProperties(payload.ObjectId);
+                    workspace.RequestObjectProperties(payload);
 
                     mProps = payload.Properties
                         .Select(ps => ps.Select(p => new PayloadProperty(p.Key, p.Value, inspect)).ToArray())

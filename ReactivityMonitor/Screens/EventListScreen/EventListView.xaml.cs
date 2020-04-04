@@ -44,7 +44,7 @@ namespace ReactivityMonitor.Screens.EventListScreen
                 return selection;
             };
 
-            Commands.ChangeSelectedEventItems.Execute(changer);
+            ((EventListViewModel)DataContext)?.SubmitSelectionChange(changer);
         }
     }
 }

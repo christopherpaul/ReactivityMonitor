@@ -40,7 +40,7 @@
         
         <!-- Selected 2 -->
         <Grid Grid.Column="2" Grid.Row="2">
-            <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center">Selected 2 will go here</TextBlock>
+            <ContentControl Content="{Binding PayloadScreen}" />
         </Grid>
         
         <!-- Splitters -->

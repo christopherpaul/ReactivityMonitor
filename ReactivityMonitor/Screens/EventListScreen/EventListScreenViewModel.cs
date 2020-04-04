@@ -27,8 +27,10 @@ namespace ReactivityMonitor.Screens.EventListScreen
 
         public EventListScreenViewModel(
             IConcurrencyService concurrencyService, 
+            ISelectionService selectionService,
             IEventList eventList)
         {
+            eventList.WhenEventSelectionChanges.Subscribe(selectionService.ChangeSelection);
             EventList = eventList;
 
             this.WhenActivated(disposables =>

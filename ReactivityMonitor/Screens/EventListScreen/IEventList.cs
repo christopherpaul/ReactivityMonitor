@@ -1,6 +1,7 @@
 ﻿using DynamicData;
 using ReactiveUI;
 using ReactivityMonitor.Model;
+using ReactivityMonitor.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,5 +32,11 @@ namespace ReactivityMonitor.Screens.EventListScreen
         /// Optional. Client events to include in the event list.
         /// </summary>
         IObservable<ClientEvent> ClientEvents { get; set; }
+
+        /// <summary>
+        /// Stream of changes to a prospective Selection object caused by user selecting
+        /// events in the list.
+        /// </summary>
+        IObservable<Func<Selection, Selection>> WhenEventSelectionChanges { get; }
     }
 }

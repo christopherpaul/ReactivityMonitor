@@ -11,6 +11,5 @@ namespace ReactivityMonitor.Screens.PayloadScreen
 {
     public interface IPayloadScreen : IActivatableViewModel
     {
-        IConnectionModel ConnectionModel { get; set; }
     }
 }
