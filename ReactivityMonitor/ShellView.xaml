@@ -21,10 +21,6 @@
                     <Button Content="Pause" Command="defs:Commands.Pause" />
                     <Button Content="Go" Command="defs:Commands.Go" />
                 </ToolBar>
-                <ToolBar Header="Event list">
-                    <Button Content="Clear" Command="defs:Commands.ClearEventList" />
-                    <ToggleButton Content="Filter to tab" Command="defs:Commands.FilterEventList" CommandParameter="{Binding RelativeSource={RelativeSource Self}, Path=IsChecked}" />
-                </ToolBar>
             </ToolBarTray>
 
             <ContentControl x:Name="ActiveItem" />
