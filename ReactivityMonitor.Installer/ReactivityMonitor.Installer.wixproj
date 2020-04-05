@@ -28,16 +28,11 @@
       Properties="Configuration=Release;Platform=x64" />
   </Target>
 
-  <Target Name="HarvestArtifacts" DependsOnTargets="BuildBinaries">
-    <HeatDirectory 
-      Directory="$(ArtifactsDirectory)"
-      OutputFile="$(IntermediateOutputPath)Artifacts.wxs"
-      ToolPath="$(WixToolPath)"
-      />
-  </Target>
+  <ItemGroup>
+    <HarvestDirectory Include="$(ArtifactsDirectory)" />
+  </ItemGroup>
 
-  <Target Name="Build" DependsOnTargets="HarvestArtifacts">
-  </Target>
+  <Target Name="BeforeBuild" DependsOnTargets="BuildBinaries" />
 
   <Target Name="BuildReleaseOnly" DependsOnTargets="Build" Condition=" '$(Configuration)' == 'Release' ">
   </Target>
