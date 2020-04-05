@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
     <RootNamespace>ReactivityMonitor.VsTest</RootNamespace>
+    <ProducesArtifacts>true</ProducesArtifacts>
   </PropertyGroup>
 
   <PropertyGroup>

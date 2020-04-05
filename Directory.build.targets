@@ -1,0 +1,3 @@
+<Project>
+  <Import Project="$(BuildScriptsDirectory)CopyArtifacts.targets" />
+</Project>

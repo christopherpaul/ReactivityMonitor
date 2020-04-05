@@ -1,0 +1,8 @@
+<Project>
+  <Target Name="CopyArtifacts" DependsOnTargets="Build" Condition="'$(ProducesArtifacts)' == 'true'">
+    <ItemGroup>
+      <Artifacts Include="$(OutDir)**\*" />
+    </ItemGroup>
+    <Copy SourceFiles="@(Artifacts)" DestinationFolder="$(ArtifactsDirectory)%(RecursiveDir)" />
+  </Target>
+</Project>

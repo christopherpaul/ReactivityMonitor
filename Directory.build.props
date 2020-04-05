@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TopLevelSourceDirectory>$(MSBuildThisFileDirectory)</TopLevelSourceDirectory>
     <BuildScriptsDirectory>$(TopLevelSourceDirectory)build\</BuildScriptsDirectory>
+    <ArtifactsDirectory>$(TopLevelSourceDirectory)artifacts\</ArtifactsDirectory>
   </PropertyGroup>
   
   <!-- Common settings -->
