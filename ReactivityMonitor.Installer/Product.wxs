@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Product Name="ReactivityMonitor"
+           Manufacturer="ReactivityMonitor"
+           Id="8AB0CE97-DB73-488E-980B-F11ED2D8972E"
+           UpgradeCode="2903A10B-6B71-4D84-BCEB-5349B7A10F00"
+           Version="$(var.ProductVersion)"
+           Language="1033" Codepage="1252">
+    <Package Id="*"
+             Keywords="Installer"
+             Description="ReactivityMonitor installer"
+             Languages="1033" Compressed="yes" SummaryCodepage="1252" />
+    <MajorUpgrade AllowDowngrades="no"
+                  DowngradeErrorMessage="A newer version of this software is already installed."
+                  AllowSameVersionUpgrades="no" />
+
+    <Media Id="1" Cabinet="cabinet.cab" EmbedCab="yes" />
+
+    <Feature Id='Software' Level='1'>
+      <ComponentGroupRef Id="BinFiles" />
+    </Feature>
+    
+    <Directory Id="TARGETDIR" Name="SourceDir">
+      <Directory Id="ProgramFilesFolder" Name="PFiles">
+        <Directory Id="INSTALLDIR" Name="ReactivityMonitor">
+        </Directory>
+      </Directory>
+    </Directory>
+  </Product>
+</Wix>
