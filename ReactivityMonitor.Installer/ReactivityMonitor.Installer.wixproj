@@ -8,6 +8,7 @@
     <IntermediateOutputPath>obj\</IntermediateOutputPath>
     <ProjectGuid>{024164c0-3bee-44da-890f-ce79fd49ee21}</ProjectGuid>
     <DefineConstants>ProductVersion=$(ProductVersion);BinDir=$(ArtifactsDirectory)</DefineConstants>
+    <InstallerPlatform>x64</InstallerPlatform>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == '' ">
     <Configuration>Release</Configuration>
