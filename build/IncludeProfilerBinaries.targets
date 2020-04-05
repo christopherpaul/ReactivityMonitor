@@ -1,4 +1,10 @@
 <Project>
+  <ItemGroup>
+    <ProjectReference Include="$(TopLevelSourceDirectory)ReactivityProfiler\ReactivityProfiler.vcxproj">
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
+    </ProjectReference>
+  </ItemGroup>
+
   <Target Name="BuildProfiler" AfterTargets="AfterResolveReferences">
     <ItemGroup>
       <ProfilerPlatform Include="Win32;x64" />

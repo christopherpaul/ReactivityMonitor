@@ -17,6 +17,9 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactivityProfiler.Protocol", "ReactivityProfiler.Protocol\ReactivityProfiler.Protocol.csproj", "{0E952B06-FA2E-43F5-A73C-C2B9884E0F3C}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ReactivityMonitor", "ReactivityMonitor\ReactivityMonitor.csproj", "{38A583EE-AFFB-4EF9-9AD3-5E5F8DA0B088}"
+	ProjectSection(ProjectDependencies) = postProject
+		{5A47F71D-31D4-4E1E-A37D-167EFDD4787A} = {5A47F71D-31D4-4E1E-A37D-167EFDD4787A}
+	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ReactivityMonitor.Model", "ReactivityMonitor.Model\ReactivityMonitor.Model.csproj", "{2E30E243-38D4-45DB-B864-3D67ADD15994}"
 EndProject
