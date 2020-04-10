@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
+using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -26,6 +27,7 @@ namespace ReactivityMonitor.Dialogs.QuickEventList
 
         public QuickEventListDialogViewModel(IEventList eventList)
         {
+            eventList.IncludeInputObservables = this.WhenAnyValue(x => x.IncludeInputObservables);
             EventList = eventList;
 
             var whenUserCancels = CommandHelper.CreateTriggerCommand(out var cancelCommand);
@@ -47,5 +49,12 @@ namespace ReactivityMonitor.Dialogs.QuickEventList
         public IEventList EventList { get; }
 
         public ICommand CancelCommand { get; }
+
+        private bool mIncludeInputObservables;
+        public bool IncludeInputObservables
+        {
+            get => mIncludeInputObservables;
+            set => this.RaiseAndSetIfChanged(ref mIncludeInputObservables, value);
+        }
     }
 }

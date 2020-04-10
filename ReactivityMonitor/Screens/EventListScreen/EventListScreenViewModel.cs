@@ -31,6 +31,9 @@ namespace ReactivityMonitor.Screens.EventListScreen
             IEventList eventList)
         {
             eventList.WhenEventSelectionChanges.Subscribe(selectionService.ChangeSelection);
+            eventList.IncludeInputObservables = this.WhenAnyValue(x => x.IncludeInputObservables)
+                .ObserveOn(concurrencyService.TaskPoolRxScheduler);
+
             EventList = eventList;
 
             this.WhenActivated(disposables =>
@@ -51,6 +54,13 @@ namespace ReactivityMonitor.Screens.EventListScreen
         public string DisplayName => mDocument.DocumentName;
 
         public IEventList EventList { get; }
+
+        private bool mIncludeInputObservables;
+        public bool IncludeInputObservables
+        {
+            get => mIncludeInputObservables;
+            set => this.RaiseAndSetIfChanged(ref mIncludeInputObservables, value);
+        }
 
         public IWorkspaceDocument Document => mDocument;
 

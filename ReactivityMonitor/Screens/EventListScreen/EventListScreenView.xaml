@@ -9,7 +9,15 @@
              d:DesignHeight="450" d:DesignWidth="800"
              >
     <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+ 
+        <CheckBox IsChecked="{Binding IncludeInputObservables}">Include events from _input observables</CheckBox>
+        
         <ContentControl Content="{Binding EventList}"
-                        VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" />
+                        VerticalAlignment="Stretch" VerticalContentAlignment="Stretch"
+                        Grid.Row="1" />
     </Grid>
 </UserControl>

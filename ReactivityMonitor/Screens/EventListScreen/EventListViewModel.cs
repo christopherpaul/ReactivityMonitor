@@ -32,33 +32,50 @@ namespace ReactivityMonitor.Screens.EventListScreen
 
             this.WhenActivated((CompositeDisposable disposables) => 
             {
-                var observablesWhileNoRemovals = Observables
-                    .ObserveOn(concurrencyService.TaskPoolRxScheduler)
-                    .TakeWhile(change => change.Removes == 0)
-                    .Transform(obs => Observable.Return(obs))
-                    .MergeMany(obs =>
-                        (IncludeInputObservables ?? Observable.Return(false)).Select(includeInputs => includeInputs
-                            ? obs.Expand(obs => obs.Inputs)
-                            : obs).Switch())
-                    .Distinct(obs => obs.ObservableId);
+                var whenIncludeInputsChanges = 
+                    IncludeInputObservables
+                        ?.ObserveOn(concurrencyService.TaskPoolRxScheduler)
+                        .DistinctUntilChanged()
+                    ?? Observable.Return(false);
 
-                var eventsWhileNoRemovals = observablesWhileNoRemovals
-                    .SelectMany(obs => Observable.Return(EventItem.FromObservableInstance(obs))
-                        .Concat(obs.Subscriptions.SelectMany(sub => sub.Events.Select(e => EventItem.FromStreamEvent(sub, e)))))
-                    .Merge(ClientEvents?.Select(EventItem.FromClientEvent) ?? Observable.Empty<EventItem>());
+                var eventsProcessedUntilInvalid =
+                    whenIncludeInputsChanges.Publish(whenIncludeInputsChangesPub =>
+                        whenIncludeInputsChangesPub.SelectMany(includeInputs =>
+                            Observables
+                                .ObserveOn(concurrencyService.TaskPoolRxScheduler)
+                                .Publish(observablesPub =>
+                                {
+                                    var observablesExpanded =
+                                        observablesPub
+                                            .Transform(obs => Observable.Return(obs))
+                                            .MergeMany(obs => includeInputs ? obs.Expand(obs => obs.Inputs) : obs)
+                                            .Distinct(obs => obs.ObservableId);
 
-                var eventsProcessedWhileNoRemovals = eventsWhileNoRemovals
-                    .ToObservableChangeSet(e => e.SequenceId)
-                    .Filter(SequenceIdRange?.Select(CreateFilter) ?? Observable.Return<Func<EventItem, bool>>(_ => true))
-                    .Batch(TimeSpan.FromMilliseconds(100))
-                    .Sort(Utility.Comparer<EventItem>.ByKey(e => e.SequenceId))
+                                    var events = observablesExpanded
+                                        .SelectMany(obs => Observable.Return(EventItem.FromObservableInstance(obs))
+                                            .Concat(obs.Subscriptions.SelectMany(sub => sub.Events.Select(e => EventItem.FromStreamEvent(sub, e)))))
+                                        .Merge(ClientEvents?.Select(EventItem.FromClientEvent) ?? Observable.Empty<EventItem>());
+
+                                    var eventsProcessed = events
+                                        .ToObservableChangeSet(e => e.SequenceId)
+                                        .Filter(SequenceIdRange?.Select(CreateFilter) ?? Observable.Return<Func<EventItem, bool>>(_ => true))
+                                        .Batch(TimeSpan.FromMilliseconds(100))
+                                        .Sort(Utility.Comparer<EventItem>.ByKey(e => e.SequenceId));
+
+                                    // Terminate the stream if an observable is removed or the include inputs
+                                    // flag changes, as in both cases we need to rebuild the output from scratch.
+                                    return eventsProcessed
+                                        .TakeUntil(observablesPub.Where(chg => chg.Removes > 0))
+                                        .TakeUntil(whenIncludeInputsChangesPub.Where(ii => ii != includeInputs));
+                                }))
+                    )
                     .SubscribeOn(concurrencyService.TaskPoolRxScheduler);
 
                 Observable.Defer(() =>
                 {
                     eventsCollection.Clear();
 
-                    return eventsProcessedWhileNoRemovals
+                    return eventsProcessedUntilInvalid
                         .ObserveOn(concurrencyService.DispatcherRxScheduler)
                         .Bind(eventsCollection, new SortedObservableCollectionAdaptor<EventItem, long>(int.MaxValue));
                 })

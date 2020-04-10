@@ -9,14 +9,18 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-        <ContentControl Content="{Binding EventList}"
-                        Margin="4,4,4,4" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch" />
+        <CheckBox IsChecked="{Binding IncludeInputObservables}">Include events from _input observables</CheckBox>
 
-        <Border Grid.Row="1" Padding="8"
+        <ContentControl Content="{Binding EventList}"
+                        Margin="4,4,4,4" VerticalAlignment="Stretch" VerticalContentAlignment="Stretch"
+                        Grid.Row="1" />
+
+        <Border Grid.Row="2" Padding="8"
                 BorderThickness="0,1,0,0" BorderBrush="LightGray"
                 Margin="0,8,0,0">
             <WrapPanel HorizontalAlignment="Right">
