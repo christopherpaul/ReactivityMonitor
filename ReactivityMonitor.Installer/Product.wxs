@@ -26,5 +26,9 @@
         </Directory>
       </Directory>
     </Directory>
+
+    <Property Id="WIXUI_INSTALLDIR" Value="INSTALLDIR" />
+    <WixVariable Id="WixUILicenseRtf" Value="LICENSE.rtf" />
+    <UIRef Id="WixUI_InstallDir" />
   </Product>
 </Wix>

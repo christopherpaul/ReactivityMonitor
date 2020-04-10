@@ -19,13 +19,14 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.Common.CurrentVersion.targets" />
   <Import Project="$(WixTargetsPath)" Condition="Exists('$(WixTargetsPath)')" />
-  <Target Name="DumpStuff">
-    <Message Importance="high" Text="$(MSBuildToolsPath)" />
-  </Target>
   <Target Name="BuildBinaries">
     <MSBuild Projects="$(TopLevelSourceDirectory)ReactivityMonitor.sln" Targets="CopyArtifacts" Properties="Configuration=Release;Platform=x64" />
   </Target>
   <ItemGroup>
+    <None Include="LICENSE.rtf" />
+
+    <Compile Include="Product.wxs" />
+
     <HarvestDirectory Include="$(ArtifactsDirectory)">
       <SuppressCom>true</SuppressCom>
       <SuppressRegistry>true</SuppressRegistry>
@@ -34,9 +35,7 @@
       <PreprocessorVariable>var.BinDir</PreprocessorVariable>
       <ComponentGroupName>BinFiles</ComponentGroupName>
     </HarvestDirectory>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Product.wxs" />
+    <WixExtension Include="WixUIExtension" />
   </ItemGroup>
   <Target Name="BeforeBuild" DependsOnTargets="BuildBinaries" />
   <Target Name="BuildReleaseOnly" DependsOnTargets="Build" Condition=" '$(Configuration)' == 'Release' ">
