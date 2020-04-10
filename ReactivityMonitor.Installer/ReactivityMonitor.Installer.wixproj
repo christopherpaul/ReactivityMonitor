@@ -31,12 +31,13 @@
       <SuppressCom>true</SuppressCom>
       <SuppressRegistry>true</SuppressRegistry>
       <SuppressRootDirectory>true</SuppressRootDirectory>
-      <DirectoryRefId>INSTALLDIR</DirectoryRefId>
+      <DirectoryRefId>BINDIR</DirectoryRefId>
       <PreprocessorVariable>var.BinDir</PreprocessorVariable>
       <ComponentGroupName>BinFiles</ComponentGroupName>
       <Transforms>harvest-transform.xsl</Transforms>
     </HarvestDirectory>
-    <WixExtension Include="WixUIExtension" />
+    
+    <WixExtension Include="WixUIExtension;WixUtilExtension" />
   </ItemGroup>
   <Target Name="BeforeBuild" DependsOnTargets="BuildBinaries" />
   <Target Name="BuildReleaseOnly" DependsOnTargets="Build" Condition=" '$(Configuration)' == 'Release' ">
