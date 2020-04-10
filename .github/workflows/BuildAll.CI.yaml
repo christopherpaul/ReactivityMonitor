@@ -17,9 +17,10 @@ jobs:
           run: nuget restore
         - name: Build x64
           run: msbuild ReactivityMonitor.sln "-t:restore;build" -p:Configuration=Release -p:Platform=x64
-        - name: Upload artifacts
+        - name: Build installer x64
+          run: msbuild ReactivityMonitor.Installer\ReactivityMonitor.Installer.wixproj "-t:restore;build" -p:Configuration=Release -p:Platform=x64
+        - name: Upload installer
           uses: actions/upload-artifact@v1
           with:
-              name: binaries
-              path: ReactivityMonitor/bin/Release
- 
+              name: installer
+              path: ReactivityMonitor.Installer/bin/ReactivityMonitor.Installer.msi
