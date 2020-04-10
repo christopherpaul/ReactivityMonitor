@@ -7,7 +7,7 @@
     <OutputPath>bin\</OutputPath>
     <IntermediateOutputPath>obj\</IntermediateOutputPath>
     <ProjectGuid>{024164c0-3bee-44da-890f-ce79fd49ee21}</ProjectGuid>
-    <DefineConstants>ProductVersion=$(ProductVersion);BinDir=$(ArtifactsDirectory)</DefineConstants>
+    <DefineConstants>ProductName=ReactivityMonitor;ProductVersion=$(ProductVersion);BinDir=$(ArtifactsDirectory)</DefineConstants>
     <InstallerPlatform>x64</InstallerPlatform>
     <DefineSolutionProperties>false</DefineSolutionProperties>
   </PropertyGroup>
@@ -34,6 +34,7 @@
       <DirectoryRefId>INSTALLDIR</DirectoryRefId>
       <PreprocessorVariable>var.BinDir</PreprocessorVariable>
       <ComponentGroupName>BinFiles</ComponentGroupName>
+      <Transforms>harvest-transform.xsl</Transforms>
     </HarvestDirectory>
     <WixExtension Include="WixUIExtension" />
   </ItemGroup>
