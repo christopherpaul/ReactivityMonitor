@@ -15,6 +15,7 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using Utility.SmartSearch;
 
 namespace ReactivityMonitor.Dialogs.AddMethod
 {
@@ -39,25 +40,49 @@ namespace ReactivityMonitor.Dialogs.AddMethod
                 var whenSearchStringChanges = this.WhenAnyValue(x => x.SearchString)
                     .ObserveOn(concurrencyService.TaskPoolRxScheduler);
 
-                Model.Modules
-                    .SelectMany(m => m.InstrumentedMethods)
-                    .ToObservableChangeSet(m => m.InstrumentedMethodId)
-                    .Filter(whenSearchStringChanges.Select(FilterMethod))
-                    .Transform(m => new MethodItem(m))
-                    .SubscribeOn(concurrencyService.TaskPoolRxScheduler)
-                    .ObserveOn(concurrencyService.DispatcherRxScheduler)
-                    .Bind(methods)
+                whenSearchStringChanges
+                    .ObserveOn(concurrencyService.TaskPoolRxScheduler)
+                    .Select(ScoreMethod)
+                    .Select(scorer =>
+                        Model.Modules
+                            .ObserveOn(concurrencyService.TaskPoolRxScheduler)
+                            .SelectMany(m => m.InstrumentedMethods)
+                            .Select(m => (method: m, score: scorer(m)))
+                            .Where(m => m.score.HasValue)
+                            .ToObservableChangeSet(m => m.method.InstrumentedMethodId)
+                            .Transform(m => new MethodItem(m.method, m.score.Value))
+                            .Sort(Utility.Comparer<MethodItem>.ByKey(item => -item.Score)))
+                    .Select(items =>
+                        Observable.Defer(() =>
+                        {
+                            methods.Clear();
+                            return items
+                                .ObserveOn(concurrencyService.DispatcherRxScheduler)
+                                .Bind(methods);
+                        }).SubscribeOn(concurrencyService.DispatcherRxScheduler))
+                    .Switch()
                     .Subscribe()
                     .DisposeWith(disposables);
-
-                Func<IInstrumentedMethod, bool> FilterMethod(string s)
+                            
+                Func<IInstrumentedMethod, int?> ScoreMethod(string s)
                 {
                     if (string.IsNullOrWhiteSpace(s))
                     {
-                        return Funcs<IInstrumentedMethod>.False;
+                        return Funcs<IInstrumentedMethod>.DefaultOf<int?>();
                     }
 
-                    return m => m.Name.IndexOf(s, StringComparison.CurrentCultureIgnoreCase) >= 0;
+                    var scorer = MatchScorerFactory.Default.Create(s);
+
+                    return m =>
+                    {
+                        int score = scorer.Score(m.Name);
+                        if (score != int.MinValue)
+                        {
+                            return score;
+                        }
+
+                        return null;
+                    };
                 }
 
                 whenUserCancels.Subscribe(_ => Cancel())
@@ -138,9 +163,10 @@ namespace ReactivityMonitor.Dialogs.AddMethod
         {
             private readonly IInstrumentedMethod mMethod;
 
-            public MethodItem(IInstrumentedMethod method)
+            public MethodItem(IInstrumentedMethod method, int score)
             {
                 mMethod = method;
+                Score = score;
                 var typeParts = mMethod.ParentType.Split('.');
                 TypeName = typeParts.LastOrDefault() ?? string.Empty;
                 Namespace = string.Join(".", typeParts.Take(typeParts.Length - 1));
@@ -153,6 +179,7 @@ namespace ReactivityMonitor.Dialogs.AddMethod
             public string TypeAndName => $"{TypeName}.{MethodName}";
             public string FullTypeName => mMethod.ParentType;
             public string Namespace { get; }
+            public int Score { get; }
         }
     }
 }

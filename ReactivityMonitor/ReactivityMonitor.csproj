@@ -302,6 +302,9 @@
       <Project>{47021846-34AB-45A0-9866-B8EB46CAF4A2}</Project>
       <Name>ReactivityMonitor.Utility</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Utility.SmartSearch\Utility.SmartSearch.csproj">
+      <Name>Utility.SmartSearch</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Caliburn.Micro.Start" Version="3.2.0" />
