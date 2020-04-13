@@ -23,35 +23,63 @@ namespace ReactivityMonitor.Dialogs.AddMethod
     {
         public AddMethodDialogViewModel(IConcurrencyService concurrencyService)
         {
-            var methods = new ObservableCollectionExtended<MethodItem>();
-            Methods = new ReadOnlyObservableCollection<MethodItem>(methods);
+            var methods = new ObservableCollectionExtended<Item>();
+            Methods = new ReadOnlyObservableCollection<Item>(methods);
 
             var whenUserCancels = CommandHelper.CreateTriggerCommand(out var cancelCommand);
             CancelCommand = cancelCommand;
-            var whenUserProceeds = CommandHelper.CreateTriggerCommand(out var proceedCommand);
-            AddSelectedCommand = proceedCommand;
+            var whenUserAccepts = CommandHelper.CreateTriggerCommand(out var acceptCommand);
+            AcceptCommand = acceptCommand;
+
+            mSelectedMethodHelper = this.WhenAnyValue(x => x.SelectedItem)
+                .Select(item => item as MethodItem)
+                .ToProperty(this, nameof(SelectedMethod));
+            mSelectedTypeHelper = this.WhenAnyValue(x => x.SelectedItem)
+                .Select(item => item as TypeItem)
+                .ToProperty(this, nameof(SelectedType));
+            mAcceptCommandTextHelper = this.WhenAnyValue(x => x.SelectedItem)
+                .Select(item => item is TypeItem ? "See methods" : "Add")
+                .ToProperty(this, nameof(AcceptCommandText));
 
             this.WhenActivated((CompositeDisposable disposables) =>
             {
                 SearchString = string.Empty;
-                SelectedMethod = null;
+                SelectedItem = null;
+                ChosenType = null;
                 methods.Clear();
 
                 var whenSearchStringChanges = this.WhenAnyValue(x => x.SearchString)
                     .ObserveOn(concurrencyService.TaskPoolRxScheduler);
 
+                var whenChosenTypeChanges = this.WhenAnyValue(x => x.ChosenType)
+                    .ObserveOn(concurrencyService.TaskPoolRxScheduler);
+
                 whenSearchStringChanges
+                    .CombineLatest(whenChosenTypeChanges, (searchString, chosenType) => (searchString, chosenType))
                     .ObserveOn(concurrencyService.TaskPoolRxScheduler)
-                    .Select(ScoreMethod)
-                    .Select(scorer =>
+                    .Select(inputs => MakeScorers(inputs.searchString, inputs.chosenType))
+                    .Select(scorers =>
                         Model.Modules
                             .ObserveOn(concurrencyService.TaskPoolRxScheduler)
                             .SelectMany(m => m.InstrumentedMethods)
-                            .Select(m => (method: m, score: scorer(m)))
-                            .Where(m => m.score.HasValue)
-                            .ToObservableChangeSet(m => m.method.InstrumentedMethodId)
-                            .Transform(m => new MethodItem(m.method, m.score.Value))
-                            .Sort(Utility.Comparer<MethodItem>.ByKey(item => -item.Score)))
+                            .Publish(ms =>
+                            {
+                                var methodItems = ms
+                                    .Select(m => (method: m, score: scorers.scoreMethod(m)))
+                                    .Where(m => m.score.HasValue)
+                                    .Select(m => (Item)new MethodItem(m.method, m.score.Value));
+
+                                var typeItems = ms
+                                    .Select(m => m.ParentType)
+                                    .Distinct()
+                                    .Select(t => (type: t, score: scorers.scoreType(t)))
+                                    .Where(t => t.score.HasValue)
+                                    .Select(t => (Item)new TypeItem(t.type, t.score.Value));
+
+                                return methodItems.Merge(typeItems);
+                            })
+                            .ToObservableChangeSet()
+                            .Sort(Utility.Comparer<Item>.ByKey(item => -item.Score)))
                     .Select(items =>
                         Observable.Defer(() =>
                         {
@@ -64,18 +92,31 @@ namespace ReactivityMonitor.Dialogs.AddMethod
                     .Subscribe()
                     .DisposeWith(disposables);
                             
-                Func<IInstrumentedMethod, int?> ScoreMethod(string s)
+                (Func<IInstrumentedMethod, int?> scoreMethod, Func<string, int?> scoreType) MakeScorers(string s, TypeItem chosenType)
                 {
-                    if (string.IsNullOrWhiteSpace(s))
-                    {
-                        return Funcs<IInstrumentedMethod>.DefaultOf<int?>();
-                    }
-
                     var scorer = MatchScorerFactory.Default.Create(s);
 
-                    return m =>
+                    if (chosenType != null)
                     {
-                        int score = scorer.Score(m.Name);
+                        string typeToMatch = chosenType.FullTypeName;
+                        if (string.IsNullOrWhiteSpace(s))
+                        {
+                            return (m => m.ParentType == typeToMatch ? (int?)0 : null, Funcs<string>.DefaultOf<int?>());
+                        }
+
+                        return (m => m.ParentType == typeToMatch ? GetScoreOrNull(m.Name) : null, Funcs<string>.DefaultOf<int?>());
+                    }
+
+                    if (string.IsNullOrWhiteSpace(s))
+                    {
+                        return (Funcs<IInstrumentedMethod>.DefaultOf<int?>(), Funcs<string>.DefaultOf<int?>());
+                    }
+
+                    return (m => GetScoreOrNull(m.Name), GetScoreOrNull);
+
+                    int? GetScoreOrNull(string n)
+                    {
+                        int score = scorer.Score(n);
                         if (score != int.MinValue)
                         {
                             return score;
@@ -88,20 +129,32 @@ namespace ReactivityMonitor.Dialogs.AddMethod
                 whenUserCancels.Subscribe(_ => Cancel())
                     .DisposeWith(disposables);
 
-                this.WhenAnyValue(x => x.SelectedMethod)
+                Methods.ToObservableChangeSet()
+                    .ObserveOn(concurrencyService.TaskPoolRxScheduler)
+                    .Top(1)
+                    .OnItemAdded(firstItem => SelectedItem = firstItem)
+                    .Subscribe()
+                    .DisposeWith(disposables);
+
+                this.WhenAnyValue(x => x.SelectedItem)
                     .ObserveOn(concurrencyService.DispatcherRxScheduler)
-                    .Select(m =>
+                    .Select(item =>
                     {
-                        if (m == null)
+                        if (item is MethodItem m)
                         {
-                            return Methods.ToObservableChangeSet()
-                                .ObserveOn(concurrencyService.TaskPoolRxScheduler)
-                                .Top(1)
-                                .OnItemAdded(firstMethod => SelectedMethod = firstMethod)
-                                .Select(_ => Unit.Default);
+                            return whenUserAccepts.Do(_ => Proceed(m.Method));
                         }
 
-                        return whenUserProceeds.Do(_ => Proceed(m.Method));
+                        if (item is TypeItem t)
+                        {
+                            return whenUserAccepts.Do(_ =>
+                            {
+                                ChosenType = t;
+                                SearchString = string.Empty;
+                            });
+                        }
+
+                        return Observable.Empty<Unit>();
                     })
                     .Switch()
                     .Subscribe()
@@ -114,7 +167,10 @@ namespace ReactivityMonitor.Dialogs.AddMethod
         public Action Cancel { get; set; }
 
         public ICommand CancelCommand { get; }
-        public ICommand AddSelectedCommand { get; }
+        public ICommand AcceptCommand { get; }
+
+        private readonly ObservableAsPropertyHelper<string> mAcceptCommandTextHelper;
+        public string AcceptCommandText => mAcceptCommandTextHelper.Value;
 
         public string DisplayName
         {
@@ -148,18 +204,55 @@ namespace ReactivityMonitor.Dialogs.AddMethod
             }
         }
 
-        public string NoItemsPlaceholderText => SearchStringIsEmpty ? string.Empty : "No matching methods found";
+        public string NoItemsPlaceholderText => SearchStringIsEmpty ? string.Empty : "No matching types or methods found";
 
-        public ReadOnlyObservableCollection<MethodItem> Methods { get; }
+        public ReadOnlyObservableCollection<Item> Methods { get; }
 
-        private MethodItem mSelectedMethod;
-        public MethodItem SelectedMethod
+        private Item mSelectedItem;
+        public Item SelectedItem
         {
-            get => mSelectedMethod;
-            set => this.RaiseAndSetIfChanged(ref mSelectedMethod, value);
+            get => mSelectedItem;
+            set => this.RaiseAndSetIfChanged(ref mSelectedItem, value);
         }
 
-        public sealed class MethodItem
+        private ObservableAsPropertyHelper<MethodItem> mSelectedMethodHelper;
+        public MethodItem SelectedMethod => mSelectedMethodHelper.Value;
+
+        private ObservableAsPropertyHelper<TypeItem> mSelectedTypeHelper;
+        public TypeItem SelectedType => mSelectedTypeHelper.Value;
+
+        private TypeItem mChosenType;
+        public TypeItem ChosenType
+        {
+            get => mChosenType;
+            set => this.RaiseAndSetIfChanged(ref mChosenType, value);
+        }
+
+        public abstract class Item
+        {
+            public abstract int Score { get; }
+        }
+
+        public sealed class TypeItem : Item
+        {
+            public TypeItem(string type, int score)
+            {
+                Score = score;
+                string[] parts = type.Split('.');
+                Name = parts[parts.Length - 1];
+                Namespace = string.Join(".", parts.Take(parts.Length - 1));
+                FullTypeName = type;
+            }
+
+            public string FullTypeName { get; }
+
+            public string Name { get; }
+            public string Namespace { get; }
+
+            public override int Score { get; }
+        }
+
+        public sealed class MethodItem : Item
         {
             private readonly IInstrumentedMethod mMethod;
 
@@ -179,7 +272,7 @@ namespace ReactivityMonitor.Dialogs.AddMethod
             public string TypeAndName => $"{TypeName}.{MethodName}";
             public string FullTypeName => mMethod.ParentType;
             public string Namespace { get; }
-            public int Score { get; }
+            public override int Score { get; }
         }
     }
 }

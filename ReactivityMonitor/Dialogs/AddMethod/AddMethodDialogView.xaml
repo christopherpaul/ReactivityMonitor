@@ -14,9 +14,9 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
         
-        <ListBox Name="MatchingMethodList" ItemsSource="{Binding Methods}" SelectedItem="{Binding SelectedMethod}"
+        <ListBox Name="MatchingMethodList" ItemsSource="{Binding Methods}" SelectedItem="{Binding SelectedItem}"
                  Margin="4,4,4,4" VerticalAlignment="Stretch">
-            <ListBox.ItemTemplate>
+            <ListBox.Resources>
                 <DataTemplate DataType="{x:Type local:AddMethodDialogViewModel+MethodItem}">
                     <TextBlock>
                         <Run Text="{Binding MethodName, Mode=OneTime}" />
@@ -24,7 +24,14 @@
                         in <Run Text="{Binding FullTypeName, Mode=OneTime}" FontSize="10" />
                     </TextBlock>
                 </DataTemplate>
-            </ListBox.ItemTemplate>
+                <DataTemplate DataType="{x:Type local:AddMethodDialogViewModel+TypeItem}">
+                    <TextBlock>
+                        <Run Text="{Binding Name, Mode=OneTime}" />.*
+                        <LineBreak/>
+                        in <Run Text="{Binding Namespace, Mode=OneTime}" FontSize="10" />
+                    </TextBlock>
+                </DataTemplate>
+            </ListBox.Resources>
             <ListBox.Template>
                 <ControlTemplate TargetType="ListBox">
                     <Grid>
@@ -43,9 +50,16 @@
 
                         <Grid Grid.Column="1"
                               Loaded="SearchBoxParent_Loaded">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                                <ColumnDefinition Width="*" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox Text="{Binding ChosenType.Name, Mode=OneWay}" IsEnabled="False"
+                                     Visibility="{Binding ChosenType, Converter={StaticResource CollapsedWhenNullConverter}}"
+                                     Padding="8" />
                             <TextBox Name="SearchBox" Text="{Binding SearchString, UpdateSourceTrigger=PropertyChanged}" 
-                                    HorizontalAlignment="Stretch" Padding="8"
-                                    Loaded="SearchBox_Loaded" />
+                                Grid.Column="1" HorizontalAlignment="Stretch" Padding="8"
+                                Loaded="SearchBox_Loaded" />
                         </Grid>
 
                         <Border Name="Border"
@@ -77,7 +91,7 @@
             <WrapPanel HorizontalAlignment="Right">
                 <Button Content="Cancel" IsCancel="True" Command="{Binding CancelCommand}"
                     Style="{StaticResource StandardButton}"/>
-                <Button Content="Add" IsDefault="True" Command="{Binding AddSelectedCommand}"
+                <Button Content="{Binding AcceptCommandText}" IsDefault="True" Command="{Binding AcceptCommand}"
                     Style="{StaticResource StandardButton}"/>
             </WrapPanel>
         </Border>
