@@ -67,14 +67,14 @@ namespace ReactivityMonitor.Dialogs.AddMethod
                                 var methodItems = ms
                                     .Select(m => (method: m, score: scorers.scoreMethod(m)))
                                     .Where(m => m.score.HasValue)
-                                    .Select(m => (Item)new MethodItem(m.method, m.score.Value));
+                                    .Select(m => (Item)new MethodItem(m.method, m.score.Value, scorers.scorer));
 
                                 var typeItems = ms
                                     .Select(m => m.ParentType)
                                     .Distinct()
                                     .Select(t => (type: t, score: scorers.scoreType(t)))
                                     .Where(t => t.score.HasValue)
-                                    .Select(t => (Item)new TypeItem(t.type, t.score.Value));
+                                    .Select(t => (Item)new TypeItem(t.type, t.score.Value, scorers.scorer));
 
                                 return methodItems.Merge(typeItems);
                             })
@@ -92,7 +92,7 @@ namespace ReactivityMonitor.Dialogs.AddMethod
                     .Subscribe()
                     .DisposeWith(disposables);
                             
-                (Func<IInstrumentedMethod, int?> scoreMethod, Func<string, int?> scoreType) MakeScorers(string s, TypeItem chosenType)
+                (Func<IInstrumentedMethod, int?> scoreMethod, Func<string, int?> scoreType, IMatchScorer scorer) MakeScorers(string s, TypeItem chosenType)
                 {
                     var scorer = MatchScorerFactory.Default.Create(s);
 
@@ -101,18 +101,18 @@ namespace ReactivityMonitor.Dialogs.AddMethod
                         string typeToMatch = chosenType.FullTypeName;
                         if (string.IsNullOrWhiteSpace(s))
                         {
-                            return (m => m.ParentType == typeToMatch ? (int?)0 : null, Funcs<string>.DefaultOf<int?>());
+                            return (m => m.ParentType == typeToMatch ? (int?)0 : null, Funcs<string>.DefaultOf<int?>(), scorer);
                         }
 
-                        return (m => m.ParentType == typeToMatch ? GetScoreOrNull(m.Name) : null, Funcs<string>.DefaultOf<int?>());
+                        return (m => m.ParentType == typeToMatch ? GetScoreOrNull(m.Name) : null, Funcs<string>.DefaultOf<int?>(), scorer);
                     }
 
                     if (string.IsNullOrWhiteSpace(s))
                     {
-                        return (Funcs<IInstrumentedMethod>.DefaultOf<int?>(), Funcs<string>.DefaultOf<int?>());
+                        return (Funcs<IInstrumentedMethod>.DefaultOf<int?>(), Funcs<string>.DefaultOf<int?>(), scorer);
                     }
 
-                    return (m => GetScoreOrNull(m.Name), GetScoreOrNull);
+                    return (m => GetScoreOrNull(m.Name), GetScoreOrNull, scorer);
 
                     int? GetScoreOrNull(string n)
                     {
@@ -230,12 +230,27 @@ namespace ReactivityMonitor.Dialogs.AddMethod
 
         public abstract class Item
         {
+            private readonly Lazy<(string text, IEnumerable<int> positions)> mMatchPositionsInfo;
+
+            protected Item(string matchText, IMatchScorer scorer)
+            {
+                mMatchPositionsInfo = new Lazy<(string, IEnumerable<int>)>(() =>
+                {
+                    string s = matchText;
+                    var positions = scorer.GetMatchPositions(ref s);
+                    return (s, positions);
+                });
+            }
+
             public abstract int Score { get; }
+
+            public string MatchText => mMatchPositionsInfo.Value.text;
+            public IEnumerable<int> MatchPositions => mMatchPositionsInfo.Value.positions;
         }
 
         public sealed class TypeItem : Item
         {
-            public TypeItem(string type, int score)
+            public TypeItem(string type, int score, IMatchScorer scorer) : base(type, scorer)
             {
                 Score = score;
                 string[] parts = type.Split('.');
@@ -256,7 +271,8 @@ namespace ReactivityMonitor.Dialogs.AddMethod
         {
             private readonly IInstrumentedMethod mMethod;
 
-            public MethodItem(IInstrumentedMethod method, int score)
+            public MethodItem(IInstrumentedMethod method, int score, IMatchScorer scorer)
+                : base(method.Name, scorer)
             {
                 mMethod = method;
                 Score = score;

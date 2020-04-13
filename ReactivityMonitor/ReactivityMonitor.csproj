@@ -69,6 +69,7 @@
     <Compile Include="Connection\DataFileConnectionModel.cs" />
     <Compile Include="Connection\IConnectionModel.cs" />
     <Compile Include="Connection\LaunchInfo.cs" />
+    <Compile Include="Controls\MatchedText.cs" />
     <Compile Include="Controls\SimpleViewport.cs" />
     <Compile Include="Definitions\Commands.cs" />
     <Compile Include="Dialogs\AddMethod\AddMethodDialogView.xaml.cs">
