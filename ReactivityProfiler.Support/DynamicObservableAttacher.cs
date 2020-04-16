@@ -9,39 +9,78 @@ namespace ReactivityProfiler.Support
 {
     internal abstract class DynamicObservableAttacher : IObservableInput
     {
-        protected ObservableInfo Info { get; private set; }
-
-        public void AssociateWith(ObservableInfo info)
-        {
-            Info = info;
-        }
+        public abstract void AssociateWith(ObservableInfo info);
     }
 
     internal class DynamicObservableAttacher<T> : DynamicObservableAttacher
     {
+        private readonly object mLock = new object();
+        private ObservableInfo mInfoToWrap;
+        private ObservableInfo mInfoToAttachTo;
+        private bool mIsSubscribed;
+
+        public override void AssociateWith(ObservableInfo info)
+        {
+            lock (mLock)
+            {
+                mInfoToAttachTo = info;
+                if (mIsSubscribed)
+                {
+                    mInfoToAttachTo.AddInput(mInfoToWrap);
+                }
+            }
+        }
+
         public IObservable<T> Attach(IObservable<T> observable)
         {
             if (observable is IInstrumentedObservable instrumentedObservable)
             {
-                return new AttachingObservable(observable, (ObservableInfo)instrumentedObservable.Info, Info);
+                lock (mLock)
+                {
+                    mInfoToWrap = (ObservableInfo)instrumentedObservable.Info;
+                }
+
+                return new AttachingObservable(observable, this);
             }
 
             return observable;
         }
 
+        private void OnSubscribe()
+        {
+            lock (mLock)
+            {
+                mIsSubscribed = true;
+                if (mInfoToWrap != null && mInfoToAttachTo != null)
+                {
+                    mInfoToAttachTo.AddInput(mInfoToWrap);
+                }
+            }
+        }
+
+        private void OnUnsubscribe()
+        {
+            lock (mLock)
+            {
+                mIsSubscribed = false;
+                if (mInfoToWrap != null && mInfoToAttachTo != null)
+                {
+                    mInfoToAttachTo.RemoveInput(mInfoToWrap);
+                }
+            }
+        }
+
         internal sealed class AttachingObservable : IObservable<T>
         {
             private readonly IObservable<T> mObservable;
-            private readonly ObservableInfo mInfoToWrap;
-            private readonly ObservableInfo mInfoToAttachTo;
+            private readonly DynamicObservableAttacher<T> mParent;
             private int mSubCount;
             private object mSync = new object();
 
-            public AttachingObservable(IObservable<T> observable, ObservableInfo infoToWrap, ObservableInfo infoToAttachTo)
+            public AttachingObservable(IObservable<T> observable, DynamicObservableAttacher<T> parent)
             {
                 mObservable = observable;
-                mInfoToWrap = infoToWrap;
-                mInfoToAttachTo = infoToAttachTo;
+                mParent = parent;
             }
 
             public IDisposable Subscribe(IObserver<T> observer)
@@ -51,7 +90,7 @@ namespace ReactivityProfiler.Support
                     mSubCount++;
                     if (mSubCount == 1)
                     {
-                        mInfoToAttachTo.AddInput(mInfoToWrap);
+                        mParent.OnSubscribe();
                     }
                 }
 
@@ -66,7 +105,7 @@ namespace ReactivityProfiler.Support
                     mSubCount--;
                     if (mSubCount == 0)
                     {
-                        mInfoToAttachTo.RemoveInput(mInfoToWrap);
+                        mParent.OnUnsubscribe();
                     }
                 }
             }
