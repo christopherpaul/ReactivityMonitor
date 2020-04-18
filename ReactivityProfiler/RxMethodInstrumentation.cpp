@@ -171,7 +171,7 @@ RewrittenFunctionData MethodBodyInstrumenter::CreateInstrumentedFunction()
     {
         typeDefToken = m_metadataImport.GetParentTypeDef(typeDefToken);
         owningTypeProps = m_metadataImport.GetTypeDefProps(typeDefToken);
-        m_owningTypeName = owningTypeProps.name + L"." + m_owningTypeName;
+        m_owningTypeName = owningTypeProps.name + L"+" + m_owningTypeName;
     }
 
     g_Store.AddMethodInfo(
