@@ -63,6 +63,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Utility.SmartSearch", "Util
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Utility.SmartSearch.Tests", "Utility.SmartSearch.Tests\Utility.SmartSearch.Tests.csproj", "{21B9A11D-ADED-4B32-BB23-729A65D1841C}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Utility.CSharp", "Utility.CSharp\Utility.CSharp.csproj", "{E60454F2-2C7F-4890-B523-FCB1D30505AD}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -197,6 +199,14 @@ Global
 		{21B9A11D-ADED-4B32-BB23-729A65D1841C}.Release|x64.Build.0 = Release|Any CPU
 		{21B9A11D-ADED-4B32-BB23-729A65D1841C}.Release|x86.ActiveCfg = Release|Any CPU
 		{21B9A11D-ADED-4B32-BB23-729A65D1841C}.Release|x86.Build.0 = Release|Any CPU
+		{E60454F2-2C7F-4890-B523-FCB1D30505AD}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E60454F2-2C7F-4890-B523-FCB1D30505AD}.Debug|x64.Build.0 = Debug|Any CPU
+		{E60454F2-2C7F-4890-B523-FCB1D30505AD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E60454F2-2C7F-4890-B523-FCB1D30505AD}.Debug|x86.Build.0 = Debug|Any CPU
+		{E60454F2-2C7F-4890-B523-FCB1D30505AD}.Release|x64.ActiveCfg = Release|Any CPU
+		{E60454F2-2C7F-4890-B523-FCB1D30505AD}.Release|x64.Build.0 = Release|Any CPU
+		{E60454F2-2C7F-4890-B523-FCB1D30505AD}.Release|x86.ActiveCfg = Release|Any CPU
+		{E60454F2-2C7F-4890-B523-FCB1D30505AD}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
