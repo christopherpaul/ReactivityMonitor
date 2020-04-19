@@ -7,20 +7,20 @@ namespace ReactivityMonitor.Model
 {
     internal sealed class InstrumentedMethod : IInstrumentedMethod
     {
-        public InstrumentedMethod(int id, IModule module, uint metadataToken, string parentType, string name)
+        public InstrumentedMethod(int id, IModule module, uint metadataToken, string detailName, ISourceMethod sourceMethod)
         {
             InstrumentedMethodId = id;
             Module = module;
             MetadataToken = metadataToken;
-            ParentType = parentType;
-            Name = name;
+            DetailName = detailName;
+            SourceMethod = sourceMethod;
         }
 
         public int InstrumentedMethodId { get; }
         public IModule Module { get; }
         public uint MetadataToken { get; }
-        public string ParentType { get; }
-        public string Name { get; }
+        public string DetailName { get; }
+        public ISourceMethod SourceMethod { get; }
         public IImmutableList<IInstrumentedCall> InstrumentedCalls { get; internal set; }
     }
 }

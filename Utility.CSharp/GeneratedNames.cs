@@ -16,5 +16,7 @@ namespace Utility.CSharp
             out int openBracketOffset,
             out int closeBracketOffset) => Impl.TryParseGeneratedName(name, out kind, out openBracketOffset, out closeBracketOffset);
         public static bool TryParseSourceMethodNameFromGeneratedName(string generatedName, GeneratedNameKind requiredKind, out string methodName) => Impl.TryParseSourceMethodNameFromGeneratedName(generatedName, requiredKind, out methodName);
+        public static bool TryParseLocalFunctionNameFromGeneratedName(string generatedName, out string localFunctionName) =>
+            Impl.TryParseLocalFunctionNameFromGeneratedName(generatedName, out localFunctionName);
     }
 }

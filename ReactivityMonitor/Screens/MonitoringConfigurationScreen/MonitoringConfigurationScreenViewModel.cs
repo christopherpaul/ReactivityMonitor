@@ -136,8 +136,8 @@ namespace ReactivityMonitor.Screens.MonitoringConfigurationScreen
                 }
             }
 
-            public string TypeName => mMethod.ParentType;
-            public string MethodName => mMethod.Name;
+            public string TypeName => mMethod.SourceMethod.ParentType;
+            public string MethodName => mMethod.DetailName;
 
             public ICommand StartMonitoringAllCommand { get; }
             public ICommand StopMonitoringAllCommand { get; }

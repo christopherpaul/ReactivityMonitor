@@ -7,6 +7,8 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Reactive.Linq;
 using System.Text;
+using Utility.CSharp;
+using static Microsoft.CodeAnalysis.CSharp.Symbols.GeneratedNameKind;
 
 namespace ReactivityMonitor.Model
 {
@@ -20,7 +22,8 @@ namespace ReactivityMonitor.Model
         private sealed class Impl : IReactivityModel
         {
             private static readonly IModule cUnknownModule = new Module(0, string.Empty, string.Empty, Observable.Empty<IInstrumentedMethod>());
-            private static readonly IInstrumentedMethod cUnknownMethod = new InstrumentedMethod(-1, cUnknownModule, 0, string.Empty, string.Empty);
+            private static readonly ISourceMethod cUnknownSourceMethod = new SourceMethod(cUnknownModule, string.Empty, string.Empty);
+            private static readonly IInstrumentedMethod cUnknownMethod = new InstrumentedMethod(-1, cUnknownModule, 0, string.Empty, cUnknownSourceMethod);
             private static readonly IInstrumentedCall cUnknownInstrumentedCall = new InstrumentedCall(-1, cUnknownMethod, string.Empty, 0, Observable.Empty<IObservableInstance>());
             private static readonly IObservableInstance cUnknownObservable = new ObservableInstance(new EventInfo(-1, DateTime.MinValue, -1), Observable.Return(cUnknownInstrumentedCall), Observable.Empty<IObservableInstance>(), Observable.Empty<ISubscription>());
 
@@ -158,7 +161,9 @@ namespace ReactivityMonitor.Model
             private IInstrumentedMethod CreateInstrumentedMethod(NewInstrumentedMethod m)
             {
                 var module = mModuleCache.Lookup(m.ModuleId);
-                var method = new InstrumentedMethod(m.Id, module.HasValue ? module.Value : cUnknownModule, m.MetadataToken, m.OwningType, m.Name);
+                IModule moduleIfKnown = module.HasValue ? module.Value : cUnknownModule;
+                var sourceMethod = GetSourceMethod(moduleIfKnown, m.OwningType, m.Name, out string localMethodName);
+                var method = new InstrumentedMethod(m.Id, moduleIfKnown, m.MetadataToken, localMethodName, sourceMethod);
                 method.InstrumentedCalls = m.InstrumentedCalls.Select(c => CreateInstrumentedCall(method, c)).ToImmutableList();
                 return method;
             }
@@ -254,6 +259,67 @@ namespace ReactivityMonitor.Model
                         properties.Take(1),
                         Observable.Never<IImmutableList<object>>());
                 }
+            }
+
+            private static readonly char[] cTypeNameSeparators = { '.', '+' };
+            private ISourceMethod GetSourceMethod(IModule module, string parentType, string name, out string localName)
+            {
+                localName = name;
+                string sourceParentType = parentType;
+
+                int parentTypeLastSeparator = parentType.LastIndexOfAny(cTypeNameSeparators);
+                if (parentTypeLastSeparator >= 0)
+                {
+                    string typeSimpleName = parentType.Substring(parentTypeLastSeparator + 1);
+
+                    if (GeneratedNames.TryParseGeneratedName(typeSimpleName, out var genTypeNameKind, out _, out _))
+                    {
+                        sourceParentType = parentType.Remove(parentTypeLastSeparator);
+
+                        // lambda display class names don't contain the method - need to parse the method name below
+
+                        if (genTypeNameKind == StateMachineType)
+                        {
+                            if (GeneratedNames.TryParseSourceMethodNameFromGeneratedName(typeSimpleName, genTypeNameKind, out string sourceMethodName))
+                            {
+                                var sourceMethod = GetSourceMethod(module, sourceParentType, sourceMethodName, out localName);
+
+                                localName += " [state machine]";
+
+                                return sourceMethod;
+                            }
+                        }
+                    }
+                }
+
+                if (GeneratedNames.TryParseGeneratedName(name, out var genMethodNameKind, out _, out _))
+                {
+                    if (GeneratedNames.TryParseSourceMethodNameFromGeneratedName(name, genMethodNameKind, out string sourceMethodName))
+                    {
+                        var sourceMethod = GetSourceMethod(module, sourceParentType, sourceMethodName, out localName);
+
+                        switch (genMethodNameKind)
+                        {
+                            case IteratorFinallyMethod:
+                                localName += " [iterator finally]";
+                                break;
+
+                            case LambdaMethod:
+                                localName += " [lambda]";
+                                break;
+
+                            case LocalFunction:
+                                if (GeneratedNames.TryParseLocalFunctionNameFromGeneratedName(name, out string localFunctionName))
+                                {
+                                    localName += "." + localFunctionName;
+                                }
+                                break;
+                        }
+                        return sourceMethod;
+                    }
+                }
+
+                return new SourceMethod(module, parentType, name);
             }
         }
     }

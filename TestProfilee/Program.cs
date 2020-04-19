@@ -41,12 +41,14 @@ namespace TestProfilee
             {
                 Console.WriteLine($"\t{name} = {Environment.GetEnvironmentVariable(name)}");
             }
-            Console.WriteLine();  
-             
+            Console.WriteLine();
+
+            int typingSpeed = 100;
+
             Console.WriteLine("Spinning up an observable...");
             IConnectableObservable<string> observable = new[] { "One", "two", "three" }.ToObservable()
                 .Zip(Observable.Interval(TimeSpan.FromSeconds(1)), (x, _) => x)
-                .SelectMany(x => x.ToObservable().Select(c => Observable.Return(c).Delay(TimeSpan.FromMilliseconds(100))).Concat())
+                .SelectMany(x => x.ToObservable().Select(c => Observable.Return(c).Delay(TimeSpan.FromMilliseconds(typingSpeed))).Concat())
                 .Select((x, i) => new ExampleObject($"{x}", i) { Nested = new NestedObject($"{Environment.TickCount} ticks") })
                 .Repeat()
                 .Select(x => x.Str)
@@ -57,6 +59,8 @@ namespace TestProfilee
             using (observable.Subscribe(Console.WriteLine))
             using (observable.Connect())
             using (TestGroupedObservable().Subscribe(Console.WriteLine))
+            using (Observable.FromAsync(AsyncMethod).Subscribe(Console.WriteLine))
+            using (Observable.FromAsync(async () => await Observable.Interval(TimeSpan.FromSeconds(3)).Take(3)).Subscribe(Console.WriteLine))
             {
                 GenericExamples.CallToMethodOnGenericType();
 
@@ -75,6 +79,14 @@ namespace TestProfilee
         {
             Console.WriteLine($"Group: {g.Key}");
             return g;
+        }
+
+        static async Task<string> AsyncMethod()
+        {
+            string result = await Observable.Return("async")
+                .Delay(TimeSpan.FromSeconds(5));
+
+            return $"{result} {result} {result}";
         }
     }
 }

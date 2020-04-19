@@ -10,8 +10,9 @@ namespace ReactivityMonitor.Model
         int InstrumentedMethodId { get; }
         IModule Module { get; }
         uint MetadataToken { get; }
-        string ParentType { get; }
-        string Name { get; }
+        string DetailName { get; }
+
+        ISourceMethod SourceMethod { get; }
 
         IImmutableList<IInstrumentedCall> InstrumentedCalls { get; }
     }

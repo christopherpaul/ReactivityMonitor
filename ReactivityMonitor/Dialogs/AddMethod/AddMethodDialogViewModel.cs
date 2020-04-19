@@ -65,12 +65,14 @@ namespace ReactivityMonitor.Dialogs.AddMethod
                             .Publish(ms =>
                             {
                                 var methodItems = ms
+                                    .Select(m => m.SourceMethod)
+                                    .Distinct()
                                     .Select(m => (method: m, score: scorers.scoreMethod(m)))
                                     .Where(m => m.score.HasValue)
                                     .Select(m => (Item)new MethodItem(m.method, m.score.Value, scorers.scorer));
 
                                 var typeItems = ms
-                                    .Select(m => m.ParentType)
+                                    .Select(m => m.SourceMethod.ParentType)
                                     .Distinct()
                                     .Select(t => (type: t, score: scorers.scoreType(t)))
                                     .Where(t => t.score.HasValue)
@@ -92,7 +94,7 @@ namespace ReactivityMonitor.Dialogs.AddMethod
                     .Subscribe()
                     .DisposeWith(disposables);
                             
-                (Func<IInstrumentedMethod, int?> scoreMethod, Func<string, int?> scoreType, IMatchScorer scorer) MakeScorers(string s, TypeItem chosenType)
+                (Func<ISourceMethod, int?> scoreMethod, Func<string, int?> scoreType, IMatchScorer scorer) MakeScorers(string s, TypeItem chosenType)
                 {
                     var scorer = MatchScorerFactory.Default.Create(s);
 
@@ -109,7 +111,7 @@ namespace ReactivityMonitor.Dialogs.AddMethod
 
                     if (string.IsNullOrWhiteSpace(s))
                     {
-                        return (Funcs<IInstrumentedMethod>.DefaultOf<int?>(), Funcs<string>.DefaultOf<int?>(), scorer);
+                        return (Funcs<ISourceMethod>.DefaultOf<int?>(), Funcs<string>.DefaultOf<int?>(), scorer);
                     }
 
                     return (m => GetScoreOrNull(m.Name), GetScoreOrNull, scorer);
@@ -163,7 +165,7 @@ namespace ReactivityMonitor.Dialogs.AddMethod
         }
 
         public IReactivityModel Model { get; set; }
-        public Action<IInstrumentedMethod> Proceed { get; set; }
+        public Action<ISourceMethod> Proceed { get; set; }
         public Action Cancel { get; set; }
 
         public ICommand CancelCommand { get; }
@@ -269,9 +271,9 @@ namespace ReactivityMonitor.Dialogs.AddMethod
 
         public sealed class MethodItem : Item
         {
-            private readonly IInstrumentedMethod mMethod;
+            private readonly ISourceMethod mMethod;
 
-            public MethodItem(IInstrumentedMethod method, int score, IMatchScorer scorer)
+            public MethodItem(ISourceMethod method, int score, IMatchScorer scorer)
                 : base(method.Name, scorer)
             {
                 mMethod = method;
@@ -281,7 +283,7 @@ namespace ReactivityMonitor.Dialogs.AddMethod
                 Namespace = string.Join(".", typeParts.Take(typeParts.Length - 1));
             }
 
-            public IInstrumentedMethod Method => mMethod;
+            public ISourceMethod Method => mMethod;
 
             public string MethodName => mMethod.Name;
             public string TypeName { get; }

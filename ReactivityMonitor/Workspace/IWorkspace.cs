@@ -30,6 +30,7 @@ namespace ReactivityMonitor.Workspace
 
         void AddMethod(IInstrumentedMethod method);
         void RemoveMethod(IInstrumentedMethod method);
+        void AddSourceMethod(ISourceMethod method);
 
         IObservable<IChangeSet<IMonitoredCall>> MonitoredCalls { get; }
 

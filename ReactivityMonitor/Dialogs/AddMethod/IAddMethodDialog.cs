@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ReactivityMonitor.Dialogs.AddMethod
 {
-    public interface IAddMethodDialog : IDialogViewModel<IInstrumentedMethod>
+    public interface IAddMethodDialog : IDialogViewModel<ISourceMethod>
     {
         IReactivityModel Model { get; set; }
     }

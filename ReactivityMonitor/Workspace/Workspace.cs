@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DynamicData;
@@ -68,6 +69,13 @@ namespace ReactivityMonitor.Workspace
         public void RemoveMethod(IInstrumentedMethod method)
         {
             mMethods.RemoveKey(method.InstrumentedMethodId);
+        }
+
+        public void AddSourceMethod(ISourceMethod sourceMethod)
+        {
+            sourceMethod.Module.InstrumentedMethods
+                .Where(m => m.SourceMethod.Equals(sourceMethod))
+                .Subscribe(AddMethod);
         }
 
         public IMonitoredCall StartMonitoringCall(IInstrumentedCall call)

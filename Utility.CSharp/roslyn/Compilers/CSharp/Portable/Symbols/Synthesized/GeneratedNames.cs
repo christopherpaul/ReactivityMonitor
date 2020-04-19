@@ -15,6 +15,8 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
     {
         internal const string SynthesizedLocalNamePrefix = "CS$";
         internal const char DotReplacementInTypeNames = '-';
+        private const string SuffixSeparator = "__";
+        private const char LocalFunctionNameTerminator = '|';
 
         internal static bool IsGeneratedMemberName(string memberName)
         {
@@ -154,6 +156,37 @@ namespace Microsoft.CodeAnalysis.CSharp.Symbols
         internal static bool IsSynthesizedLocalName(string name)
         {
             return name.StartsWith(SynthesizedLocalNamePrefix, StringComparison.Ordinal);
+        }
+
+        internal static bool TryParseLocalFunctionNameFromGeneratedName(string generatedName, out string localFunctionName)
+        {
+            int openBracketOffset;
+            int closeBracketOffset;
+            GeneratedNameKind kind;
+            if (!TryParseGeneratedName(generatedName, out kind, out openBracketOffset, out closeBracketOffset) || kind != GeneratedNameKind.LocalFunction)
+            {
+                localFunctionName = null;
+                return false;
+            }
+
+            int suffixSeparatorOffset = generatedName.IndexOf(SuffixSeparator, closeBracketOffset);
+            if (suffixSeparatorOffset < 0)
+            {
+                localFunctionName = null;
+                return false;
+            }
+
+            int localFunctionNameOffset = suffixSeparatorOffset + SuffixSeparator.Length;
+
+            int suffixTerminatorOffset = generatedName.IndexOf(LocalFunctionNameTerminator);
+            if (suffixTerminatorOffset < 0)
+            {
+                localFunctionName = null;
+                return false;
+            }
+
+            localFunctionName = generatedName.Substring(localFunctionNameOffset, suffixTerminatorOffset - localFunctionNameOffset);
+            return true;
         }
     }
 }

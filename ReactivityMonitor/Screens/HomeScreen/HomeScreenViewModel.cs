@@ -62,7 +62,7 @@ namespace ReactivityMonitor.Screens.HomeScreen
                 var addMethodToConfigCommand = ReactiveUI.ReactiveCommand.Create(async () =>
                 {
                     var methodToAdd = await dialogService.ShowDialogContent(addMethodDialog);
-                    Workspace.AddMethod(methodToAdd);
+                    Workspace.AddSourceMethod(methodToAdd);
                 });
                 commandHandlerService.RegisterHandler(Commands.ShowAddToConfiguration, addMethodToConfigCommand)
                     .DisposeWith(disposables);
@@ -85,7 +85,7 @@ namespace ReactivityMonitor.Screens.HomeScreen
                         {
                             var obs = sel.SelectedObservableInstances[0];
                             var call = obs.Call;
-                            quickEventListDialog.Title = $"{call.Method.Name}: {call.CalledMethod} @{obs.Created.Timestamp}";
+                            quickEventListDialog.Title = $"{call.Method.DetailName}: {call.CalledMethod} @{obs.Created.Timestamp}";
                         }
                         else
                         {
@@ -99,7 +99,7 @@ namespace ReactivityMonitor.Screens.HomeScreen
                         {
                             haveObservables = true;
                             quickEventListDialog.Observables = call.ObservableInstances.ToObservableChangeSet(o => o.ObservableId);
-                            quickEventListDialog.Title = $"{call.Method.Name}: {call.CalledMethod}";
+                            quickEventListDialog.Title = $"{call.Method.DetailName}: {call.CalledMethod}";
                         }
                     }
 
