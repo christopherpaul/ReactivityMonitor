@@ -13,6 +13,7 @@ using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Text;
 using System.Threading.Tasks;
+using ReactivityMonitor.Utility.Extensions;
 
 namespace ReactivityMonitor.Screens.EventListScreen
 {
@@ -43,13 +44,12 @@ namespace ReactivityMonitor.Screens.EventListScreen
                         whenIncludeInputsChangesPub.SelectMany(includeInputs =>
                             Observables
                                 .ObserveOn(concurrencyService.TaskPoolRxScheduler)
-                                .Publish(observablesPub =>
+                                .Replay(observablesPub =>
                                 {
                                     var observablesExpanded =
                                         observablesPub
-                                            .Transform(obs => Observable.Return(obs))
-                                            .MergeMany(obs => includeInputs ? obs.Expand(obs => obs.Inputs) : obs)
-                                            .Distinct(obs => obs.ObservableId);
+                                            .MergeMany(obs => Observable.Return(obs))
+                                            .ExpandDistinct(obs => includeInputs ? obs.Inputs : Observable.Empty<IObservableInstance>());
 
                                     var events = observablesExpanded
                                         .SelectMany(obs => Observable.Return(EventItem.FromObservableInstance(obs))

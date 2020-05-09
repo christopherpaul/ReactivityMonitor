@@ -3,6 +3,7 @@ using ReactivityMonitor.Utility.Flyweights;
 using System;
 using System.Collections.Generic;
 using System.Reactive;
+using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -151,5 +152,22 @@ namespace ReactivityMonitor.Utility.Extensions
                 }
             });
         }
+
+        public static IObservable<T> ExpandDistinct<T>(this IObservable<T> source, Func<T, IObservable<T>> selector, IScheduler scheduler)
+        {
+            return Observable.Defer(() =>
+            {
+                var seenItems = new HashSet<T>();
+                var gate = new object();
+                IObservable<T> SharedDistinct(IObservable<T> obs)
+                {
+                    return obs.Synchronize(gate).Where(item => seenItems.Add(item));
+                }
+
+                return SharedDistinct(source).Expand(item => SharedDistinct(selector(item)), scheduler);
+            });
+        }
+
+        public static IObservable<T> ExpandDistinct<T>(this IObservable<T> source, Func<T, IObservable<T>> selector) => source.ExpandDistinct(selector, CurrentThreadScheduler.Instance);
     }
 }

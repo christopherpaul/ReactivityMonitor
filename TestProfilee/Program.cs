@@ -54,6 +54,9 @@ namespace TestProfilee
                 .Select(x => x.Str)
                 .Publish();
 
+            IObservable<int> recursive = null;
+            recursive = Observable.Timer(TimeSpan.FromSeconds(5)).SelectMany(_ => recursive.StartWith(0));
+
             ConstrainedGenericExample.Test(new ObjectWithObservableProperty());
 
             using (observable.Subscribe(Console.WriteLine))
@@ -61,6 +64,7 @@ namespace TestProfilee
             using (TestGroupedObservable().Subscribe(Console.WriteLine))
             using (Observable.FromAsync(AsyncMethod).Subscribe(Console.WriteLine))
             using (Observable.FromAsync(async () => await Observable.Interval(TimeSpan.FromSeconds(3)).Take(3)).Subscribe(Console.WriteLine))
+            using (recursive.TimeInterval().Subscribe(t => Console.WriteLine(t.Interval)))
             {
                 GenericExamples.CallToMethodOnGenericType();
 
