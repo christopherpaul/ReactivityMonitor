@@ -62,6 +62,13 @@ public:
     virtual HRESULT STDMETHODCALLTYPE Initialize(
         /* [in] */ IUnknown* pICorProfilerInfoUnk) override;
 
+    virtual HRESULT STDMETHODCALLTYPE InitializeForAttach(
+        /* [in] */ IUnknown* pICorProfilerInfoUnk,
+        /* [in] */ void* pvClientData,
+        /* [in] */ UINT cbClientData) override;
+
+    virtual HRESULT STDMETHODCALLTYPE ProfilerAttachComplete() override;
+
     virtual HRESULT STDMETHODCALLTYPE Shutdown() override;
 
     virtual HRESULT STDMETHODCALLTYPE ModuleLoadFinished(
@@ -83,6 +90,7 @@ private:
     RuntimeInfo m_runtimeInfo;
     std::atomic<ModuleID> m_supportAssemblyModuleId;
 
+    void DoInitialize(IUnknown* pICorProfilerInfoUnk);
     void InstallAssemblyResolutionHandler(ModuleID mscorlibId);
     bool ReferencesObservableInterfaces(ModuleID moduleId, ObservableTypeReferences& typeRefs);
     void AddSupportAssemblyReference(ModuleID moduleId, PerModuleData& perModuleData);

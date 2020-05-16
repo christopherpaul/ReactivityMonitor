@@ -22,19 +22,59 @@ HRESULT CRxProfiler::Initialize(
     /* [in] */ IUnknown* pICorProfilerInfoUnk)
 {
     return HandleExceptions([=] {
-        RELTRACE("Initializing RxProfiler");
-        ATLTRACE(L"Support assembly path: %s", m_supportAssemblyFolder.c_str());
+        DoInitialize(pICorProfilerInfoUnk);
+    });
+}
 
-        m_profilerInfo.Set(pICorProfilerInfoUnk);
+HRESULT __stdcall CRxProfiler::InitializeForAttach(IUnknown* pICorProfilerInfoUnk, void* pvClientData, UINT cbClientData)
+{
+    return HandleExceptions([=] {
+        std::string data(static_cast<char*>(pvClientData), cbClientData);
+        std::istringstream input(data);
 
-        m_runtimeInfo = m_profilerInfo.GetRuntimeInfo();
-        RELTRACE(L"Runtime info: %s version %s", m_runtimeInfo.isCore ? L"CoreCLR" : L"CLR", m_runtimeInfo.versionString.c_str());
+        for (int32_t nameLen; !input.get(reinterpret_cast<char*>(&nameLen), sizeof(int32_t)).eof(); )
+        {
+            std::vector<wchar_t> nameBuf(nameLen);
+            if (input.get(reinterpret_cast<char*>(nameBuf.data()), nameLen * sizeof(wchar_t)).eof())
+                throw std::logic_error("Unexpected end of client data reading variable name");
 
-        m_profilerInfo.SetEventMask(
-            COR_PRF_MONITOR_MODULE_LOADS |
-            COR_PRF_MONITOR_JIT_COMPILATION,
-            COR_PRF_HIGH_ADD_ASSEMBLY_REFERENCES
-        );
+            int32_t valueLen;
+            if (input.get(reinterpret_cast<char*>(&valueLen), sizeof(int32_t)).eof())
+                throw std::logic_error("Unexpected end of client data reading variable value length");
+
+            std::vector<wchar_t> valueBuf(valueLen);
+            if (input.get(reinterpret_cast<char*>(valueBuf.data()), valueLen * sizeof(wchar_t)).eof())
+                throw std::logic_error("Unexpected end of client data reading variable value");
+
+            if (!SetEnvironmentVariableW(std::wstring(nameBuf.data(), nameLen).c_str(), std::wstring(valueBuf.data(), valueLen).c_str()))
+                throw std::logic_error("Failed to set environment variable");
+        }
+
+        DoInitialize(pICorProfilerInfoUnk);
+    });
+}
+
+void CRxProfiler::DoInitialize(IUnknown* pICorProfilerInfoUnk)
+{
+    RELTRACE("Initializing RxProfiler");
+    ATLTRACE(L"Support assembly path: %s", m_supportAssemblyFolder.c_str());
+
+    m_profilerInfo.Set(pICorProfilerInfoUnk);
+
+    m_runtimeInfo = m_profilerInfo.GetRuntimeInfo();
+    RELTRACE(L"Runtime info: %s version %s", m_runtimeInfo.isCore ? L"CoreCLR" : L"CLR", m_runtimeInfo.versionString.c_str());
+
+    m_profilerInfo.SetEventMask(
+        COR_PRF_MONITOR_MODULE_LOADS |
+        COR_PRF_MONITOR_JIT_COMPILATION,
+        COR_PRF_HIGH_ADD_ASSEMBLY_REFERENCES
+    );
+}
+
+HRESULT __stdcall CRxProfiler::ProfilerAttachComplete()
+{
+    return HandleExceptions([] {
+        // TODO
     });
 }
 
