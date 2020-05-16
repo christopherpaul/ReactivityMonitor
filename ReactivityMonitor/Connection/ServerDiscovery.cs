@@ -41,40 +41,43 @@ namespace ReactivityMonitor.Connection
             var list = new List<Server>();
             try
             {
-                using (var software = Registry.CurrentUser.OpenSubKey(cSoftware))
-                using (var product = software?.OpenSubKey(cProduct))
-                using (var servers = product?.OpenSubKey(cServers))
-                {
-                    foreach (string subKey in servers?.GetSubKeyNames() ?? Enumerable.Empty<string>())
-                    {
-                        if (!int.TryParse(subKey, out int processId))
-                        {
-                            continue;
-                        }
+                return ProfilerClient.ProcessDiscovery.GetAttachableProcesses()
+                    .Select(p => new Server(p.Id, p.ProcessName, "dummy for now"))
+                    .ToArray();
+                //using (var software = Registry.CurrentUser.OpenSubKey(cSoftware))
+                //using (var product = software?.OpenSubKey(cProduct))
+                //using (var servers = product?.OpenSubKey(cServers))
+                //{
+                //    foreach (string subKey in servers?.GetSubKeyNames() ?? Enumerable.Empty<string>())
+                //    {
+                //        if (!int.TryParse(subKey, out int processId))
+                //        {
+                //            continue;
+                //        }
 
-                        using (var server = servers.OpenSubKey(subKey))
-                        {
-                            if (server.GetValue(cPipeName) is string pipeName)
-                            {
-                                try
-                                {
-                                    using (var process = Process.GetProcessById(processId))
-                                    {
-                                        string processName = process.ProcessName;
-                                        list.Add(new Server(processId, processName, pipeName));
-                                    }
-                                }
-                                catch (Exception ex)
-                                {
-                                    if (mBadProcessIds.Add(processId))
-                                    {
-                                        Trace.TraceWarning("Could not get information about process with ID={0}: {1}", processId, ex);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                //        using (var server = servers.OpenSubKey(subKey))
+                //        {
+                //            if (server.GetValue(cPipeName) is string pipeName)
+                //            {
+                //                try
+                //                {
+                //                    using (var process = Process.GetProcessById(processId))
+                //                    {
+                //                        string processName = process.ProcessName;
+                //                        list.Add(new Server(processId, processName, pipeName));
+                //                    }
+                //                }
+                //                catch (Exception ex)
+                //                {
+                //                    if (mBadProcessIds.Add(processId))
+                //                    {
+                //                        Trace.TraceWarning("Could not get information about process with ID={0}: {1}", processId, ex);
+                //                    }
+                //                }
+                //            }
+                //        }
+                //    }
+                //}
             }
             catch (Exception ex)
             {

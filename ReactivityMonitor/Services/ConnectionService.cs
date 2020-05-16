@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Reactive.Subjects;
@@ -31,8 +32,8 @@ namespace ReactivityMonitor.Services
 
             AvailableServers = ObservableChangeSet.Create<Server, int>(list =>
             {
-                return Observable.Interval(TimeSpan.FromSeconds(1))
-                    .StartWith(0)
+                return Observable.Timer(TimeSpan.Zero, TimeSpan.FromSeconds(10))
+                    .ObserveOn(NewThreadScheduler.Default)
                     .Select(_ => mServerDiscovery.Scan())
                     .Subscribe(servers => list.EditDiff(servers, (s1, s2) => s1.ProcessId == s2.ProcessId));
             }, server => server.ProcessId);
