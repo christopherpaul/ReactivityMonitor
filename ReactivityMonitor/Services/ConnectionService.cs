@@ -108,6 +108,19 @@ namespace ReactivityMonitor.Services
                 ThrowProcessExitedError();
             }
 
+            if (server.PipeName == null)
+            {
+                try
+                {
+                    mProcessSetup.Attach(process);
+                    server = new Server(server.ProcessId, server.ProcessName, mProcessSetup.PipeName);
+                }
+                catch (Exception ex)
+                {
+                    throw new ConnectionException($"Failed to attach profiler to process: {ex.Message}", ex);
+                }
+            }
+
             var connectionModel = new ConnectionModel(server);
             mActiveConnection.Disposable = connectionModel.Connect();
 

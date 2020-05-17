@@ -12,9 +12,15 @@ namespace ReactivityMonitor.ProfilerClient
     {
         public static IEnumerable<Process> GetAttachableProcesses()
         {
+            int currentProcessId = Process.GetCurrentProcess().Id;
             return Process.GetProcesses()
                 .Where(p =>
                 {
+                    if (p.Id == currentProcessId)
+                    {
+                        return false;
+                    }
+
                     try
                     {
                         return p.Modules.Cast<ProcessModule>().Any(m => m.ModuleName.StartsWith("mscor", StringComparison.OrdinalIgnoreCase));

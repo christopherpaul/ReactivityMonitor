@@ -17,6 +17,10 @@ namespace ReactivityMonitor.Connection
 
         public int ProcessId { get; }
         public string ProcessName { get; }
+
+        /// <summary>
+        /// Pipe to connect to, if profiler is already attached, or null if profiler is not attached.
+        /// </summary>
         public string PipeName { get; }
     }
 }

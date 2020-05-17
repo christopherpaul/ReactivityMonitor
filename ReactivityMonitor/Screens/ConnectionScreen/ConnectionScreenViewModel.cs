@@ -31,7 +31,7 @@ namespace ReactivityMonitor.Screens.ConnectionScreen
             DisplayName = "Processes";
 
             OpenSelectedServer = ReactiveCommand.CreateFromTask(
-                execute: () => connectionService.Open(SelectedServer),
+                execute: ExecuteAttach,
                 canExecute: mSelectedServer.Select(s => s != null));
 
             BrowseAndLaunch = ReactiveCommand.CreateFromTask(ExecuteBrowseAndLaunch);
@@ -58,6 +58,18 @@ namespace ReactivityMonitor.Screens.ConnectionScreen
 
         public ICommand OpenSelectedServer { get; }
         public ICommand BrowseAndLaunch { get; }
+
+        private async Task ExecuteAttach()
+        {
+            try
+            {
+                await mConnectionService.Open(SelectedServer);
+            }
+            catch (ConnectionException ex)
+            {
+                await mDialogService.ShowErrorDialog("Attach to process", ex.Message).ConfigureAwait(false);
+            }
+        }
 
         private async Task ExecuteBrowseAndLaunch()
         {

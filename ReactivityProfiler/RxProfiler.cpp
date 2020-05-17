@@ -29,24 +29,32 @@ HRESULT CRxProfiler::Initialize(
 HRESULT __stdcall CRxProfiler::InitializeForAttach(IUnknown* pICorProfilerInfoUnk, void* pvClientData, UINT cbClientData)
 {
     return HandleExceptions([=] {
+        ATLTRACE(L"InitializeForAttach: %d bytes of client data", cbClientData);
+
         std::string data(static_cast<char*>(pvClientData), cbClientData);
+        ATLTRACE("InitializeForAttach: clientData: %s", FormatBytes(data).c_str());
         std::istringstream input(data);
 
-        for (int32_t nameLen; !input.get(reinterpret_cast<char*>(&nameLen), sizeof(int32_t)).eof(); )
+        for (int32_t nameLen; !input.read(reinterpret_cast<char*>(&nameLen), sizeof(int32_t)).eof(); )
         {
             std::vector<wchar_t> nameBuf(nameLen);
-            if (input.get(reinterpret_cast<char*>(nameBuf.data()), nameLen * sizeof(wchar_t)).eof())
+            if (input.read(reinterpret_cast<char*>(nameBuf.data()), nameLen * sizeof(wchar_t)).eof())
                 throw std::logic_error("Unexpected end of client data reading variable name");
 
+            std::wstring name(nameBuf.data(), nameLen);
+
             int32_t valueLen;
-            if (input.get(reinterpret_cast<char*>(&valueLen), sizeof(int32_t)).eof())
+            if (input.read(reinterpret_cast<char*>(&valueLen), sizeof(int32_t)).eof())
                 throw std::logic_error("Unexpected end of client data reading variable value length");
 
             std::vector<wchar_t> valueBuf(valueLen);
-            if (input.get(reinterpret_cast<char*>(valueBuf.data()), valueLen * sizeof(wchar_t)).eof())
+            if (input.read(reinterpret_cast<char*>(valueBuf.data()), valueLen * sizeof(wchar_t)).eof())
                 throw std::logic_error("Unexpected end of client data reading variable value");
 
-            if (!SetEnvironmentVariableW(std::wstring(nameBuf.data(), nameLen).c_str(), std::wstring(valueBuf.data(), valueLen).c_str()))
+            std::wstring value(valueBuf.data(), valueLen);
+            ATLTRACE(L"InitializeForAttach: %s=%s", name.c_str(), value.c_str());
+
+            if (!SetEnvironmentVariableW(name.c_str(), value.c_str()))
                 throw std::logic_error("Failed to set environment variable");
         }
 

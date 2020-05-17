@@ -42,7 +42,7 @@ namespace ReactivityMonitor.Connection
             try
             {
                 return ProfilerClient.ProcessDiscovery.GetAttachableProcesses()
-                    .Select(p => new Server(p.Id, p.ProcessName, "dummy for now"))
+                    .Select(p => new Server(p.Id, p.ProcessName, null))
                     .ToArray();
                 //using (var software = Registry.CurrentUser.OpenSubKey(cSoftware))
                 //using (var product = software?.OpenSubKey(cProduct))
