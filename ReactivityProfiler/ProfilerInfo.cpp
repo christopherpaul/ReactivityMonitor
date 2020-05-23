@@ -145,6 +145,36 @@ CMetadataEmit CProfilerInfo::GetMetadataEmit(ModuleID moduleId, DWORD openFlags)
     return metadataEmit;
 }
 
+void CProfilerInfo::ForEachModule(const std::function<bool(ModuleID)>& action)
+{
+    CComPtr<ICorProfilerModuleEnum> pModuleEnum;
+    CHECK_SUCCESS(m_profilerInfo->EnumModules(&pModuleEnum));
+
+    ModuleID moduleId;
+    while (pModuleEnum->Next(1, &moduleId, nullptr) == S_OK)
+    {
+        if (!action(moduleId))
+        {
+            break;
+        }
+    }
+}
+
+void CProfilerInfo::ForEachJITtedFunction(const std::function<bool(const COR_PRF_FUNCTION&)>& action)
+{
+    CComPtr<ICorProfilerFunctionEnum> pFunctionEnum;
+    CHECK_SUCCESS(m_profilerInfo->EnumJITedFunctions2(&pFunctionEnum));
+
+    COR_PRF_FUNCTION func;
+    while (pFunctionEnum->Next(1, &func, nullptr) == S_OK)
+    {
+        if (!action(func))
+        {
+            break;
+        }
+    }
+}
+
 CCorEnum<IMetaDataImport2, mdModuleRef> CMetadataImport::EnumModuleRefs() const
 {
     CCorEnum<IMetaDataImport2, mdModuleRef> e(m_metadata.p, [=](auto imp, auto e, auto arr, auto c, auto pc) { return imp->EnumModuleRefs(e, arr, c, pc); });

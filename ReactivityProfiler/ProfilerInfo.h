@@ -305,6 +305,9 @@ public:
     CMetadataAssemblyEmit GetMetadataAssemblyEmit(ModuleID moduleId, DWORD openFlags);
     CMetadataEmit GetMetadataEmit(ModuleID moduleId, DWORD openFlags);
 
+    void ForEachModule(const std::function<bool(ModuleID)>& action); // action returns true to keep iterating
+    void ForEachJITtedFunction(const std::function<bool(const COR_PRF_FUNCTION&)>& action); // actions returns true to keep iterating
+
 private:
     CComQIPtr<ICorProfilerInfo6> m_profilerInfo;
 };

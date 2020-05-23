@@ -84,8 +84,13 @@ void CRxProfiler::DoInitialize(IUnknown* pICorProfilerInfoUnk)
 HRESULT __stdcall CRxProfiler::ProfilerAttachComplete()
 {
     return HandleExceptions([&] {
-        RELTRACE("ProfilerAttachComplete");
-        // TODO
+        ATLTRACE("ProfilerAttachComplete");
+
+        m_profilerInfo.ForEachModule([&](ModuleID moduleId) {
+            ModuleLoadFinished(moduleId, S_OK);
+            return true;
+        });
+
         auto supportAssemblyPath = GetSupportAssemblyFolderPath() + L"\\" + GetSupportAssemblyName() + L".dll";
         m_hostInteraction->ExecuteInDefaultAppDomain(supportAssemblyPath, L"ProfilerStartupHook", L"Initialize", L"");
     });
