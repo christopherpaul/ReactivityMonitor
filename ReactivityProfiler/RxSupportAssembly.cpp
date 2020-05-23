@@ -11,7 +11,7 @@ const wchar_t* GetSupportAssemblyName()
     return L"ReactivityProfiler.Support";
 }
 
-std::wstring GetSupportAssemblyPath()
+std::wstring GetSupportAssemblyFolderPath()
 {
     std::vector<wchar_t> buffer(100);
     while (GetModuleFileName(g_profilerModule, buffer.data(), static_cast<DWORD>(buffer.size())) >= buffer.size())

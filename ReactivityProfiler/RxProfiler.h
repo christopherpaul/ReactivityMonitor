@@ -10,6 +10,7 @@
 #include "ProfilerInfo.h"
 #include "concurrentmap.h"
 #include "Instrumentation/Method.h"
+#include "HostInteraction.h"
 
 using namespace ATL;
 
@@ -89,6 +90,7 @@ private:
     concurrent_map<ModuleID, std::shared_ptr<PerModuleData>> m_moduleInfoMap;
     RuntimeInfo m_runtimeInfo;
     std::atomic<ModuleID> m_supportAssemblyModuleId;
+    std::unique_ptr<HostInteraction> m_hostInteraction;
 
     void DoInitialize(IUnknown* pICorProfilerInfoUnk);
     void InstallAssemblyResolutionHandler(ModuleID mscorlibId);

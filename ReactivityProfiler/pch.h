@@ -14,6 +14,7 @@
 #include <corsym.h>
 #include <corprof.h> 
 #include <corhlpr.h>
+#include <metahost.h>
 
 #include <vector>
 #include <string>

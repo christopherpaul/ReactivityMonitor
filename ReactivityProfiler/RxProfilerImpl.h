@@ -36,5 +36,5 @@ struct PerModuleData
 };
 
 extern const wchar_t* GetSupportAssemblyName();
-extern std::wstring GetSupportAssemblyPath();
+extern std::wstring GetSupportAssemblyFolderPath();
 extern void RemoveTransientRegistryKey();

@@ -13,7 +13,7 @@ static bool IsSupportAssembly(const AssemblyProps& assemblyProps);
 
 // CRxProfiler
 
-CRxProfiler::CRxProfiler() : m_supportAssemblyFolder(GetSupportAssemblyPath()),
+CRxProfiler::CRxProfiler() : m_supportAssemblyFolder(GetSupportAssemblyFolderPath()),
     m_supportAssemblyModuleId(0)
 {
 }
@@ -72,6 +72,8 @@ void CRxProfiler::DoInitialize(IUnknown* pICorProfilerInfoUnk)
     m_runtimeInfo = m_profilerInfo.GetRuntimeInfo();
     RELTRACE(L"Runtime info: %s version %s", m_runtimeInfo.isCore ? L"CoreCLR" : L"CLR", m_runtimeInfo.versionString.c_str());
 
+    m_hostInteraction = std::make_unique<HostInteraction>(m_runtimeInfo.versionString);
+
     m_profilerInfo.SetEventMask(
         COR_PRF_MONITOR_MODULE_LOADS |
         COR_PRF_MONITOR_JIT_COMPILATION,
@@ -81,8 +83,11 @@ void CRxProfiler::DoInitialize(IUnknown* pICorProfilerInfoUnk)
 
 HRESULT __stdcall CRxProfiler::ProfilerAttachComplete()
 {
-    return HandleExceptions([] {
+    return HandleExceptions([&] {
+        RELTRACE("ProfilerAttachComplete");
         // TODO
+        auto supportAssemblyPath = GetSupportAssemblyFolderPath() + L"\\" + GetSupportAssemblyName() + L".dll";
+        m_hostInteraction->ExecuteInDefaultAppDomain(supportAssemblyPath, L"ProfilerStartupHook", L"Initialize", L"");
     });
 }
 
