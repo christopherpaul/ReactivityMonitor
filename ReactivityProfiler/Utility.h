@@ -12,6 +12,7 @@ inline HRESULT HandleExceptions(const std::function<void()>& f)
     }
     catch (HRESULT hr)
     {
+        RELTRACE("Failed with HRESULT=%x", hr);
         return hr;
     }
     catch (std::exception ex)
@@ -21,6 +22,7 @@ inline HRESULT HandleExceptions(const std::function<void()>& f)
     }
     catch (...)
     {
+        RELTRACE("Failed with unknown exception type");
         return E_FAIL;
     }
 }

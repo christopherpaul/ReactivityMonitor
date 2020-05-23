@@ -93,6 +93,23 @@ HRESULT __stdcall CRxProfiler::ProfilerAttachComplete()
 
         auto supportAssemblyPath = GetSupportAssemblyFolderPath() + L"\\" + GetSupportAssemblyName() + L".dll";
         m_hostInteraction->ExecuteInDefaultAppDomain(supportAssemblyPath, L"ProfilerStartupHook", L"Initialize", L"");
+
+        std::thread rejitThread([&] {
+            HandleExceptions([&] {
+                ATLTRACE("ReJIT thread started");
+                m_profilerInfo.ForEachJITtedFunction([&](const COR_PRF_FUNCTION& func) {
+                    // AAARGH. Turns out profiling API doesn't support requesting re-JIT after attaching, which pretty
+                    // much scuppers this.
+
+                    auto info = m_profilerInfo.GetFunctionInfo(func.functionId);
+                    //TODO do the method analysis before requesting re-JIT to avoid re-JITting methods that we won't be tweaking
+                    m_profilerInfo.RequestReJIT(info.moduleId, info.functionToken);
+                    return true;
+                });
+            });
+        });
+
+        rejitThread.detach(); // allow to run to completion independently
     });
 }
 

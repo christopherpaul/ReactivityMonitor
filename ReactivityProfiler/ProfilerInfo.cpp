@@ -175,6 +175,11 @@ void CProfilerInfo::ForEachJITtedFunction(const std::function<bool(const COR_PRF
     }
 }
 
+void CProfilerInfo::RequestReJIT(ModuleID moduleId, mdMethodDef methodToken)
+{
+    CHECK_SUCCESS(m_profilerInfo->RequestReJIT(1, &moduleId, &methodToken));
+}
+
 CCorEnum<IMetaDataImport2, mdModuleRef> CMetadataImport::EnumModuleRefs() const
 {
     CCorEnum<IMetaDataImport2, mdModuleRef> e(m_metadata.p, [=](auto imp, auto e, auto arr, auto c, auto pc) { return imp->EnumModuleRefs(e, arr, c, pc); });

@@ -307,6 +307,7 @@ public:
 
     void ForEachModule(const std::function<bool(ModuleID)>& action); // action returns true to keep iterating
     void ForEachJITtedFunction(const std::function<bool(const COR_PRF_FUNCTION&)>& action); // actions returns true to keep iterating
+    void RequestReJIT(ModuleID moduleId, mdMethodDef methodToken);
 
 private:
     CComQIPtr<ICorProfilerInfo6> m_profilerInfo;
