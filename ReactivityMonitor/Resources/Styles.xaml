@@ -12,6 +12,9 @@
         <Setter Property="Margin" Value="8,2,8,2" />
         <Setter Property="Padding" Value="4,2,4,2" />
     </Style>
+    <Style x:Key="BrowseButton" TargetType="Button">
+        <Setter Property="Padding" Value="4,2,4,2" />
+    </Style>
     <Style x:Key="IconButton" TargetType="Button">
         <Setter Property="BorderBrush" Value="{x:Null}" />
         <Setter Property="BorderThickness" Value="0" />

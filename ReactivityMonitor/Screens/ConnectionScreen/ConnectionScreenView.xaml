@@ -5,29 +5,55 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:ReactivityMonitor.Screens.ConnectionScreen"
              xmlns:conn="clr-namespace:ReactivityMonitor.Connection"
+             xmlns:res="clr-namespace:ReactivityMonitor.Resources"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              d:DataContext="{d:DesignInstance Type=local:ConnectionScreenViewModel}">
-    <DockPanel>
-        <Grid DockPanel.Dock="Top">
-            <Label Target="ConnectionList">_Processes available to connect to</Label>
-        </Grid>
-        <WrapPanel DockPanel.Dock="Bottom" HorizontalAlignment="Center">
-            <Button Style="{StaticResource StandardButton}" Command="{Binding OpenSelectedServer}">Open</Button>
-            <Button Style="{StaticResource StandardButton}" Command="{Binding BrowseAndLaunch}">Browse...</Button>
-        </WrapPanel>
-        <ListView x:Name="ConnectionList" ItemsSource="{Binding AvailableConnections}"
-                  SelectedValue="{Binding SelectedServer}">
-            <ListView.ItemTemplate>
-                <DataTemplate DataType="{x:Type conn:Server}">
-                    <StackPanel>
-                        <TextBlock Text="{Binding Path=ProcessName, Mode=OneWay}" Style="{StaticResource ItemHeadingText}" />
-                        <TextBlock Style="{StaticResource ItemSubText}">
-                            Process ID <Run Text="{Binding Path=ProcessId, Mode=OneWay}" />
-                        </TextBlock>
-                    </StackPanel>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
-    </DockPanel>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <GroupBox Grid.Row="0" Header="Open recorded data file">
+            <WrapPanel>
+                <Button Command="{Binding BrowseDataFileCommand}" Style="{StaticResource StandardButton}">Browse for _data file...</Button>
+            </WrapPanel>
+        </GroupBox>
+
+        <GroupBox Grid.Row="1" Header="Launch program to monitor">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <Label Target="{Binding ElementName=tbExePath}">_Program</Label>
+                <TextBox Name="tbExePath" Grid.Column="1" Text="{Binding LaunchExecutablePath}" />
+                <Button Grid.Column="2" Command="{Binding BrowseExecutableCommand}" ToolTip="Browse for program file" Style="{StaticResource BrowseButton}">_...</Button>
+
+                <Label Grid.Row="1" Target="{Binding ElementName=tbExeArgs}">_Arguments</Label>
+                <TextBox Name="tbExeArgs" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding LaunchArguments}" />
+
+                <Label Grid.Row="2" Target="{Binding ElementName=comboMonitorAll}">At start_up</Label>
+                <ComboBox Name="comboMonitorAll" Grid.Row="2" Grid.Column="1" HorizontalAlignment="Left" SelectedValue="{Binding MonitorAllOnLaunch}" SelectedValuePath="Tag">
+                    <ComboBoxItem Tag="{x:Static res:Constants.False}">Do not start monitoring any observables</ComboBoxItem>
+                    <ComboBoxItem Tag="{x:Static res:Constants.True}">Monitor all observables</ComboBoxItem>
+                </ComboBox>
+
+                <WrapPanel Grid.Row="3" Grid.ColumnSpan="3">
+                    <Button Command="{Binding LaunchCommand}" Style="{StaticResource StandardButton}">_Start program</Button>
+                </WrapPanel>
+            </Grid>
+        </GroupBox>
+    </Grid>
 </UserControl>

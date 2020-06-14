@@ -22,8 +22,8 @@ namespace ReactivityMonitor.Services
     {
         private readonly ServerDiscovery mServerDiscovery;
         private readonly ISubject<IConnectionModel> mConnectionSubject;
-        private readonly ProcessSetup mProcessSetup;
         private readonly SerialDisposable mActiveConnection = new SerialDisposable();
+        private readonly string mProfilersLocation;
 
         public ConnectionService()
         {
@@ -39,13 +39,11 @@ namespace ReactivityMonitor.Services
 
             mConnectionSubject = new BehaviorSubject<IConnectionModel>(null);
 
-            var profilersLocation =
+            mProfilersLocation =
                 Path.Combine(
                     Path.GetDirectoryName(
                         new Uri(Assembly.GetEntryAssembly().CodeBase).LocalPath),
                     "profiler");
-
-            mProcessSetup = new ProcessSetup(profilersLocation);
         }
 
         public IObservable<IChangeSet<Server, int>> AvailableServers { get; }
@@ -75,7 +73,13 @@ namespace ReactivityMonitor.Services
 
             psi.UseShellExecute = false;
 
-            mProcessSetup.SetEnvironmentVariables(psi);
+            var processSetup = new ProcessSetup(mProfilersLocation);
+            if (launchInfo.Options.HasFlag(LaunchOptions.MonitorAllFromStart))
+            {
+                processSetup.MonitorAllFromStart = true;
+                processSetup.WaitForConnection = true;
+            }
+            processSetup.SetEnvironmentVariables(psi);
 
             Process process;
             try
@@ -92,7 +96,7 @@ namespace ReactivityMonitor.Services
                 throw new ConnectionException("Process failed to start.");
             }
 
-            var server = new Server(process.Id, process.ProcessName, mProcessSetup.PipeName);
+            var server = new Server(process.Id, process.ProcessName, processSetup.PipeName);
 
             await Open(server, cancellationToken).ConfigureAwait(false);
         }

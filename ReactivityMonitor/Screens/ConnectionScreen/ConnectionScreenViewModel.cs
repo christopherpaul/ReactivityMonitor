@@ -28,55 +28,71 @@ namespace ReactivityMonitor.Screens.ConnectionScreen
             mConnectionService = connectionService;
             mDialogService = dialogService;
 
-            DisplayName = "Processes";
+            DisplayName = "Welcome";
 
-            OpenSelectedServer = ReactiveCommand.CreateFromTask(
-                execute: () => connectionService.Open(SelectedServer),
-                canExecute: mSelectedServer.Select(s => s != null));
-
-            BrowseAndLaunch = ReactiveCommand.CreateFromTask(ExecuteBrowseAndLaunch);
+            BrowseExecutableCommand = ReactiveCommand.CreateFromTask(BrowseExecutableAsync);
+            LaunchCommand = ReactiveCommand.CreateFromTask(
+                LaunchExecutableAsync, 
+                this.WhenAnyValue(x => x.LaunchExecutablePath).Select(path => !string.IsNullOrWhiteSpace(path)));
+            BrowseDataFileCommand = ReactiveCommand.CreateFromTask(BrowseDataFileAsync);
 
             WhenActivated(observables =>
             {
-                connectionService.AvailableServers
-                    .ObserveOnDispatcher()
-                    .Bind(out mAvailableConnections)
-                    .Subscribe()
-                    .DisposeWith(observables);
             });
         }
 
-        private ReadOnlyObservableCollection<Server> mAvailableConnections;
-        public ReadOnlyObservableCollection<Server> AvailableConnections => mAvailableConnections;
-
-        private BehaviorSubject<Server> mSelectedServer = new BehaviorSubject<Server>(null);
-        public Server SelectedServer
+        private BehaviorSubject<string> mLaunchExecutablePath = new BehaviorSubject<string>(string.Empty);
+        public string LaunchExecutablePath
         {
-            get => mSelectedServer.Value;
-            set => Set(mSelectedServer, value);
+            get => mLaunchExecutablePath.Value;
+            set => Set(mLaunchExecutablePath, value);
         }
 
-        public ICommand OpenSelectedServer { get; }
-        public ICommand BrowseAndLaunch { get; }
-
-        private async Task ExecuteBrowseAndLaunch()
+        private BehaviorSubject<string> mLaunchArguments = new BehaviorSubject<string>(string.Empty);
+        public string LaunchArguments
         {
-            string filename = await mDialogService.ShowOpenFileDialog("Start process", $"Supported files|*.exe;*{DataFile.ProfileDataFileExtension}|Programs|*.exe|Data files|*{DataFile.ProfileDataFileExtension}|All files|*.*").ConfigureAwait(false);
+            get => mLaunchExecutablePath.Value;
+            set => Set(mLaunchArguments, value);
+        }
+
+        private BehaviorSubject<bool> mMonitorAllOnLaunch = new BehaviorSubject<bool>(false);
+        public bool MonitorAllOnLaunch
+        {
+            get => mMonitorAllOnLaunch.Value;
+            set => Set(mMonitorAllOnLaunch, value);
+        }
+
+        public ICommand LaunchCommand { get; }
+        public ICommand BrowseExecutableCommand { get; }
+        public ICommand BrowseDataFileCommand { get; }
+
+        private async Task BrowseExecutableAsync()
+        {
+            string filename = await mDialogService.ShowOpenFileDialog("Start process", $"Programs|*.exe|All files|*.*");
             if (filename == null)
             {
                 return;
             }
 
-            if (string.Equals(Path.GetExtension(filename), DataFile.ProfileDataFileExtension, StringComparison.OrdinalIgnoreCase))
+            LaunchExecutablePath = filename;
+        }
+
+        private async Task LaunchExecutableAsync()
+        {
+            string filename = LaunchExecutablePath;
+            if (string.IsNullOrWhiteSpace(filename))
             {
-                await mConnectionService.OpenDataFile(filename);
+                await mDialogService.ShowErrorDialog("Start process", "Please enter the path of an executable to launch");
                 return;
             }
 
             var launchInfo = new LaunchInfo
             {
-                FileName = filename
+                FileName = filename,
+                Arguments = LaunchArguments,
+                Options = MonitorAllOnLaunch ? LaunchOptions.MonitorAllFromStart : LaunchOptions.Default
             };
+
             try
             {
                 await mConnectionService.Launch(launchInfo).ConfigureAwait(false);
@@ -85,6 +101,17 @@ namespace ReactivityMonitor.Screens.ConnectionScreen
             {
                 await mDialogService.ShowErrorDialog("Start process", ex.Message).ConfigureAwait(false);
             }
+        }
+
+        private async Task BrowseDataFileAsync()
+        {
+            string filename = await mDialogService.ShowOpenFileDialog("Start process", $"Data files|*{DataFile.ProfileDataFileExtension}|All files|*.*");
+            if (filename == null)
+            {
+                return;
+            }
+
+            await mConnectionService.OpenDataFile(filename);
         }
     }
 }
