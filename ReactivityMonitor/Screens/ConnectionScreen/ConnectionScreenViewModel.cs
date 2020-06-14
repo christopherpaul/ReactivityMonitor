@@ -22,13 +22,17 @@ namespace ReactivityMonitor.Screens.ConnectionScreen
     {
         private readonly IConnectionService mConnectionService;
         private readonly IDialogService mDialogService;
+        private readonly IUserSettingsService mUserSettingsService;
 
-        public ConnectionScreenViewModel(IConnectionService connectionService, IDialogService dialogService)
+        public ConnectionScreenViewModel(IConnectionService connectionService, IDialogService dialogService, IUserSettingsService userSettingsService)
         {
             mConnectionService = connectionService;
             mDialogService = dialogService;
-
+            mUserSettingsService = userSettingsService;
             DisplayName = "Welcome";
+
+            var recentLaunches = new ObservableCollection<LaunchInfo>();
+            RecentLaunches = new ReadOnlyObservableCollection<LaunchInfo>(recentLaunches);
 
             BrowseExecutableCommand = ReactiveCommand.CreateFromTask(BrowseExecutableAsync);
             LaunchCommand = ReactiveCommand.CreateFromTask(
@@ -36,8 +40,19 @@ namespace ReactivityMonitor.Screens.ConnectionScreen
                 this.WhenAnyValue(x => x.LaunchExecutablePath).Select(path => !string.IsNullOrWhiteSpace(path)));
             BrowseDataFileCommand = ReactiveCommand.CreateFromTask(BrowseDataFileAsync);
 
+            this.WhenAnyValue(x => x.SelectedRecentLaunch)
+                .Where(launch => launch != null)
+                .Subscribe(launch =>
+                {
+                    LaunchExecutablePath = launch.FileName;
+                    LaunchArguments = launch.Arguments;
+                    MonitorAllOnLaunch = launch.Options.HasFlag(LaunchOptions.MonitorAllFromStart);
+                });
+
             WhenActivated(observables =>
             {
+                recentLaunches.Clear();
+                recentLaunches.AddRange(userSettingsService.GetMostRecentLaunches());
             });
         }
 
@@ -51,7 +66,7 @@ namespace ReactivityMonitor.Screens.ConnectionScreen
         private BehaviorSubject<string> mLaunchArguments = new BehaviorSubject<string>(string.Empty);
         public string LaunchArguments
         {
-            get => mLaunchExecutablePath.Value;
+            get => mLaunchArguments.Value;
             set => Set(mLaunchArguments, value);
         }
 
@@ -62,9 +77,18 @@ namespace ReactivityMonitor.Screens.ConnectionScreen
             set => Set(mMonitorAllOnLaunch, value);
         }
 
+        private BehaviorSubject<LaunchInfo> mSelectedRecentLaunch = new BehaviorSubject<LaunchInfo>(null);
+        public LaunchInfo SelectedRecentLaunch
+        {
+            get => mSelectedRecentLaunch.Value;
+            set => Set(mSelectedRecentLaunch, value);
+        }
+
         public ICommand LaunchCommand { get; }
         public ICommand BrowseExecutableCommand { get; }
         public ICommand BrowseDataFileCommand { get; }
+
+        public ReadOnlyObservableCollection<LaunchInfo> RecentLaunches { get; }
 
         private async Task BrowseExecutableAsync()
         {
@@ -95,11 +119,12 @@ namespace ReactivityMonitor.Screens.ConnectionScreen
 
             try
             {
-                await mConnectionService.Launch(launchInfo).ConfigureAwait(false);
+                await mConnectionService.Launch(launchInfo);
+                mUserSettingsService.AddLaunchToMruList(launchInfo);
             }
             catch (ConnectionException ex)
             {
-                await mDialogService.ShowErrorDialog("Start process", ex.Message).ConfigureAwait(false);
+                await mDialogService.ShowErrorDialog("Start process", ex.Message);
             }
         }
 

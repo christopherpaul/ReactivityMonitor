@@ -12,7 +12,6 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
-            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
 
@@ -29,6 +28,7 @@
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
                     <RowDefinition Height="Auto" />
+                    <RowDefinition Height="*" />
                 </Grid.RowDefinitions>
 
                 <Grid.ColumnDefinitions>
@@ -53,6 +53,17 @@
                 <WrapPanel Grid.Row="3" Grid.ColumnSpan="3">
                     <Button Command="{Binding LaunchCommand}" Style="{StaticResource StandardButton}">_Start program</Button>
                 </WrapPanel>
+
+                <ListBox Grid.Row="4" Grid.ColumnSpan="3" ItemsSource="{Binding RecentLaunches}" SelectedItem="{Binding SelectedRecentLaunch}">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel d:DataContext="{d:DesignInstance Type=conn:LaunchInfo}">
+                                <TextBlock Text="{Binding FileName}" Style="{StaticResource ItemHeadingText}" />
+                                <TextBlock Text="{Binding Arguments}" Style="{StaticResource ItemSubText}" />
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
             </Grid>
         </GroupBox>
     </Grid>

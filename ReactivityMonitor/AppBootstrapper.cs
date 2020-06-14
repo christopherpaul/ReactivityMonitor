@@ -73,6 +73,7 @@ namespace ReactivityMonitor
             mContainer.Singleton<IDialogService, DialogService>();
             mContainer.Singleton<ICommandHandlerService, CommandHandlerService>();
             mContainer.Singleton<ISelectionService, SelectionService>();
+            mContainer.Singleton<IUserSettingsService, UserSettingsService>();
 
             // Units of work
             mContainer.Singleton<IWorkspaceFactory, WorkspaceFactory>();

@@ -41,6 +41,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows" />
@@ -176,8 +177,11 @@
     <Compile Include="Services\IDialogService.cs" />
     <Compile Include="Services\IDialogViewModel.cs" />
     <Compile Include="Services\ISelectionService.cs" />
+    <Compile Include="Services\IUserSettingsService.cs" />
     <Compile Include="Services\Selection.cs" />
     <Compile Include="Services\SelectionService.cs" />
+    <Compile Include="Services\UserSettingsService.cs" />
+    <Compile Include="SettingsDto\LaunchMruEntry.cs" />
     <Compile Include="ShellViewModel.cs" />
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
@@ -312,6 +316,9 @@
     <PackageReference Include="DynamicData" Version="6.13.21" />
     <PackageReference Include="Microsoft.Xaml.Behaviors.Wpf">
       <Version>1.1.19</Version>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>12.0.3</Version>
     </PackageReference>
     <PackageReference Include="ReactiveUI" Version="10.5.31" />
     <PackageReference Include="ReactiveUI.WPF" Version="10.5.31" />
